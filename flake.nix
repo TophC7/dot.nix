@@ -3,9 +3,13 @@
 
   inputs = {
     nixpkgs.url = "nixpkgs/nixos-unstable";
+    nextcloud29 = {
+      url = "github:nix-unstable/nextcloud";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs, home-manager, ... }:
+  outputs = { self, nixpkgs, nextcloud29, ... }:
     let
       system = "x86_64-linux";
       lib = nixpkgs.lib;
@@ -15,6 +19,12 @@
         nix = lib.nixosSystem {
           inherit system;
           modules = [ ./nixos/configuration.nix ];
+        };
+      };
+      nixosConfigurations = {
+        nix = lib.nixosSystem {
+          inherit system;
+          modules = [ ./nextcloud/nextcloud.nix ];
         };
       };
     };
