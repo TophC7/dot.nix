@@ -1,6 +1,7 @@
 { modulesPath, config, pkgs, ... }:
 let
   hostname = "cloud";
+  user = "toph";
   password = "[REDACTED]";
   timeZone = "America/New_York";
   defaultLocale = "en_US.UTF-8";
@@ -44,13 +45,27 @@ in {
   # USERS
   users = {
     mutableUsers = false;
-    users.root = {
+    users."${user}" = {
+      isNormalUser = true;
       password = password;
+      extraGroups = [ "wheel" ];
+      shell = pkgs.fish;
       openssh.authorizedKeys.keys = [
         "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIClZstYoT64zHnGfE7LMYNiQPN5/gmCt382lC+Ji8lrH PVE"
         ];
     };
   };
+
+  # Enable passwordless sudo.
+  security.sudo.extraRules= [
+    {  users = [ user ];
+      commands = [
+        { command = "ALL" ;
+          options= [ "NOPASSWD" ];
+        }
+      ];
+    }
+  ];
 
   # SYSTEM PACKAGES
   environment.systemPackages = with pkgs; [
@@ -64,6 +79,11 @@ in {
 
   # PROGRAMS & SERVICES
   programs.ssh.startAgent = true;
+  services.nextcloud = import ../nextcloud/nextcloud.nix { inherit pkgs config; }; 
+
+  # Shells
+  environment.shells = with pkgs; [ bash fish ];
+  programs.fish.enable = true;
 
   # OpenSSH service configuration.
   services.openssh = {
@@ -72,7 +92,7 @@ in {
       AllowUsers = null; # everyone
       PasswordAuthentication = false;
       KbdInteractiveAuthentication = false;
-      PermitRootLogin = "yes";
+      PermitRootLogin = "no";
     };
   };
 
