@@ -86,6 +86,7 @@ in {
   # SYSTEM PACKAGES
   environment.systemPackages = with pkgs; [
     git
+    mergerfs
     micro
     openssh
     ranger
