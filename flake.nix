@@ -13,7 +13,10 @@
     let
       system = "x86_64-linux";
       lib = nixpkgs.lib;
-      pkgs = nixpkgs.legacyPackages.${system};
+      pkgs = import nixpkgs {
+        inherit system;
+        overlays = [ (import ./overlays) ];
+      };
     in {
       nixosConfigurations = {
         cloud = lib.nixosSystem {
