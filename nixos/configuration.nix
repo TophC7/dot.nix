@@ -1,7 +1,7 @@
 { modulesPath, config, pkgs, ... }:
 let
   hostname = "cloud";
-  user = "toph";
+  admin = "toph";
   password = "[REDACTED]";
   timeZone = "America/New_York";
   defaultLocale = "en_US.UTF-8";
@@ -19,6 +19,9 @@ in {
   
   # NETWORKING
   networking = {
+    firewall = {
+      allowedTCPPorts = [ 80 443 ];
+    };
     dhcpcd.enable = false;
     hostName = hostname;
     networkmanager.enable = true;
@@ -38,6 +41,11 @@ in {
     };
   };
 
+  security.acme = {
+    acceptTerms = true;
+    defaults.email = "chris@toph.cc";
+  };
+
   # LOCALE
   time.timeZone = timeZone;
   i18n.defaultLocale = defaultLocale;
@@ -45,20 +53,28 @@ in {
   # USERS
   users = {
     mutableUsers = false;
-    users."${user}" = {
-      isNormalUser = true;
-      password = password;
-      extraGroups = [ "wheel" ];
-      shell = pkgs.fish;
-      openssh.authorizedKeys.keys = [
-        "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIClZstYoT64zHnGfE7LMYNiQPN5/gmCt382lC+Ji8lrH PVE"
-        ];
+    users ={
+      "${admin}" = {
+        isNormalUser = true;
+        createHome = true;
+        homeMode = "750";
+        home = "/home/${admin}";
+        password = password;
+        extraGroups = [ "wheel" ];
+        shell = pkgs.fish;
+        openssh.authorizedKeys.keys = [
+          "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIClZstYoT64zHnGfE7LMYNiQPN5/gmCt382lC+Ji8lrH PVE"
+          ];
+      };
+
+      nextcloud.extraGroups = [ "users" "root" "wheel" ];
+      nextcloud.homeMode = "750";
     };
   };
 
   # Enable passwordless sudo.
   security.sudo.extraRules= [
-    {  users = [ user ];
+    {  users = [ admin ];
       commands = [
         { command = "ALL" ;
           options= [ "NOPASSWD" ];
@@ -79,7 +95,13 @@ in {
 
   # PROGRAMS & SERVICES
   programs.ssh.startAgent = true;
-  services.nextcloud = import ../nextcloud/nextcloud.nix { inherit pkgs config; }; 
+
+  # Nextcloud
+  environment.etc."nextcloud-admin-pass".text = "snYBkSxkFZ6a7Y";
+  services.nextcloud = import ./imports/nextcloud.nix { inherit pkgs config; };
+  
+  # Nginx
+  services.nginx = import ./imports/nginx.nix;
 
   # Shells
   environment.shells = with pkgs; [ bash fish ];
