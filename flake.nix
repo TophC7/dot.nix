@@ -15,7 +15,7 @@
       lib = nixpkgs.lib;
       pkgs = import nixpkgs {
         inherit system;
-        overlays = [ (import ./overlays) ];
+        overlays = [ (import ./nixos/overlays) ];
       };
     in {
       nixosConfigurations = {
