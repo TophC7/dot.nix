@@ -1,45 +1,50 @@
 { config, pkgs, ... }:
 
 {
-  enable = true;
-  hostName = "cloud.ryot.foo";
+  # The Nextcloud admin password is stored in a separate file to avoid
+  environment.etc."nextcloud-admin-pass".text = builtins.readFile ./nextcloud-admin-pass;
 
-  # Need to manually increment with every major upgrade.
-  package = pkgs.nextcloud29;
+  services.nextcloud = { 
+    enable = true;
+    hostName = "cloud.ryot.foo";
 
-  # Let NixOS install and configure the database automatically.
-  database.createLocally = true;
+    # Need to manually increment with every major upgrade.
+    package = pkgs.nextcloud29;
 
-  # Let NixOS install and configure Redis caching automatically.
-  configureRedis = true;
+    # Let NixOS install and configure the database automatically.
+    database.createLocally = true;
 
-  # Increase the maximum file upload size to avoid problems uploading videos.
-  maxUploadSize = "16G";
-  https = true;
+    # Let NixOS install and configure Redis caching automatically.
+    configureRedis = true;
 
-  autoUpdateApps.enable = true;
-  extraAppsEnable = true;
-  extraApps = with config.services.nextcloud.package.packages.apps; {
-    # https://github.com/NixOS/nixpkgs/blob/master/pkgs/servers/nextcloud/packages/nextcloud-apps.json
-    inherit calendar contacts mail notes tasks;
-    # inherit calendar contacts mail notes onlyoffice tasks;
+    # Increase the maximum file upload size to avoid problems uploading videos.
+    maxUploadSize = "16G";
+    https = true;
 
-    # Custom app installation example.
-    # cookbook = pkgs.fetchNextcloudApp rec {
-    #   url =
-    #     "https://github.com/nextcloud/cookbook/releases/download/v0.10.2/Cookbook-0.10.2.tar.gz";
-    #   sha256 = "sha256-XgBwUr26qW6wvqhrnhhhhcN4wkI+eXDHnNSm1HDbP6M=";
-    # };
-  };
+    autoUpdateApps.enable = true;
+    extraAppsEnable = true;
+    extraApps = with config.services.nextcloud.package.packages.apps; {
+      # https://github.com/NixOS/nixpkgs/blob/master/pkgs/servers/nextcloud/packages/nextcloud-apps.json
+      inherit calendar contacts mail notes tasks;
+      # inherit calendar contacts mail notes onlyoffice tasks;
 
-  settings = {
-    overwriteProtocol = "https";
-    default_phone_region = "US";
-  };
+      # Custom app installation example.
+      # cookbook = pkgs.fetchNextcloudApp rec {
+      #   url =
+      #     "https://github.com/nextcloud/cookbook/releases/download/v0.10.2/Cookbook-0.10.2.tar.gz";
+      #   sha256 = "sha256-XgBwUr26qW6wvqhrnhhhhcN4wkI+eXDHnNSm1HDbP6M=";
+      # };
+    };
 
-  config = {
-    dbtype = "pgsql";
-    adminuser = "admin";
-    adminpassFile = "/etc/nextcloud-admin-pass";
+    settings = {
+      overwriteProtocol = "https";
+      default_phone_region = "US";
+    };
+
+    config = {
+      dbtype = "pgsql";
+      adminuser = "admin";
+      adminpassFile = "/etc/nextcloud-admin-pass";
+    };
   };
 }
