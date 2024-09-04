@@ -1,30 +1,31 @@
 { pkgs, ... }:
 
 {  
-  home.username = "toph";
-  home.homeDirectory = "/home/toph";
-  home.stateVersion = "24.05";
+  home = {
+    username = "toph";
+    homeDirectory = "/home/toph";
+    stateVersion = "24.05";
+    # Packages
+    packages = with pkgs; [
+      fastfetch
+      fish
+      fishPlugins.grc
+      fishPlugins.tide
+      grc
+    ];
 
-  # Packages
-  home.packages = with pkgs; [
-    fastfetch
-    fish
-    fishPlugins.grc
-    fishPlugins.tide
-    grc
-  ];
+    file = {
+      # ".config" = {
+      #   recursive = true;
+      #   source = ../.config;
+      # };
+    };
 
-  home.file = {
-    # ".config" = {
-    #   recursive = true;
-    #   source = ../.config;
-    # };
-  };
-
-  home.sessionVariables = {
-    EDITOR = "micro";
-    VISUAL = "micro";
-    XDG_CONFIG_HOME = "$HOME/.config";
+    sessionVariables = {
+      EDITOR = "micro";
+      VISUAL = "micro";
+      XDG_CONFIG_HOME = "$HOME/.config";
+    };
   };
 
   # Programs and Services
