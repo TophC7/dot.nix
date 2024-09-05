@@ -1,2 +1,2 @@
 
-nixos/imports/nextcloud-admin-pass
+nixos/modules/nextcloud/nextcloud-admin-pass

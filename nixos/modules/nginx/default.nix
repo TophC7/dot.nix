@@ -1,11 +1,4 @@
 {
-    # letsencrypt this wont do shit but allows things to work
-    # i take care of this on dockge lxc
-    security.acme = {
-        acceptTerms = true;
-        defaults.email = "chris@toph.cc";
-    };
-
     # Nginx
     services.nginx = {
 

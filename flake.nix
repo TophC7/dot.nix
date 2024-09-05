@@ -21,13 +21,15 @@
       nixosConfigurations = {
         cloud = lib.nixosSystem {
           inherit system;
-          modules = [ ./nixos/configuration.nix ];
+          modules = [ 
+            ./nixos
+            ];
         };
       };
       homeConfigurations = {
           toph = home-manager.lib.homeManagerConfiguration {
             inherit pkgs;
-            modules = [ ./home-manager/home.nix ];
+            modules = [ ./home-manager ];
           };
       };
     };

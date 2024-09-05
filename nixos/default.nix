@@ -10,15 +10,18 @@ in {
     [
       # Include the default lxc/lxd configuration.
       "${modulesPath}/virtualisation/lxc-container.nix"
-
-      # Nginx
-      ./imports/nginx.nix
-      # Nextcloud
-      ./imports/nextcloud.nix
-      # Snapraid-runner
-      ./imports/snapraid.nix
       # Import hardware configuration.
       ./hardware-configuration.nix
+      
+      # Module imports
+      # ACME
+      ./modules/acme
+      # Nextcloud
+      ./modules/nextcloud
+      # Nginx
+      ./modules/nginx
+      # Snapraid-runner
+      ./modules/snapraid
     ];
 
   # OVERLAYS for custom packages.
