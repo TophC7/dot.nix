@@ -16,11 +16,11 @@
         # Setup Nextcloud virtual host to listen on ports
         virtualHosts = {
 
-        "cloud.ryot.foo" = {
-            ## Force HTTP redirect to HTTPS
-            forceSSL = true;
-            ## LetsEncrypt
-            enableACME = true;
+            "cloud.ryot.foo" = {
+                ## Force HTTP redirect to HTTPS
+                forceSSL = true;
+                ## LetsEncrypt
+                enableACME = true;
             };
         };
     };

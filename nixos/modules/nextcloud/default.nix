@@ -18,7 +18,7 @@
     configureRedis = true;
 
     # Increase the maximum file upload size to avoid problems uploading videos.
-    maxUploadSize = "16G";
+    maxUploadSize = "5G";
     https = true;
 
     autoUpdateApps.enable = true;
@@ -38,6 +38,8 @@
 
     settings = {
       overwriteProtocol = "https";
+      overwritehost = "cloud.ryot.foo";
+      trusted_domains = [ "cloud.ryot.foo" ];
       default_phone_region = "US";
     };
 
