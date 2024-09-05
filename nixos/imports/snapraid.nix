@@ -1,12 +1,46 @@
 { pkgs, ... }:
 
 {
-    environment.etc."snapraid-runner.conf".text = builtins.readFile ../pkgs/snapraid-runner/snapraid-runner.conf;
+    
     environment.etc."snapraid.conf".text = builtins.readFile ./snapraid.conf;
+    environment.etc."snapraid-runner.conf".text = ''
+        [snapraid]
+        executable = ${pkgs.snapraid}/bin/snapraid
+        config = /etc/snapraid.conf
+        deletethreshold = 40
+        touch = false
 
-    # Enable the SnapRAID service
-    # services.snapraid = {
-    #     enable = true;
-    #     configFile = "/etc/snapraid.conf";
-    # };
+        [logging]
+        file = /var/log/snapraid-runner.log
+        maxsize = 5000
+
+        [email]
+        sendon = 
+        short = true
+        subject = [SnapRAID] Status Report:
+        from = cloud@ryot.foo
+        to = [REDACTED]
+        maxsize = 500
+
+        [smtp]
+        host = ryot.foo
+        port =
+        ssl = true
+        tls = true
+        user = admin
+        password = [REDACTED]
+
+        [scrub]
+        enabled = true
+        plan = 12
+        older-than = 10
+    '';
+
+    services.cron = {
+        enable = true;
+        systemCronJobs = [
+        # Runs snapraid-runner every day at 3am
+        "0 3 * * *      root    snapraid-runner"
+        ];
+    };
 }
