@@ -1,19 +1,26 @@
 { modulesPath, config, pkgs, ... }:
+
 let
+
   hostname = "cloud";
   admin = "toph";
   password = "[REDACTED]";
   timeZone = "America/New_York";
   defaultLocale = "en_US.UTF-8";
+
 in {
+  
+  ## MODULES & IMPORTS ##
+
   imports =
-    [
+    [ 
       # Include the default lxc/lxd configuration.
       "${modulesPath}/virtualisation/lxc-container.nix"
       # Import hardware configuration.
       ./hardware-configuration.nix
       
       # Module imports
+
       # ACME
       ./modules/acme
       # Nextcloud
@@ -22,12 +29,11 @@ in {
       ./modules/nginx
       # Snapraid-runner
       ./modules/snapraid
+      # SSH
+      ./modules/ssh
     ];
 
-  # OVERLAYS for custom packages.
-  nixpkgs.overlays = [ (import ./overlays) ];
-
-  # NETWORKING
+  ## NETWORKING ##
   networking = {
     firewall = {
       allowedTCPPorts = [ 80 443 ];
@@ -51,14 +57,14 @@ in {
     };
   };
 
-  # LOCALE
+  ## TIMEZONE & LOCALE ##
   time.timeZone = timeZone;
   i18n.defaultLocale = defaultLocale;
 
-  # USERS
+  ## USERS ##
   users = {
     mutableUsers = false;
-    users ={
+    users = {
       "${admin}" = {
         isNormalUser = true;
         createHome = true;
@@ -77,7 +83,7 @@ in {
     };
   };
 
-  # Enable passwordless sudo.
+  # INFO: Enable passwordless sudo.
   security.sudo.extraRules= [
     {  users = [ admin ];
       commands = [
@@ -88,7 +94,9 @@ in {
     }
   ];
 
-  # SYSTEM PACKAGES
+  ## PACKAGES ##
+
+  nixpkgs.overlays = [ (import ./overlays) ];
   environment.systemPackages = with pkgs; [
     git
     mergerfs
@@ -101,34 +109,13 @@ in {
     wget 
   ];
 
-  # PROGRAMS & SERVICES
-  programs.ssh.startAgent = true;
-
+  ## PROGRAMS & SERVICES ##
+  
   # Shells
   environment.shells = with pkgs; [ bash fish ];
   programs.fish.enable = true;
 
-  # OpenSSH service configuration.
-  services.openssh = {
-    enable = true;
-    settings = {
-      AllowUsers = null; # everyone
-      PasswordAuthentication = false;
-      KbdInteractiveAuthentication = false;
-      PermitRootLogin = "no";
-    };
-  };
-
-  # Enable sound.
-  # hardware.pulseaudio.enable = true;
-  # OR
-  # services.pipewire = {
-  #   enable = true;
-  #   pulse.enable = true;
-  # };
-
-  # Enable touchpad support (enabled default in most desktopManager).
-  # services.libinput.enable = true;
+  ## NIXOS ##
 
   # LXC specific configuration
   # Supress systemd units that don't work because of LXC.
@@ -139,14 +126,8 @@ in {
     "sys-fs-fuse-connections.mount"
   ];
 
-  # Copy the NixOS configuration file and link it from the resulting system
-  # (/run/current-system/configuration.nix). This is useful in case you
-  # accidentally delete configuration.nix.
-  # system.copySystemConfiguration = true;
-
   # This value determines the NixOS release with which your system is to be
   system.stateVersion = "24.11";
-
   # Enable Flakes
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 }
