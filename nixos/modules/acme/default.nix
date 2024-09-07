@@ -1,10 +1,17 @@
-{
-    # TODO: find out how to add the certs from my nginx doxker since this jurs errors always
-
-    # letsencrypt this wont do shit but allows things to work
-    # i take care of this on dockge lxc
+{ config, lib, pkgs, ... }: {
+    
+    # letsencrypt 
     security.acme = {
         acceptTerms = true;
-        defaults.email = "chris@toph.cc";
+        defaults = {
+            email = "chris@toph.cc";
+            dnsProvider = "cloudflare";
+            environmentFile = ./cloudflare.ini;
+        };
+        certs = {
+            "ryot.foo" = {
+                extraDomainNames = ["*.ryot.foo"];
+            };
+        };
     };
 }
