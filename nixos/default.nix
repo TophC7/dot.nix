@@ -23,6 +23,10 @@ in {
 
       # ACME
       ./modules/acme
+      # cron
+      ./modules/cron
+      # Logrotate
+      ./modules/logrotate
       # Nextcloud
       ./modules/nextcloud
       # Nginx

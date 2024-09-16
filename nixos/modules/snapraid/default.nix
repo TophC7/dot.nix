@@ -1,7 +1,6 @@
 { pkgs, ... }:
 
 {
-    
     environment.etc."snapraid.conf".text = builtins.readFile ./snapraid.conf;
     environment.etc."snapraid-runner.conf".text = ''
         [snapraid]
@@ -35,12 +34,4 @@
         plan = 12
         older-than = 10
     '';
-
-    services.cron = {
-        enable = true;
-        systemCronJobs = [
-        # Runs snapraid-runner every day at 3am
-        "0 3 * * *      root    snapraid-runner"
-        ];
-    };
 }

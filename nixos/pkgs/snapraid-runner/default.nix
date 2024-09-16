@@ -53,4 +53,3 @@ mkdir -p $out/bin
 ln -sf ${snapraid-runner}/bin/snapraid-runner $out/bin/snapraid-runner'';
   }; 
 }
-
