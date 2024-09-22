@@ -1,0 +1,56 @@
+{ modulesPath, config, pkgs, ... }:
+let
+
+  admin = "toph";
+  password = "[REDACTED]";
+  timeZone = "America/New_York";
+  defaultLocale = "en_US.UTF-8";
+
+in {
+  
+  ## MODULES & IMPORTS ##
+  imports = [
+      # Common Modules
+      ../../common/lxc
+      ../../common/ssh
+
+      # Import hardware configuration.
+      ./hardware.nix
+    ];
+  
+  ## NETWORKING ##
+  networking = {
+    firewall = {
+      allowedTCPPorts = [ 80 443 ];
+    };
+    dhcpcd.enable = false;
+    hostName = hostname;
+    networkmanager.enable = true;
+    useDHCP = false;
+    useHostResolvConf = false;
+  };
+
+  systemd.network = {
+    enable = true;
+    networks."50-eth0" = {
+      matchConfig.Name = "eth0";
+      networkConfig = {
+        DHCP = "ipv4";
+        IPv6AcceptRA = true;
+      };
+      linkConfig.RequiredForOnline = "routable";
+    };
+  };
+
+  ## PACKAGES ##
+  environment.systemPackages = with pkgs; [
+    git
+    micro
+    openbox
+    openssh
+    ranger
+    sshfs
+    wget
+    x2goserver
+  ];
+}

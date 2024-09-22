@@ -15,22 +15,55 @@
       lib = nixpkgs.lib;
       pkgs = import nixpkgs {
         inherit system;
-        overlays = [ (import ./nixos/overlays) ];
+        # overlays = [ (import ./nixos/overlays) ];
       };
     in {
       nixosConfigurations = {
+        caenus = lib.nixosSystem {
+          inherit system;
+          modules = [ 
+            ./nix
+            ./host/caenus
+          ];
+        };
+        
         cloud = lib.nixosSystem {
           inherit system;
           modules = [ 
-            ./nixos
-            ];
+            ./nix
+            ./host/cloud
+          ];
+        };
+        
+        dockge = lib.nixosSystem {
+          inherit system;
+          modules = [ 
+            ./nix
+            ./host/dockge
+          ];
+        };
+        
+        nix = lib.nixosSystem {
+          inherit system;
+          modules = [ 
+            ./nix
+            ./host/nix
+          ];
+        };
+        
+        proxy = lib.nixosSystem {
+          inherit system;
+          modules = [ 
+            ./nix
+            ./host/proxy
+          ];
         };
       };
       homeConfigurations = {
-          toph = home-manager.lib.homeManagerConfiguration {
-            inherit pkgs;
-            modules = [ ./home-manager ];
-          };
+        toph = home-manager.lib.homeManagerConfiguration {
+          inherit pkgs;
+          modules = [ ./home-manager ];
+        };
       };
     };
 }

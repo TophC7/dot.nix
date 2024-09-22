@@ -1,7 +1,5 @@
 {
-  # Treats the system as a container.
-  boot.isContainer = true;
-
+  # for sshfs 
   programs.fuse.userAllowOther = true;
 
   fileSystems = {
@@ -17,7 +15,4 @@
       options = ["bind" "nofail"];
     };
   };
-
-  # Set your system kind (needed for flakes)
-  nixpkgs.hostPlatform = "x86_64-linux";
 }
