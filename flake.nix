@@ -60,9 +60,39 @@
         };
       };
       homeConfigurations = {
-        toph = home-manager.lib.homeManagerConfiguration {
+        "toph@caenus" = home-manager.lib.homeManagerConfiguration {
           inherit pkgs;
+          hostName = "caenus";
           modules = [ ./home-manager ];
+          specialArgs = { inherit hostName; };
+        };
+
+        "toph@cloud" = home-manager.lib.homeManagerConfiguration {
+          inherit pkgs;
+          hostName = "cloud";
+          modules = [ ./home-manager ];
+          specialArgs = { inherit hostName; };
+        };
+
+        "toph@dockge" = home-manager.lib.homeManagerConfiguration {
+          inherit pkgs;
+          hostName = "dockge";
+          modules = [ ./home-manager ];
+          specialArgs = { inherit hostName; };
+        };
+
+        "toph@nix" = home-manager.lib.homeManagerConfiguration {
+          inherit pkgs;
+          hostName = "nix";
+          modules = [ ./home-manager ];
+          specialArgs = { inherit hostName; };
+        };
+        
+        "toph@proxy" = home-manager.lib.homeManagerConfiguration {
+          inherit pkgs;
+          hostName = "proxy";
+          modules = [ ./home-manager ];
+          specialArgs = { inherit hostName; };
         };
       };
     };
