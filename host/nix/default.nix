@@ -1,10 +1,7 @@
 { modulesPath, config, pkgs, ... }:
 let
 
-  admin = "toph";
-  password = "[REDACTED]";
-  timeZone = "America/New_York";
-  defaultLocale = "en_US.UTF-8";
+  hostname = "nix";
 
 in {
   
@@ -53,4 +50,10 @@ in {
     wget
     x2goserver
   ];
+
+  ## VS CODE ##
+  programs.nix-ld = {
+    enable = true;
+    package = pkgs.nix-ld-rs;
+  };
 }
