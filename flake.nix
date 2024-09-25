@@ -9,91 +9,86 @@
     };
   };
 
-  outputs = { self, nixpkgs, home-manager, ... }:
-    let
-      system = "x86_64-linux";
+  outputs = { self, nixpkgs, home-manager, ... }: let
+      ARM = "aarch64-linux"; # ARM systems
+      X86 = "x86_64-linux"; # x86_64 systems
       lib = nixpkgs.lib;
-      pkgs = import nixpkgs {
-        inherit system;
-        # overlays = [ (import ./nixos/overlays) ];
-      };
     in {
-      nixosConfigurations = {
-        caenus = lib.nixosSystem {
-          inherit system;
-          modules = [ 
-            ./nix
-            ./host/caenus
-          ];
-        };
-        
-        cloud = lib.nixosSystem {
-          inherit system;
-          modules = [ 
-            ./nix
-            ./host/cloud
-          ];
-        };
-        
-        dockge = lib.nixosSystem {
-          inherit system;
-          modules = [ 
-            ./nix
-            ./host/dockge
-          ];
-        };
-        
-        nix = lib.nixosSystem {
-          inherit system;
-          modules = [ 
-            ./nix
-            ./host/nix
-          ];
-        };
-        
-        proxy = lib.nixosSystem {
-          inherit system;
-          modules = [ 
-            ./nix
-            ./host/proxy
-          ];
-        };
+    nixosConfigurations = {
+      caenus = lib.nixosSystem {
+        system = ARM;
+        modules = [ 
+          ./nix
+          ./host/caenus
+        ];
       };
-      homeConfigurations = {
-        "toph@caenus" = home-manager.lib.homeManagerConfiguration {
-          inherit pkgs;
-          hostName = "caenus";
-          modules = [ ./home-manager ];
-          specialArgs = { inherit hostName; };
-        };
-
-        "toph@cloud" = home-manager.lib.homeManagerConfiguration {
-          inherit pkgs;
-          hostName = "cloud";
-          modules = [ ./home-manager ];
-          specialArgs = { inherit hostName; };
-        };
-
-        "toph@dockge" = home-manager.lib.homeManagerConfiguration {
-          inherit pkgs;
-          hostName = "dockge";
-          modules = [ ./home-manager ];
-          specialArgs = { inherit hostName; };
-        };
-
-        "toph@nix" = home-manager.lib.homeManagerConfiguration {
-          inherit pkgs;
-          hostName = "nix";
-          modules = [ ./home-manager ];
-          specialArgs = { inherit hostName; };
-        };
-        
-        "toph@proxy" = home-manager.lib.homeManagerConfiguration {
-          inherit pkgs;
-          hostName = "proxy";
-          modules = [ ./home-manager ];
-          specialArgs = { inherit hostName; };
-        };
+    
+      cloud = lib.nixosSystem {
+        system = X86;
+        modules = [ 
+          ./nix
+          ./host/cloud
+        ];
+      };
+      
+      dockge = lib.nixosSystem {
+        system = X86;
+        modules = [ 
+          ./nix
+          ./host/dockge
+        ];
+      };
+      
+      nix = lib.nixosSystem {
+        system = X86;
+        modules = [ 
+          ./nix
+          ./host/nix
+        ];
+      };
+      
+      proxy = lib.nixosSystem {
+        system = X86;
+        modules = [ 
+          ./nix
+          ./host/proxy
+        ];
       };
     };
+
+    homeConfigurations = let
+        armPkgs = import nixpkgs {
+          system = ARM;
+        };
+        x86Pkgs = import nixpkgs {
+          system = X86;
+          # overlays = [ (import ./nixos/overlays) ];
+        };
+      in {
+      "toph@caenus" = home-manager.lib.homeManagerConfiguration {
+        pkgs = armPkgs;
+        modules = [ ./home ];
+      };
+
+      "toph@cloud" = home-manager.lib.homeManagerConfiguration {
+        pkgs = x86Pkgs;
+        modules = [ ./home ];
+      };
+
+      "toph@dockge" = home-manager.lib.homeManagerConfiguration {
+        pkgs = x86Pkgs;
+        modules = [ ./home ];
+      };
+
+      "toph@nix" = home-manager.lib.homeManagerConfiguration {
+        pkgs = x86Pkgs;
+        modules = [ ./home ];
+      };
+      
+      "toph@proxy" = home-manager.lib.homeManagerConfiguration {
+        pkgs = x86Pkgs;
+        modules = [ ./home ];
+      };
+    };
+  };
 }
