@@ -39,7 +39,7 @@ in {
     };
   };
 
-  ## PACKAGES ##
+  ## ENVIORMENT & PACKAGES ##
   environment.systemPackages = with pkgs; [
     git
     micro
@@ -50,6 +50,10 @@ in {
     wget
     x2goserver
   ];
+
+  environment.variables = {
+    HOSTNAME = hostname;
+  };
 
   ## VS CODE ##
   programs.nix-ld = {

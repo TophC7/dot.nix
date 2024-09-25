@@ -43,7 +43,7 @@ in {
     };
   };
 
-  ## PACKAGES ##
+  ## ENVIORMENT & PACKAGES ##
   environment.systemPackages = with pkgs; [
     git
     micro
@@ -52,4 +52,8 @@ in {
     sshfs
     wget
   ];
+
+  environment.variables = {
+    HOSTNAME = hostname;
+  };
 }

@@ -3,10 +3,6 @@
 let
 
   hostname = "proxy";
-  admin = "toph";
-  password = "[REDACTED]";
-  timeZone = "America/New_York";
-  defaultLocale = "en_US.UTF-8";
 
 in {
 
@@ -50,7 +46,7 @@ in {
     };
   };
 
-  ## PACKAGES ##
+  ## ENVIORMENT & PACKAGES ##
   environment.systemPackages = with pkgs; [
     git
     micro
@@ -58,4 +54,8 @@ in {
     ranger
     sshfs
   ];
+
+  environment.variables = {
+    HOSTNAME = hostname;
+  };
 }

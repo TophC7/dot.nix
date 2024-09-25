@@ -55,7 +55,7 @@ in {
     };
   };
 
-  ## PACKAGES ##
+  ## ENVIORMENT & PACKAGES ##
   nixpkgs.overlays = [ (import ./overlays) ];
   environment.systemPackages = with pkgs; [
     git
@@ -68,4 +68,8 @@ in {
     snapraid-runner 
     wget 
   ];
+  
+  environment.variables = {
+    HOSTNAME = hostname;
+  };
 }

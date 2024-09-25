@@ -1,11 +1,15 @@
+{ lib, pkgs, osConfig, ... }:
 {
-    programs.fastfetch = {
+    programs.fastfetch = let
+            # TODO: move home mnager out of standalone so i dont need so use --impure for this
+            hostname = builtins.getEnv "HOSTNAME";
+            logoFile = ./. + "/host/${hostname}.txt";
+        in {
         enable = true;
         settings = {
             logo = {
                 # Created with Chafa
-                # chafa -s 26x13 -w 9 --symbols vhalf --view-size 26x13 cloud.png > cloud.txt
-                source = builtins.readFile ./cloud.txt;
+                source = builtins.readFile logoFile;
                 type = "data";
                 position = "left";
                 padding = {
