@@ -4,6 +4,7 @@
   imports = [
     # Common Modules
       ../../../common/home
+      ../../../common/git
   ];
 
   home.packages = with pkgs; [
