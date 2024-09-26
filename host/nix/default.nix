@@ -43,11 +43,8 @@ in {
   environment.systemPackages = with pkgs; [
     git
     micro
-    nodejs_22
     openbox
     openssh
-    pnpm
-    prettierd
     ranger
     sshfs
     wget

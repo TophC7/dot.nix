@@ -1,32 +1,18 @@
-{ pkgs, ... }:
+{ pkgs, hostName, ... }:
 {  
   # Module imports
   imports = [
-    ./modules/fastfetch
-    ./modules/fish
+    # Common Modules
+      ../fish
+      ../fastfetch
   ];
 
   home = {
     username = "toph";
     homeDirectory = "/home/toph";
     stateVersion = "24.05";
-    # Packages
-    packages = with pkgs; [
-      fastfetch
-      fish
-      fishPlugins.grc
-      fishPlugins.tide
-      grc
-    ];
-
-    # file = {
-    #   ".config" = {
-    #     recursive = true;
-    #     source = ../.config;
-    #   };
-    # };
-
     sessionVariables = {
+      HOSTNAME = hostName;
       EDITOR = "micro";
       VISUAL = "micro";
       XDG_CONFIG_HOME = "$HOME/.config";

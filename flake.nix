@@ -67,29 +67,54 @@
           # overlays = [ (import ./nixos/overlays) ];
         };
       in {
-      "toph@caenus" = home-manager.lib.homeManagerConfiguration {
-        pkgs = armPkgs;
-        modules = [ ./home ];
+      "toph@caenus" = let
+          hostName = "caenus";
+          pkgs = armPkgs;
+          home = ./. + "/host/${hostName}/home"; 
+      in home-manager.lib.homeManagerConfiguration {
+        inherit pkgs;
+        extraSpecialArgs = { inherit hostName; };  
+        modules = [ home ];
       };
 
-      "toph@cloud" = home-manager.lib.homeManagerConfiguration {
-        pkgs = x86Pkgs;
-        modules = [ ./home ];
+      "toph@cloud" = let
+          hostName = "cloud";
+          pkgs = x86Pkgs;
+          home = ./. + "/host/${hostName}/home"; 
+      in home-manager.lib.homeManagerConfiguration {
+        inherit pkgs;
+        extraSpecialArgs = { inherit hostName; };  
+        modules = [ home ];
       };
 
-      "toph@dockge" = home-manager.lib.homeManagerConfiguration {
-        pkgs = x86Pkgs;
-        modules = [ ./home ];
+      "toph@dockge" = let
+          hostName = "dockge";
+          pkgs = x86Pkgs;
+          home = ./. + "/host/${hostName}/home"; 
+      in home-manager.lib.homeManagerConfiguration {
+        inherit pkgs;
+        extraSpecialArgs = { inherit hostName; };  
+        modules = [ home ];
       };
 
-      "toph@nix" = home-manager.lib.homeManagerConfiguration {
-        pkgs = x86Pkgs;
-        modules = [ ./home ];
+      "toph@nix" = let
+          hostName = "nix";
+          pkgs = x86Pkgs;
+          home = ./. + "/host/${hostName}/home"; 
+      in home-manager.lib.homeManagerConfiguration {
+        inherit pkgs;
+        extraSpecialArgs = { inherit hostName; };  
+        modules = [ home ];
       };
       
-      "toph@proxy" = home-manager.lib.homeManagerConfiguration {
-        pkgs = x86Pkgs;
-        modules = [ ./home ];
+      "toph@proxy" = let
+          hostName = "proxy";
+          pkgs = x86Pkgs;
+          home = ./. + "/host/${hostName}/home"; 
+      in home-manager.lib.homeManagerConfiguration {
+        inherit pkgs;
+        extraSpecialArgs = { inherit hostName; };  
+        modules = [ home ];
       };
     };
   };

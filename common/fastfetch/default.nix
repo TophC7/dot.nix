@@ -1,8 +1,7 @@
-{ lib, pkgs, osConfig, ... }:
+{ lib, pkgs, config, ... }:
 {
     programs.fastfetch = let
-            # TODO: move home mnager out of standalone so i dont need so use --impure for this
-            hostname = builtins.getEnv "HOSTNAME";
+            hostname = config.home.sessionVariables.HOSTNAME;
             logoFile = ./. + "/host/${hostname}.txt";
         in {
         enable = true;
