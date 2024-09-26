@@ -43,13 +43,20 @@ in {
   environment.systemPackages = with pkgs; [
     git
     micro
+    nodejs_22
     openbox
     openssh
+    pnpm
+    prettierd
     ranger
     sshfs
     wget
     x2goserver
   ];
+  
+  programs.java = { 
+    enable = true;
+    package = pkgs.jdk; };
 
   environment.variables = {
     HOSTNAME = hostname;

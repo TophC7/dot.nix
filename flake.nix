@@ -59,9 +59,11 @@
     homeConfigurations = let
         armPkgs = import nixpkgs {
           system = ARM;
+          config.allowUnfree = true;
         };
         x86Pkgs = import nixpkgs {
           system = X86;
+          config.allowUnfree = true;
           # overlays = [ (import ./nixos/overlays) ];
         };
       in {
