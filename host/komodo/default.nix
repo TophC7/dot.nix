@@ -1,4 +1,4 @@
-{ modulesPath, config, pkgs, hostName ... }:
+{ modulesPath, config, pkgs, hostName, ... }:
 {
   ## MODULES & IMPORTS ##
   imports = [ 

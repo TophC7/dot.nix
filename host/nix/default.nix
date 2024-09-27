@@ -1,4 +1,4 @@
-{ modulesPath, config, pkgs, hostName ... }:
+{ modulesPath, config, pkgs, hostName, ... }:
 {
   ## MODULES & IMPORTS ##
   imports = [
@@ -34,7 +34,7 @@
     package = pkgs.jdk; };
 
   environment.variables = {
-    HOSTNAME = hostname;
+    HOSTNAME = hostName;
   };
 
   ## VS CODE ##

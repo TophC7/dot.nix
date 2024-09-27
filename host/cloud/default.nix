@@ -1,4 +1,4 @@
-{ modulesPath, config, pkgs, hostName ... }:
+{ modulesPath, config, pkgs, hostName, ... }:
 {
   ## MODULES & IMPORTS ##
   imports = [ 
@@ -45,6 +45,6 @@
   ];
   
   environment.variables = {
-    HOSTNAME = hostname;
+    HOSTNAME = hostName;
   };
 }
