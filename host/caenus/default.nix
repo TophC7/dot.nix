@@ -1,11 +1,5 @@
-{ modulesPath, config, pkgs, ... }:
-
-let
-
-  hostname = "caenus";
-
-in {
-  
+{ modulesPath, config, pkgs, hostName ... }:
+{
   ## MODULES & IMPORTS ##
 
   imports =
@@ -24,27 +18,9 @@ in {
   boot.loader.efi.canTouchEfiVariables = true;
   
   ## NETWORKING ##
-  networking = {
-    firewall = {
-      allowedTCPPorts = [ 22 80 443 4040 ];
-      allowedUDPPorts = [ 25565 4040 ];
-    };
-    dhcpcd.enable = false;
-    hostName = hostname;
-    networkmanager.enable = true;
-    useHostResolvConf = false;
-  };
-
-  systemd.network = {
-    enable = true;
-    networks."50-enp0s6" = {
-      matchConfig.Name = "enp0s6";
-      networkConfig = {
-        DHCP = "yes";
-        IPv6AcceptRA = true;
-      };
-      linkConfig.RequiredForOnline = "routable";
-    };
+  networking.firewall = {
+    allowedTCPPorts = [ 22 80 443 4040 ];
+    allowedUDPPorts = [ 25565 4040 ];
   };
 
   ## ENVIORMENT & PACKAGES ##

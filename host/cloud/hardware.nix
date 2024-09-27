@@ -9,6 +9,12 @@
       options = ["direct_io" "defaults" "allow_other" "minfreespace=50G" "fsname=mergerfs" "category.create=mfs" "nonempty"];
     };
 
+    "/home/toph/git" = {
+        fsType = "none";
+        device = "/pool/git";
+        options = ["bind" "nofail"];
+    };
+
     "/var/lib/nextcloud" = {
       fsType = "none";
       device = "/pool/NextCloud";

@@ -52,6 +52,9 @@ in {
     };
 
     ## NIXOS ##
+    systemd.tmpfiles.rules = [
+        "d /home/toph/git 0750 toph users -" 
+    ];
     # forces interfaces to be named predictably 
     # This value determines the NixOS release with which your system is to be
     system.stateVersion = "24.11";

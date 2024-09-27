@@ -1,10 +1,5 @@
-{ modulesPath, config, pkgs, ... }:
-let
-
-  hostname = "nix";
-
-in {
-  
+{ modulesPath, config, pkgs, hostName ... }:
+{
   ## MODULES & IMPORTS ##
   imports = [
       # Common Modules
@@ -15,28 +10,11 @@ in {
       ./hardware.nix
     ];
   
+  
   ## NETWORKING ##
-  networking = {
-    firewall = {
-      allowedTCPPorts = [ 80 443 ];
-    };
-    dhcpcd.enable = false;
-    hostName = hostname;
-    networkmanager.enable = true;
-    useDHCP = false;
-    useHostResolvConf = false;
-  };
-
-  systemd.network = {
-    enable = true;
-    networks."50-eth0" = {
-      matchConfig.Name = "eth0";
-      networkConfig = {
-        DHCP = "ipv4";
-        IPv6AcceptRA = true;
-      };
-      linkConfig.RequiredForOnline = "routable";
-    };
+  networking.firewall = {
+    allowedTCPPorts = [ 22 80 443 ];
+    allowedUDPPorts = [ ];
   };
 
   ## ENVIORMENT & PACKAGES ##
@@ -50,7 +28,7 @@ in {
     wget
     x2goserver
   ];
-  
+
   programs.java = { 
     enable = true;
     package = pkgs.jdk; };

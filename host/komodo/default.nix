@@ -3,7 +3,6 @@
   ## MODULES & IMPORTS ##
   imports = [ 
       # Common Modules
-      ../../common/acme
       ../../common/lxc
       ../../common/ssh
 
@@ -11,19 +10,10 @@
       ./hardware.nix
       
       # Local Modules
-
-      # cron
-      ./modules/cron
-      # Logrotate
-      ./modules/logrotate
-      # Nextcloud
-      ./modules/nextcloud
-      # Nginx
-      ./modules/nginx
-      # Snapraid-runner
-      ./modules/snapraid
-  ];
-
+      ./modules/frp
+      ./modules/komodo
+    ];
+  
   ## NETWORKING ##
   networking.firewall = {
     allowedTCPPorts = [ 22 80 443 ];
@@ -31,20 +21,16 @@
   };
 
   ## ENVIORMENT & PACKAGES ##
-  nixpkgs.overlays = [ (import ./overlays) ];
   environment.systemPackages = with pkgs; [
     git
-    mergerfs
     micro
     openssh
     ranger
     sshfs
-    snapraid
-    snapraid-runner 
-    wget 
+    wget
   ];
-  
+
   environment.variables = {
-    HOSTNAME = hostname;
+    HOSTNAME = hostName;
   };
 }

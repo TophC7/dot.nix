@@ -1,11 +1,5 @@
-{ modulesPath, config, pkgs, ... }:
-
-let
-
-  hostname = "proxy";
-
-in {
-
+{ modulesPath, config, pkgs, hostName ... }:
+{
   ## MODULES & IMPORTS ##
   imports = [ 
       # Common Modules
@@ -23,27 +17,9 @@ in {
     ];
 
   ## NETWORKING ##
-  networking = {
-    firewall = {
-      allowedTCPPorts = [ 22 80 443 ];
-      allowedUDPPorts = [ ];
-    };
-    dhcpcd.enable = false;
-    hostName = hostname;
-    networkmanager.enable = true;
-    useHostResolvConf = false;
-  };
-
-  systemd.network = {
-    enable = true;
-    networks."50-net0" = {
-      matchConfig.Name = "net0";
-      networkConfig = {
-        DHCP = "yes";
-        IPv6AcceptRA = true;
-      };
-      linkConfig.RequiredForOnline = "routable";
-    };
+  networking.firewall = {
+    allowedTCPPorts = [ 22 80 443 ];
+    allowedUDPPorts = [ ];
   };
 
   ## ENVIORMENT & PACKAGES ##
