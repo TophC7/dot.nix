@@ -31,11 +31,11 @@
         ];
       };
       
-      dockge = lib.nixosSystem {
+      komodo = lib.nixosSystem {
         system = X86;
         modules = [ 
           ./nix
-          ./host/dockge
+          ./host/komodo
         ];
       };
       
@@ -87,8 +87,8 @@
         modules = [ home ];
       };
 
-      "toph@dockge" = let
-          hostName = "dockge";
+      "toph@komodo" = let
+          hostName = "komodo";
           pkgs = x86Pkgs;
           home = ./. + "/host/${hostName}/home"; 
       in home-manager.lib.homeManagerConfiguration {
