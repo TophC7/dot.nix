@@ -1,4 +1,4 @@
-{ modulesPath, config, pkgs, ... }:
+{ modulesPath, config, pkgs, hostName... }:
 
 let
 
@@ -41,7 +41,18 @@ in {
     environment.shells = with pkgs; [ bash fish ];
     programs.fish.enable = true;
 
+    ## NETWORKING ##
+    networking = {
+        dhcpcd.enable = false;
+        hostName = hostName;
+        networkmanager.enable = true;
+        useDHCP = true;
+        useHostResolvConf = false;
+        usePredictableInterfaceNames = true;
+    };
+
     ## NIXOS ##
+    # forces interfaces to be named predictably 
     # This value determines the NixOS release with which your system is to be
     system.stateVersion = "24.11";
     # Enable Flakes

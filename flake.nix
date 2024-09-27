@@ -15,43 +15,63 @@
       lib = nixpkgs.lib;
     in {
     nixosConfigurations = {
-      caenus = lib.nixosSystem {
+      caenus = let
+          hostName = "caenus";
+          default = ./. + "/host/${hostName}"; 
+      in lib.nixosSystem {
+        specialArgs = { inherit hostName; };
         system = ARM;
         modules = [ 
           ./nix
-          ./host/caenus
+          default
         ];
       };
     
-      cloud = lib.nixosSystem {
+      cloud = let
+          hostName = "cloud";
+          default = ./. + "/host/${hostName}"; 
+      in lib.nixosSystem {
+        specialArgs = { inherit hostName; };
         system = X86;
         modules = [ 
           ./nix
-          ./host/cloud
+          default
         ];
       };
       
-      komodo = lib.nixosSystem {
+      komodo = let
+          hostName = "komodo";
+          default = ./. + "/host/${hostName}"; 
+      in lib.nixosSystem {
+        specialArgs = { inherit hostName; };
         system = X86;
         modules = [ 
           ./nix
-          ./host/komodo
+          default
         ];
       };
       
-      nix = lib.nixosSystem {
+      nix = let
+          hostName = "nix";
+          default = ./. + "/host/${hostName}"; 
+      in lib.nixosSystem {
+        specialArgs = { inherit hostName; };
         system = X86;
         modules = [ 
           ./nix
-          ./host/nix
+          default
         ];
       };
       
-      proxy = lib.nixosSystem {
+      proxy = let
+          hostName = "proxy";
+          default = ./. + "/host/${hostName}"; 
+      in lib.nixosSystem {
+        specialArgs = { inherit hostName; };
         system = X86;
         modules = [ 
           ./nix
-          ./host/proxy
+          default
         ];
       };
     };
