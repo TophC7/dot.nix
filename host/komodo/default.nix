@@ -16,8 +16,25 @@
   
   ## NETWORKING ##
   networking.firewall = {
-    allowedTCPPorts = [ 22 80 443 ];
+    allowedTCPPorts = [ 22 80 443 9120 ];
     allowedUDPPorts = [ ];
+    interfaces.podman1 = {
+      # so that containers find eachother's names
+      allowedUDPPorts = [ 53 ]; 
+    };
+  };
+
+  systemd.services.create-wordpress-network = with config.virtualisation.oci-containers; {
+    serviceConfig.Type = "oneshot";
+    wantedBy = [
+      "${backend}-komodo.service"
+      "${backend}-mongo.service" 
+      "${backend}-periphery.service"
+    ];
+    script = ''
+      ${pkgs.podman}/bin/podman network exists komodo-net || \
+      ${pkgs.podman}/bin/podman network create komodo-net
+      '';
   };
 
   ## ENVIORMENT & PACKAGES ##
@@ -33,4 +50,9 @@
   environment.variables = {
     HOSTNAME = hostName;
   };
+  
+  ## PROGRAMS & SERVICES ##
+  # Enable podman
+  virtualisation.podman.enable = true;
+  virtualisation.oci-containers.backend = "podman";
 }
