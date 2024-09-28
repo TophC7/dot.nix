@@ -8,6 +8,7 @@
   ];
 
   home.packages = with pkgs; [
+      chafa
       fastfetch
       fish
       fishPlugins.grc
