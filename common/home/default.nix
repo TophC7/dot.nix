@@ -1,10 +1,10 @@
 { pkgs, hostName, ... }:
-{  
+{
   # Module imports
   imports = [
     # Common Modules
-      ../fish
-      ../fastfetch
+    ../fish
+    ../fastfetch
   ];
 
   home = {
@@ -17,7 +17,7 @@
       VISUAL = "micro";
       XDG_CONFIG_HOME = "$HOME/.config";
     };
-  }; 
+  };
 
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
