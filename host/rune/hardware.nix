@@ -53,11 +53,14 @@
       ];
     };
 
-    #    "/home/toph/git" = {
-    #      fsType = "none";
-    #      device = "/pool/git";
-    #      options = ["bind" "nofail"];
-    #    };
+    "/home/toph/git" = {
+      fsType = "none";
+      device = "/pool/git";
+      options = [
+        "bind"
+        "nofail"
+      ];
+    };
   };
 
   swapDevices = [ { device = "/dev/disk/by-uuid/81b6fa27-af94-41d4-9070-8754087a4c26"; } ];

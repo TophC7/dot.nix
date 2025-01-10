@@ -32,7 +32,7 @@
       epiphany # web browser
       evince # document viewer
       gedit # text editor
-      gnome-help
+      yelp
       gnome-maps
       gnome-music
       gnome-photos
