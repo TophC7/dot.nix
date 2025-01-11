@@ -1,4 +1,9 @@
-{ pkgs, zen, config, ... }:
+{
+  pkgs,
+  zen,
+  config,
+  ...
+}:
 {
   # Module imports
   imports = [
@@ -17,17 +22,23 @@
   xdg.systemDirs.data = [ "${config.home.homeDirectory}/.nix-profile/share/applications" ];
 
   home.packages = with pkgs; [
+    bitwarden-desktop
     chafa
     fastfetch
     fish
     fishPlugins.grc
     fishPlugins.tide
     grc
+    inspector
+    monocraft
+    nerd-fonts.fira-code
     nodejs_22
     pnpm
     prettierd
+    prismlauncher
     spotify
     telegram-desktop
+    termius
     vesktop
     zen
   ];
