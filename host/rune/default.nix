@@ -54,5 +54,6 @@
 
   environment.variables = {
     HOSTNAME = hostName;
+    GTK_THEME = "Gruvbox-Dark";
   };
 }

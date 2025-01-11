@@ -20,9 +20,11 @@
   environment.systemPackages = with pkgs; [
     gnome-tweaks
     gnomeExtensions.appindicator
-    gnomeExtensions.tiling-shell
-    gnomeExtensions.dash-to-panel
     gnomeExtensions.blur-my-shell
+    gnomeExtensions.clipboard-indicator
+    gnomeExtensions.dash-to-panel
+    gnomeExtensions.tiling-shell
+    gnomeExtensions.vitals
   ];
 
   environment.gnome.excludePackages = (
@@ -32,16 +34,22 @@
       epiphany # web browser
       evince # document viewer
       gedit # text editor
-      yelp
       gnome-maps
       gnome-music
       gnome-photos
-      gnome-terminal
       gnome-tour
+      gnomeExtensions.applications-menu
+      gnomeExtensions.launch-new-instance
+      gnomeExtensions.light-style
+      gnomeExtensions.places-status-indicator
+      gnomeExtensions.status-icons
+      gnomeExtensions.system-monitor
+      gnomeExtensions.window-list
+      gnomeExtensions.windownavigator
       hitori # sudoku game
       iagno # go game
       tali # poker game
+      yelp
     ]
   );
-
 }
