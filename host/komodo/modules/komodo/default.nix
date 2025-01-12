@@ -145,7 +145,7 @@
       "COMPOSE_KOMODO_IMAGE_TAG" = "latest";
       "DB_PASSWORD" = "[REDACTED]";
       "DB_USERNAME" = "admin";
-      "KOMODO_DISABLE_CONFIRM_DIALOG" = "false";
+      "KOMODO_DISABLE_CONFIRM_DIALOG" = "true";
       "KOMODO_DISABLE_NON_ADMIN_CREATE" = "false";
       "KOMODO_DISABLE_USER_REGISTRATION" = "false";
       "KOMODO_ENABLE_NEW_USERS" = "false";
@@ -166,6 +166,8 @@
       "PERIPHERY_INCLUDE_DISK_MOUNTS" = "/etc/hostname";
       "PERIPHERY_PASSKEYS" = "tvjs5utkaW0Xvpru7qjEKJF3w6RdkBUm98StyOGKJFy5kdpQ3ZRzJbSyJmpMYIhA";
       "PERIPHERY_SSL_ENABLED" = "true";
+      # FIXES relative paths for komodo
+      "PERIPHERY_STACK_DIR" = "/mnt/DockerStorage/komodo/stacks";
     };
     environmentFiles = [
       "/home/toph/git/dotfiles/host/komodo/modules/komodo/komodo.env"
@@ -175,7 +177,7 @@
       "/var/run/docker.sock:/var/run/docker.sock:rw"
       "/mnt/DockerStorage/komodo/repos:/etc/komodo/repos:rw"
       "/mnt/DockerStorage/komodo/ssl:/etc/komodo/ssl:rw"
-      "/mnt/DockerStorage/komodo/stacks:/etc/komodo/stacks:rw"
+      "/mnt/DockerStorage/komodo/stacks:/mnt/DockerStorage/komodo/stacks:rw"
     ];
     labels = {
       "komodo.skip" = "";

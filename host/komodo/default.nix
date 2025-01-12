@@ -24,10 +24,28 @@
   networking.firewall = {
     allowedTCPPorts = [
       22
-      80
       443
+      80
+      81
+      9120
+      3001
+      4041
+      5001
+      7475
+      8070
+      8080
+      8090
       9120
     ];
+
+    # Game Server Ports
+    allowedTCPPortRanges = [
+      {
+        [REDACTED]
+        [REDACTED]
+      }
+    ];
+
     allowedUDPPorts = [ ];
   };
 
