@@ -34,26 +34,26 @@
                 '';
             };
 
-            "dash.ryot.foo" = {
-                useACMEHost = "ryot.foo";
-                extraConfig = ''
-                    reverse_proxy http://104.40.4.44:3001
-                '';
-            };
+            # "dash.ryot.foo" = {
+            #     useACMEHost = "ryot.foo";
+            #     extraConfig = ''
+            #         reverse_proxy http://104.40.4.44:3001
+            #     '';
+            # };
 
-            "dazzle.ryot.foo" = {
-                useACMEHost = "ryot.foo";
-                extraConfig = ''
-                    reverse_proxy http://104.40.4.44:8070
-                '';
-            };
+            # "dazzle.ryot.foo" = {
+            #     useACMEHost = "ryot.foo";
+            #     extraConfig = ''
+            #         reverse_proxy http://104.40.4.44:8070
+            #     '';
+            # };
 
-            "dockge.ryot.foo" = {
-                useACMEHost = "ryot.foo";
-                extraConfig = ''
-                    reverse_proxy http://104.40.4.44:5001
-                '';
-            };
+            # "dockge.ryot.foo" = {
+            #     useACMEHost = "ryot.foo";
+            #     extraConfig = ''
+            #         reverse_proxy http://104.40.4.44:5001
+            #     '';
+            # };
 
             "drive.ryot.foo" = {
                 useACMEHost = "ryot.foo";
@@ -68,12 +68,18 @@
                     reverse_proxy http://104.40.4.44:4041
                 '';
             };
-            
+
+            "komodo.ryot.foo" = {
+                useACMEHost = "ryot.foo";
+                extraConfig = ''
+                    reverse_proxy http://104.40.4.44:9120
+                '';
+            };
 
             "home.ryot.foo" = {
                 useACMEHost = "ryot.foo";
                 extraConfig = ''
-                    reverse_proxy http://104.40.4.44:7575
+                    reverse_proxy http://104.40.4.44:7475
                 '';
             };
             
