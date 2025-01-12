@@ -70,18 +70,29 @@
           tiling-shell.extensionUuid
           user-themes.extensionUuid
           vitals.extensionUuid
+          control-monitor-brightness-and-volume-with-ddcutil.extensionUuid
         ];
       };
 
       ## Fix some annoying keybindings
       "org/gnome/desktop/wm/keybindings" = {
-        close = [ "['<Super>Q']" ];
+        close = [ "<Super>q" ];
         switch-to-workspace-up = [ "" ];
         switch-to-workspace-down = [ "" ];
         shift-overview-up = [ "" ];
         shift-overview-down = [ "" ];
         toggle-application-view = [ "" ];
         toggle-message-tray = [ "<Super>a" ];
+      };
+
+      "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings" = {
+        custom0 = "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/";
+      };
+
+      "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0" = {
+        name = "Terminal";
+        command = "wezterm";
+        binding = "<Super>t";
       };
 
       "org/gnome/desktop/peripherals/mouse" = {

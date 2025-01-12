@@ -24,6 +24,7 @@
 
   ## ENVIORMENT & PACKAGES ##
   environment.systemPackages = with pkgs; [
+    ddcutil
     git
     micro
     nixfmt-rfc-style

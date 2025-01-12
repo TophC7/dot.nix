@@ -21,8 +21,17 @@
     "sd_mod"
   ];
   boot.initrd.kernelModules = [ ];
-  boot.kernelModules = [ "kvm-amd" ];
   boot.extraModulePackages = [ ];
+  boot.kernelModules = [
+    "kvm-amd"
+    "i2c-dev"
+  ];
+
+  # for ddcutil to work
+  hardware.i2c.enable = true;
+  services.udev.extraRules = ''
+    KERNEL=="i2c-[0-9]*", GROUP="i2c", MODE="0660"
+  '';
 
   programs.fuse.userAllowOther = true;
 

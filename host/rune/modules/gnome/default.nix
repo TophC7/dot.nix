@@ -46,6 +46,7 @@
       gnomeExtensions.system-monitor
       gnomeExtensions.window-list
       gnomeExtensions.windownavigator
+      gnomeExtensions.control-monitor-brightness-and-volume-with-ddcutil
       hitori # sudoku game
       iagno # go game
       tali # poker game

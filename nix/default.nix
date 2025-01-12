@@ -42,6 +42,7 @@ in
     extraGroups = [
       "networkmanager"
       "wheel"
+      "i2c"
     ];
     shell = pkgs.fish;
     openssh.authorizedKeys.keys = [
