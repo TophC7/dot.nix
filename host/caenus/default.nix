@@ -1,26 +1,42 @@
-{ modulesPath, config, pkgs, hostName, ... }:
+{
+  modulesPath,
+  config,
+  pkgs,
+  hostName,
+  ...
+}:
 {
   ## MODULES & IMPORTS ##
 
-  imports =
-    [ 
-      # FRP
-      ./modules/frp
-      # Nginx
-      ./modules/nginx
-      # Include the results of the hardware scan.
-      ./hardware.nix
-    ];
+  ## MODULES & IMPORTS ##
+  imports = [
+    # Common Modules
+    ../../common/acme
+    ../../common/ssh
+
+    # Import hardware configuration.
+    ./hardware.nix
+
+    # Local Modules
+    ./modules/frp
+    ./modules/nginx
+  ];
 
   ## BOOTLOADER ##
 
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
-  
+
   ## NETWORKING ##
   networking.firewall = {
-    allowedTCPPorts = [ 22 80 443 4040 ];
-    allowedUDPPorts = [ 25565 4040 ];
+    allowedTCPPorts = [
+      22
+      80
+      443
+      4040
+      25565
+    ];
+    allowedUDPPorts = [ 4040 ];
   };
 
   ## ENVIORMENT & PACKAGES ##
@@ -32,7 +48,7 @@
     sshfs
     wget
   ];
-  
+
   environment.variables = {
     HOSTNAME = hostName;
   };
