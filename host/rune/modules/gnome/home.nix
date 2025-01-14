@@ -64,13 +64,14 @@
           appindicator.extensionUuid
           blur-my-shell.extensionUuid
           clipboard-indicator.extensionUuid
+          color-picker.extensionUuid
+          control-monitor-brightness-and-volume-with-ddcutil.extensionUuid
           dash-to-panel.extensionUuid
           native-window-placement.extensionUuid
           screenshot-window-sizer.extensionUuid
           tiling-shell.extensionUuid
           user-themes.extensionUuid
           vitals.extensionUuid
-          control-monitor-brightness-and-volume-with-ddcutil.extensionUuid
         ];
       };
 

@@ -22,6 +22,8 @@
     gnomeExtensions.appindicator
     gnomeExtensions.blur-my-shell
     gnomeExtensions.clipboard-indicator
+    gnomeExtensions.color-picker
+    gnomeExtensions.control-monitor-brightness-and-volume-with-ddcutil
     gnomeExtensions.dash-to-panel
     gnomeExtensions.tiling-shell
     gnomeExtensions.vitals
@@ -46,7 +48,6 @@
       gnomeExtensions.system-monitor
       gnomeExtensions.window-list
       gnomeExtensions.windownavigator
-      gnomeExtensions.control-monitor-brightness-and-volume-with-ddcutil
       hitori # sudoku game
       iagno # go game
       tali # poker game
