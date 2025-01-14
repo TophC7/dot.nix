@@ -34,6 +34,7 @@
       7475
       8070
       8080
+      8086
       8090
       9120
     ];
@@ -46,7 +47,9 @@
       }
     ];
 
-    allowedUDPPorts = [ ];
+    allowedUDPPorts = [
+      8089
+    ];
   };
 
   ## ENVIORMENT & PACKAGES ##

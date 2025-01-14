@@ -55,6 +55,13 @@
             #     '';
             # };
 
+            # "drop.ryot.foo" = {
+            #     useACMEHost = "ryot.foo";
+            #     extraConfig = ''
+            #         reverse_proxy http://104.40.4.44:5001
+            #     '';
+            # };
+
             "drive.ryot.foo" = {
                 useACMEHost = "ryot.foo";
                 extraConfig = ''
@@ -69,6 +76,13 @@
                 '';
             };
 
+            "grafana.ryot.foo" = {
+                useACMEHost = "ryot.foo";
+                extraConfig = ''
+                    reverse_proxy http://104.40.4.44:3001
+                '';
+            };
+
             "komodo.ryot.foo" = {
                 useACMEHost = "ryot.foo";
                 extraConfig = ''
@@ -80,6 +94,13 @@
                 useACMEHost = "ryot.foo";
                 extraConfig = ''
                     reverse_proxy http://104.40.4.44:7475
+                '';
+            };
+
+            "influx.ryot.foo" = {
+                useACMEHost = "ryot.foo";
+                extraConfig = ''
+                    reverse_proxy http://104.40.4.44:8086
                 '';
             };
             
