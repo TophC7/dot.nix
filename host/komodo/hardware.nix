@@ -1,23 +1,30 @@
 {
+  admin,
+  ...
+}:
+{
   programs.fuse.userAllowOther = true;
 
   fileSystems = {
     "/pool" = {
-      device = "toph@104.40.4.24:/pool";
+      device = "${admin}@104.40.4.24:/pool";
       fsType = "sshfs";
       options = [
         "defaults"
         "reconnect"
         "_netdev"
         "allow_other"
-        "identityfile=/home/toph/.ssh/pve"
+        "identityfile=/home/${admin}/.ssh/pve"
       ];
     };
 
-    "/home/toph/git" = {
+    "/home/${admin}/git" = {
       fsType = "none";
       device = "/pool/git";
-      options = ["bind" "nofail"];
+      options = [
+        "bind"
+        "nofail"
+      ];
     };
   };
 }

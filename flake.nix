@@ -19,6 +19,8 @@
       ...
     }:
     let
+      admin = "toph";
+      user = "toph";
       ARM = "aarch64-linux"; # ARM systems
       X86 = "x86_64-linux"; # x86_64 systems
       lib = nixpkgs.lib;
@@ -32,7 +34,7 @@
           in
           lib.nixosSystem {
             specialArgs = {
-              inherit hostName;
+              inherit admin hostName;
             };
             system = ARM;
             modules = [
@@ -48,7 +50,7 @@
           in
           lib.nixosSystem {
             specialArgs = {
-              inherit hostName;
+              inherit admin hostName;
             };
             system = X86;
             modules = [
@@ -64,7 +66,7 @@
           in
           lib.nixosSystem {
             specialArgs = {
-              inherit hostName;
+              inherit admin hostName;
             };
             system = X86;
             modules = [
@@ -80,7 +82,7 @@
           in
           lib.nixosSystem {
             specialArgs = {
-              inherit hostName;
+              inherit admin hostName;
             };
             system = X86;
             modules = [
@@ -96,7 +98,7 @@
           in
           lib.nixosSystem {
             specialArgs = {
-              inherit hostName;
+              inherit admin hostName;
             };
             system = X86;
             modules = [
@@ -112,7 +114,24 @@
           in
           lib.nixosSystem {
             specialArgs = {
-              inherit hostName;
+              inherit admin hostName;
+            };
+            system = X86;
+            modules = [
+              ./nix
+              default
+            ];
+          };
+
+        haze =
+          let
+            user = "cesar";
+            hostName = "haze";
+            default = ./. + "/host/${hostName}";
+          in
+          lib.nixosSystem {
+            specialArgs = {
+              inherit admin user hostName;
             };
             system = X86;
             modules = [
@@ -135,7 +154,7 @@
           };
         in
         {
-          "toph@caenus" =
+          "${admin}@caenus" =
             let
               hostName = "caenus";
               pkgs = armPkgs;
@@ -144,12 +163,12 @@
             home-manager.lib.homeManagerConfiguration {
               inherit pkgs;
               extraSpecialArgs = {
-                inherit hostName;
+                inherit admin user hostName;
               };
               modules = [ home ];
             };
 
-          "toph@cloud" =
+          "${admin}@cloud" =
             let
               hostName = "cloud";
               pkgs = x86Pkgs;
@@ -158,12 +177,12 @@
             home-manager.lib.homeManagerConfiguration {
               inherit pkgs;
               extraSpecialArgs = {
-                inherit hostName;
+                inherit admin user hostName;
               };
               modules = [ home ];
             };
 
-          "toph@komodo" =
+          "${admin}@komodo" =
             let
               hostName = "komodo";
               pkgs = x86Pkgs;
@@ -172,12 +191,12 @@
             home-manager.lib.homeManagerConfiguration {
               inherit pkgs;
               extraSpecialArgs = {
-                inherit hostName;
+                inherit admin user hostName;
               };
               modules = [ home ];
             };
 
-          "toph@nix" =
+          "${admin}@nix" =
             let
               hostName = "nix";
               pkgs = x86Pkgs;
@@ -186,12 +205,12 @@
             home-manager.lib.homeManagerConfiguration {
               inherit pkgs;
               extraSpecialArgs = {
-                inherit hostName;
+                inherit admin user hostName;
               };
               modules = [ home ];
             };
 
-          "toph@proxy" =
+          "${admin}@proxy" =
             let
               hostName = "proxy";
               pkgs = x86Pkgs;
@@ -200,12 +219,12 @@
             home-manager.lib.homeManagerConfiguration {
               inherit pkgs;
               extraSpecialArgs = {
-                inherit hostName;
+                inherit admin user hostName;
               };
               modules = [ home ];
             };
 
-          "toph@rune" =
+          "${admin}@rune" =
             let
               hostName = "rune";
               pkgs = x86Pkgs;
@@ -215,7 +234,53 @@
             home-manager.lib.homeManagerConfiguration {
               inherit pkgs;
               extraSpecialArgs = {
-                inherit hostName zen;
+                inherit
+                  admin
+                  user
+                  hostName
+                  zen
+                  ;
+              };
+              modules = [ home ];
+            };
+
+          "${admin}@haze" =
+            let
+              user = "cesar";
+              hostName = "haze";
+              pkgs = x86Pkgs;
+              home = ./. + "/host/${hostName}/home";
+              zen = zen-browser.packages."${X86}".beta;
+            in
+            home-manager.lib.homeManagerConfiguration {
+              inherit pkgs;
+              extraSpecialArgs = {
+                inherit
+                  admin
+                  user
+                  hostName
+                  zen
+                  ;
+              };
+              modules = [ home ];
+            };
+
+          "cesar@haze" =
+            let
+              hostName = "haze";
+              pkgs = x86Pkgs;
+              home = ./. + "/host/${hostName}/home";
+              zen = zen-browser.packages."${X86}".beta;
+            in
+            home-manager.lib.homeManagerConfiguration {
+              inherit pkgs;
+              extraSpecialArgs = {
+                inherit
+                  admin
+                  user
+                  hostName
+                  zen
+                  ;
               };
               modules = [ home ];
             };

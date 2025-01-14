@@ -1,5 +1,10 @@
 # Auto-generated using compose2nix v0.3.1.
-{ pkgs, lib, ... }:
+{
+  pkgs,
+  lib,
+  admin,
+  ...
+}:
 
 {
   # Runtime
@@ -42,7 +47,7 @@
       "PERIPHERY_SSL_ENABLED" = "true";
     };
     environmentFiles = [
-      "/home/toph/git/dotfiles/host/komodo/modules/komodo/komodo.env"
+      "/home/${admin}/git/dotfiles/host/komodo/modules/komodo/komodo.env"
     ];
     volumes = [
       "/mnt/DockerStorage/komodo/cache:/repo-cache:rw"
@@ -93,7 +98,7 @@
       "MONGO_INITDB_ROOT_USERNAME" = "admin";
     };
     environmentFiles = [
-      "/home/toph/git/dotfiles/host/komodo/modules/komodo/komodo.env"
+      "/home/${admin}/git/dotfiles/host/komodo/modules/komodo/komodo.env"
     ];
     volumes = [
       "/mnt/DockerStorage/komodo/mongo/config:/data/configdb:rw"
@@ -170,7 +175,7 @@
       "PERIPHERY_STACK_DIR" = "/mnt/DockerStorage/komodo/stacks";
     };
     environmentFiles = [
-      "/home/toph/git/dotfiles/host/komodo/modules/komodo/komodo.env"
+      "/home/${admin}/git/dotfiles/host/komodo/modules/komodo/komodo.env"
     ];
     volumes = [
       "/proc:/proc:rw"

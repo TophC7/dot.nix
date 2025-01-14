@@ -37,19 +37,19 @@
   programs.fuse.userAllowOther = true;
 
   fileSystems = {
-    "/" = {
-      device = "/dev/disk/by-uuid/28a9ac4d-1e87-4731-9c06-916711d83cb2";
-      fsType = "ext4";
-    };
+    # "/" = {
+    #   device = "/dev/disk/by-uuid/28a9ac4d-1e87-4731-9c06-916711d83cb2";
+    #   fsType = "ext4";
+    # };
 
-    "/boot" = {
-      device = "/dev/disk/by-uuid/B182-E50E";
-      fsType = "vfat";
-      options = [
-        "fmask=0077"
-        "dmask=0077"
-      ];
-    };
+    # "/boot" = {
+    #   device = "/dev/disk/by-uuid/B182-E50E";
+    #   fsType = "vfat";
+    #   options = [
+    #     "fmask=0077"
+    #     "dmask=0077"
+    #   ];
+    # };
 
     "/pool" = {
       device = "${admin}@104.40.4.24:/pool";

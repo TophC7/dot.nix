@@ -1,4 +1,9 @@
-{ pkgs, hostName, ... }:
+{
+  pkgs,
+  hostName,
+  user,
+  ...
+}:
 {
   # Module imports
   imports = [
@@ -8,8 +13,8 @@
   ];
 
   home = {
-    username = "toph";
-    homeDirectory = "/home/toph";
+    username = user;
+    homeDirectory = "/home/${user}";
     stateVersion = "24.05";
     sessionVariables = {
       HOSTNAME = hostName;

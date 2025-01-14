@@ -1,14 +1,15 @@
 {
-  modulesPath,
+  admin,
   config,
-  pkgs,
   hostName,
+  modulesPath,
+  pkgs,
   ...
 }:
 
 let
 
-  admin = "toph";
+  # admin = "toph";
   password = "[REDACTED]";
   timeZone = "America/New_York";
   defaultLocale = "en_US.UTF-8";
@@ -35,10 +36,11 @@ in
   users.users."${admin}" = {
     isNormalUser = true;
     createHome = true;
-    description = "Toph";
+    description = "Admin";
     homeMode = "750";
     home = "/home/${admin}";
     password = password;
+    uid = 1000;
     extraGroups = [
       "networkmanager"
       "wheel"
@@ -83,7 +85,7 @@ in
 
   ## NIXOS ##
   systemd.tmpfiles.rules = [
-    "d /home/toph/git 0750 toph users -"
+    "d /home/${admin}/git 0750 ${admin} users -"
   ];
 
   # Allow unfree packages
