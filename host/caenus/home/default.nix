@@ -17,8 +17,9 @@
 
   home.file = {
     git.dotfiles.source = builtins.fetchGit {
-      url = "https://github.com/TophC7/dotfiles/tree/hosts";
-      rev = "adecf063251176159fe9edbe0f6dbba432630de4";
+      url = "git@github.com:TophC7/dotfiles.git";
+      ref = "hosts";
+      rev = "4c2f9faf24e2e90fb7b0b4bce7560da39cbb814a";
     };
   };
 

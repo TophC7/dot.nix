@@ -1,8 +1,9 @@
 {
-  modulesPath,
   config,
-  pkgs,
   hostName,
+  lib,
+  modulesPath,
+  pkgs,
   ...
 }:
 {
@@ -11,7 +12,7 @@
   ## MODULES & IMPORTS ##
   imports = [
     # Common Modules
-    ../../common/acme
+    # ../../common/acme
     ../../common/ssh
 
     # Import hardware configuration.
@@ -19,7 +20,7 @@
 
     # Local Modules
     ./modules/frp
-    ./modules/nginx
+    # ./modules/nginx
   ];
 
   ## BOOTLOADER ##
@@ -37,6 +38,13 @@
       25565
     ];
     allowedUDPPorts = [ 4040 ];
+  };
+
+  ## SSH Override ##
+  services.openssh = {
+    settings = {
+      PermitRootLogin = lib.mkForce "yes";
+    };
   };
 
   ## ENVIORMENT & PACKAGES ##
