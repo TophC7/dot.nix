@@ -17,26 +17,26 @@
 
     # Local Modules
     ./modules/frp
+    ./modules/forgejo
     ./modules/komodo
   ];
 
   ## NETWORKING ##
   networking.firewall = {
     allowedTCPPorts = [
-      22
-      443
-      80
-      81
-      9120
-      3001
-      4041
-      5001
-      7475
-      8070
-      8080
-      8086
-      8090
-      9120
+      [REDACTED]
+      [REDACTED]
+      [REDACTED]
+      222 # GitTea SSH
+      [REDACTED]
+      [REDACTED]
+      3003 # GitTea
+      [REDACTED]
+      [REDACTED]
+      8080 # File Browser
+      [REDACTED]
+      [REDACTED]
+      [REDACTED]
     ];
 
     # Game Server Ports
@@ -48,7 +48,7 @@
     ];
 
     allowedUDPPorts = [
-      8089
+      8089 # Grafana
     ];
   };
 
