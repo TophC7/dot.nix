@@ -24,7 +24,7 @@
       "KOMODO_DATABASE_ADDRESS" = "mongo:27017";
       "KOMODO_DATABASE_PASSWORD" = "[REDACTED]";
       "KOMODO_DATABASE_USERNAME" = "admin";
-      "KOMODO_DISABLE_CONFIRM_DIALOG" = "false";
+      "KOMODO_DISABLE_CONFIRM_DIALOG" = "true";
       "KOMODO_DISABLE_NON_ADMIN_CREATE" = "false";
       "KOMODO_DISABLE_USER_REGISTRATION" = "false";
       "KOMODO_ENABLE_NEW_USERS" = "false";
@@ -35,7 +35,6 @@
       "KOMODO_JWT_TTL" = "1-day";
       "KOMODO_LOCAL_AUTH" = "true";
       "KOMODO_MONITORING_INTERVAL" = "15-sec";
-      "KOMODO_OIDC_ENABLED" = "false";
       "KOMODO_PASSKEY" = "tvjs5utkaW0Xvpru7qjEKJF3w6RdkBUm98StyOGKJFy5kdpQ3ZRzJbSyJmpMYIhA";
       "KOMODO_RESOURCE_POLL_INTERVAL" = "5-min";
       "KOMODO_TITLE" = "Komodo";
@@ -45,6 +44,12 @@
       "PERIPHERY_INCLUDE_DISK_MOUNTS" = "/etc/hostname";
       "PERIPHERY_PASSKEYS" = "tvjs5utkaW0Xvpru7qjEKJF3w6RdkBUm98StyOGKJFy5kdpQ3ZRzJbSyJmpMYIhA";
       "PERIPHERY_SSL_ENABLED" = "true";
+      "KOMODO_OIDC_ENABLED" = "true";
+      "KOMODO_OIDC_PROVIDER" = "https://auth.ryot.foo/application/o/komodo-slug/";
+      "KOMODO_OIDC_CLIENT_ID" = "pxwhNNc31cpTRvMlVU6ZPhWl9wQJMGnbq9fTbCN2";
+      "KOMODO_OIDC_CLIENT_SECRET" =
+        "l8lFe5P8YN9FSji0zPVL8byqb5tKx8AcN2acQri0nFhDwf2jRtqNL8ICqjKmpJyMMJnitaUVTgOO442pWbsi6cMkqEXAf8Cx7sEomhThXiZfj7SShkrKGbQrCva4khP2";
+      "KOMODO_OIDC_USE_FULL_EMAIL" = "false";
     };
     environmentFiles = [
       "/home/${admin}/git/dotfiles/host/komodo/modules/komodo/komodo.env"
@@ -161,7 +166,6 @@
       "KOMODO_JWT_TTL" = "1-day";
       "KOMODO_LOCAL_AUTH" = "true";
       "KOMODO_MONITORING_INTERVAL" = "15-sec";
-      "KOMODO_OIDC_ENABLED" = "false";
       "KOMODO_PASSKEY" = "tvjs5utkaW0Xvpru7qjEKJF3w6RdkBUm98StyOGKJFy5kdpQ3ZRzJbSyJmpMYIhA";
       "KOMODO_RESOURCE_POLL_INTERVAL" = "5-min";
       "KOMODO_TITLE" = "Komodo";
@@ -173,6 +177,12 @@
       "PERIPHERY_SSL_ENABLED" = "true";
       # FIXES relative paths for komodo
       "PERIPHERY_STACK_DIR" = "/mnt/DockerStorage/komodo/stacks";
+      "KOMODO_OIDC_ENABLED" = "true";
+      "KOMODO_OIDC_PROVIDER" = "https://auth.ryot.foo/application/o/komodo-slug/";
+      "KOMODO_OIDC_CLIENT_ID" = "pxwhNNc31cpTRvMlVU6ZPhWl9wQJMGnbq9fTbCN2";
+      "KOMODO_OIDC_CLIENT_SECRET" =
+        "l8lFe5P8YN9FSji0zPVL8byqb5tKx8AcN2acQri0nFhDwf2jRtqNL8ICqjKmpJyMMJnitaUVTgOO442pWbsi6cMkqEXAf8Cx7sEomhThXiZfj7SShkrKGbQrCva4khP2";
+      "KOMODO_OIDC_USE_FULL_EMAIL" = "false";
     };
     environmentFiles = [
       "/home/${admin}/git/dotfiles/host/komodo/modules/komodo/komodo.env"

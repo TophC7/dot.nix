@@ -12,6 +12,7 @@
     # ../../common/acme
     ../../common/lxc
     ../../common/ssh
+    # ../../common/vscode-server
 
     # Import hardware configuration.
     ./hardware.nix
@@ -36,6 +37,8 @@
       [REDACTED]
       [REDACTED]
       8080 # File Browser
+      [REDACTED]
+      [REDACTED]
       [REDACTED]
       [REDACTED]
       [REDACTED]
