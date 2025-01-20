@@ -1,154 +1,134 @@
 {
-    services.caddy = {
-        enable = true;
-        virtualHosts = {
-            "ryot.foo" = {
-                useACMEHost = "ryot.foo";
-                extraConfig = ''
-                    reverse_proxy 104.40.4.44:80
-                '';
-            };
+  services.caddy = {
+    enable = true;
+    virtualHosts = {
+      "ryot.foo" = {
+        useACMEHost = "ryot.foo";
+        extraConfig = ''
+          reverse_proxy 104.40.4.44:80
+        '';
+      };
 
-            "adguard.ryot.foo" = {
-                useACMEHost = "ryot.foo";
-                extraConfig = ''
-                    reverse_proxy 104.40.4.1:81
-                '';
-            };
-            
-            "cloud.ryot.foo" = {
-                useACMEHost = "ryot.foo";
-                extraConfig = ''
-                    reverse_proxy https://104.40.4.24:443 {
-                        transport http {
-                            tls_insecure_skip_verify
-                        }
-                    }
-                '';
-            };
+      "adguard.ryot.foo" = {
+        useACMEHost = "ryot.foo";
+        extraConfig = ''
+          reverse_proxy 104.40.4.1:81
+        '';
+      };
 
-            "cloudflared.ryot.foo" = {
-                useACMEHost = "ryot.foo";
-                extraConfig = ''
-                    reverse_proxy http://104.40.4.8:14333
-                '';
-            };
+      "auth.ryot.foo" = {
+        useACMEHost = "ryot.foo";
+        extraConfig = ''
+          reverse_proxy http://104.40.4.44:9000 {
+            header_up Host {host}
+            header_up X-Forwarded-For {remote}
+            header_up X-Forwarded-Proto {scheme}
+            header_up X-Forwarded-Protocol {scheme}
+            header_up X-Forwarded-Port {server_port}
+          }
+        '';
+      };
 
-            # "dash.ryot.foo" = {
-            #     useACMEHost = "ryot.foo";
-            #     extraConfig = ''
-            #         reverse_proxy http://104.40.4.44:3001
-            #     '';
-            # };
+      "cloudflared.ryot.foo" = {
+        useACMEHost = "ryot.foo";
+        extraConfig = ''
+          reverse_proxy http://104.40.4.8:14333
+        '';
+      };
 
-            # "dazzle.ryot.foo" = {
-            #     useACMEHost = "ryot.foo";
-            #     extraConfig = ''
-            #         reverse_proxy http://104.40.4.44:8070
-            #     '';
-            # };
+      "drive.ryot.foo" = {
+        useACMEHost = "ryot.foo";
+        extraConfig = ''
+          reverse_proxy http://104.40.4.24:8181 {
+            header_up Host {host}
+            header_up X-Forwarded-For {remote}
+            header_up X-Forwarded-Proto {scheme}
+            header_up X-Forwarded-Protocol {scheme}
+            header_up X-Forwarded-Port {server_port}
+          }
+        '';
+      };
 
-            # "dockge.ryot.foo" = {
-            #     useACMEHost = "ryot.foo";
-            #     extraConfig = ''
-            #         reverse_proxy http://104.40.4.44:5001
-            #     '';
-            # };
+      "frp.ryot.foo" = {
+        useACMEHost = "ryot.foo";
+        extraConfig = ''
+          reverse_proxy http://104.40.4.44:4041
+        '';
+      };
 
-            # "drop.ryot.foo" = {
-            #     useACMEHost = "ryot.foo";
-            #     extraConfig = ''
-            #         reverse_proxy http://104.40.4.44:5001
-            #     '';
-            # };
+      "grafana.ryot.foo" = {
+        useACMEHost = "ryot.foo";
+        extraConfig = ''
+          reverse_proxy http://104.40.4.44:3001
+        '';
+      };
 
-            "drive.ryot.foo" = {
-                useACMEHost = "ryot.foo";
-                extraConfig = ''
-                    reverse_proxy http://104.40.4.44:8080
-                '';
-            };
+      "git.ryot.foo" = {
+        useACMEHost = "ryot.foo";
+        extraConfig = ''
+          reverse_proxy http://104.40.4.44:3003
+        '';
+      };
 
-            "frp.ryot.foo" = {
-                useACMEHost = "ryot.foo";
-                extraConfig = ''
-                    reverse_proxy http://104.40.4.44:4041
-                '';
-            };
+      "influx.ryot.foo" = {
+        useACMEHost = "ryot.foo";
+        extraConfig = ''
+          reverse_proxy http://104.40.4.44:8086
+        '';
+      };
 
-            "grafana.ryot.foo" = {
-                useACMEHost = "ryot.foo";
-                extraConfig = ''
-                    reverse_proxy http://104.40.4.44:3001
-                '';
-            };
+      "home.ryot.foo" = {
+        useACMEHost = "ryot.foo";
+        extraConfig = ''
+          reverse_proxy http://104.40.4.44:7475
+        '';
+      };
 
-            "git.ryot.foo" = {
-                useACMEHost = "ryot.foo";
-                extraConfig = ''
-                    reverse_proxy http://104.40.4.44:3003
-                '';
-            };
+      "komodo.ryot.foo" = {
+        useACMEHost = "ryot.foo";
+        extraConfig = ''
+          reverse_proxy http://104.40.4.44:9120
+        '';
+      };
 
-            "influx.ryot.foo" = {
-                useACMEHost = "ryot.foo";
-                extraConfig = ''
-                    reverse_proxy http://104.40.4.44:8086
-                '';
-            };
+      "mail.ryot.foo" = {
+        useACMEHost = "ryot.foo";
+        extraConfig = ''
+          reverse_proxy http://104.40.4.44:9002
+        '';
+      };
 
-            "home.ryot.foo" = {
-                useACMEHost = "ryot.foo";
-                extraConfig = ''
-                    reverse_proxy http://104.40.4.44:7475
-                '';
-            };
+      "map.ryot.foo" = {
+        useACMEHost = "ryot.foo";
+        extraConfig = ''
+          reverse_proxy http://104.40.4.44:25566
+        '';
+      };
 
-            "komodo.ryot.foo" = {
-                useACMEHost = "ryot.foo";
-                extraConfig = ''
-                    reverse_proxy http://104.40.4.44:9120
-                '';
-            };
+      "opn.ryot.foo" = {
+        useACMEHost = "ryot.foo";
+        extraConfig = ''
+          reverse_proxy 104.40.4.1
+        '';
+      };
 
-            "map.ryot.foo" = {
-                useACMEHost = "ryot.foo";
-                extraConfig = ''
-                    reverse_proxy http://104.40.4.44:25566
-                '';
-            };
-            
-            "nginx.ryot.foo" = {
-                useACMEHost = "ryot.foo";
-                extraConfig = ''
-                    reverse_proxy http://104.40.4.44:81
-                '';
-            };
-            
-            "opn.ryot.foo" = {
-                useACMEHost = "ryot.foo";
-                extraConfig = ''
-                    reverse_proxy 104.40.4.1
-                '';
-            };
+      "pve.ryot.foo" = {
+        useACMEHost = "ryot.foo";
+        extraConfig = ''
+          reverse_proxy 10.163.22.82:8006 {
+              transport http {
+                  tls_insecure_skip_verify
+              }
+          }
+        '';
+      };
 
-            "pve.ryot.foo" = {
-                useACMEHost = "ryot.foo";
-                extraConfig = ''
-                    reverse_proxy 10.163.22.82:8006 {
-                        transport http {
-                            tls_insecure_skip_verify
-                        }
-                    }
-                '';
-            };
-
-            "upsnap.ryot.foo" = {
-                useACMEHost = "ryot.foo";
-                extraConfig = ''
-                    reverse_proxy http://104.40.4.44:8090
-                '';
-            };
-        };
+      "upsnap.ryot.foo" = {
+        useACMEHost = "ryot.foo";
+        extraConfig = ''
+          reverse_proxy http://104.40.4.44:8090
+        '';
+      };
     };
+  };
 }
