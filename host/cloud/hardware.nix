@@ -33,13 +33,13 @@
       ];
     };
 
-    "/var/lib/nextcloud" = {
-      fsType = "none";
-      device = "/pool/NextCloud";
-      options = [
-        "bind"
-        "nofail"
-      ];
-    };
+    # "/var/lib/nextcloud" = {
+    #   fsType = "none";
+    #   device = "/pool/NextCloud";
+    #   options = [
+    #     "bind"
+    #     "nofail"
+    #   ];
+    # };
   };
 }

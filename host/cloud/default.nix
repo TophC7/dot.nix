@@ -1,35 +1,48 @@
-{ modulesPath, config, pkgs, hostName, ... }:
+{
+  modulesPath,
+  config,
+  pkgs,
+  hostName,
+  ...
+}:
 {
   ## MODULES & IMPORTS ##
-  imports = [ 
-      # Common Modules
-      ../../common/acme
-      ../../common/lxc
-      ../../common/ssh
+  imports = [
+    # Common Modules
+    ../../common/acme
+    ../../common/lxc
+    ../../common/ssh
 
-      # Import hardware configuration.
-      ./hardware.nix
-      
-      # Local Modules
+    # Import hardware configuration.
+    ./hardware.nix
 
-      # cron
-      ./modules/cron
-      # Logrotate
+    # Local Modules
+
+    # cron
+    ./modules/cron
+    # Logrotate
     ./modules/logrotate
     # Caddy
     ./modules/caddy
-      # Snapraid-runner
-      ./modules/snapraid
+    # Snapraid-runner
+    ./modules/snapraid
   ];
 
   ## NETWORKING ##
   networking.firewall = {
-    allowedTCPPorts = [ 22 80 443 ];
+    allowedTCPPorts = [
+      22
+      80
+      443
+      8181
+    ];
     allowedUDPPorts = [ ];
   };
 
+  ## USERS ##
+
   ## ENVIORMENT & PACKAGES ##
-  nixpkgs.overlays = [ (import ./overlays) ];
+  nixpkgs.overlays = [ (import ../../nix/overlays) ];
   environment.systemPackages = with pkgs; [
     git
     mergerfs
@@ -38,10 +51,10 @@
     ranger
     sshfs
     snapraid
-    snapraid-runner 
-    wget 
+    snapraid-runner
+    wget
   ];
-  
+
   environment.variables = {
     HOSTNAME = hostName;
   };
