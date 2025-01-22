@@ -100,7 +100,7 @@ set -U tide_kubectl_color 326CE5
 set -U tide_kubectl_icon \U000f10fe
 set -U tide_left_prompt_frame_enabled false
 set -U tide_left_prompt_items pwd\x1egit\x1enewline\x1echaracter
-set -U tide_left_prompt_prefix 
+set -U tide_left_prompt_prefix
 set -U tide_left_prompt_separator_diff_color \x20
 set -U tide_left_prompt_separator_same_color \x20
 set -U tide_left_prompt_suffix \x20
@@ -145,7 +145,7 @@ set -U tide_right_prompt_items status\x1ecmd_duration\x1econtext\x1ejobs\x1edire
 set -U tide_right_prompt_prefix \x20
 set -U tide_right_prompt_separator_diff_color \x20
 set -U tide_right_prompt_separator_same_color \x20
-set -U tide_right_prompt_suffix 
+set -U tide_right_prompt_suffix
 set -U tide_ruby_bg_color normal
 set -U tide_ruby_color B31209
 set -U tide_ruby_icon \ue23e
@@ -186,6 +186,10 @@ set -U tide_vi_mode_icon_visual V
 set -U tide_zig_bg_color normal
 set -U tide_zig_color F7A41D
 set -U tide_zig_icon \ue6a9
+
+function s
+    ssh (whoami)@$argv
+end
 
 set fish_greeting # Disable greeting
 
