@@ -11,6 +11,7 @@
   services.forgejo = {
     enable = true;
 
+    group = "ryot";
     stateDir = "/pool/forgejo";
 
     # Settings
@@ -73,9 +74,12 @@
     };
   };
 
-  users.users.forgejo.openssh.authorizedKeys.keys = [
-    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIClZstYoT64zHnGfE7LMYNiQPN5/gmCt382lC+Ji8lrH PVE"
-  ];
+  users.users.forgejo = {
+    extraGroups = [ "ryot" ];
+    openssh.authorizedKeys.keys = [
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIClZstYoT64zHnGfE7LMYNiQPN5/gmCt382lC+Ji8lrH PVE"
+    ];
+  };
 
   # Give admin group access to forgejo config
   users.users.${admin}.extraGroups = [ "forgejo" ];

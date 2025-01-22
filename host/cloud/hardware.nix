@@ -18,6 +18,9 @@
         "fsname=mergerfs"
         "category.create=mfs"
         "nonempty"
+        "uid=1000"
+        "gid=1004" # Ryot group
+        "umask=002"
       ];
     };
 

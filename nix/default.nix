@@ -33,6 +33,12 @@ in
 
   ## USERS ##
   users.mutableUsers = false;
+  users.groups = {
+    ryot = {
+      gid = 1004;
+      members = [ "${admin}" ];
+    };
+  };
   users.users."${admin}" = {
     isNormalUser = true;
     createHome = true;
