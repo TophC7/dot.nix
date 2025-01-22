@@ -15,11 +15,9 @@
       # cron
       ./modules/cron
       # Logrotate
-      ./modules/logrotate
-      # Nextcloud
-      ./modules/nextcloud
-      # Nginx
-      ./modules/nginx
+    ./modules/logrotate
+    # Caddy
+    ./modules/caddy
       # Snapraid-runner
       ./modules/snapraid
   ];

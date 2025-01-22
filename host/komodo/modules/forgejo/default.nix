@@ -30,10 +30,11 @@
 
       server = {
         # Configuration for reverse proxy
-        ROOT_URL = "https://git.ryot.foo/";
-        HTTP_ADDR = "0.0.0.0";
+        DOMAIN = "git.ryot.foo";
+        HTTP_ADDR = "127.0.0.1";
         HTTP_PORT = 3003;
-        DOMAIN = "localhost";
+        ROOT_URL = "https://git.ryot.foo/";
+        # SSH_PORT = 222;
       };
 
       repository = {
@@ -43,12 +44,11 @@
       ui = {
         DEFAULT_THEME = "forgejo-dark";
         SHOW_USER_EMAIL = false;
-      };
-
-      "ui.meta" = {
-        AUTHOR = "Ryot";
-        DESCRIPTION = "Ryot Gitea instance";
-        KEYWORDS = "";
+        meta = {
+          AUTHOR = "Ryot";
+          DESCRIPTION = "Ryot Gitea instance";
+          KEYWORDS = "";
+        };
       };
 
       security = {
@@ -63,7 +63,7 @@
         DISABLE_GRAVATAR = true;
       };
 
-      "cron.sync_external_users".ENABLED = false;
+      cron.sync_external_users.ENABLED = false;
 
       log.LEVEL = "Info";
       # Private server

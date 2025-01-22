@@ -9,7 +9,7 @@
   ## MODULES & IMPORTS ##
   imports = [
     # Common Modules
-    # ../../common/acme
+    ../../common/acme
     ../../common/lxc
     ../../common/ssh
     # ../../common/vscode-server
@@ -18,7 +18,7 @@
     ./hardware.nix
 
     # Local Modules
-    # ./modules/caddy
+    ./modules/caddy
     ./modules/frp
     ./modules/forgejo
     ./modules/komodo
@@ -30,10 +30,10 @@
       [REDACTED]
       [REDACTED]
       [REDACTED]
-      222 # GitTea SSH
+      # 222 # Forgejo SSH
       [REDACTED]
       [REDACTED]
-      3003 # GitTea
+      [REDACTED]
       [REDACTED]
       [REDACTED]
       8080 # File Browser
