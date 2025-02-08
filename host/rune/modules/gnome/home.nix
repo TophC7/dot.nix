@@ -55,8 +55,9 @@
           "vesktop.desktop"
           "org.telegram.desktop.desktop"
           "code.desktop"
-          "Marvel Rivals.desktop"
           "steam.desktop"
+          "Marvel Rivals.desktop"
+          "org.prismlauncher.PrismLauncher.desktop"
         ];
 
         disable-user-extensions = false;

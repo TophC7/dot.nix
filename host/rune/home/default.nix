@@ -14,6 +14,7 @@
 
     # Modules
     ../modules/gnome/home.nix
+    ../modules/fish
   ];
 
   # Enables app shorcuts
@@ -22,6 +23,7 @@
   xdg.systemDirs.data = [ "${config.home.homeDirectory}/.nix-profile/share/applications" ];
 
   home.packages = with pkgs; [
+    asdf-vm
     bitwarden-desktop
     chafa
     fastfetch
@@ -30,6 +32,7 @@
     fishPlugins.tide
     grc
     inspector
+    logisim-evolution
     monocraft
     nerd-fonts.fira-code
     nodejs_22
