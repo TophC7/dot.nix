@@ -17,6 +17,7 @@
     # Modules
     ./modules/fish
     ./modules/gnome
+    ./modules/minecraft
     ./modules/steam
     ./modules/vm
   ];

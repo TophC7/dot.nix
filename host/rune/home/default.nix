@@ -23,7 +23,6 @@
   xdg.systemDirs.data = [ "${config.home.homeDirectory}/.nix-profile/share/applications" ];
 
   home.packages = with pkgs; [
-    asdf-vm
     bitwarden-desktop
     chafa
     fastfetch
@@ -33,6 +32,7 @@
     grc
     inspector
     logisim-evolution
+    mcaselector
     monocraft
     nerd-fonts.fira-code
     nodejs_22
