@@ -16,8 +16,9 @@
 
     # Modules
     ./modules/fish
-    ./modules/steam
     ./modules/gnome
+    ./modules/steam
+    ./modules/vm
   ];
 
   ## NETWORKING ##

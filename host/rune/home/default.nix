@@ -14,7 +14,7 @@
 
     # Modules
     ../modules/gnome/home.nix
-    ../modules/fish
+    ../modules/vm/home.nix
   ];
 
   # Enables app shorcuts

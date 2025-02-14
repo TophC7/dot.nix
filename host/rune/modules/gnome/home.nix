@@ -50,6 +50,7 @@
         favorite-apps = [
           "org.gnome.Nautilus.desktop"
           "org.wezfurlong.wezterm.desktop"
+          "win11.desktop"
           "zen.desktop"
           "spotify.desktop"
           "vesktop.desktop"
