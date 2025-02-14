@@ -17,6 +17,7 @@ let
 in
 {
   ## TIMEZONE & LOCALE ##
+  networking.timeServers = [ "pool.ntp.org" ];
   time.timeZone = timeZone;
   i18n.defaultLocale = defaultLocale;
   i18n.extraLocaleSettings = {
