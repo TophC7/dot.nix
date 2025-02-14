@@ -5,6 +5,7 @@
         autoStart = true;
         extraOptions = [
             "--network=host"
+            "--pull=newer"
         ];
         hostname = "cloudflared";
         volumes = [
