@@ -12,5 +12,6 @@
       fishPlugins.grc
       fishPlugins.tide
       grc
+      lazydocker
     ];
 }
