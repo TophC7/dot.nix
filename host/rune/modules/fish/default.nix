@@ -2,7 +2,7 @@
 {
   programs.fish = {
     shellInit = ''
-    source "$HOME/.nix-profile/share/asdf-vm/asdf.fish"
+    source "${pkgs.asdf-vm}/share/asdf-vm/asdf.fish"
     '';
   };
 }

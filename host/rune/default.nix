@@ -15,6 +15,7 @@
     ./hardware.nix
 
     # Modules
+    ./modules/fish
     ./modules/steam
     ./modules/gnome
   ];
@@ -24,6 +25,7 @@
 
   ## ENVIORMENT & PACKAGES ##
   environment.systemPackages = with pkgs; [
+    asdf-vm
     ddcutil
     git
     micro
@@ -48,10 +50,7 @@
     pulse.enable = true;
   };
 
-  programs.java = {
-    enable = true;
-    package = pkgs.jdk;
-  };
+  programs.nix-ld.enable = true;
 
   environment.variables = {
     HOSTNAME = hostName;
