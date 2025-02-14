@@ -44,11 +44,12 @@
       ui = {
         DEFAULT_THEME = "forgejo-dark";
         SHOW_USER_EMAIL = false;
-        meta = {
+      };
+
+      "ui.meta" = {
           AUTHOR = "Ryot";
           DESCRIPTION = "Ryot Gitea instance";
           KEYWORDS = "";
-        };
       };
 
       security = {
@@ -63,7 +64,10 @@
         DISABLE_GRAVATAR = true;
       };
 
-      cron.sync_external_users.ENABLED = false;
+      "cron.sync_external_users" = {
+        SCHEDULE = "@every 24h";
+        UPDATE_EXISTING = true;
+      };
 
       log.LEVEL = "Info";
       # Private server
