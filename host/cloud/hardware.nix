@@ -11,7 +11,7 @@
       fsType = "fuse.mergerfs";
       device = "/mnt/data*";
       options = [
-        "direct_io"
+        "cache.files=auto-full"
         "defaults"
         "allow_other"
         "minfreespace=50G"
