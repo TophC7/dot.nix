@@ -3,6 +3,7 @@
   config,
   pkgs,
   hostName,
+  admin,
   ...
 }:
 {
@@ -20,6 +21,8 @@
 
     # cron
     ./modules/cron
+    # Filerun
+    ./modules/filerun
     # Logrotate
     ./modules/logrotate
     # Caddy
@@ -40,10 +43,12 @@
   };
 
   ## USERS ##
+  users.users.${admin}.extraGroups = [ "docker" ];
 
   ## ENVIORMENT & PACKAGES ##
   nixpkgs.overlays = [ (import ../../nix/overlays) ];
   environment.systemPackages = with pkgs; [
+    arion
     git
     mergerfs
     micro

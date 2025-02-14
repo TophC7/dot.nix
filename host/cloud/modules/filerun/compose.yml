@@ -1,0 +1,37 @@
+name: filerun
+services:
+    db:
+        image: mariadb:10.5
+        user: 1001:1004
+        environment:
+            MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASS}
+            MYSQL_USER: ${DB_USER}
+            MYSQL_PASSWORD: ${DB_PASS}
+            MYSQL_DATABASE: ${DB_NAME}
+        restart: unless-stopped
+        volumes:
+            - /pool/filerun/db:/var/lib/mysql
+
+    web:
+        image: filerun/filerun:8.1
+        user: root
+        environment:
+            FR_DB_HOST: db
+            FR_DB_PORT: 3306
+            FR_DB_NAME: ${DB_NAME}
+            FR_DB_USER: ${DB_USER}
+            FR_DB_PASS: ${DB_PASS}
+            APACHE_RUN_USER: toph
+            APACHE_RUN_USER_ID: 1001
+            APACHE_RUN_GROUP: toph
+            APACHE_RUN_GROUP_ID: 1004
+        depends_on:
+            - db
+        links:
+            - db:db
+        ports:
+            - "8181:80"
+        restart: unless-stopped
+        volumes:
+            - /pool/filerun/html:/var/www/html
+            - /pool/filerun/user-files:/user-files

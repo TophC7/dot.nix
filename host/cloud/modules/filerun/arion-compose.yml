@@ -1,0 +1,58 @@
+{
+  "networks": { "default": { "name": "filerun" } },
+  "services":
+    {
+      "db":
+        {
+          "environment":
+            {
+              "MYSQL_DATABASE": "filerun",
+              "MYSQL_PASSWORD": "m3kItsvjLTYWtYX1TQLxwAKBWDVnWsezPR3vtVS+rsHUlazY",
+              "MYSQL_ROOT_PASSWORD": "pHUlPjDwhfpfAJPlF/FYN8q5w2R+0/U4aosJ5FOBPIejHkmm",
+              "MYSQL_USER": "admin",
+            },
+          "image": "mariadb:10.11",
+          "sysctls": {},
+          "user": "1000:1004",
+          "volumes": ["/pool/filerun/db:/var/lib/mysql"],
+        },
+      "web":
+        {
+          "depends_on": ["db"],
+          "environment":
+            {
+              "APACHE_RUN_GROUP": "ryot",
+              "APACHE_RUN_GROUP_ID": "1004",
+              "APACHE_RUN_USER": "toph",
+              "APACHE_RUN_USER_ID": "1000",
+              "FR_DB_HOST": "db",
+              "FR_DB_NAME": "filerun",
+              "FR_DB_PASS": "m3kItsvjLTYWtYX1TQLxwAKBWDVnWsezPR3vtVS+rsHUlazY",
+              "FR_DB_PORT": "3306",
+              "FR_DB_USER": "admin",
+            },
+          "image": "filerun/filerun:8.1",
+          "ports": ["8181:80"],
+          "sysctls": {},
+          "tty": true,
+          "user": "root",
+          "volumes":
+            [
+              "/pool/filerun/html:/var/www/html",
+              "/pool/filerun/user-files:/user-files",
+            ],
+        },
+    },
+  "version": "3.4",
+  "volumes": {},
+  "x-arion":
+    {
+      "images": [],
+      "project": { "name": "filerun" },
+      "serviceInfo":
+        {
+          "db": { "defaultExec": ["/bin/sh"] },
+          "web": { "defaultExec": ["/bin/sh"] },
+        },
+    },
+}
