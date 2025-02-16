@@ -1,19 +1,29 @@
-{ modulesPath, config, pkgs, hostName, ... }:
+{
+  modulesPath,
+  config,
+  pkgs,
+  hostName,
+  ...
+}:
 {
   ## MODULES & IMPORTS ##
   imports = [
-      # Common Modules
-      ../../common/lxc
-      ../../common/ssh
+    # Common Modules
+    ../../common/lxc
+    ../../common/ssh
+    ../../common/vscode-server
 
-      # Import hardware configuration.
-      ./hardware.nix
-    ];
-  
-  
+    # Import hardware configuration.
+    ./hardware.nix
+  ];
+
   ## NETWORKING ##
   networking.firewall = {
-    allowedTCPPorts = [ 22 80 443 ];
+    allowedTCPPorts = [
+      22
+      80
+      443
+    ];
     allowedUDPPorts = [ ];
   };
 
@@ -29,17 +39,12 @@
     x2goserver
   ];
 
-  programs.java = { 
+  programs.java = {
     enable = true;
-    package = pkgs.jdk; };
+    package = pkgs.jdk;
+  };
 
   environment.variables = {
     HOSTNAME = hostName;
-  };
-
-  ## VS CODE ##
-  programs.nix-ld = {
-    enable = true;
-    package = pkgs.nix-ld-rs;
   };
 }
