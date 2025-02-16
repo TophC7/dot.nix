@@ -1,3 +1,4 @@
+# FIXME: this shit is a mess i need to learn how to do this properly
 {
   description = "Unstable Flake";
 
@@ -7,23 +8,32 @@
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    zen-browser.url = "github:0xc000022070/zen-browser-flake";
+    vscode-server = {
+      url = "github:nix-community/nixos-vscode-server";
+    };
+    zen-browser = {
+      url = "github:0xc000022070/zen-browser-flake";
+    };
+    # nixvirt = {
+    #   url = "https://flakehub.com/f/AshleyYakeley/NixVirt/*.tar.gz";
+    #   inputs.nixpkgs.follows = "nixpkgs";
+    # };
+    # arion = {
+    #   url = "github:hercules-ci/arion";
+    #   inputs.nixpkgs.follows = "nixpkgs";
+    # };
   };
 
   outputs =
-    {
-      self,
-      nixpkgs,
-      home-manager,
-      zen-browser,
-      ...
-    }:
+    { self, nixpkgs, ... }@inputs:
     let
+      inherit (self) outputs;
+      inherit (nixpkgs) lib;
+
       admin = "toph";
       user = "toph";
       ARM = "aarch64-linux"; # ARM systems
       X86 = "x86_64-linux"; # x86_64 systems
-      lib = nixpkgs.lib;
     in
     {
       nixosConfigurations = {
@@ -72,6 +82,18 @@
             modules = [
               ./nix
               default
+              inputs.vscode-server.nixosModules.default
+              (
+                { config, pkgs, ... }:
+                {
+                  services.vscode-server.enable = true;
+                  services.vscode-server.enableFHS = true;
+                  programs.nix-ld = {
+                    enable = true;
+                    package = pkgs.nix-ld-rs;
+                  };
+                }
+              )
             ];
           };
 
@@ -88,6 +110,13 @@
             modules = [
               ./nix
               default
+              inputs.vscode-server.nixosModules.default
+              (
+                { config, pkgs, ... }:
+                {
+                  services.vscode-server.enable = true;
+                }
+              )
             ];
           };
 
@@ -114,7 +143,7 @@
           in
           lib.nixosSystem {
             specialArgs = {
-              inherit admin hostName;
+              inherit admin hostName inputs;
             };
             system = X86;
             modules = [
@@ -160,7 +189,7 @@
               pkgs = armPkgs;
               home = ./. + "/host/${hostName}/home";
             in
-            home-manager.lib.homeManagerConfiguration {
+            inputs.home-manager.lib.homeManagerConfiguration {
               inherit pkgs;
               extraSpecialArgs = {
                 inherit admin user hostName;
@@ -174,7 +203,7 @@
               pkgs = x86Pkgs;
               home = ./. + "/host/${hostName}/home";
             in
-            home-manager.lib.homeManagerConfiguration {
+            inputs.home-manager.lib.homeManagerConfiguration {
               inherit pkgs;
               extraSpecialArgs = {
                 inherit admin user hostName;
@@ -188,7 +217,7 @@
               pkgs = x86Pkgs;
               home = ./. + "/host/${hostName}/home";
             in
-            home-manager.lib.homeManagerConfiguration {
+            inputs.home-manager.lib.homeManagerConfiguration {
               inherit pkgs;
               extraSpecialArgs = {
                 inherit admin user hostName;
@@ -202,7 +231,7 @@
               pkgs = x86Pkgs;
               home = ./. + "/host/${hostName}/home";
             in
-            home-manager.lib.homeManagerConfiguration {
+            inputs.home-manager.lib.homeManagerConfiguration {
               inherit pkgs;
               extraSpecialArgs = {
                 inherit admin user hostName;
@@ -216,7 +245,7 @@
               pkgs = x86Pkgs;
               home = ./. + "/host/${hostName}/home";
             in
-            home-manager.lib.homeManagerConfiguration {
+            inputs.home-manager.lib.homeManagerConfiguration {
               inherit pkgs;
               extraSpecialArgs = {
                 inherit admin user hostName;
@@ -229,9 +258,9 @@
               hostName = "rune";
               pkgs = x86Pkgs;
               home = ./. + "/host/${hostName}/home";
-              zen = zen-browser.packages."${X86}".beta;
+              zen = inputs.zen-browser.packages."${X86}".beta;
             in
-            home-manager.lib.homeManagerConfiguration {
+            inputs.home-manager.lib.homeManagerConfiguration {
               inherit pkgs;
               extraSpecialArgs = {
                 inherit
@@ -239,6 +268,7 @@
                   user
                   hostName
                   zen
+                  inputs
                   ;
               };
               modules = [ home ];
@@ -250,9 +280,9 @@
               hostName = "haze";
               pkgs = x86Pkgs;
               home = ./. + "/host/${hostName}/home";
-              zen = zen-browser.packages."${X86}".beta;
+              zen = inputs.zen-browser.packages."${X86}".beta;
             in
-            home-manager.lib.homeManagerConfiguration {
+            inputs.home-manager.lib.homeManagerConfiguration {
               inherit pkgs;
               extraSpecialArgs = {
                 inherit
@@ -270,9 +300,9 @@
               hostName = "haze";
               pkgs = x86Pkgs;
               home = ./. + "/host/${hostName}/home";
-              zen = zen-browser.packages."${X86}".beta;
+              zen = inputs.zen-browser.packages."${X86}".beta;
             in
-            home-manager.lib.homeManagerConfiguration {
+            inputs.home-manager.lib.homeManagerConfiguration {
               inherit pkgs;
               extraSpecialArgs = {
                 inherit
