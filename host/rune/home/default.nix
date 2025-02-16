@@ -17,6 +17,19 @@
     ../modules/vm/home.nix
   ];
 
+  # ssh
+  programs.ssh = {
+    enable = true;
+    matchBlocks = {
+      "git.ryot.foo" = {
+        identityFile = "~/git/.ssh/git";
+      };
+    };
+    extraConfig = ''
+    IdentityFile ~/.ssh/pve
+    '';
+  };
+
   # Enables app shorcuts
   targets.genericLinux.enable = true;
   xdg.mime.enable = true;
