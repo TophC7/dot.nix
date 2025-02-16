@@ -30,6 +30,8 @@
     asdf-vm
     ddcutil
     git
+    glfw3-minecraft
+    libglvnd
     micro
     nixfmt-rfc-style
     openssh
