@@ -7,6 +7,17 @@
   ...
 }:
 {
+
+  # users.users.git = {
+  #   description = "git";
+  #   uid = 993;
+  #   group = "ryot";
+  #   shell = pkgs.fish;
+  #   # openssh.authorizedKeys.keys = [
+  #   #   "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIClZstYoT64zHnGfE7LMYNiQPN5/gmCt382lC+Ji8lrH PVE"
+  #   # ];
+  # };
+
   # Forgejo configuration
   services.forgejo = {
     enable = true;
@@ -22,10 +33,13 @@
     };
 
     settings = {
+
       DEFAULT = {
-        # Configuration for Gitea
+        # Configuration for forgejo
+        I_AM_BEING_UNSAFE_RUNNING_AS_ROOT = "true";
         APP_NAME = "Ryot Git";
         RUN_MODE = "dev";
+        RUN_USER = "toph";
       };
 
       server = {
@@ -34,7 +48,9 @@
         HTTP_ADDR = "127.0.0.1";
         HTTP_PORT = 3003;
         ROOT_URL = "https://git.ryot.foo/";
-        # SSH_PORT = 222;
+        START_SSH_SERVER = true;
+        BUILTIN_SSH_SERVER_USER = "git";
+        SSH_PORT = 222;
       };
 
       repository = {
@@ -47,9 +63,9 @@
       };
 
       "ui.meta" = {
-          AUTHOR = "Ryot";
-          DESCRIPTION = "Ryot Gitea instance";
-          KEYWORDS = "";
+        AUTHOR = "Ryot";
+        DESCRIPTION = "Ryot Gitea instance";
+        KEYWORDS = "";
       };
 
       security = {
@@ -86,5 +102,5 @@
   };
 
   # Give admin group access to forgejo config
-  users.users.${admin}.extraGroups = [ "forgejo" ];
+  # users.users.${admin}.extraGroups = [ "forgejo" ];
 }

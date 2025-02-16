@@ -20,7 +20,7 @@
     # Local Modules
     ./modules/caddy
     ./modules/frp
-    ./modules/forgejo
+    # ./modules/forgejo
     ./modules/komodo
   ];
 
@@ -30,7 +30,7 @@
       [REDACTED]
       [REDACTED]
       [REDACTED]
-      # 222 # Forgejo SSH
+      222 # Forgejo SSH
       [REDACTED]
       [REDACTED]
       [REDACTED]
