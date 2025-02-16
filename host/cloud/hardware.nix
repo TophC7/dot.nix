@@ -6,6 +6,7 @@
   # for sshfs
   programs.fuse.userAllowOther = true;
 
+  # TODO: use tempfls to set the acls in nix config
   fileSystems = {
     "/pool" = {
       fsType = "fuse.mergerfs";
@@ -20,7 +21,7 @@
         "nonempty"
         "uid=1000"
         "gid=1004" # Ryot group
-        "umask=002"
+        "posix_acl=true"
       ];
     };
 
@@ -32,14 +33,5 @@
         "nofail"
       ];
     };
-
-    # "/var/lib/nextcloud" = {
-    #   fsType = "none";
-    #   device = "/pool/NextCloud";
-    #   options = [
-    #     "bind"
-    #     "nofail"
-    #   ];
-    # };
   };
 }
