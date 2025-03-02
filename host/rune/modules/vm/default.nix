@@ -14,6 +14,7 @@
 
   # Install necessary packages
   environment.systemPackages = with pkgs; [
+    OVMFFull
     qemu
     qemu_kvm
     spice
@@ -43,10 +44,19 @@
     libvirtd = {
       enable = true;
       qemu = {
-        runAsRoot = true;
+        package = pkgs.qemu_kvm;
+        runAsRoot = false;
         swtpm.enable = true;
-        ovmf.enable = true;
-        ovmf.packages = with pkgs; [ OVMFFull.fd ];
+        ovmf = {
+          enable = true;
+          packages = with pkgs; [( OVMFFull.override {
+            secureBoot = true;
+            tpmSupport = true;
+            httpSupport = true;
+          }).fd];
+        };
+        # ovmf.enable = true;
+        # ovmf.packages = with pkgs; [ OVMFFull.fd ];
         vhostUserPackages = with pkgs; [ virtiofsd ];
       };
     };
