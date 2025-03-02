@@ -20,12 +20,19 @@ let
     xorg.libX11
     xorg.libXcursor
     xorg.libXext
+    xorg.libXi
     xorg.libXrandr
+    xorg.libXrender
+    xorg.libXtst
     xorg.libXxf86vm
 
     udev # oshi
 
     vulkan-loader # VulkanMod's lwjgl
+    
+    freetype
+    fontconfig
+    flite
   ];
 in
 {
