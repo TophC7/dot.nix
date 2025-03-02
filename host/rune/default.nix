@@ -22,6 +22,10 @@
     ./modules/vm
   ];
 
+  # services.openssh.settings = {
+  #   StrictModes = false;
+  # };
+
   ## NETWORKING ##
   networking.networkmanager.enable = true;
 
