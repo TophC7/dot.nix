@@ -13,6 +13,7 @@
     ../../../common/vscode
 
     # Modules
+    ../modules/fleet/home.nix
     ../modules/gnome/home.nix
     ../modules/vm/home.nix
   ];
@@ -42,7 +43,9 @@
     fish
     fishPlugins.grc
     fishPlugins.tide
+    gpu-screen-recorder-gtk
     grc
+    jetbrains-toolbox
     inspector
     logisim-evolution
     mcaselector
@@ -56,6 +59,7 @@
     telegram-desktop
     termius
     vesktop
+    vivaldi
     zen
   ];
 }

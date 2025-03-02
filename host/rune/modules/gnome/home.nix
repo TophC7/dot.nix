@@ -56,6 +56,7 @@
           "vesktop.desktop"
           "org.telegram.desktop.desktop"
           "code.desktop"
+          "fleet.desktop"
           "steam.desktop"
           "Marvel Rivals.desktop"
           "org.prismlauncher.PrismLauncher.desktop"
