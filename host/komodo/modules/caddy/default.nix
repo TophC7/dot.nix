@@ -78,6 +78,20 @@
         '';
       };
 
+      "outline.ryot.foo" = {
+        useACMEHost = "ryot.foo";
+        extraConfig = ''
+          reverse_proxy localhost:3480 
+        '';
+      };
+
+      "plane.ryot.foo" = {
+        useACMEHost = "ryot.foo";
+        extraConfig = ''
+          reverse_proxy localhost:3000 
+        '';
+      };
+
       "upsnap.ryot.foo" = {
         useACMEHost = "ryot.foo";
         extraConfig = ''
