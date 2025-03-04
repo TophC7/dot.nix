@@ -37,11 +37,11 @@
     systemd.emergencyAccess = true; # Don't need to enter password in emergency mode
   };
   boot.kernelParams = [
-    # "systemd.setenv=SYSTEMD_SULOGIN_FORCE=1"
-    # "systemd.show_status=true"
-    #"systemd.log_level=debug"
-    # "systemd.log_target=console"
-    # "systemd.journald.forward_to_console=1"
+    "systemd.setenv=SYSTEMD_SULOGIN_FORCE=1"
+    "systemd.show_status=true"
+    "systemd.log_level=debug"
+    "systemd.log_target=console"
+    "systemd.journald.forward_to_console=1"
   ];
 
   environment.systemPackages = builtins.attrValues {

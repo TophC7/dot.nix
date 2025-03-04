@@ -1,7 +1,7 @@
 ###############################################################
 #
-#  Rune - Main Desktop
-#  NixOS running on Ryzen 9 7900X3D , Radeon RX 6950 XT, 32GB RAM
+#  VM - Testing Virtual Machine
+#  NixOS running in VM
 #
 ###############################################################
 
@@ -33,7 +33,7 @@ in
       ## Misc Inputs ##
 
       ## VM Specific ##
-      "hosts/users/${username}" # # Not the best solution but I always have one user so ¯\_(ツ)_/¯
+      "hosts/users/${username}" # Not the best solution but I always have just one user so ¯\_(ツ)_/¯
     ])
 
   ];
@@ -52,19 +52,6 @@ in
 
   networking = {
     enableIPv6 = false;
-  };
-
-  ## Boot ##
-  boot = {
-    loader = {
-      efi.canTouchEfiVariables = true;
-      timeout = 3;
-    };
-
-    initrd = {
-      systemd.enable = true;
-      verbose = false;
-    };
   };
 
   ## System-wide packages ##

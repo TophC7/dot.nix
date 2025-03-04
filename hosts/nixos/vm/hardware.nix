@@ -14,21 +14,32 @@
     (modulesPath + "/profiles/qemu-guest.nix")
   ];
 
-  # Bootloader.
-  boot.loader.grub.enable = true;
-  boot.loader.grub.device = "/dev/vda";
-  boot.loader.grub.useOSProber = true;
+  ## Boot ##
+  boot = {
+    loader = {
+      grub = {
+        enable = true;
+        device = "/dev/vda";
+        useOSProber = true;
+      };
+      efi.canTouchEfiVariables = true;
+      timeout = 3;
+    };
 
-  boot.initrd.availableKernelModules = [
-    "ahci"
-    "xhci_pci"
-    "virtio_pci"
-    "sr_mod"
-    "virtio_blk"
-  ];
-  boot.initrd.kernelModules = [ ];
-  boot.kernelModules = [ "kvm-amd" ];
-  boot.extraModulePackages = [ ];
+    initrd = {
+      availableKernelModules = [
+        "ahci"
+        "xhci_pci"
+        "virtio_pci"
+        "sr_mod"
+        "virtio_blk"
+      ];
+      systemd.enable = true;
+      verbose = false;
+    };
+    kernelModules = [ "kvm-amd" ];
+    extraModulePackages = [ ];
+  };
 
   fileSystems."/" = {
     device = "/dev/disk/by-uuid/a0b82536-3087-410a-b283-60ea10811ef5";
