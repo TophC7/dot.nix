@@ -8,7 +8,9 @@
   modulesPath,
   ...
 }:
-
+let
+  username = config.hostSpec.username;
+in
 {
   imports = [
     (modulesPath + "/profiles/qemu-guest.nix")
@@ -41,11 +43,33 @@
     extraModulePackages = [ ];
   };
 
-  fileSystems."/" = {
-    device = "/dev/disk/by-uuid/a0b82536-3087-410a-b283-60ea10811ef5";
-    fsType = "ext4";
-  };
+  fileSystems = {
+    "/" = {
+      device = "/dev/disk/by-uuid/a0b82536-3087-410a-b283-60ea10811ef5";
+      fsType = "ext4";
+    };
 
+    "/pool" = {
+      device = "${username}@104.40.4.24:/pool";
+      fsType = "sshfs";
+      options = [
+        "defaults"
+        "reconnect"
+        "_netdev"
+        "allow_other"
+        "identityfile=/home/${username}/.ssh/pve"
+      ];
+    };
+
+    "/home/${username}/git" = {
+      fsType = "none";
+      device = "/pool/git";
+      options = [
+        "bind"
+        "nofail"
+      ];
+    };
+  };
   swapDevices = [ ];
 
   # Enables DHCP on each ethernet and wireless interface. In case of scripted networking
