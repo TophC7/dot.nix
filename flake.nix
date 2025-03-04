@@ -1,27 +1,32 @@
-# FIXME: this shit is a mess i need to learn how to do this properly
 {
-  description = "Unstable Flake";
+  description = "Toph's Nix-Config";
 
   inputs = {
-    nixpkgs.url = "nixpkgs/nixos-unstable";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    # The next two are for pinning to stable vs unstable regardless of what the above is set to
+    # This is particularly useful when an upcoming stable release is in beta because you can effectively
+    # keep 'nixpkgs-stable' set to stable for critical packages while setting 'nixpkgs' to the beta branch to
+    # get a jump start on deprecation changes.
+    # See also 'stable-packages' and 'unstable-packages' overlays at 'overlays/default.nix"
+    nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-24.11";
+    nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
+
+    # NixOs hardware flakes
+    hardware.url = "github:nixos/nixos-hardware";
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    vscode-server = {
-      url = "github:nix-community/nixos-vscode-server";
+    # VM tools
+    nixvirt = {
+      url = "https://flakehub.com/f/AshleyYakeley/NixVirt/*.tar.gz";
+      inputs.nixpkgs.follows = "nixpkgs-stable";
     };
     zen-browser = {
       url = "github:0xc000022070/zen-browser-flake";
     };
-    # nixvirt = {
-    #   url = "https://flakehub.com/f/AshleyYakeley/NixVirt/*.tar.gz";
-    #   inputs.nixpkgs.follows = "nixpkgs";
-    # };
-    # arion = {
-    #   url = "github:hercules-ci/arion";
-    #   inputs.nixpkgs.follows = "nixpkgs";
-    # };
+    # TODO: theming
+    # stylix.url = "github:danth/stylix/release-24.11";
   };
 
   outputs =
@@ -30,290 +35,78 @@
       inherit (self) outputs;
       inherit (nixpkgs) lib;
 
-      admin = "toph";
-      user = "toph";
       ARM = "aarch64-linux"; # ARM systems
       X86 = "x86_64-linux"; # x86_64 systems
-    in
-    {
-      nixosConfigurations = {
-        caenus =
-          let
-            hostName = "caenus";
-            default = ./. + "/host/${hostName}";
-          in
-          lib.nixosSystem {
-            specialArgs = {
-              inherit admin hostName;
-            };
-            system = ARM;
-            modules = [
-              ./nix
-              default
-            ];
-          };
 
-        cloud =
-          let
-            hostName = "cloud";
-            default = ./. + "/host/${hostName}";
-          in
-          lib.nixosSystem {
-            specialArgs = {
-              inherit admin hostName;
-            };
-            system = X86;
-            modules = [
-              ./nix
-              default
-            ];
-          };
+      #
+      # ========= Architectures =========
+      #
+      forAllSystems = nixpkgs.lib.genAttrs [
+        ARM
+        X86
+      ];
 
-        komodo =
+      #
+      # ========= Host Config Functions =========
+      #
+      # Handle a given host config based on whether its underlying system is nixos or darwin
+      mkHost = host: isARM: {
+        ${host} =
           let
-            hostName = "komodo";
-            default = ./. + "/host/${hostName}";
+            func = if isARM then ARM else X86;
+            systemFunc = func;
           in
           lib.nixosSystem {
             specialArgs = {
-              inherit admin hostName;
+              inherit
+                inputs
+                outputs
+                isARM
+                ;
+              system = systemFunc;
+              # ========== Extend lib with lib.custom ==========
+              # NOTE: This approach allows lib.custom to propagate into hm
+              # see: https://github.com/nix-community/home-manager/pull/3454
+              lib = nixpkgs.lib.extend (self: super: { custom = import ./lib { inherit (nixpkgs) lib; }; });
             };
-            system = X86;
-            modules = [
-              ./nix
-              default
-              inputs.vscode-server.nixosModules.default
-              (
-                { config, pkgs, ... }:
-                {
-                  services.vscode-server.enable = true;
-                  services.vscode-server.enableFHS = true;
-                  programs.nix-ld = {
-                    enable = true;
-                    package = pkgs.nix-ld-rs;
-                  };
-                }
-              )
-            ];
-          };
-
-        nix =
-          let
-            hostName = "nix";
-            default = ./. + "/host/${hostName}";
-          in
-          lib.nixosSystem {
-            specialArgs = {
-              inherit admin hostName;
-            };
-            system = X86;
-            modules = [
-              ./nix
-              default
-              inputs.vscode-server.nixosModules.default
-              (
-                { config, pkgs, ... }:
-                {
-                  services.vscode-server.enable = true;
-                }
-              )
-            ];
-          };
-
-        proxy =
-          let
-            hostName = "proxy";
-            default = ./. + "/host/${hostName}";
-          in
-          lib.nixosSystem {
-            specialArgs = {
-              inherit admin hostName;
-            };
-            system = X86;
-            modules = [
-              ./nix
-              default
-            ];
-          };
-
-        rune =
-          let
-            hostName = "rune";
-            default = ./. + "/host/${hostName}";
-          in
-          lib.nixosSystem {
-            specialArgs = {
-              inherit admin hostName inputs;
-            };
-            system = X86;
-            modules = [
-              ./nix
-              default
-            ];
-          };
-
-        haze =
-          let
-            user = "cesar";
-            hostName = "haze";
-            default = ./. + "/host/${hostName}";
-          in
-          lib.nixosSystem {
-            specialArgs = {
-              inherit admin user hostName;
-            };
-            system = X86;
-            modules = [
-              ./nix
-              default
-            ];
+            modules = [ ./hosts/nixos/${host} ];
           };
       };
+      # Invoke mkHost for each host config that is declared for either X86 or ARM
+      mkHostConfigs =
+        hosts: isARM: lib.foldl (acc: set: acc // set) { } (lib.map (host: mkHost host isARM) hosts);
+      # Return the hosts declared in the given directory
+      readHosts = folder: lib.attrNames (builtins.readDir ./hosts/${folder});
+    in
+    {
+      #
+      # ========= Overlays =========
+      #
+      # Custom modifications/overrides to upstream packages.
+      overlays = import ./overlays { inherit inputs; };
 
-      homeConfigurations =
+      #
+      # ========= Host Configurations =========
+      #
+      # Building configurations is available through `just rebuild` or `nixos-rebuild --flake .#hostname`
+      nixosConfigurations = mkHostConfigs (readHosts "nixos") false;
+
+      #
+      # ========= Packages =========
+      #
+      # Add custom packages to be shared or upstreamed.
+      packages = forAllSystems (
+        system:
         let
-          armPkgs = import nixpkgs {
-            system = ARM;
-            config.allowUnfree = true;
-          };
-          x86Pkgs = import nixpkgs {
-            system = X86;
-            config.allowUnfree = true;
-            # overlays = [ (import ./nixos/overlays) ];
+          pkgs = import nixpkgs {
+            inherit system;
+            overlays = [ self.overlays.default ];
           };
         in
-        {
-          "${admin}@caenus" =
-            let
-              hostName = "caenus";
-              pkgs = armPkgs;
-              home = ./. + "/host/${hostName}/home";
-            in
-            inputs.home-manager.lib.homeManagerConfiguration {
-              inherit pkgs;
-              extraSpecialArgs = {
-                inherit admin user hostName;
-              };
-              modules = [ home ];
-            };
-
-          "${admin}@cloud" =
-            let
-              hostName = "cloud";
-              pkgs = x86Pkgs;
-              home = ./. + "/host/${hostName}/home";
-            in
-            inputs.home-manager.lib.homeManagerConfiguration {
-              inherit pkgs;
-              extraSpecialArgs = {
-                inherit admin user hostName;
-              };
-              modules = [ home ];
-            };
-
-          "${admin}@komodo" =
-            let
-              hostName = "komodo";
-              pkgs = x86Pkgs;
-              home = ./. + "/host/${hostName}/home";
-            in
-            inputs.home-manager.lib.homeManagerConfiguration {
-              inherit pkgs;
-              extraSpecialArgs = {
-                inherit admin user hostName;
-              };
-              modules = [ home ];
-            };
-
-          "${admin}@nix" =
-            let
-              hostName = "nix";
-              pkgs = x86Pkgs;
-              home = ./. + "/host/${hostName}/home";
-            in
-            inputs.home-manager.lib.homeManagerConfiguration {
-              inherit pkgs;
-              extraSpecialArgs = {
-                inherit admin user hostName;
-              };
-              modules = [ home ];
-            };
-
-          "${admin}@proxy" =
-            let
-              hostName = "proxy";
-              pkgs = x86Pkgs;
-              home = ./. + "/host/${hostName}/home";
-            in
-            inputs.home-manager.lib.homeManagerConfiguration {
-              inherit pkgs;
-              extraSpecialArgs = {
-                inherit admin user hostName;
-              };
-              modules = [ home ];
-            };
-
-          "${admin}@rune" =
-            let
-              hostName = "rune";
-              pkgs = x86Pkgs;
-              home = ./. + "/host/${hostName}/home";
-              zen = inputs.zen-browser.packages."${X86}".beta;
-            in
-            inputs.home-manager.lib.homeManagerConfiguration {
-              inherit pkgs;
-              extraSpecialArgs = {
-                inherit
-                  admin
-                  user
-                  hostName
-                  zen
-                  inputs
-                  ;
-              };
-              modules = [ home ];
-            };
-
-          "${admin}@haze" =
-            let
-              user = "cesar";
-              hostName = "haze";
-              pkgs = x86Pkgs;
-              home = ./. + "/host/${hostName}/home";
-              zen = inputs.zen-browser.packages."${X86}".beta;
-            in
-            inputs.home-manager.lib.homeManagerConfiguration {
-              inherit pkgs;
-              extraSpecialArgs = {
-                inherit
-                  admin
-                  user
-                  hostName
-                  zen
-                  ;
-              };
-              modules = [ home ];
-            };
-
-          "cesar@haze" =
-            let
-              hostName = "haze";
-              pkgs = x86Pkgs;
-              home = ./. + "/host/${hostName}/home";
-              zen = inputs.zen-browser.packages."${X86}".beta;
-            in
-            inputs.home-manager.lib.homeManagerConfiguration {
-              inherit pkgs;
-              extraSpecialArgs = {
-                inherit
-                  admin
-                  user
-                  hostName
-                  zen
-                  ;
-              };
-              modules = [ home ];
-            };
-        };
+        lib.packagesFromDirectoryRecursive {
+          callPackage = lib.callPackageWith pkgs;
+          directory = ./pkgs/common;
+        }
+      );
     };
 }

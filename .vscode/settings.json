@@ -1,0 +1,8 @@
+{
+    "explorer.fileNesting.patterns": {
+        ".gitignore": ".gitattributes, .envrc, readme",
+        "flake.nix": "flake.lock, shell.nix, checks.nix"
+    },
+    "editor.formatOnSave": true,
+    "editor.formatOnSaveMode": "file"
+}
