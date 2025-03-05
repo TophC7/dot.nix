@@ -25,6 +25,20 @@ function yellow
     end
 end
 
+function clear_home_manager_backups
+    yellow "====== CLEARING HOME-MANGER BACKUPS ======"
+    set total_files (find ~/.config -type f -name "*.homeManagerBackupFileExtension" | wc -l)
+    set counter 0
+
+    find ~/.config -type f -name "*.homeManagerBackupFileExtension" | while read -l file
+        set counter (math $counter + 1)
+        echo -n (printf "\rDeleting file %d of %d" $counter $total_files)
+        rm $file
+    end
+
+    echo  # new line
+end
+
 # Build switch arguments
 set switch_args "--show-trace" "--impure" "--flake"
 
@@ -37,6 +51,8 @@ else
     set HOST (hostname)
 end
 
+clear_home_manager_backups
+
 # Append flake and host switch
 set switch_args $switch_args ".#$HOST" "switch"
 
@@ -44,11 +60,9 @@ green "====== REBUILD ======"
 
 # Check if `nh` exists
 if type -q nh
-    find ~ -type f -name "*.homeManagerBackupFileExtension" -delete
     set -x REPO_PATH (pwd)
     nh os switch . -- --impure --show-trace
 else
-    find ~ -type f -name "*.homeManagerBackupFileExtension" -delete
     sudo nixos-rebuild $switch_args
 end
 
