@@ -8,20 +8,20 @@
 }:
 
 let
-  monitor = lib.head (lib.filter (m: m.primary) config.monitors);
+  # monitor = lib.head (lib.filter (m: m.primary) config.monitors);
 
   steam-session =
     let
       gamescope = lib.concatStringsSep " " [
         (lib.getExe pkgs.gamescope)
-        "--output-width ${toString monitor.width}"
-        "--output-height ${toString monitor.height}"
-        "--framerate-limit ${toString monitor.refreshRate}"
-        "--prefer-output ${monitor.name}"
+        # "--output-width ${toString monitor.width}"
+        # "--output-height ${toString monitor.height}"
+        # "--framerate-limit ${toString monitor.refreshRate}"
+        # "--prefer-output ${monitor.name}"
         "--adaptive-sync"
         "--expose-wayland"
         "--steam"
-        "--hdr-enabled"
+        # "--hdr-enabled"
       ];
       steam = lib.concatStringsSep " " [
         "steam"
@@ -37,7 +37,7 @@ let
     '';
 in
 {
-  home.packages = [
+  home.packages = with pkgs; [
     steam-session
     prismlauncher
   ];

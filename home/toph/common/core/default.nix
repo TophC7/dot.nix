@@ -55,12 +55,12 @@
     userDirs = {
       enable = true;
       createDirectories = true;
-      desktop = "${config.home.homeDirectory}/.desktop";
-      documents = "${config.home.homeDirectory}/doc";
-      download = "${config.home.homeDirectory}/downloads";
-      music = "${config.home.homeDirectory}/media/audio";
-      pictures = "${config.home.homeDirectory}/media/images";
-      videos = "${config.home.homeDirectory}/media/video";
+      # desktop = "${config.home.homeDirectory}/.desktop";
+      # documents = "${config.home.homeDirectory}/doc";
+      # download = "${config.home.homeDirectory}/downloads";
+      # music = "${config.home.homeDirectory}/media/audio";
+      # pictures = "${config.home.homeDirectory}/media/images";
+      # videos = "${config.home.homeDirectory}/media/video";
       # publicshare = "/var/empty"; #using this option with null or "/var/empty" barfs so it is set properly in extraConfig below
       # templates = "/var/empty"; #using this option with null or "/var/empty" barfs so it is set properly in extraConfig below
 

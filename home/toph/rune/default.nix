@@ -32,10 +32,6 @@
       ## Productivity ##
       gimp
       inkscape
-
-      ## Fonts ##
-      monocraft
-      nerd-fonts
       ;
   };
 

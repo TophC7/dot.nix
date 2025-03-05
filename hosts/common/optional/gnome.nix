@@ -33,7 +33,7 @@
     with pkgs;
     [
       atomix # puzzle game
-      # epiphany # web browser
+      epiphany # web browser
       evince # document viewer
       gedit # text editor
       gnome-maps

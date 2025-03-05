@@ -5,7 +5,7 @@
   ...
 }:
 {
-  imports = lib.custom.scanPaths ./.;
+  # imports = lib.custom.scanPaths ./.;
 
   home.packages = lib.flatten [
     (builtins.attrValues {
@@ -18,6 +18,8 @@
         logisim-evolution
         mcaselector
         prettierd
+        jetbrains-toolbox
+        vscode-fhs
 
         # nix
         nixpkgs-review
@@ -38,7 +40,6 @@
         ;
       inherit (pkgs.jetbrains)
         idea-ultimate
-        jetbrains-toolbox
         ;
     })
   ];

@@ -51,7 +51,7 @@
           "org.gnome.Nautilus.desktop"
           "org.wezfurlong.wezterm.desktop"
           "win11.desktop"
-          "zen.desktop"
+          "zen_twilight.desktop"
           "spotify.desktop"
           "vesktop.desktop"
           "org.telegram.desktop.desktop"

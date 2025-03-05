@@ -12,9 +12,9 @@
   };
 
   xdg.mimeApps.defaultApplications = {
-    "text/html" = [ "zen.desktop" ];
-    "text/xml" = [ "zen.desktop" ];
-    "x-scheme-handler/http" = [ "zen.desktop" ];
-    "x-scheme-handler/https" = [ "zen.desktop" ];
+    "text/html" = [ "zen_twilight.desktop" ];
+    "text/xml" = [ "zen_twilight.desktop" ];
+    "x-scheme-handler/http" = [ "zen_twilight.desktop" ];
+    "x-scheme-handler/https" = [ "zen_twilight.desktop" ];
   };
 }

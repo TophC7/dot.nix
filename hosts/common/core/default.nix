@@ -33,6 +33,7 @@ in
 
   # System-wide packages, in case we log in as root
   environment.systemPackages = with pkgs; [
+    plocate
     openssh
     ranger
     sshfs

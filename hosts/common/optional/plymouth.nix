@@ -7,7 +7,7 @@
     ];
     plymouth = {
       enable = true;
-      theme = lib.mkForce "hexagon_hud";
+      theme = lib.mkForce "motion";
       themePackages = [
         (pkgs.adi1090x-plymouth-themes.override { selected_themes = [ "motion" ]; })
       ];
