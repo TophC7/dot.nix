@@ -14,36 +14,6 @@
 }:
 let
   username = "toph";
-  runtimeLibs = with pkgs.stable; [
-    ## native versions
-    glfw3-minecraft
-    openal
-
-    ## openal
-    alsa-lib
-    libjack2
-    libpulseaudio
-    pipewire
-
-    ## glfw
-    libGL
-    xorg.libX11
-    xorg.libXcursor
-    xorg.libXext
-    xorg.libXi
-    xorg.libXrandr
-    xorg.libXrender
-    xorg.libXtst
-    xorg.libXxf86vm
-
-    udev # oshi
-
-    vulkan-loader # VulkanMod's lwjgl
-
-    freetype
-    fontconfig
-    flite
-  ];
 in
 {
   imports = lib.flatten [
@@ -71,7 +41,6 @@ in
       ## Rune Specific ##
       "hosts/users/${username}" # # Not the best solution but I always have one user so ¯\_(ツ)_/¯
     ])
-
   ];
 
   ## Host Specifications ##
@@ -97,19 +66,7 @@ in
     ranger
     sshfs
     wget
-
-    # REMOVE: Same as below
-    glfw3-minecraft
-    libglvnd
   ];
-
-  programs.nix-ld.libraries = runtimeLibs;
-
-  # FIXME: Remove this in favor of dirEnv
-  ## Libs for Minecraft ##
-  environment.variables = {
-    LD_LIBRARY_PATH = lib.makeLibraryPath runtimeLibs;
-  };
 
   # https://wiki.nixos.org/wiki/FAQ/When_do_I_update_stateVersion
   system.stateVersion = "24.11";
