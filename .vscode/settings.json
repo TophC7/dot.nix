@@ -4,5 +4,13 @@
         "flake.nix": "flake.lock, shell.nix, checks.nix"
     },
     "editor.formatOnSave": true,
-    "editor.formatOnSaveMode": "file"
+    "editor.formatOnSaveMode": "file",
+    "terminal.integrated.defaultProfile.linux": "fish-fhs",
+    "terminal.integrated.profiles.linux": {
+        // ...
+        "fish-fhs": {
+            "path": "systemd-run",
+            "args": ["--user", "--pty", "--quiet", "--same-dir", "--service-type=exec", "fish"]
+        }
+    }
 }
