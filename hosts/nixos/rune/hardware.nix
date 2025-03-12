@@ -47,12 +47,12 @@
   # File system configurations
   fileSystems = {
     "/" = {
-      device = "/dev/disk/by-uuid/28a9ac4d-1e87-4731-9c06-916711d83cb2";
+      device = "/dev/disk/by-uuid/d38c182c-6f05-4bf3-8a45-5532c10fd342";
       fsType = "ext4";
     };
 
     "/boot" = {
-      device = "/dev/disk/by-uuid/B182-E50E";
+      device = "/dev/disk/by-uuid/5B39-A7CB";
       fsType = "vfat";
       options = [
         "fmask=0077"
