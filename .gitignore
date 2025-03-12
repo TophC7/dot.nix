@@ -1,2 +1,4 @@
 
 nixos/modules/nextcloud/nextcloud-admin-pass
+.BAK/
+*.bak

@@ -21,6 +21,7 @@
         home-manager
         nh
         git
+        fish
         bats # for bash testing
         ;
     };
