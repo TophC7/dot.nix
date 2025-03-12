@@ -18,7 +18,6 @@
         logisim-evolution
         mcaselector
         prettierd
-        jetbrains-toolbox
         vscode-fhs
 
         # nix

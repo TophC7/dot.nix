@@ -36,6 +36,7 @@ in
       "hosts/common/optional/libvirt.nix" # vm tools
       "hosts/common/optional/nvtop.nix" # GPU monitor (not available in home-manager)
       "hosts/common/optional/plymouth.nix" # fancy boot screen
+      "hosts/common/optional/vial.nix" # KB setup
 
       ## Misc Inputs ##
 
@@ -61,6 +62,7 @@ in
   };
 
   ## System-wide packages ##
+  programs.nix-ld.enable = true;
   environment.systemPackages = with pkgs; [
     asdf-vm
     openssh

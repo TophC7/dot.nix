@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, config, ... }:
 {
   imports = [
     ## Required Configs ##
@@ -28,6 +28,7 @@
       bitwarden-desktop
       inspector
       wezterm
+      vial # KB setup
 
       ## Productivity ##
       gimp
@@ -35,24 +36,28 @@
       ;
   };
 
-  dconf.settings = {
-    "org/virt-manager/virt-manager/connections" = {
-      autoconnect = [
-        "qemu:///session"
-        "qemu:///system"
-      ];
-      uris = [
-        "qemu:///session"
-        "qemu:///system"
-      ];
-    };
-  };
-
   xdg.desktopEntries = {
+    # fleet = {
+    #   name = "Fleet";
+    #   comment = "Jetbrains Fleet";
+    #   exec = "fleet %u";
+    #   icon = "${config.home.homeDirectory}/.local/share/JetBrains/Toolbox/apps/fleet/lib/Fleet.png";
+    #   type = "Application";
+    #   terminal = false;
+    #   mimeType = [
+    #     "text/plain"
+    #     "inode/directory"
+    #   ];
+    #   categories = [
+    #     "Development"
+    #     "IDE"
+    #   ];
+    # };
+
     win11 = {
       name = "Windows 11";
       comment = "Windows 11 VM";
-      exec = "virt-manager --connect qemu:///system --show-domain-console win11-sys";
+      exec = "virt-manager --connect qemu:///session --show-domain-console win11";
       icon = "windows95";
       type = "Application";
       terminal = false;
