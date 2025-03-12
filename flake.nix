@@ -105,7 +105,7 @@
         in
         lib.packagesFromDirectoryRecursive {
           callPackage = lib.callPackageWith pkgs;
-          directory = ./pkgs/common;
+          directory = pkgs/common;
         }
       );
     };
