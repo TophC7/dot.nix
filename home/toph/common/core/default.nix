@@ -91,6 +91,10 @@
       ;
   };
 
+  programs.nix-index = {
+    enable = true;
+  };
+
   nix = {
     package = lib.mkDefault pkgs.nix;
     settings = {
