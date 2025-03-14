@@ -27,10 +27,10 @@ in
 
       ## Optional Configs ##
       "hosts/common/optional/audio.nix" # pipewire and cli controls
-      "hosts/common/optional/gaming.nix" # steam, gamescope, gamemode, and related hardware
+      # "hosts/common/optional/gaming.nix" # steam, gamescope, gamemode, and related hardware
       "hosts/common/optional/gnome.nix" # desktop
-      "hosts/common/optional/nvtop.nix" # GPU monitor (not available in home-manager)
-      "hosts/common/optional/plymouth.nix" # fancy boot screen
+      # "hosts/common/optional/nvtop.nix" # GPU monitor (not available in home-manager)
+      # "hosts/common/optional/plymouth.nix" # fancy boot screen
 
       ## Misc Inputs ##
 
@@ -55,6 +55,16 @@ in
   networking = {
     enableIPv6 = false;
   };
+
+  # VM guest additions to improve host-guest interaction
+  services.spice-vdagentd.enable = true;
+  services.qemuGuest.enable = true;
+  virtualisation.vmware.guest.enable = pkgs.stdenv.hostPlatform.isx86;
+  virtualisation.hypervGuest.enable = true;
+  services.xe-guest-utilities.enable = pkgs.stdenv.hostPlatform.isx86;
+  # The VirtualBox guest additions rely on an out-of-tree kernel module
+  # which lags behind kernel releases, potentially causing broken builds.
+  virtualisation.virtualbox.guest.enable = false;
 
   ## System-wide packages ##
   environment.systemPackages = with pkgs; [

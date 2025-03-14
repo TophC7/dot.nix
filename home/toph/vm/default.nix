@@ -10,8 +10,8 @@
     ## Host-specific Optional Configs ##
     ../common/optional/browsers
     ../common/optional/desktops
-    ../common/optional/development
-    ../common/optional/gaming
+    # ../common/optional/development
+    # ../common/optional/gaming
     ../common/optional/xdg.nix # file associations
   ];
 
