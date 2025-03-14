@@ -50,10 +50,26 @@
       "org/gnome/desktop/background" = {
         color-shading-type = "solid";
         picture-options = "zoom";
-        picture-uri = "file:///run/current-system/sw/share/backgrounds/gnome/blobs-l.svg";
-        picture-uri-dark = "file:///run/current-system/sw/share/backgrounds/gnome/blobs-d.svg";
+        picture-uri = "file:///" + ./wallpaper.jpg;
+        picture-uri-dark = "file:///" + ./wallpaper.jpg;
+        primary-color = "#000000";
+        secondary-color = "#000000";
+      };
+
+      "org/gnome/desktop/screensaver" = {
+        color-shading-type = "solid";
+        picture-options = "zoom";
+        picture-uri = "file:///" + ./wallpaper.jpg;
         primary-color = "#241f31";
         secondary-color = "#000000";
+      };
+
+      "org/gnome/desktop/interface" = {
+        accent-color = "blue";
+        color-scheme = "prefer-dark";
+        cursor-theme = "Numix-Cursor";
+        gtk-theme = "Gruvbox-Dark";
+        icon-theme = "Papirus-Dark";
       };
 
       "org/gnome/desktop/datetime" = {
@@ -82,26 +98,10 @@
         ];
       };
 
-      "org/gnome/desktop/interface" = {
-        accent-color = "orange";
-        color-scheme = "prefer-dark";
-        cursor-theme = "Numix-Cursor";
-        gtk-theme = "Gruvbox-Dark";
-        icon-theme = "Papirus-Dark";
-      };
-
       "org/gnome/desktop/peripherals/mouse" = {
         accel-profile = "flat";
         natural-scroll = false;
         speed = 0.0;
-      };
-
-      "org/gnome/desktop/screensaver" = {
-        color-shading-type = "solid";
-        picture-options = "zoom";
-        picture-uri = "file:///run/current-system/sw/share/backgrounds/gnome/blobs-l.svg";
-        primary-color = "#241f31";
-        secondary-color = "#000000";
       };
 
       "org/gnome/desktop/search-providers" = {
@@ -128,10 +128,14 @@
 
       "org/gnome/desktop/wm/keybindings" = {
         close = [ "<Super>q" ];
-        maximize = [ ];
+        maximize = [ "" ];
+        move-to-monitor-left = [ "" ];
+        move-to-monitor-right = [ "" ];
+        move-to-workspace-right = [ "" ];
         shift-overview-down = [ "" ];
         shift-overview-up = [ "" ];
         switch-to-workspace-down = [ "" ];
+        switch-to-workspace-right = [ ];
         switch-to-workspace-up = [ "" ];
         toggle-application-view = [ "" ];
         toggle-message-tray = [ "<Super>a" ];
@@ -149,8 +153,8 @@
       };
 
       "org/gnome/settings-daemon/plugins/color" = {
-        night-light-enabled = false;
-        night-light-schedule-automatic = false;
+        night-light-enabled = true;
+        night-light-schedule-automatic = true;
         night-light-schedule-from = 18.0;
         night-light-schedule-to = 7.0;
         night-light-temperature = mkUint32 3700;
@@ -194,8 +198,8 @@
           "blur-my-shell@aunetx"
           "clipboard-indicator@tudmotu.com"
           "color-picker@tuberry"
-          "monitor-brightness-volume@ailin.nemui"
           "dash-to-panel@jderose9.github.com"
+          "monitor-brightness-volume@ailin.nemui"
           "native-window-placement@gnome-shell-extensions.gcampax.github.com"
           "screenshot-window-sizer@gnome-shell-extensions.gcampax.github.com"
           "tilingshell@ferrarodomenico.com"

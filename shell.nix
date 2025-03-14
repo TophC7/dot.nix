@@ -22,6 +22,7 @@
         nh
         git
         fish
+        dconf2nix
         bats # for bash testing
         ;
     };
