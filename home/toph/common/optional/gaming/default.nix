@@ -40,5 +40,6 @@ in
   home.packages = with pkgs; [
     steam-session
     prismlauncher
+    # modrinth-app
   ];
 }
