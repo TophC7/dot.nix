@@ -37,6 +37,7 @@ in
       "hosts/common/optional/nvtop.nix" # GPU monitor (not available in home-manager)
       "hosts/common/optional/plymouth.nix" # fancy boot screen
       "hosts/common/optional/vial.nix" # KB setup
+      # "hosts/common/optional/ventura.nix" # macos vm
 
       ## Misc Inputs ##
 
