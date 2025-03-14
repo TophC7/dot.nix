@@ -83,7 +83,7 @@
     };
   };
 
-  swapDevices = [ { device = "/dev/disk/by-uuid/81b6fa27-af94-41d4-9070-8754087a4c26"; } ];
+  swapDevices = [ { device = "/dev/disk/by-uuid/6586847d-eba9-4317-9077-98ae9b2812c9"; } ];
 
   # Time and networking configurations
   time.hardwareClockInLocalTime = true; # Fixes windows dual-boot time issues
