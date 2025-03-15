@@ -5,7 +5,7 @@
   ...
 }:
 {
-  # imports = lib.custom.scanPaths ./.;
+  imports = lib.custom.scanPaths ./.;
 
   home.packages = lib.flatten [
     (builtins.attrValues {
@@ -18,7 +18,6 @@
         logisim-evolution
         mcaselector
         prettierd
-        vscode-fhs
 
         # nix
         nixpkgs-review

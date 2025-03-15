@@ -22,7 +22,7 @@
     ./git.nix
     ./ranger.nix
     ./screen.nix
-    ./ssh.nix
+    ./ssh
     ./zoxide.nix
   ];
 
