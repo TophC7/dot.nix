@@ -16,6 +16,7 @@ in
 
     (map lib.custom.relativeToRoot [
       "modules/common"
+      "hosts/common/core/fonts.nix"
       "hosts/common/core/ssh.nix"
       "hosts/users"
     ])
@@ -38,6 +39,9 @@ in
     ranger
     sshfs
   ];
+
+  # Enable CUPS to print documents.
+  services.printing.enable = true;
 
   # Force home-manager to use global packages
   home-manager.useGlobalPkgs = true;

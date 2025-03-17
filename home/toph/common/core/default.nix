@@ -18,7 +18,6 @@
     ./direnv.nix
     ./fastfetch
     ./fish
-    ./fonts.nix
     ./git.nix
     ./ranger.nix
     ./screen.nix
@@ -93,6 +92,13 @@
 
   programs.nix-index = {
     enable = true;
+  };
+
+  # disable manuals as nmd fails to build often
+  manual = {
+    html.enable = false;
+    json.enable = false;
+    manpages.enable = false;
   };
 
   nix = {
