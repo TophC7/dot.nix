@@ -6,6 +6,12 @@
     grc
   ];
 
+  home.file.".config/fish/fish_variables" = {
+    source = ./fish_variables;
+    target = ".config/fish/fish_variables_source";
+    onChange = ''cat .config/fish/fish_variables_source > .config/fish/fish_variables && chmod 655 .config/fish/fish_variables'';
+  };
+
   programs.fish = {
     enable = true;
     interactiveShellInit = builtins.readFile ./init.fish;
