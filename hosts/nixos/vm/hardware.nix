@@ -28,6 +28,9 @@ in
       timeout = 3;
     };
 
+    # use latest kernel
+    kernelPackages = pkgs.linuxPackages_latest;
+
     initrd = {
       availableKernelModules = [
         "ahci"
@@ -45,7 +48,7 @@ in
 
   fileSystems = {
     "/" = {
-      device = "/dev/disk/by-uuid/a0b82536-3087-410a-b283-60ea10811ef5";
+      device = "/dev/disk/by-uuid/7ec7d686-6f4c-482f-8b9d-4337a06afc48";
       fsType = "ext4";
     };
 
