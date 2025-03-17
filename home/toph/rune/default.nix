@@ -11,7 +11,7 @@
 
     ## Host-specific Optional Configs ##
     ../common/optional/browsers
-    ../common/optional/desktops
+    ../common/optional/gnome
     ../common/optional/development
     ../common/optional/gaming
     ../common/optional/xdg.nix # file associations

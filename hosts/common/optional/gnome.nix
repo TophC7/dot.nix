@@ -27,6 +27,10 @@
     gnomeExtensions.dash-to-panel
     gnomeExtensions.tiling-shell
     gnomeExtensions.vitals
+    # gnomeExtensions.just-perfection
+    gnomeExtensions.alphabetical-app-grid
+    gnomeExtensions.quick-settings-audio-devices-hider
+    gnomeExtensions.quick-settings-audio-devices-renamer
   ];
 
   environment.gnome.excludePackages = (

@@ -205,12 +205,16 @@
           "tilingshell@ferrarodomenico.com"
           "user-theme@gnome-shell-extensions.gcampax.github.com"
           "Vitals@CoreCoding.com"
+          # pkgs.gnomeExtensions.just-perfection.extensionUuid
+          pkgs.gnomeExtensions.alphabetical-app-grid.extensionUuid
+          pkgs.gnomeExtensions.quick-settings-audio-devices-hider.extensionUuid
+          pkgs.gnomeExtensions.quick-settings-audio-devices-renamer.extensionUuid
         ];
         favorite-apps = [
           "org.gnome.Nautilus.desktop"
           "org.wezfurlong.wezterm.desktop"
           "win11.desktop"
-          "zen_twilight.desktop"
+          "zen.desktop"
           "spotify.desktop"
           "vesktop.desktop"
           "org.telegram.desktop.desktop"
