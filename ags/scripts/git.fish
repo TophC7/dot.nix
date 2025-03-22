@@ -6,7 +6,7 @@ if test (count $argv) -ne 1
 end
 
 set action $argv[1]
-set subtree_path "home/toph/common/optional/hyprland/ags"
+set subtree_path "ags"
 set remote "RyotShell-origin"
 set branch "main"
 
