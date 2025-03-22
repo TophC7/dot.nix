@@ -33,6 +33,8 @@
     gnomeExtensions.quick-settings-audio-devices-renamer
   ];
 
+  ## Exclusions ##
+  services.xserver.excludePackages = [ pkgs.xterm ];
   environment.gnome.excludePackages = (
     with pkgs;
     [
