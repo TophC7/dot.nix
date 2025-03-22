@@ -10,7 +10,8 @@
 {
   imports = lib.flatten [
     (map lib.custom.relativeToRoot [
-      "modules/common/host-spec.nix"
+      "modules/common"
+      "modules/home"
     ])
     ./asdf.nix
     ./bash.nix
@@ -37,11 +38,12 @@
       "$HOME/.local/bin"
     ];
     sessionVariables = {
-      FLAKE = "$HOME/git/dot.nix";
-      SHELL = "fish";
       EDITOR = "micro";
-      VISUAL = "micro";
+      FLAKE = "$HOME/git/dot.nix";
       MANPAGER = "batman"; # see ./cli/bat.nix
+      SHELL = "fish";
+      TERM = "foot";
+      VISUAL = "micro";
     };
     preferXdgDirectories = true; # whether to make programs use XDG directories whenever supported
 
@@ -54,15 +56,6 @@
     userDirs = {
       enable = true;
       createDirectories = true;
-      # desktop = "${config.home.homeDirectory}/.desktop";
-      # documents = "${config.home.homeDirectory}/doc";
-      # download = "${config.home.homeDirectory}/downloads";
-      # music = "${config.home.homeDirectory}/media/audio";
-      # pictures = "${config.home.homeDirectory}/media/images";
-      # videos = "${config.home.homeDirectory}/media/video";
-      # publicshare = "/var/empty"; #using this option with null or "/var/empty" barfs so it is set properly in extraConfig below
-      # templates = "/var/empty"; #using this option with null or "/var/empty" barfs so it is set properly in extraConfig below
-
       extraConfig = {
         # publicshare and templates defined as null here instead of as options because
         XDG_PUBLICSHARE_DIR = "/var/empty";

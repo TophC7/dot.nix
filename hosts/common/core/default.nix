@@ -34,6 +34,7 @@ in
 
   # System-wide packages, in case we log in as root
   environment.systemPackages = with pkgs; [
+    micro
     plocate
     openssh
     ranger
@@ -107,6 +108,7 @@ in
   ];
 
   ## NIX NIX NIX ##
+  documentation.nixos.enable = false;
   nix = {
     # This will add each flake input as a registry
     # To make nix3 commands consistent with your flake
@@ -122,6 +124,9 @@ in
       log-lines = 25;
       min-free = 128000000; # 128MB
       max-free = 1000000000; # 1GB
+
+      substituters = [ "https://hyprland.cachix.org" ];
+      trusted-public-keys = [ "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc=" ];
 
       trusted-users = [ "@wheel" ];
       # Deduplicate and optimize nix store
