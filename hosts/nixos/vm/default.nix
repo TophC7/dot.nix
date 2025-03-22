@@ -28,7 +28,8 @@ in
       ## Optional Configs ##
       "hosts/common/optional/audio.nix" # pipewire and cli controls
       # "hosts/common/optional/gaming.nix" # steam, gamescope, gamemode, and related hardware
-      "hosts/common/optional/gnome.nix" # desktop
+      # "hosts/common/optional/gnome.nix" # desktop
+      "hosts/common/optional/hyprland" # desktop
       # "hosts/common/optional/nvtop.nix" # GPU monitor (not available in home-manager)
       # "hosts/common/optional/plymouth.nix" # fancy boot screen
 

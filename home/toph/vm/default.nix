@@ -9,9 +9,11 @@
 
     ## Host-specific Optional Configs ##
     ../common/optional/browsers
-    ../common/optional/gnome
-    # ../common/optional/development
+    # ../common/optional/gnome
+    ../common/optional/hyprland
+    ../common/optional/development
     # ../common/optional/gaming
+    ../common/optional/vscode-server.nix
     ../common/optional/xdg.nix # file associations
   ];
 
@@ -20,7 +22,17 @@
     inherit (pkgs)
       ## Tools ##
       inspector
-      wezterm
+      foot
       ;
   };
+
+  monitors = [
+    {
+      name = "Virtual-1";
+      width = 2560;
+      height = 1440;
+      refreshRate = 60;
+      primary = true;
+    }
+  ];
 }
