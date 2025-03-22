@@ -3,31 +3,87 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    # The next two are for pinning to stable vs unstable regardless of what the above is set to
-    # This is particularly useful when an upcoming stable release is in beta because you can effectively
-    # keep 'nixpkgs-stable' set to stable for critical packages while setting 'nixpkgs' to the beta branch to
-    # get a jump start on deprecation changes.
-    # See also 'stable-packages' and 'unstable-packages' overlays at 'overlays/default.nix"
+
+    # Pin stable vs unstable: use nixpkgs-stable for critical packages while nixpkgs follows the beta branch.
+    # See overlays "stable-packages" and "unstable-packages" in ./overlays/default.nix.
     nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-24.11";
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
 
-    # NixOs hardware flakes
-    hardware.url = "github:nixos/nixos-hardware";
+    ## NixOS ##
+
+    hardware = {
+      url = "github:nixos/nixos-hardware";
+      inputs.nixpkgs.follows = "nixpkgs-stable";
+    };
+
     home-manager = {
       url = "github:nix-community/home-manager";
-      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
-    # VM tools
+
+    ## VM tools ##
+
     # nixtheplanet.url = "github:matthewcroughan/nixtheplanet";
     nixvirt = {
       url = "https://flakehub.com/f/AshleyYakeley/NixVirt/*.tar.gz";
       inputs.nixpkgs.follows = "nixpkgs-stable";
     };
+
+    # TODO: theming
+
+    ## Hyprland ##
+
+    aquamarine = {
+      type = "git";
+      url = "https://github.com/hyprwm/aquamarine";
+      ref = "refs/tags/v0.8.0";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+    };
+
+    hyprland = {
+      type = "git";
+      submodules = true;
+      url = "https://github.com/hyprwm/Hyprland";
+      ref = "refs/tags/v0.47.2";
+      inputs.aquamarine.follows = "aquamarine";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+    };
+
+    # TODO: Not working but id like to fix it
+    # hycov = {
+    #   url = "github:bighu630/hycov";
+    #   inputs.hyprland.follows = "hyprland";
+    # };
+
+    hyprspace = {
+      url = "github:KZDKM/Hyprspace";
+      inputs.hyprland.follows = "hyprland";
+    };
+
+    rose-pine-hyprcursor = {
+      url = "github:ndom91/rose-pine-hyprcursor";
+      inputs.hyprland.follows = "hyprland";
+    };
+
+    # stylix.url = "github:danth/stylix/release-24.11";
+
+    ## Misc Packages ##
+
+    # nixcord.url = "github:kaylorben/nixcord";
+    # spicetify-nix = {
+    #   url = "github:Gerg-L/spicetify-nix";
+    #   inputs.nixpkgs.follows = "nixpkgs";
+    # };
+
+    vscode-server = {
+      url = "github:nix-community/nixos-vscode-server";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+    };
+
     zen-browser = {
       url = "github:youwen5/zen-browser-flake";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
-    # TODO: theming
-    # stylix.url = "github:danth/stylix/release-24.11";
   };
 
   outputs =
