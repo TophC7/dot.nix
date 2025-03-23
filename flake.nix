@@ -13,7 +13,6 @@
 
     hardware = {
       url = "github:nixos/nixos-hardware";
-      inputs.nixpkgs.follows = "nixpkgs-stable";
     };
 
     home-manager = {
@@ -62,7 +61,6 @@
 
     rose-pine-hyprcursor = {
       url = "github:ndom91/rose-pine-hyprcursor";
-      inputs.hyprland.follows = "hyprland";
     };
 
     # stylix.url = "github:danth/stylix/release-24.11";
