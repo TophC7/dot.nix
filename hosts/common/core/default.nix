@@ -35,10 +35,11 @@ in
   # System-wide packages, in case we log in as root
   environment.systemPackages = with pkgs; [
     micro
-    plocate
     openssh
+    plocate
     ranger
     sshfs
+    wget
   ];
 
   # Enable CUPS to print documents.
@@ -108,7 +109,7 @@ in
   ];
 
   ## NIX NIX NIX ##
-  documentation.nixos.enable = false;
+  documentation.nixos.enable = lib.mkForce false;
   nix = {
     # This will add each flake input as a registry
     # To make nix3 commands consistent with your flake

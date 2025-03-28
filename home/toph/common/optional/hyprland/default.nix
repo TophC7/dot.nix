@@ -31,9 +31,8 @@
     ];
 
     settings = {
-      #
-      # ========== Environment Vars ==========
-      #
+
+      ##  Environment Vars ##
       env = [
         "NIXOS_OZONE_WL, 1" # for ozone-based and electron apps to run on wayland
         "MOZ_ENABLE_WAYLAND, 1" # for firefox to run on wayland
@@ -46,120 +45,159 @@
       ];
 
       ## Monitor ##
-      # parse the monitor spec defined in home/<user>/<host>/default.nix
+
       monitor = (
+        # INFO: parse the monitors defined in home/<user>/<host>/default.nix
         map (
           m:
           "${m.name},${
             if m.enabled then
-              "${toString m.width}x${toString m.height}@${toString m.refreshRate},${toString m.x}x${toString m.y},1,transform,${toString m.transform},vrr,${toString m.vrr}"
+              "${toString m.width}x${toString m.height}@${toString m.refreshRate},${toString m.x}x${toString m.y},${toString m.scale},transform,${toString m.transform},vrr,${toString m.vrr}"
             else
               "disable"
           }"
         ) (config.monitors)
       );
 
-      #FIXME(hyprland): adapt this to work with new monitor module
-      #FIXME(hyprland): ws1 still appears on both DP-1 and DP-3 on reboot
-      # workspace = [
-      #   "1, monitor:DP-1, default:true, persistent:true"
-      #   "2, monitor:DP-1, default:true"
-      #   "3, monitor:DP-1, default:true"
-      #   "4, monitor:DP-1, default:true"
-      #   "5, monitor:DP-1, default:true"
-      #   "6, monitor:DP-1, default:true"
-      #   "7, monitor:DP-1, default:true"
-      #   "8, monitor:DP-2, default:true, persistent:true"
-      #   "9, monitor:HDMI-A-1, default:true, persistent:true"
-      #   "0, monitor:DP-3, default:true, persistent:true"
-      # ];
+      # I love this :)
+      # Creates 5 workspaces for all monitors
+      workspace =
+        let
+          json = pkgs.writeTextFile {
+            name = "monitors.json";
+            text = builtins.toJSON config.monitors;
+          };
+          parse = pkgs.runCommand "parse-workspaces" { } ''
+            mkdir "$out"; ${pkgs.jq}/bin/jq -r '
+              [ to_entries[] |
+                (.key as $i | .value.name as $name |
+                  [ range(0;5) | ($i * 5 + .) as $wsnum |
+                    if . == 0 then "\($wsnum), monitor:\($name), default:true, persistent:true"
+                    else "\($wsnum), monitor:\($name)" end
+                  ]
+                )
+              ] | flatten
+            ' ${json} > "$out/out.json"
+          '';
+          output = builtins.fromJSON (builtins.readFile "${parse}/out.json");
+        in
+        output;
 
-      #
-      # ========== Behavior ==========
-      #
+      ## Behavior ##
+
       binds = {
-        workspace_center_on = 1; # Whether switching workspaces should center the cursor on the workspace (0) or on the last active window for that workspace (1)
-        movefocus_cycles_fullscreen = false; # If enabled, when on a fullscreen window, movefocus will cycle fullscreen, if not, it will move the focus in a direction.
+        workspace_center_on = 1;
+        movefocus_cycles_fullscreen = false;
       };
+
       input = {
         follow_mouse = 2;
-        # follow_mouse options:
-        # 0 - Cursor movement will not change focus.
-        # 1 - Cursor movement will always change focus to the window under the cursor.
-        # 2 - Cursor focus will be detached from keyboard focus. Clicking on a window will move keyboard focus to that window.
-        # 3 - Cursor focus will be completely separate from keyboard focus. Clicking on a window will not change keyboard focus.
         mouse_refocus = false;
         kb_options = "fkeys:basic_13-24";
+        sensitivity = 0.5;
       };
-      cursor.inactive_timeout = 10;
+
+      cursor = {
+        inactive_timeout = 10;
+      };
+
       misc = {
         disable_hyprland_logo = true;
         animate_manual_resizes = true;
         animate_mouse_windowdragging = true;
         #disable_autoreload = true;
-        new_window_takes_over_fullscreen = 2; # 0 - behind, 1 - takes over, 2 - unfullscreen/unmaxize
+        new_window_takes_over_fullscreen = 2;
         middle_click_paste = false;
       };
 
-      #
-      # ========== Appearance ==========
-      #
-      #FIXME-rice colors conflict with stylix
+      group = {
+        drag_into_group = 2;
+        merge_groups_on_drag = true;
+        # col.border_active = "";
+        # col.border_inactive = "";
+        groupbar = {
+          enabled = true;
+          height = 12;
+        };
+      };
+
+      dwindle = {
+        pseudotile = false;
+        force_split = 0;
+        smart_split = true;
+        split_bias = 1;
+      };
+
+      ## Appearance ##
+
       general = {
+        border_size = 2;
         gaps_in = 6;
         gaps_out = 6;
-        border_size = 0;
-        #col.inactive-border = "0x00000000";
-        #col.active-border = "0x0000000";
-        resize_on_border = true;
-        hover_icon_on_border = true;
+        "col.inactive_border" = "0x44e3625e";
+        "col.active_border" = "0x20e3625e";
         allow_tearing = true; # used to reduce latency and/or jitter in games
+        snap = {
+          enabled = true;
+          window_gap = 6;
+        };
       };
+
       decoration = {
-        active_opacity = 1.0;
-        inactive_opacity = 0.85;
-        fullscreen_opacity = 1.0;
         rounding = 10;
+        rounding_power = 4.0;
+        active_opacity = 0.90;
+        inactive_opacity = 0.80;
+        fullscreen_opacity = 1.0;
         blur = {
           enabled = true;
-          size = 4;
+          size = 15;
           passes = 2;
           new_optimizations = true;
+          ignore_opacity = true;
+          xray = true;
+          # noise = 0.15;
           popups = true;
         };
         shadow = {
           enabled = true;
-          range = 12;
-          offset = "3 3";
-          #color = "0x88ff9400";
-          #color_inactive = "0x8818141d";
+          range = 30;
+          render_power = 3;
+          scale = 1.0;
+          color = "0x66000000";
+          color_inactive = "0x66000000";
         };
       };
-      # group = {
-      #groupbar = {
-      #          };
-      #};
 
-      #
-      # ========== Auto Launch ==========
-      #
-      # exec-once = ''${startupScript}/path'';
-      # To determine path, run `which foo`
+      animation = [
+        "windowsIn,   1,  5   ,default, popin 0%"
+        "windowsOut,  1,  5   ,default, popin"
+        "windowsMove, 1,  5   ,default, slide"
+        "fadeIn,      1,  8   ,default"
+        "fadeOut,     1,  8   ,default"
+        "fadeSwitch,  1,  8   ,default"
+        "fadeShadow,  1,  8   ,default"
+        "fadeDim,     1,  8   ,default"
+        "border,      1,  10  ,default"
+        "workspaces,  1,  5   ,default, slide"
+      ];
+
+      ## Auto Launch ##
+
       exec-once = [
         ''${pkgs.waypaper}/bin/waypaper --restore''
       ];
-      #
-      # ========== Layer Rules ==========
-      #
+
+      ## Layers Rules ##
+
       layer = [
         #"blur, rofi"
         #"ignorezero, rofi"
         #"ignorezero, logout_dialog"
-
       ];
-      #
-      # ========== Window Rules ==========
-      #
+
+      ## Window Rules ##
+
       windowrule = [
         # Dialogs
         "float, title:^(Open File)(.*)$"
@@ -170,7 +208,11 @@
         "float, title:^(Library)(.*)$"
         "float, title:^(Accounts)(.*)$"
       ];
+
       windowrulev2 = [
+        #Zen Extensions
+        "suppressevent maximize, class:^(zen)$"
+
         "float, class:^(galculator)$"
         "float, class:^(waypaper)$"
         "float, class:^(keymapp)$"
@@ -220,14 +262,14 @@
         #
         # ========== Workspace Assignments ==========
         #
-        "workspace 8, class:^(virt-manager)$"
-        "workspace 8, class:^(obsidian)$"
-        "workspace 9, class:^(brave-browser)$"
-        "workspace 9, class:^(signal)$"
-        "workspace 9, class:^(org.telegram.desktop)$"
-        "workspace 9, class:^(discord)$"
-        "workspace 0, title:^([Ss]potify*)$"
-        "workspace special, class:^(yubioath-flutter)$"
+        # "workspace 8, class:^(virt-manager)$"
+        # "workspace 8, class:^(obsidian)$"
+        # "workspace 9, class:^(brave-browser)$"
+        # "workspace 9, class:^(signal)$"
+        # "workspace 9, class:^(org.telegram.desktop)$"
+        # "workspace 9, class:^(discord)$"
+        # "workspace 0, title:^([Ss]potify*)$"
+        # "workspace special, class:^(yubioath-flutter)$"
       ];
 
       # load at the end of the hyperland set

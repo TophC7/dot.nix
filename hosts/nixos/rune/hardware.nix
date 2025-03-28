@@ -3,6 +3,7 @@
 # to /etc/nixos/configuration.nix instead.
 
 {
+  pkgs,
   config,
   lib,
   modulesPath,
@@ -23,6 +24,9 @@
       efi.canTouchEfiVariables = true;
       timeout = 3;
     };
+
+    # use latest kernel
+    kernelPackages = pkgs.linuxPackages_latest;
 
     initrd = {
       systemd.enable = true;
@@ -61,8 +65,7 @@
     };
 
     "/pool" = {
-      # FIXME: admin does not work here anymore
-      device = "${config.hostSpec.username}@104.40.4.24:/pool";
+      device = "${config.hostSpec.username}@cloud:/pool";
       fsType = "sshfs";
       options = [
         "defaults"

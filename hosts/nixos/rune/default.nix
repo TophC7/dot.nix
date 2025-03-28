@@ -33,7 +33,8 @@ in
       "hosts/common/optional/bluetooth.nix"
       "hosts/common/optional/ddcutil.nix" # ddcutil for monitor controls
       "hosts/common/optional/gaming.nix" # steam, gamescope, gamemode, and related hardware
-      "hosts/common/optional/gnome.nix" # desktop
+      # "hosts/common/optional/gnome.nix" # desktop
+      "hosts/common/optional/hyprland" # desktop
       "hosts/common/optional/libvirt.nix" # vm tools
       "hosts/common/optional/nvtop.nix" # GPU monitor (not available in home-manager)
       "hosts/common/optional/plymouth.nix" # fancy boot screen
@@ -67,10 +68,6 @@ in
   programs.nix-ld.enable = true;
   environment.systemPackages = with pkgs; [
     asdf-vm
-    openssh
-    ranger
-    sshfs
-    wget
   ];
 
   # https://wiki.nixos.org/wiki/FAQ/When_do_I_update_stateVersion

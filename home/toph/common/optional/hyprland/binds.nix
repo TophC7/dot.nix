@@ -106,13 +106,16 @@
         # "SUPER_SHIFT,   P,              exec,              ${notify} 'Toggled Pin'"
         "SUPER_SHIFT,   S,              swapnext"
         # "SUPER_SHIFT,   O,              toggleopaque"
+        "SUPER,         G,              togglegroup"
+        # "SUPER,         G,              exec,              ${notify} 'Toggled Group'"
+        "SUPER,         Tab,            changegroupactive, f"
 
         # -- Workspaces --
         ",              Home,           overview:toggle"
         # "SUPER,         A,              "
         # TODO:  use hycov for alt tab, https://github.com/bighu630/hycov
-        "ALT,         Tab,            cyclenext,"
-        "ALT,         Tab,            bringactivetotop,"
+        "ALT,           Tab,            cyclenext,"
+        "ALT,           Tab,            bringactivetotop,"
       ];
 
     };

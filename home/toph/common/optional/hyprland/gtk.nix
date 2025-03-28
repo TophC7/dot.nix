@@ -27,7 +27,7 @@
 
     font = {
       name = "Sans";
-      size = 14;
+      size = 12;
     };
   };
 }
