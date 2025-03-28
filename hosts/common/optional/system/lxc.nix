@@ -1,4 +1,9 @@
-{ modulesPath, ... }:
+{
+  modulesPath,
+  lib,
+  config,
+  ...
+}:
 {
   imports = [
     # Include the default lxc/lxd configuration.
@@ -6,10 +11,36 @@
   ];
 
   # Treats the system as a container.
-  boot.isContainer = true;
+  boot = {
+    isContainer = true;
+  };
 
-  # Set your system kind (needed for flakes)
-  nixpkgs.hostPlatform = "x86_64-linux";
+  console.enable = true;
+
+  nix.settings = {
+    sandbox = false;
+  };
+
+  systemd = {
+    mounts = [
+      {
+        enable = false;
+        where = "/sys/kernel/debug";
+      }
+    ];
+
+    # By default only starts getty on tty0 but first on LXC is tty1
+    services."autovt@".unitConfig.ConditionPathExists = [
+      ""
+      "/dev/%I"
+    ];
+
+    # These are disabled by `console.enable` but console via tty is the default in Proxmox
+    services."getty@tty1".enable = lib.mkForce true;
+    services."autovt@".enable = lib.mkForce true;
+  };
+
+  nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
 
   # Supress systemd units that don't work because of LXC.
   # https://blog.xirion.net/posts/nixos-proxmox-lxc/#configurationnix-tweak

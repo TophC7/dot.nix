@@ -46,7 +46,7 @@ in
   # root's ssh key are mainly used for remote deployment, borg, and some other specific ops
   users.users.root = {
     shell = pkgs.bash;
-    password = hostSpec.password;
+    password = lib.mkForce hostSpec.password;
     openssh.authorizedKeys.keys = config.users.users.${hostSpec.username}.openssh.authorizedKeys.keys; # root's ssh keys are mainly used for remote deployment.
   };
 }
