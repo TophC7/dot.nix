@@ -3,8 +3,8 @@ function cd
 end
 
 function garbage
-    sudo nh clean
-    nh clean
+    sudo nh clean all
+    nh clean all
     sudo nix-collect-garbage --delete-old
     nix-collect-garbage --delete-old
     sudo nix-store --gc
