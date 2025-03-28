@@ -70,6 +70,7 @@
       btop # resource monitor
       coreutils # basic gnu utils
       curl
+      dua # disk usage analyzer
       eza # ls replacement
       dust # disk usage
       pre-commit # git hooks
