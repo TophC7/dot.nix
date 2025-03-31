@@ -8,32 +8,41 @@
 }:
 
 let
-  # monitor = lib.head (lib.filter (m: m.primary) config.monitors);
+  monitor = lib.head (lib.filter (m: m.primary) config.monitors);
 
   steam-session =
     let
       gamescope = lib.concatStringsSep " " [
         (lib.getExe pkgs.gamescope)
-        # "--output-width ${toString monitor.width}"
-        # "--output-height ${toString monitor.height}"
-        # "--framerate-limit ${toString monitor.refreshRate}"
-        # "--prefer-output ${monitor.name}"
+        "--rt"
+        "--output-width ${toString monitor.width}"
+        "--output-height ${toString monitor.height}"
+        "--framerate-limit ${toString monitor.refreshRate}"
+        "--prefer-output ${monitor.name}"
         "--adaptive-sync"
         "--expose-wayland"
+        "--backend wayland"
         "--steam"
         # "--hdr-enabled"
       ];
       steam = lib.concatStringsSep " " [
         "steam"
         #"steam://open/bigpicture"
+        "-forcedesktopscaling ${toString monitor.scale}"
+        "-nofriendsui"
+        "-noschatui"
       ];
     in
     pkgs.writeTextDir "share/applications/steam-session.desktop" ''
       [Desktop Entry]
       Name=Steam Session
+      Comment=Steam with Gamescope
       Exec=${gamescope} -- ${steam}
       Icon=steam
       Type=Application
+      Categories=Network;FileTransfer;Game;
+      MimeType=x-scheme-handler/steam;x-scheme-handler/steamlink;
+      PrefersNonDefaultGPU = true;
     '';
 in
 {
@@ -41,5 +50,13 @@ in
     steam-session
     prismlauncher
     # modrinth-app
+    (lutris.override {
+      extraLibraries = pkgs: [
+        # List library dependencies here
+      ];
+      extraPkgs = pkgs: [
+        # List package dependencies here
+      ];
+    })
   ];
 }

@@ -32,10 +32,11 @@ in
       "wheel"
       (ifTheyExist [
         "audio"
-        "video"
         "docker"
+        "gamemode"
         "git"
         "networkmanager"
+        "video"
       ])
     ];
   };

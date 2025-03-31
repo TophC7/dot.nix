@@ -67,6 +67,13 @@
 
     ## Misc Packages ##
 
+    nix-gaming = {
+      url = "github:fufexan/nix-gaming";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+      };
+    };
+
     # nixcord.url = "github:kaylorben/nixcord";
     # spicetify-nix = {
     #   url = "github:Gerg-L/spicetify-nix";

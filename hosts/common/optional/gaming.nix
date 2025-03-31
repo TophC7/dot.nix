@@ -1,4 +1,9 @@
-{ pkgs, ... }:
+{
+  pkgs,
+  lib,
+  config,
+  ...
+}:
 {
   hardware.xone.enable = true; # xbox controller
 
@@ -9,6 +14,7 @@
         enable = true;
         package = pkgs.protontricks;
       };
+
       package = pkgs.steam.override {
         extraPkgs =
           pkgs:
@@ -31,10 +37,12 @@
               libkrb5
               keyutils
               gperftools
+              gamemode
               ;
           });
       };
       extraCompatPackages = [ pkgs.unstable.proton-ge-bin ];
+      gamescopeSession.enable = true;
     };
     #gamescope launch args set dynamically in home/<user>/common/optional/gaming
     gamescope = {
@@ -48,8 +56,9 @@
       settings = {
         #see gamemode man page for settings info
         general = {
-          softrealtime = "on";
+          softrealtime = "auto";
           inhibit_screensaver = 1;
+          renice = 15;
         };
         gpu = {
           apply_gpu_optimisations = "accept-responsibility";
