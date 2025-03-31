@@ -25,6 +25,8 @@ in
       "hosts/common/core"
 
       ## Optional Configs ##
+      "hosts/common/optional/acme"
+      "hosts/common/optional/caddy"
       "hosts/common/optional/docker.nix"
       "hosts/common/optional/containers/cloudflared.nix"
 
