@@ -32,33 +32,6 @@
 
     ## Hyprland ##
 
-    aquamarine = {
-      type = "git";
-      url = "https://github.com/hyprwm/aquamarine";
-      ref = "refs/tags/v0.8.0";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
-    };
-
-    hyprland = {
-      type = "git";
-      submodules = true;
-      url = "https://github.com/hyprwm/Hyprland";
-      ref = "refs/tags/v0.47.2";
-      inputs.aquamarine.follows = "aquamarine";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
-    };
-
-    # TODO: Not working but id like to fix it
-    # hycov = {
-    #   url = "github:bighu630/hycov";
-    #   inputs.hyprland.follows = "hyprland";
-    # };
-
-    hyprspace = {
-      url = "github:KZDKM/Hyprspace";
-      inputs.hyprland.follows = "hyprland";
-    };
-
     rose-pine-hyprcursor = {
       url = "github:ndom91/rose-pine-hyprcursor";
     };

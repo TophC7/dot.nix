@@ -12,7 +12,6 @@
   wayland.windowManager.hyprland = {
     enable = true;
     # withUWSM = true; # One day, but not today
-    package = inputs.hyprland.packages."${pkgs.system}".hyprland;
 
     systemd = {
       enable = true;
@@ -23,15 +22,7 @@
       ];
     };
 
-    plugins = [
-      # inputs.hycov.packages.${pkgs.system}.hycov
-      (inputs.hyprspace.packages.${pkgs.system}.Hyprspace.overrideAttrs {
-        dontUseCmakeConfigure = true;
-      })
-    ];
-
     settings = {
-
       ##  Environment Vars ##
       env = [
         "NIXOS_OZONE_WL, 1" # for ozone-based and electron apps to run on wayland
@@ -59,8 +50,8 @@
         ) (config.monitors)
       );
 
-      # I love this :)
-      # Creates 5 workspaces for all monitors
+      # This used to be usefull now its just overkill
+      # Creates 1 persistent workspaces for all monitors
       workspace =
         let
           json = pkgs.writeTextFile {
@@ -71,7 +62,7 @@
             mkdir "$out"; ${pkgs.jq}/bin/jq -r '
               [ to_entries[] |
                 (.key as $i | .value.name as $name |
-                  [ range(0;5) | ($i * 5 + .) as $wsnum |
+                  [ range(0;1) | ($i * 1 + .) as $wsnum |
                     if . == 0 then "\($wsnum), monitor:\($name), default:true, persistent:true"
                     else "\($wsnum), monitor:\($name)" end
                   ]
@@ -131,11 +122,12 @@
       ## Appearance ##
 
       general = {
+        layout = "scroller";
         border_size = 2;
         gaps_in = 6;
         gaps_out = 6;
-        "col.inactive_border" = "0x44e3625e";
-        "col.active_border" = "0x20e3625e";
+        "col.inactive_border" = "rgb(191b1c)";
+        "col.active_border" = "rgb(1cbdd9) rgb(f6ef9d) 30deg";
         allow_tearing = true; # used to reduce latency and/or jitter in games
         snap = {
           enabled = true;
@@ -146,13 +138,15 @@
       decoration = {
         rounding = 10;
         rounding_power = 4.0;
-        active_opacity = 0.90;
-        inactive_opacity = 0.80;
+        active_opacity = 0.85;
+        inactive_opacity = 0.75;
         fullscreen_opacity = 1.0;
+        dim_inactive = true;
+        dim_strength = 0.2;
         blur = {
           enabled = true;
-          size = 15;
-          passes = 2;
+          size = 7;
+          passes = 3;
           new_optimizations = true;
           ignore_opacity = true;
           xray = true;
@@ -162,10 +156,10 @@
         shadow = {
           enabled = true;
           range = 30;
-          render_power = 3;
-          scale = 1.0;
-          color = "0x66000000";
-          color_inactive = "0x66000000";
+          render_power = 2;
+          scale = 1.5;
+          color = "rgb(191b1c)";
+          color_inactive = "rgb(191b1c)";
         };
       };
 
@@ -181,102 +175,6 @@
         "border,      1,  10  ,default"
         "workspaces,  1,  5   ,default, slide"
       ];
-
-      ## Auto Launch ##
-
-      exec-once = [
-        ''${pkgs.waypaper}/bin/waypaper --restore''
-      ];
-
-      ## Layers Rules ##
-
-      layer = [
-        #"blur, rofi"
-        #"ignorezero, rofi"
-        #"ignorezero, logout_dialog"
-      ];
-
-      ## Window Rules ##
-
-      windowrule = [
-        # Dialogs
-        "float, title:^(Open File)(.*)$"
-        "float, title:^(Select a File)(.*)$"
-        "float, title:^(Choose wallpaper)(.*)$"
-        "float, title:^(Open Folder)(.*)$"
-        "float, title:^(Save As)(.*)$"
-        "float, title:^(Library)(.*)$"
-        "float, title:^(Accounts)(.*)$"
-      ];
-
-      windowrulev2 = [
-        #Zen Extensions
-        "suppressevent maximize, class:^(zen)$"
-
-        "float, class:^(galculator)$"
-        "float, class:^(waypaper)$"
-        "float, class:^(keymapp)$"
-
-        #
-        # ========== Always opaque ==========
-        #
-        "opaque, class:^([Gg]imp)$"
-        "opaque, class:^([Ff]lameshot)$"
-        "opaque, class:^([Ii]nkscape)$"
-        "opaque, class:^([Bb]lender)$"
-        "opaque, class:^([Oo][Bb][Ss])$"
-        "opaque, class:^([Ss]team)$"
-        "opaque, class:^([Ss]team_app_*)$"
-        "opaque, class:^([Vv]lc)$"
-
-        # Remove transparency from video
-        "opaque, title:^(Netflix)(.*)$"
-        "opaque, title:^(.*YouTube.*)$"
-        "opaque, title:^(Picture-in-Picture)$"
-        #
-        # ========== Scratch rules ==========
-        #
-        #"size 80% 85%, workspace:^(special:special)$"
-        #"center, workspace:^(special:special)$"
-
-        #
-        # ========== Steam rules ==========
-        #
-        "stayfocused, title:^()$,class:^([Ss]team)$"
-        "minsize 1 1, title:^()$,class:^([Ss]team)$"
-        "immediate, class:^([Ss]team_app_*)$"
-        "workspace 7, class:^([Ss]team_app_*)$"
-        "monitor 0, class:^([Ss]team_app_*)$"
-
-        #
-        # ========== Fameshot rules ==========
-        #
-        # flameshot currently doesn't have great wayland support so needs some tweaks
-        #"rounding 0, class:^([Ff]lameshot)$"
-        #"noborder, class:^([Ff]lameshot)$"
-        #"float, class:^([Ff]lameshot)$"
-        #"move 0 0, class:^([Ff]lameshot)$"
-        #"suppressevent fullscreen, class:^([Ff]lameshot)$"
-        # "monitor:DP-1, ${flameshot}"
-
-        #
-        # ========== Workspace Assignments ==========
-        #
-        # "workspace 8, class:^(virt-manager)$"
-        # "workspace 8, class:^(obsidian)$"
-        # "workspace 9, class:^(brave-browser)$"
-        # "workspace 9, class:^(signal)$"
-        # "workspace 9, class:^(org.telegram.desktop)$"
-        # "workspace 9, class:^(discord)$"
-        # "workspace 0, title:^([Ss]potify*)$"
-        # "workspace special, class:^(yubioath-flutter)$"
-      ];
-
-      # load at the end of the hyperland set
-      # extraConfig = '''';
-
-      plugin = {
-      };
     };
   };
 }
