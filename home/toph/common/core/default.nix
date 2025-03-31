@@ -71,15 +71,16 @@
       coreutils # basic gnu utils
       curl
       dua # disk usage analyzer
-      eza # ls replacement
       dust # disk usage
-      pre-commit # git hooks
+      eza # ls replacement
+      jq
       p7zip # compression & encryption
-      unzip # zip extraction
+      pre-commit # git hooks
       unrar # rar extraction
+      unzip # zip extraction
       wget # downloader
-      xdg-utils # provide cli tools such as `xdg-mime` and `xdg-open`
       xdg-user-dirs
+      xdg-utils # provide cli tools such as `xdg-mime` and `xdg-open`
       zip # zip compression
       ;
   };
