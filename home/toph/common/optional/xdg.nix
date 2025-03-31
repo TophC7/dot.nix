@@ -5,11 +5,18 @@
 }:
 let
   # FIXME(xdg): That should use config options and just reference whatever is configured as the default
+  files = [ "nautilus.desktop" ];
   browser = [ "zen.desktop" ];
   editor = [ "code.desktop" ];
+  steam = [ "steam-session.desktop" ];
   # Extensive list of associations here:
   # https://github.com/iggut/GamiNiX/blob/8070528de419703e13b4d234ef39f05966a7fafb/system/desktop/home-main.nix#L77
   associations = {
+    "x-scheme-handler/steam" = steam;
+    "x-scheme-handler/steamlink" = steam;
+
+    "inode/directory" = files;
+
     "text/*" = editor;
     "text/plain" = editor;
 
