@@ -8,4 +8,15 @@
     wl-clipboard-rs
     wlr-randr
   ];
+
+  xdg.portal = {
+    enable = true;
+    xdgOpenUsePortal = true;
+    extraPortals = [
+      pkgs.xdg-desktop-portal-gtk
+      pkgs.xdg-desktop-portal-hyprland
+    ];
+    configPackages = [ pkgs.hyprland ];
+    config.common.default = "*";
+  };
 }
