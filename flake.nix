@@ -32,6 +32,8 @@
 
     ## Hyprland ##
 
+    better-control.url = "github:rishabh5321/better-control-flake";
+
     rose-pine-hyprcursor = {
       url = "github:ndom91/rose-pine-hyprcursor";
     };
