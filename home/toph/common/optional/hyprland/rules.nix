@@ -1,6 +1,28 @@
+{ pkgs, ... }:
+let
+  # Zen extensions to float
+  zen-script = import ./scripts/zen-float.nix { inherit pkgs; };
+  zen-json = pkgs.writeText "zen-extensions.json" (builtins.toJSON zen-extensions);
+  zen-extensions = {
+    bitwarden = {
+      regex = "'*(Bitwarden Password Manager) - Bitwarden*'";
+      x = 500;
+      y = 900;
+    };
+    authenticator = {
+      regex = "'*(Authenticator) - Authenticator*'";
+      x = 335;
+      y = 525;
+    };
+  };
+in
 {
-
   wayland.windowManager.hyprland.settings = {
+
+    # Floats zen extensions
+    exec-once = [
+      "${pkgs.fish}/bin/fish ${zen-script} ${zen-json}"
+    ];
 
     ## Layers Rules ##
 
@@ -23,13 +45,29 @@
       "float, title:^(Accounts)(.*)$"
       "float, title:^(Media viewer)$"
 
-      ## Zen ##
+      # Zen
       "suppressevent maximize, class:^(zen)$"
       "float, title:^(Picture-in-Picture)$"
       "pin, title:^(Picture-in-Picture)$"
       "float, class:^(zen)$, title:^(File Upload)$"
       "workspace special silent, title:^(Zen — Sharing Indicator)$"
       "workspace special silent, title:^(.*is sharing (your screen|a window)\.)$"
+
+      # Foot
+      "plugin:scroller:modemodifier col after focus, class:^(foot)$"
+      "plugin:scroller:windowheight onethird, class:^(foot)$"
+
+      # Vesktop
+      "workspace 1, class:^(vesktop)$"
+      "plugin:scroller:group vesktop, class:^(vesktop)$"
+      "opaque, initialTitle:^(Discord Popout)$"
+      "plugin:scroller:modemodifier row before focus, initialTitle:^(Discord Popout)$"
+      "plugin:scroller:windowheight onethird, initialTitle:^(Discord Popout)$"
+
+      # VsCode
+      "plugin:scroller:group code, class:^(code)$"
+      "plugin:scroller:alignwindow center, class:^(code)$"
+      "plugin:scroller:windowheight seveneighths, class:^(code)$"
 
       # Float Apps
       "float, class:^(galculator)$"
@@ -44,7 +82,6 @@
       # Always opaque
       "opaque, class:^([Gg]imp)$"
       "opaque, class:^([Ff]lameshot)$"
-
       "opaque, class:^([Ii]nkscape)$"
       "opaque, class:^([Bb]lender)$"
       "opaque, class:^([Oo][Bb][Ss])$"
@@ -78,7 +115,6 @@
       # "monitor:DP-1, ${flameshot}"
 
       ## Workspace Assignments ##
-      "workspace 1, initialClass:^(vesktop)$"
       "workspace 1, initialClass:^(spotify)$"
       "workspace 1, initialClass:^(org.telegram.desktop)$"
       # "workspace name:4, initialClass:^(virt-manager)$"
