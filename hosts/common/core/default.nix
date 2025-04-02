@@ -13,24 +13,13 @@ in
 {
   imports = lib.flatten [
     inputs.home-manager.nixosModules.home-manager
+    (lib.custom.scanPaths ./.)
 
     (map lib.custom.relativeToRoot [
       "modules/common"
-      "hosts/common/core/fonts.nix"
-      "hosts/common/core/ssh.nix"
       "hosts/users"
     ])
   ];
-
-  ## NETWORKING ##
-  networking = {
-    dhcpcd.enable = false;
-    hostName = hostSpec.hostName;
-    networkmanager.enable = true;
-    useDHCP = lib.mkDefault true;
-    useHostResolvConf = false;
-    usePredictableInterfaceNames = true;
-  };
 
   # System-wide packages, in case we log in as root
   environment.systemPackages = with pkgs; [
