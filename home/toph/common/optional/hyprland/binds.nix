@@ -27,10 +27,13 @@ let
   launcher = "${pkgs.walker}/bin/walker --modules applications,ssh";
   pactl = lib.getExe' pkgs.pulseaudio "pactl";
   terminal = exec (import ./scripts/terminal.nix { inherit pkgs; });
+  brightness = exec (import ./scripts/brightness.nix { inherit pkgs; });
 
   ## Long ass keys ##
   lowerVol = "XF86AudioLowerVolume";
   raiseVol = "XF86AudioRaiseVolume";
+  brightUp = "XF86MonBrightnessUp";
+  brightDown = "XF86MonBrightnessDown";
 
   ## Keybinds & Submaps ##
 
@@ -42,31 +45,34 @@ let
         ## One-Shot Binds ##
         "" = [
           ## Terminal ##
-          "SUPER,         T,              exec,              ${terminal}"
-          # "SUPER_SHIFT,   T,              exec,              ${terminal}" # Floating
-          # "SUPER_ALT,     T,              exec,              ${terminal}" # Select
+          "SUPER,         T,              exec,                       ${terminal}"
+          # "SUPER_SHIFT,   T,              exec,                       ${terminal}" # Floating
+          # "SUPER_ALT,     T,              exec,                       ${terminal}" # Select
 
           ## App Runs ##
-          "SUPER,         F,              exec,              ${files}"
-          "SUPER,         E,              exec,              ${editor}"
-          "SUPER,         W,              exec,              ${browser}"
-          "SUPER,         N,              exec,              nm-connection-editor"
+          "SUPER,         F,              exec,                       ${files}"
+          "SUPER,         E,              exec,                       ${editor}"
+          "SUPER,         W,              exec,                       ${browser}"
+          "SUPER,         N,              exec,                       nm-connection-editor"
 
           ## Launcher ##
-          "SUPER,         SUPER_L,        exec,              ${launcher}"
-          # "SUPER,         SUPER_L,        exec,              ${launcher} --app launcher"
-          # "SUPER,         P,              exec,              ${launcher} --app color" # Color Picker
-          # "SUPER,         V,              exec,              ${launcher} --app clip" # Clipboard
-          # "SUPER,         X,              exec,              ${launcher} --app power" # Power Menu
+          "SUPER,         SUPER_L,        exec,                       ${launcher}"
+          # "SUPER,         SUPER_L,        exec,                       ${launcher} --app launcher"
+          # "SUPER,         P,              exec,                       ${launcher} --app color" # Color Picker
+          # "SUPER,         V,              exec,                       ${launcher} --app clip" # Clipboard
+          # "SUPER,         X,              exec,                       ${launcher} --app power" # Power Menu
 
           ## System ##
-          "SUPER,         L,              exec,              hyprlock"
-          # "SUPER,         L,              exec,              ${lockscreen}"
+          "SUPER,         L,              exec,                       hyprlock"
+          # "SUPER,         L,              exec,                       ${lockscreen}"
           "SUPER,         Q,              killactive,"
           "CTRL_ALT,      Delete,         exit,"
+          ",              ${brightUp},    exec,                       ${brightness} + 10"
+          ",              ${brightDown},  exec,                       ${brightness} - 10"
 
           ## Window Management ##
-          "SUPER_SHIFT,   F,              fullscreen,        0"
+          "SUPER_SHIFT,   F,              fullscreen,                 0"
+          "SUPER_ALT,     F,              fullscreenstate,            0 3"
           # "SUPER,         F,              exec,              ${notify} 'Fullscreen Mode'"
           "SUPER,         Backspace,      togglefloating,"
           "SUPER,         Backspace,      centerwindow,"
@@ -121,10 +127,10 @@ let
           # "SUPER_ALT,     right,          resizeactive,     20    0"
           # "SUPER_ALT,     up,             resizeactive,     0    -20"
           # "SUPER_ALT,     down,           resizeactive,     0     20"
-          ",              ${raiseVol},    exec,             ${pactl} set-sink-volume @DEFAULT_SINK@ +5%"
-          ",              ${lowerVol},    exec,             ${pactl} set-sink-volume @DEFAULT_SINK@ -5%"
-          ",              ${raiseVol},    exec,             ${pactl} set-source-volume @DEFAULT_SOURCE@ +5%"
-          ",              ${lowerVol},    exec,             ${pactl} set-source-volume @DEFAULT_SOURCE@ -5%"
+          ",              ${raiseVol},    exec,                       ${pactl} set-sink-volume @DEFAULT_SINK@ +5%"
+          ",              ${lowerVol},    exec,                       ${pactl} set-sink-volume @DEFAULT_SINK@ -5%"
+          ",              ${raiseVol},    exec,                       ${pactl} set-source-volume @DEFAULT_SOURCE@ +5%"
+          ",              ${lowerVol},    exec,                       ${pactl} set-source-volume @DEFAULT_SOURCE@ -5%"
         ];
 
         ## Mouse Binds ##
@@ -139,7 +145,7 @@ let
     steam = {
       binds = {
         "" = [
-          "SUPER,         Escape,         submap,           reset"
+          "SUPER,         Escape,         submap,                     reset"
           "SUPER,         SUPER_L,        pass"
           ",              mouse:275,      pass"
           ",              mouse:276,      pass"
