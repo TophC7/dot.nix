@@ -32,13 +32,17 @@
 
     ## Hyprland ##
 
+    watershot = {
+      url = "github:Liassica/watershot/165dd431c95054ac1bfea2f9a85e1be924af21c9";
+      inputs.nixpkgs.follows = "nixpkgs-stable";
+    };
     better-control.url = "github:rishabh5321/better-control-flake";
 
     rose-pine-hyprcursor = {
       url = "github:ndom91/rose-pine-hyprcursor";
     };
 
-    # stylix.url = "github:danth/stylix/release-24.11";
+    stylix.url = "github:danth/stylix";
 
     ## Misc Packages ##
 
