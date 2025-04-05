@@ -4,6 +4,8 @@
   environment.systemPackages = with pkgs; [
     file-roller
     nautilus
+    nautilus-open-any-terminal
+    sushi
   ];
 
   services = {
