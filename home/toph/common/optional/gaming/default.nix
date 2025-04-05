@@ -22,6 +22,7 @@ let
         "--adaptive-sync"
         "--expose-wayland"
         "--backend wayland"
+        "--force-grab-cursor"
         "--steam"
         # "--hdr-enabled"
       ];
