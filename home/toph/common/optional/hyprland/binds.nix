@@ -98,6 +98,10 @@ let
           "ALT,           Tab,            cyclenext,"
           "ALT,           Tab,            bringactivetotop,"
           "SUPER_ALT,     G,              submap,                     steam"
+          "SUPER,         1,              workspace,                  1"
+          "SUPER,         2,              workspace,                  2"
+          "SUPER,         3,              workspace,                  3"
+          "SUPER,         4,              workspace,                  4"
 
           ## Scroller ##
           "SUPER,         P,              scroller:pin"

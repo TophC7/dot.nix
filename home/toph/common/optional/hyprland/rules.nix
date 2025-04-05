@@ -47,8 +47,9 @@ in
 
       # Zen
       "suppressevent maximize, class:^(zen)$"
-      "float, title:^(Picture-in-Picture)$"
-      "pin, title:^(Picture-in-Picture)$"
+      "float, initialTitle:^(Picture-in-Picture)$"
+      "nodim, initialTitle:^(Picture-in-Picture)$"
+      "keepaspectratio, initialTitle:^(Picture-in-Picture)$"
       "float, class:^(zen)$, title:^(File Upload)$"
       "workspace special silent, title:^(Zen — Sharing Indicator)$"
       "workspace special silent, title:^(.*is sharing (your screen|a window)\.)$"
@@ -58,7 +59,7 @@ in
       "plugin:scroller:windowheight onethird, class:^(foot)$"
 
       # Vesktop
-      "workspace 1, class:^(vesktop)$"
+      "workspace 2, class:^(vesktop)$"
       "plugin:scroller:group vesktop, class:^(vesktop)$"
       "opaque, initialTitle:^(Discord Popout)$"
       "plugin:scroller:modemodifier row before focus, initialTitle:^(Discord Popout)$"
@@ -96,7 +97,7 @@ in
       #"center, workspace:^(special:special)$"
 
       ## Steam rules ##
-      "stayfocused, initialClass:^([Gg]amescope)$"
+      "opaque, initialClass:^([Gg]amescope)$"
       "fullscreen, initialClass:^([Gg]amescope)$"
       "minsize 1 1, initialClass:^([Gg]amescope)$"
       "immediate, initialClass:^([Gg]amescope)$"
@@ -115,8 +116,8 @@ in
       # "monitor:DP-1, ${flameshot}"
 
       ## Workspace Assignments ##
-      "workspace 1, initialClass:^(spotify)$"
-      "workspace 1, initialClass:^(org.telegram.desktop)$"
+      "workspace 2, initialClass:^(spotify)$"
+      "workspace 2, initialClass:^(org.telegram.desktop)$"
       # "workspace name:4, initialClass:^(virt-manager)$"
 
       # "workspace 8, class:^(obsidian)$"

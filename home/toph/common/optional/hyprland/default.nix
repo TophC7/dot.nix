@@ -62,7 +62,7 @@
             mkdir "$out"; ${pkgs.jq}/bin/jq -r '
               [ to_entries[] |
                 (.key as $i | .value.name as $name |
-                  [ range(0;1) | ($i * 1 + .) as $wsnum |
+                  [ range(1;2) | ($i * 1 + .) as $wsnum |
                     if . == 0 then "\($wsnum), monitor:\($name), default:true, persistent:true"
                     else "\($wsnum), monitor:\($name)" end
                   ]
@@ -126,8 +126,8 @@
         border_size = 2;
         gaps_in = 6;
         gaps_out = 6;
-        "col.inactive_border" = "rgb(191b1c)";
-        "col.active_border" = "rgb(1cbdd9) rgb(f6ef9d) 30deg";
+        # "col.inactive_border" = "rgb(191b1c)";
+        # "col.active_border" = "rgb(1cbdd9) rgb(f6ef9d) 30deg";
         allow_tearing = true; # used to reduce latency and/or jitter in games
         snap = {
           enabled = true;
@@ -158,8 +158,8 @@
           range = 30;
           render_power = 2;
           scale = 1.5;
-          color = "rgb(191b1c)";
-          color_inactive = "rgb(191b1c)";
+          # color = "rgb(191b1c)";
+          # color_inactive = "rgb(191b1c)";
         };
       };
 
