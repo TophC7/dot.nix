@@ -97,11 +97,11 @@ let
           ",              Home,           overview:toggle"
           "ALT,           Tab,            cyclenext,"
           "ALT,           Tab,            bringactivetotop,"
-          "SUPER_ALT,     G,              submap,                     steam"
           "SUPER,         1,              workspace,                  1"
           "SUPER,         2,              workspace,                  2"
           "SUPER,         3,              workspace,                  3"
           "SUPER,         4,              workspace,                  4"
+          "SUPER_ALT,     G,              exec,                       ${steam-map} on ${monitors-json}"
 
           ## Scroller ##
           "SUPER,         P,              scroller:pin"
@@ -149,7 +149,9 @@ let
     steam = {
       binds = {
         "" = [
-          "SUPER,         Escape,         submap,                     reset"
+          "SUPER,         Escape,         exec,                     ${steam-map} off ${monitors-json}"
+        ];
+        n = [
           "SUPER,         SUPER_L,        pass"
           ",              mouse:275,      pass"
           ",              mouse:276,      pass"
@@ -157,6 +159,9 @@ let
       };
     };
   };
+
+  steam-map = import ./scripts/steam-map.nix { inherit pkgs; };
+  monitors-json = pkgs.writeText "monitors.json" (builtins.toJSON config.monitors);
 
   submaps-script = import ./scripts/submaps.nix { inherit pkgs; };
   submaps-json = pkgs.writeText "submaps.json" (builtins.toJSON submaps);

@@ -48,8 +48,9 @@ let
 in
 {
   home.packages = with pkgs; [
-    steam-session
     prismlauncher
+    ryubing
+    steam-session
     # modrinth-app
     (lutris.override {
       extraLibraries = pkgs: [

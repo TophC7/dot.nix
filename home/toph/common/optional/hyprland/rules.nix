@@ -96,13 +96,18 @@ in
       #"size 80% 85%, workspace:^(special:special)$"
       #"center, workspace:^(special:special)$"
 
+      #Ryujinx
+      "opaque, initialClass:^(Ryujinx)$"
+      "immediate, initialClass:^(Ryujinx)$"
+      "workspace 3, initialClass:^(Ryujinx)$"
+
       ## Steam rules ##
       "opaque, initialClass:^([Gg]amescope)$"
+      # "stayfocused, initialClass:^([Gg]amescope)$"
       "fullscreen, initialClass:^([Gg]amescope)$"
       "minsize 1 1, initialClass:^([Gg]amescope)$"
       "immediate, initialClass:^([Gg]amescope)$"
       "workspace 3, initialClass:^([Gg]amescope)$"
-      "monitor 0, initialClass:^([Gg]amescope)$"
 
       #
       # ========== Fameshot rules ==========
