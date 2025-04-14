@@ -4,24 +4,22 @@ name: Invincible
 author: tophc7
 variant: dark
 palette:
-  base00: "232323"
-  base01: "232C30"
-  base02: "233A43"
-  base03: "224756"
+  base00: "262A2B"
+  base01: "2E3233"
+  base02: "323739"
+  base03: "464E53"
   base04: "ADE0FB"
   base05: "D4ECF1"
   base06: "E7F2EC"
   base07: "FAF7E6"
   base08: "EE2E00" # Red
   base09: "F7A94E" # Orange
-  base0A: "21438D" # Yellow
-  base0B: "#8DE364" # Green
+  base0A: "2B57B6" # Yellow
+  base0B: "8DE364" # Green
   base0C: "59A3C0" # Cyan
   base0D: "FCEEA1" # Blue
   base0E: "AC92BF" # Purple
   base0F: "EA5E79" # Magenta
 
-# https://coolors.co/ee2e00-f68e1b-fee45c-becf68-4197ba-123787-3f2a47-806994-cfc5de-ea5e79
-# https://coolors.co/fafbe8-000000-131311-1d1d19-262621-1db3ec-65caf4-89d5f8-ade0fb
-# https://coolors.co/ee2e00-f7a94e-21438d-8de364-59a3c0-fceea1-ac92bf-ea5e79
-# https://coolors.co/232323-232c30-233a43-224756-ade0fb-d4ecf1-e7f2ec-faf7e6
+# https://coolors.co/262a2b-2e3233-323739-464e53-ade0fb-d4ecf1-e7f2ec-faf7e6
+# https://coolors.co/ee2e00-f7a94e-2b57b6-8de364-59a3c0-fceea1-ac92bf-ea5e79

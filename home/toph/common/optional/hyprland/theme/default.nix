@@ -45,7 +45,7 @@ in
       hyprpaper.enable = true;
       vscode = {
         enable = false;
-        profileNames = [ "Stylix" ];
+        # profileNames = [ "Stylix" ];
       };
     };
   };
@@ -77,3 +77,4 @@ in
     };
   };
 }
+ 
