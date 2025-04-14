@@ -11,5 +11,9 @@
         adjustment-method = "wayland";
       };
     };
+    temperature = {
+      day = 6500;
+      night = 4500;
+    };
   };
 }
