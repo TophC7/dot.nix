@@ -26,6 +26,13 @@ function rebuild
     end
 end
 
+# Discourage using rm command
+function rm
+    if test (count $argv) -gt 0
+        echo "Error: 'rm' is protected. Please use 'trashy' command instead."
+    end
+end
+
 # SSH function, just for convenience since I use it a lot
 function s
     set user (whoami)

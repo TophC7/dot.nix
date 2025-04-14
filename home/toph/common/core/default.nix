@@ -69,16 +69,14 @@
       # Packages that don't have custom configs go here
       btop # resource monitor
       coreutils # basic gnu utils
-      curl
-      dua # disk usage analyzer
       dust # disk usage
       eza # ls replacement
-      jq
+      jq # json parser
       p7zip # compression & encryption
       pre-commit # git hooks
+      trashy # trash cli
       unrar # rar extraction
       unzip # zip extraction
-      wget # downloader
       xdg-user-dirs
       xdg-utils # provide cli tools such as `xdg-mime` and `xdg-open`
       zip # zip compression

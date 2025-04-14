@@ -23,9 +23,9 @@ in
 
   # System-wide packages, in case we log in as root
   environment.systemPackages = with pkgs; [
+    curl
     micro
     openssh
-    plocate
     ranger
     sshfs
     wget
