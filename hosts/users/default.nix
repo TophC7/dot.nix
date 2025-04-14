@@ -30,11 +30,15 @@ in
     group = "ryot";
     extraGroups = lib.flatten [
       "wheel"
+      # Some of these groups are defined elsewhere in the system
+      # But honestly not sure what runs first so just add them here i guess
       (ifTheyExist [
+        "adbusers"
         "audio"
         "docker"
         "gamemode"
         "git"
+        "libvirtd"
         "networkmanager"
         "video"
       ])

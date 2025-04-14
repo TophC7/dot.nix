@@ -30,6 +30,7 @@ in
 
       ## Optional Configs ##
       "hosts/common/optional/audio.nix" # pipewire and cli controls
+      "hosts/common/optional/adb.nix" # android tools
       "hosts/common/optional/bluetooth.nix"
       "hosts/common/optional/ddcutil.nix" # ddcutil for monitor controls
       "hosts/common/optional/gaming.nix" # steam, gamescope, gamemode, and related hardware
