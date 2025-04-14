@@ -10,7 +10,7 @@
 
   programs.hyprland = {
     enable = true;
-    # withUWSM = true; # One day, but not today
+    withUWSM = true;
   };
 
   environment.systemPackages = [
