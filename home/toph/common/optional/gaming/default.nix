@@ -8,8 +8,11 @@
 }:
 
 let
-  monitor = lib.head (lib.filter (m: m.primary) config.monitors);
 
+  path = lib.custom.relativeToRoot "pkgs/common/citron-emu/package.nix";
+  citron-emu = pkgs.callPackage path { inherit pkgs; };
+
+  monitor = lib.head (lib.filter (m: m.primary) config.monitors);
   steam-session =
     let
       gamescope = lib.concatStringsSep " " [
@@ -48,6 +51,7 @@ let
 in
 {
   home.packages = with pkgs; [
+    citron-emu
     prismlauncher
     ryubing
     steam-session
