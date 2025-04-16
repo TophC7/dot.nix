@@ -21,7 +21,7 @@ for i in (seq 1 $num)
         set type2 $types[$j]
         set combination "$type1+$type2"
         echo "Creating with type $combination"
-        chafa -s 24x11 -w 9 --symbols $combination --view-size 24x11 $input_png
+        nix run nixpkgs#chafa -- -s 24x11 -w 9 --symbols $combination --view-size 24x11 $input_png
         # chafa -s 23x12 -w 9 --stretch --symbols $combination --view-size 23x12 $input_png
     end
 end
