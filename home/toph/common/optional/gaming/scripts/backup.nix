@@ -15,7 +15,7 @@ pkgs.writeScript "backup-wrapper" ''
     echo "→ Creating backup: $outfile"
 
     tar cf - $src |
-      ${pkgs.zstd}/bin/zstd -- -c -T5 -15 -v > $outfile
+      ${pkgs.zstd}/bin/zstd -c -T5 -15 -v > $outfile
 
     # Rotate: keep only the newest $max_backups
     set files (ls -1t $dest/backup-*.tar.zst)
@@ -28,8 +28,16 @@ pkgs.writeScript "backup-wrapper" ''
   end
 
   function periodic_backups --argument-names pid
-    while test -d /proc/$pid
-      sleep $interval
+    while true
+      # sleep in 1s increments so we can detect process exit early
+      for i in (seq 1 $interval)
+        if not test -d /proc/$pid
+        return
+        end
+        sleep 1
+      end
+      
+      # If we're still here, do the interval backup
       echo "Interval backup at "(date)
       backup
     end
