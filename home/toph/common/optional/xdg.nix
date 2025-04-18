@@ -5,7 +5,7 @@
 }:
 let
   # FIXME(xdg): That should use config options and just reference whatever is configured as the default
-  files = [ "nautilus.desktop" ];
+  files = [ "org.gnome.Nautilus.desktop" ];
   browser = [ "zen.desktop" ];
   editor = [ "code.desktop" ];
   steam = [ "steam-session.desktop" ];

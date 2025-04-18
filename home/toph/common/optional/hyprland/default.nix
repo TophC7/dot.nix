@@ -31,14 +31,14 @@
         "NIXOS_OZONE_WL, 1" # for ozone-based and electron apps to run on wayland
         "MOZ_ENABLE_WAYLAND, 1" # for firefox to run on wayland
         "MOZ_WEBRENDER, 1" # for firefox to run on wayland
-        "XDG_SESSION_TYPE,wayland"
-        "XDG_SESSION_DESKTOP,Hyprland"
-        "XDG_CURRENT_DESKTOP,Hyprland"
-        "WLR_NO_HARDWARE_CURSORS,1"
-        "WLR_RENDERER_ALLOW_SOFTWARE,1"
-        "QT_QPA_PLATFORM,wayland"
-        "GTK_USE_PORTAL,1"
-        "HYPRCURSOR_THEME,rose-pine-hyprcursor" # this will be better than default for now
+        "XDG_SESSION_TYPE, wayland"
+        "XDG_SESSION_DESKTOP, Hyprland"
+        "XDG_CURRENT_DESKTOP, Hyprland"
+        "WLR_NO_HARDWARE_CURSORS, 1"
+        "WLR_RENDERER_ALLOW_SOFTWARE, 1"
+        "QT_QPA_PLATFORM, wayland"
+        "GTK_USE_PORTAL, 1"
+        "HYPRCURSOR_THEME, rose-pine-hyprcursor" # this will be better than default for now
       ];
 
       xwayland = {

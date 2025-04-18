@@ -66,7 +66,7 @@ let
           "SUPER,         L,              exec,                       hyprlock"
           # "SUPER,         L,              exec,                       ${lockscreen}"
           "SUPER,         Q,              killactive,"
-          "CTRL_ALT,      Delete,         exit,"
+          "CTRL_ALT,      Delete,         exec,                       uwsm stop"
           ",              ${brightUp},    exec,                       ${brightness} + 10"
           ",              ${brightDown},  exec,                       ${brightness} - 10"
 

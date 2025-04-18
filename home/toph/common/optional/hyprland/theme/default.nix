@@ -7,6 +7,17 @@
 let
   path = lib.custom.relativeToRoot "pkgs/common/monocraft-nerd-fonts/package.nix";
   monocraft-nerd-fonts = pkgs.callPackage path { inherit pkgs; };
+
+  qogir = pkgs.qogir-icon-theme.override {
+    colorVariants = [
+      "dark"
+      "standard"
+    ];
+    themeVariants = [
+      "ubuntu"
+    ];
+  };
+
 in
 {
   imports = [
@@ -61,8 +72,14 @@ in
     enable = true;
 
     iconTheme = {
-      package = pkgs.adwaita-icon-theme;
-      name = "Adwaita";
+      # package = qogir;
+      # name = "Qogir";
+      package = (
+        pkgs.papirus-icon-theme.override {
+          color = "yellow";
+        }
+      );
+      name = "Papirus";
     };
   };
 
@@ -77,4 +94,3 @@ in
     };
   };
 }
- 
