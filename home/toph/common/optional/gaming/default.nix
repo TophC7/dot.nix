@@ -8,10 +8,6 @@
 }:
 
 let
-
-  path = lib.custom.relativeToRoot "pkgs/common/citron-emu/package.nix";
-  citron-emu = pkgs.callPackage path { inherit pkgs; };
-
   monitor = lib.head (lib.filter (m: m.primary) config.monitors);
   steam-session =
     let
@@ -50,10 +46,10 @@ let
     '';
 in
 {
+  imports = lib.custom.scanPaths ./.;
+
   home.packages = with pkgs; [
-    citron-emu
     prismlauncher
-    ryubing
     steam-session
     # modrinth-app
     (lutris.override {
