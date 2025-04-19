@@ -27,7 +27,7 @@ in
     Ryujinx = {
       name = "Ryubing w/ Backups";
       comment = "Ryubing Emulator with Save Backups";
-      exec = ''fish ${backup-wrapper} /home/${user}/.config/Ryujinx/bis/user/save /pool/Backups/Switch/RyubingSaves 960 30 -- ryujinx''; # Should amount to be ~8 hours of playtime in 30 backups
+      exec = ''fish ${backup-wrapper} -p /home/${user}/.config/Ryujinx/bis/user/save -o /pool/Backups/Switch/RyubingSaves -m 30 -d 120 -- ryujinx'';
       icon = "Ryujinx";
       type = "Application";
       terminal = false;
@@ -52,7 +52,7 @@ in
     citron-emu = {
       name = "Citron w/ Backups";
       comment = "Citron Emulator with Save Backups";
-      exec = ''fish ${backup-wrapper} /home/${user}/.local/share/citron/nand/user/save /pool/Backups/Switch/CitronSaves 960 30 -- citron-emu''; # Should amount to be ~8 hours of playtime in 30 backups
+      exec = ''fish ${backup-wrapper} -p /home/${user}/.local/share/citron/nand/user/save -o /pool/Backups/Switch/CitronSaves -m 30 -d 120 -- citron-emu'';
       icon = "applications-games";
       type = "Application";
       terminal = false;
