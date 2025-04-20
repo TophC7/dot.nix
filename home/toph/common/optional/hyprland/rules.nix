@@ -100,6 +100,8 @@ in
       "opaque, initialClass:^(Ryujinx)$"
       "immediate, initialClass:^(Ryujinx)$"
       "workspace 3, initialClass:^(Ryujinx)$"
+      "float, initialTitle:^(ContentDialogOverlayWindow)$"
+      "center, initialTitle:^(ContentDialogOverlayWindow)$"
 
       ## Steam rules ##
       "opaque, initialClass:^([Gg]amescope)$"

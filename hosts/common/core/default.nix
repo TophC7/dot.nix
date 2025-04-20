@@ -66,8 +66,7 @@ in
   ## SUDO and Terminal ##
   # Database for aiding terminal-based programs
   environment.enableAllTerminfo = true;
-  # Enable firmware with a license allowing redistribution
-  hardware.enableRedistributableFirmware = true;
+  hardware.enableAllFirmware = true;
 
   security.sudo = {
     extraRules = [

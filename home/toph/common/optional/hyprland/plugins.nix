@@ -45,7 +45,7 @@
           jump_labels_keys = "qwfpgarstd";
           # monitor_options = ''
           #   (
-          #     DP-3 = (
+          #     DP-1 = (
           #       mode = row;
           #       column_default_width = onehalf;
           #       column_widths = onehalf onethird twothirds threefourths;
@@ -60,7 +60,7 @@
           #       window_heights = seveneighths onehalf onethird twothirds
           #     ),
           #   )'';
-          monitor_options = "(DP-3 = (mode = row;column_default_width = onehalf;column_widths = seveneighths threequarters twothirds onehalf onethird;window_default_height = one;window_heights = one seveneighths twothirds onehalf onethird),HDMI-A-2 = (mode = col; column_default_width = one;column_widths = one onehalf;window_default_height = twothirds;window_heights = seveneighths twothirds onehalf onethird),)";
+          monitor_options = "(DP-1 = (mode = row;column_default_width = onehalf;column_widths = seveneighths threequarters twothirds onehalf onethird;window_default_height = one;window_heights = one seveneighths twothirds onehalf onethird),HDMI-A-2 = (mode = col; column_default_width = one;column_widths = one onehalf;window_default_height = twothirds;window_heights = seveneighths twothirds onehalf onethird),)";
         };
       };
     };

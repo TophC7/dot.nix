@@ -1,7 +1,15 @@
-{
-  pkgs,
-  ...
-}:
+{ pkgs, lib, ... }:
+
+let
+  # Define your I2C bus numbers
+  # Couldnt find a non hardcoded way to get the bus numbers :(
+  busesList = [
+    6
+    9
+  ];
+  busesStr = lib.concatStringsSep " " (map toString busesList);
+in
+
 pkgs.writeScript "brightness-control" ''
   #!/usr/bin/env fish
 
@@ -17,7 +25,7 @@ pkgs.writeScript "brightness-control" ''
   end
 
   set option $argv[1]
-  set value $argv[2]
+  set value  $argv[2]
 
   if test "$option" = "--up" -o "$option" = "+"
     set op "+"
@@ -28,11 +36,11 @@ pkgs.writeScript "brightness-control" ''
     exit 1
   end
 
-  # Hardcoded bus numbers from ddcutil detect. Adjust if necessary.
-  set buses 10 11
+  # Hard-coded bus list:
+  set buses ${busesStr}
 
   for bus in $buses
     echo "Changing brightness on bus $bus: ddcutil setvcp 10 $op $value --bus $bus"
-    ddcutil setvcp 10 $op $value --bus $bus
+    ${pkgs.ddcutil}/bin/ddcutil setvcp 10 $op $value --bus $bus
   end
 ''

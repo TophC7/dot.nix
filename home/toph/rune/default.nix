@@ -50,7 +50,7 @@
 
   monitors = [
     {
-      name = "DP-3";
+      name = "DP-1";
       x = 900;
       y = 0;
       width = 3840;

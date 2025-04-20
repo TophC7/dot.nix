@@ -1,8 +1,4 @@
 { pkgs, lib, ... }:
-let
-  path = lib.custom.relativeToRoot "pkgs/common/monocraft-nerd-fonts/package.nix";
-  monocraft-nerd-fonts = pkgs.callPackage path { inherit pkgs; };
-in
 {
   fonts = {
     packages = with pkgs; [

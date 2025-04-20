@@ -27,7 +27,7 @@ let
   launcher = "${pkgs.walker}/bin/walker --modules applications,ssh";
   pactl = lib.getExe' pkgs.pulseaudio "pactl";
   terminal = exec (import ./scripts/terminal.nix { inherit pkgs; });
-  brightness = exec (import ./scripts/brightness.nix { inherit pkgs; });
+  brightness = exec (import ./scripts/brightness.nix { inherit pkgs lib; });
 
   ## Long ass keys ##
   lowerVol = "XF86AudioLowerVolume";
