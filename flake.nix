@@ -114,7 +114,15 @@
               # see: https://github.com/nix-community/home-manager/pull/3454
               lib = nixpkgs.lib.extend (self: super: { custom = import ./lib { inherit (nixpkgs) lib; }; });
             };
-            modules = [ ./hosts/nixos/${host} ];
+            modules = [
+              # Apply the overlays to make custom packages available
+              {
+                nixpkgs.overlays = [
+                  self.overlays.default
+                ];
+              }
+              ./hosts/nixos/${host}
+            ];
           };
       };
       # Invoke mkHost for each host config that is declared for either X86 or ARM
@@ -136,7 +144,6 @@
       # Building configurations is available through `just rebuild` or `nixos-rebuild --flake .#hostname`
       nixosConfigurations = mkHostConfigs (readHosts "nixos") false;
 
-      #
       # ========= Packages =========
       #
       # Add custom packages to be shared or upstreamed.
@@ -147,11 +154,22 @@
             inherit system;
             overlays = [ self.overlays.default ];
           };
+
+          # Get all package directories from pkgs/
+          packageDirs = builtins.attrNames (builtins.readDir ./pkgs);
+
+          # Filter to only include names that resulted in valid packages
+          validPackages = builtins.filter (name: builtins.hasAttr name pkgs) packageDirs;
+
+          # Create a set with all the packages
+          customPackages = builtins.listToAttrs (
+            builtins.map (name: {
+              inherit name;
+              value = pkgs.${name};
+            }) validPackages
+          );
         in
-        lib.packagesFromDirectoryRecursive {
-          callPackage = lib.callPackageWith pkgs;
-          directory = pkgs/common;
-        }
+        customPackages
       );
     };
 }

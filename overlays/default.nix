@@ -6,13 +6,15 @@
 
 let
   # Adds my custom packages
-  # FIXME: Add per-system packages
   additions =
     final: prev:
-    (prev.lib.packagesFromDirectoryRecursive {
-      callPackage = prev.lib.callPackageWith final;
-      directory = ../pkgs/common;
-    });
+    let
+      packages = prev.lib.packagesFromDirectoryRecursive {
+        callPackage = prev.lib.callPackageWith final;
+        directory = ../pkgs; # Changed from ../pkgs/common to ../pkgs
+      };
+    in
+    packages;
 
   linuxModifications = final: prev: prev.lib.mkIf final.stdenv.isLinux { };
 
@@ -20,20 +22,12 @@ let
     # example = prev.example.overrideAttrs (oldAttrs: let ... in {
     # ...
     # });
-    #    flameshot = prev.flameshot.overrideAttrs {
-    #      cmakeFlags = [
-    #        (prev.lib.cmakeBool "USE_WAYLAND_GRIM" true)
-    #        (prev.lib.cmakeBool "USE_WAYLAND_CLIPBOARD" true)
-    #      ];
-    #    };
   };
 
   stable-packages = final: _prev: {
     stable = import inputs.nixpkgs-stable {
       inherit (final) system;
       config.allowUnfree = true;
-      #      overlays = [
-      #     ];
     };
   };
 
@@ -41,8 +35,6 @@ let
     unstable = import inputs.nixpkgs-unstable {
       inherit (final) system;
       config.allowUnfree = true;
-      #      overlays = [
-      #     ];
     };
   };
 
