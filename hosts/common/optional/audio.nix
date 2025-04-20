@@ -4,6 +4,9 @@
     inputs.nix-gaming.nixosModules.pipewireLowLatency
   ];
 
+  hardware.pulseaudio = {
+    package = pkgs.pulseaudioFull;
+  };
   services.pulseaudio.enable = false;
   security.rtkit.enable = true;
   services.pipewire = {

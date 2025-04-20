@@ -1,22 +1,41 @@
-{ pkgs, ... }:
+{ pkgs, config, ... }:
 {
   hardware.bluetooth = {
     enable = true;
-    package = pkgs.bluez5-experimental;
+    package = pkgs.bluez-experimental;
+    powerOnBoot = true;
     settings = {
+      LE = {
+        MinConnectionInterval = 16;
+        MaxConnectionInterval = 16;
+        ConnectionLatency = 10;
+        ConnectionSupervisionTimeout = 100;
+      };
+      Policy = {
+        AutoEnable = "true";
+      };
       # make Xbox Series X controller work
       General = {
-        Class = "0x000100";
-        ControllerMode = "bredr";
+        Enable = "Source,Sink,Media,Socket";
         FastConnectable = true;
         JustWorksRepairing = "always";
-        Privacy = "device";
         # Battery info for Bluetooth devices
         Experimental = true;
       };
     };
   };
 
-  # https://github.com/NixOS/nixpkgs/issues/114222
-  systemd.user.services.telephony_client.enable = false;
+  services.blueman.enable = true;
+  # these 2 options below were not mentioned in wiki
+
+  boot = {
+    extraModprobeConfig = ''
+      options bluetooth enable_ecred=1
+    '';
+  };
+
+  environment.systemPackages = with pkgs; [
+    bluez-tools
+    bluetuith # can transfer files via OBEX
+  ];
 }
