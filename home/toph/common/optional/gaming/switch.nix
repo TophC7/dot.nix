@@ -7,42 +7,65 @@
 }:
 
 let
-  citron-emu = pkgs.callPackage (lib.custom.relativeToRoot "pkgs/common/citron-emu/package.nix") {
-    inherit pkgs;
-  };
-  borgtui = pkgs.callPackage (lib.custom.relativeToRoot "pkgs/common/borgtui/package.nix") {
-    inherit pkgs;
-  };
+  # citron-emu = pkgs.callPackage (lib.custom.relativeToRoot "pkgs/common/citron-emu/package.nix") {
+  #   inherit pkgs;
+  # };
+  # borgtui = pkgs.callPackage (lib.custom.relativeToRoot "pkgs/common/borgtui/package.nix") {
+  #   inherit pkgs;
+  # };
 
   user = config.hostSpec.username;
 
   borg-wrapper = pkgs.writeScript "borg-wrapper" ''
     #!${lib.getExe pkgs.fish}
 
-    # Parse arguments
-    set -l CMD
-
-    while test (count $argv) -gt 0
-        switch $argv[1]
-            case -p --path
-                set BACKUP_PATH $argv[2]
-                set -e argv[1..2]
-            case -o --output
-                set BORG_REPO $argv[2]
-                set -e argv[1..2]
-            case -m --max
-                set MAX_BACKUPS $argv[2]
-                set -e argv[1..2]
-            case --
-                set -e argv[1]
-                set CMD $argv
-                set -e argv[1..-1]
-                break
-            case '*'
-                echo "Unknown option: $argv[1]"
-                exit 1
+    # Parse arguments using argparse
+    function parse_args
+        argparse 'p/path=' 'o/output=' 'm/max=' 'h/help' -- $argv
+        or return 1
+        
+        if set -ql _flag_help
+            echo "Usage: borg-wrapper -p|--path PATH -o|--output REPO -m|--max MAX_BACKUPS -- COMMAND..."
+            echo "  -p, --path PATH       Path to backup"
+            echo "  -o, --output REPO     Path to store backups"
+            echo "  -m, --max MAX         Maximum number of backups to keep"
+            echo "  -h, --help            Show this help"
+            exit 0
+        end
+        
+        # Check required arguments
+        if not set -ql _flag_path
+            echo "Error: --path is required" >&2
+            return 1
+        end
+        if not set -ql _flag_output
+            echo "Error: --output is required" >&2
+            return 1
+        end
+        
+        # Set defaults
+        set -g BACKUP_PATH $_flag_path
+        set -g BORG_REPO $_flag_output
+        
+        if set -ql _flag_max
+            set -g MAX_BACKUPS $_flag_max
+        else
+            set -g MAX_BACKUPS 30
+        end
+        
+        # Everything remaining is the command to execute
+        set -g CMD $argv
+        
+        # Verify we have a command
+        if test (count $CMD) -eq 0
+            echo "Error: No command specified after --" >&2
+            return 1
         end
     end
+
+    # Parse the arguments
+    parse_args $argv
+    or exit 1
 
     # Initialize Borg repository
     mkdir -p "$BORG_REPO"
