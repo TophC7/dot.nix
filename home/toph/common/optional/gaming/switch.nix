@@ -19,9 +19,6 @@ let
   borg-wrapper = pkgs.writeScript "borg-wrapper" ''
     #!${lib.getExe pkgs.fish}
 
-    # Enable strict error handling
-    set -e
-
     # Parse arguments
     set -l CMD
 
@@ -59,10 +56,14 @@ let
         set -l tag $argv[1]
         set -l timestamp (date +%Y%m%d-%H%M%S)
         echo "Creating $tag backup: $timestamp"
+        
+        # Push to parent directory, backup the basename only, then pop back
+        pushd (dirname "$BACKUP_PATH") >/dev/null
         ${pkgs.borgbackup}/bin/borg create --stats --compression zstd,15 \
             --files-cache=mtime,size \
             --lock-wait 5 \
-            "$BORG_REPO::$tag-$timestamp" "$BACKUP_PATH" || true
+            "$BORG_REPO::$tag-$timestamp" (basename "$BACKUP_PATH") || true
+        popd >/dev/null
     end
 
     function prune_backups
