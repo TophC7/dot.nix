@@ -2,28 +2,8 @@ function cd
     zoxide $argv
 end
 
-# Clears all possible garbage from the Nix store 😀
-function garbage
-    sudo nh clean all
-    nh clean all
-    sudo nix-collect-garbage --delete-old
-    nix-collect-garbage --delete-old
-    sudo nix-store --gc
-    nix-store --gc
-end
-
 function ls
     eza $argv
-end
-
-# Rebuilds the NixOS configuration, located in ~/git/Nix/dot.nix for all my hosts
-function rebuild
-    if test -f ~/git/Nix/dot.nix/scripts/rebuild.fish
-        cd ~/git/Nix/dot.nix
-        scripts/rebuild.fish
-    else
-        echo (set_color yellow)" - Rebuild not found"(set_color normal)
-    end
 end
 
 # Discourage using rm command

@@ -26,6 +26,7 @@
     ranger
     sshfs
     wget
+    yay # my yay @ pkgs teehee
   ];
 
   # Enable CUPS to print documents.
