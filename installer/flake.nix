@@ -22,7 +22,7 @@
       minimalSpecialArgs = {
         inherit inputs outputs;
         lib = nixpkgs.lib.extend (
-          self: super: { custom = import /home/${username}/git/dot.nix/lib { inherit (nixpkgs) lib; }; }
+          self: super: { custom = import /home/${username}/git/Nix/dot.nix/lib { inherit (nixpkgs) lib; }; }
         );
       };
 
@@ -34,7 +34,7 @@
           specialArgs = minimalSpecialArgs;
           modules = [
             ./minimal-configuration.nix
-            /home/${username}/git/dot.nix/hosts/nixos/${name}/hardware.nix
+            /home/${username}/git/Nix/dot.nix/hosts/nixos/${name}/hardware.nix
             { networking.hostName = name; }
           ];
         });

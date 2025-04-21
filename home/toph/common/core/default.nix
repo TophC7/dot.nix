@@ -43,7 +43,7 @@ in
     ];
     sessionVariables = {
       EDITOR = "micro";
-      FLAKE = "${homeDir}/git/dot.nix";
+      FLAKE = "${homeDir}/git/Nix/dot.nix";
       MANPAGER = "batman"; # see ./cli/bat.nix
       SHELL = "fish";
       TERM = "foot";
