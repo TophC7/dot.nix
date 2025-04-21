@@ -9,8 +9,11 @@ let
   username = config.hostSpec.username;
 in
 {
-  imports = [
+  imports = lib.flatten [
     (modulesPath + "/profiles/qemu-guest.nix")
+    (map lib.custom.relativeToRoot [
+      "hosts/common/optional/system/pool.nix"
+    ])
   ];
 
   ## Boot ##
@@ -47,27 +50,6 @@ in
     "/" = {
       device = "/dev/disk/by-uuid/7ec7d686-6f4c-482f-8b9d-4337a06afc48";
       fsType = "ext4";
-    };
-
-    "/pool" = {
-      device = "${username}@cloud:/pool";
-      fsType = "sshfs";
-      options = [
-        "defaults"
-        "reconnect"
-        "_netdev"
-        "allow_other"
-        "identityfile=/home/${username}/.ssh/pve"
-      ];
-    };
-
-    "/home/${username}/git" = {
-      fsType = "none";
-      device = "/pool/git";
-      options = [
-        "bind"
-        "nofail"
-      ];
     };
   };
   swapDevices = [ ];

@@ -14,7 +14,7 @@ let
   #   inherit pkgs;
   # };
 
-  user = config.hostSpec.username;
+  homeDir = config.hostSpec.home;
 
   borg-wrapper = pkgs.writeScript "borg-wrapper" ''
     #!${lib.getExe pkgs.fish}
@@ -176,7 +176,7 @@ in
       name = "Ryujinx w/ Borg Backups";
       comment = "Ryujinx Emulator with Borg Backups";
       exec = mkLaunchCommand {
-        savePath = "/home/${user}/.config/Ryujinx/bis/user/save";
+        savePath = "${homeDir}/.config/Ryujinx/bis/user/save";
         backupPath = "/pool/Backups/Switch/RyubingSaves";
         maxBackups = 30;
         command = "ryujinx";
@@ -206,7 +206,7 @@ in
       name = "Citron w/ Borg Backups";
       comment = "Citron Emulator with Borg Backups";
       exec = mkLaunchCommand {
-        savePath = "/home/${user}/.local/share/citron/nand/user/save";
+        savePath = "${homeDir}/.local/share/citron/nand/user/save";
         backupPath = "/pool/Backups/Switch/CitronSaves";
         maxBackups = 30;
         command = "citron-emu";

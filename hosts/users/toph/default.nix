@@ -7,10 +7,12 @@
 }:
 let
   hostSpec = config.hostSpec;
+  username = hostSpec.username;
+  homeDir = hostSpec.home;
   pubKeys = lib.filesystem.listFilesRecursive ./keys;
 in
 {
-  users.users.${hostSpec.username} = {
+  users.users.${username} = {
     name = hostSpec.username;
     shell = pkgs.fish; # default shell
 
@@ -21,11 +23,11 @@ in
   # Create ssh sockets directory for controlpaths when homemanager not loaded (i.e. isMinimal)
   systemd.tmpfiles.rules =
     let
-      user = config.users.users.${hostSpec.username}.name;
-      group = config.users.users.${hostSpec.username}.group;
+      user = config.users.users.${username}.name;
+      group = config.users.users.${username}.group;
     in
     [
-      "d /home/${hostSpec.username}/.ssh 0750 ${user} ${group} -"
+      "d ${homeDir}/.ssh 0750 ${user} ${group} -"
     ];
 
   # No matter what environment we are in we want these tools
@@ -38,11 +40,11 @@ in
       inherit pkgs inputs;
       hostSpec = config.hostSpec;
     };
-    users.${hostSpec.username}.imports = lib.flatten (
+    users.${username}.imports = lib.flatten (
       lib.optional (!hostSpec.isMinimal) [
         (
           { config, ... }:
-          import (lib.custom.relativeToRoot "home/${hostSpec.username}/${hostSpec.hostName}") {
+          import (lib.custom.relativeToRoot "home/${username}/${hostSpec.hostName}") {
             inherit
               pkgs
               inputs

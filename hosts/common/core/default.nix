@@ -7,9 +7,6 @@
   pkgs,
   ...
 }:
-let
-  hostSpec = config.hostSpec;
-in
 {
   imports = lib.flatten [
     inputs.home-manager.nixosModules.home-manager
@@ -60,7 +57,7 @@ in
     enable = true;
     clean.enable = true;
     clean.extraArgs = "--keep-since 20d --keep 20";
-    flake = "/home/${hostSpec.username}/git/dot.nix/";
+    flake = "${config.hostSpec.home}/git/dot.nix/";
   };
 
   ## SUDO and Terminal ##
@@ -71,7 +68,7 @@ in
   security.sudo = {
     extraRules = [
       {
-        users = [ hostSpec.username ];
+        users = [ config.hostSpec.username ];
         commands = [
           {
             command = "ALL";

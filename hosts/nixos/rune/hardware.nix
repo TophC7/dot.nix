@@ -11,7 +11,12 @@
 }:
 
 {
-  imports = [ (modulesPath + "/installer/scan/not-detected.nix") ];
+  imports = lib.flatten [
+    (modulesPath + "/installer/scan/not-detected.nix")
+    (map lib.custom.relativeToRoot [
+      "hosts/common/optional/system/pool.nix"
+    ])
+  ];
 
   ## Boot ##
   boot = {
@@ -61,27 +66,6 @@
       options = [
         "fmask=0077"
         "dmask=0077"
-      ];
-    };
-
-    "/pool" = {
-      device = "${config.hostSpec.username}@cloud:/pool";
-      fsType = "sshfs";
-      options = [
-        "defaults"
-        "reconnect"
-        "_netdev"
-        "allow_other"
-        "identityfile=/home/${config.hostSpec.username}/.ssh/pve"
-      ];
-    };
-
-    "/home/${config.hostSpec.username}/git" = {
-      fsType = "none";
-      device = "/pool/git";
-      options = [
-        "bind"
-        "nofail"
       ];
     };
   };

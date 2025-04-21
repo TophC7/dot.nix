@@ -20,7 +20,7 @@ in
 
   users.mutableUsers = false; # Only allow declarative credentials; Required for password to be set via sops during system activation!
   users.users.${hostSpec.username} = {
-    home = "/home/${hostSpec.username}";
+    home = "${hostSpec.home}";
     isNormalUser = true;
     createHome = true;
     description = "Admin";

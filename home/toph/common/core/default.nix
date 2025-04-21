@@ -7,6 +7,10 @@
   hostSpec,
   ...
 }:
+let
+  username = config.hostSpec.username;
+  homeDir = config.hostSpec.home;
+in
 {
   imports = lib.flatten [
     (map lib.custom.relativeToRoot [
@@ -31,15 +35,15 @@
   services.ssh-agent.enable = true;
 
   home = {
-    username = lib.mkDefault config.hostSpec.username;
-    homeDirectory = lib.mkDefault config.hostSpec.home;
+    username = lib.mkDefault username;
+    homeDirectory = lib.mkDefault homeDir;
     stateVersion = lib.mkDefault "24.05";
     sessionPath = [
-      "$HOME/.local/bin"
+      "${homeDir}/.local/bin"
     ];
     sessionVariables = {
       EDITOR = "micro";
-      FLAKE = "$HOME/git/dot.nix";
+      FLAKE = "${homeDir}/git/dot.nix";
       MANPAGER = "batman"; # see ./cli/bat.nix
       SHELL = "fish";
       TERM = "foot";

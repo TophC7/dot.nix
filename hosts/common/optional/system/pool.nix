@@ -1,29 +1,33 @@
 { config, ... }:
+let
+  username = config.hostSpec.username;
+  homeDir = config.hostSpec.home;
+in
 {
   # For less permission issues with SSHFS
   programs.fuse.userAllowOther = true;
 
   # Create the directories if they do not exist
   systemd.tmpfiles.rules = [
-    "d /pool 2775 ${config.hostSpec.username} ryot -"
-    "d /home/${config.hostSpec.username}/git 2775 ${config.hostSpec.username} ryot -"
+    "d /pool 2775 ${username} ryot -"
+    "d ${homeDir}/git 2775 ${username} ryot -"
   ];
 
   # File system configuration
   fileSystems = {
     "/pool" = {
-      device = "${config.hostSpec.username}@cloud:/pool";
+      device = "${username}@cloud:/pool";
       fsType = "sshfs";
       options = [
         "defaults"
         "reconnect"
         "_netdev"
         "allow_other"
-        "identityfile=/home/${config.hostSpec.username}/.ssh/pve"
+        "identityfile=${homeDir}/.ssh/pve"
       ];
     };
 
-    "/home/${config.hostSpec.username}/git" = {
+    "${homeDir}/git" = {
       fsType = "none";
       device = "/pool/git";
       options = [
