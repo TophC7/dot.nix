@@ -315,11 +315,33 @@ let
 
     # Package suggestions for 'try' (using nix-env's available packages)
     function __yay_list_packages
-      # Cache the result since this can be slow
-      if not set -q __yay_available_packages
-      set -g __yay_available_packages (nix-env -qa --json | jq -r 'keys[]' 2>/dev/null)
+      # Use persistent cache file in /tmp (lasts until reboot)
+      set -l cache_file "/tmp/yay_packages_cache"
+      
+      # Load from cache if it exists
+      if test -f "$cache_file"
+        cat "$cache_file"
+        return 0
       end
-      printf "%s\n" $__yay_available_packages
+      
+      # Otherwise, fetch packages and store in cache
+      echo -n "Loading packages..." >&2
+      # Run nix-env but redirect warnings to /dev/null
+      set -l packages (nix-env -qa --json 2>/dev/null | jq -r 'keys[]' 2>/dev/null)
+      
+      # Process packages to remove namespace prefix (like "nixos.", "nixpkgs.", etc.)
+      set -l cleaned_packages
+      for pkg in $packages
+        set -l cleaned_pkg (string replace -r '^[^.]+\.' ''\'''\' $pkg)
+        set -a cleaned_packages $cleaned_pkg
+      end
+      
+      # Save to cache file for future shell sessions
+      printf "%s\n" $cleaned_packages > "$cache_file"
+      echo " done!" >&2
+      
+      # Output the packages
+      printf "%s\n" $cleaned_packages
     end
 
     complete -c yay -n "__fish_seen_subcommand_from try; and not __fish_is_switch" -a "(__yay_list_packages)" -d "Nix package"
@@ -360,7 +382,7 @@ pkgs.symlinkJoin {
   '';
 
   meta = with lib; {
-    description = "A convenient wrapper around Nix commands with fish integration";
+    description = "A convenient wrapper around Nix commands with fish completions";
     license = licenses.mit;
     platforms = platforms.unix;
     maintainers = [ "Tophc7" ];
