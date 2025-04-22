@@ -1,3 +1,7 @@
+set fish_greeting # Disable greeting
+
+## Aliases and Overrides ##
+
 function cd
     zoxide $argv
 end
@@ -6,58 +10,23 @@ function ls
     eza $argv
 end
 
+function s
+    ssh $argv
+end
+
+# Copy competitions
+complete -c ls --wraps eza
+complete -c ls --wraps eza
+complete -c s --wraps ssh
+
 # Discourage using rm command
 function rm
     if test (count $argv) -gt 0
-        echo "Error: 'rm' is protected. Please use 'trashy' command instead."
+        echo "Error: 'rm' is protected. Please use 'trash' command instead."
     end
 end
 
-# SSH function, just for convenience since I use it a lot
-function s
-    set user (whoami)
-    set keyfile ""
-    set host ""
-
-    set args $argv
-    while test (count $args) -gt 0
-        switch $args[1]
-            case -u
-                if test (count $args) -ge 2
-                    set user $args[2]
-                    set args $args[3..-1]
-                else
-                    echo "Error: Option -u requires a username argument."
-                    echo "Usage: s [-u username] [-i keyfile] host"
-                    return 1
-                end
-            case -i
-                if test (count $args) -ge 2
-                    set keyfile $args[2]
-                    set args $args[3..-1]
-                else
-                    echo "Error: Option -i requires a keyfile argument."
-                    echo "Usage: s [-u username] [-i keyfile] host"
-                    return 1
-                end
-            case '*'
-                set host $args[1]
-                set args $args[2..-1]
-        end
-    end
-
-    if test -z "$host"
-        echo "Error: Missing host."
-        echo "Usage: s [-u username] [-i keyfile] host"
-        return 1
-    end
-
-    if test -n "$keyfile"
-        ssh -i $keyfile $user@$host
-    else
-        ssh $user@$host
-    end
-end
+## Functions and tools ##
 
 function zipz
     # Ensure exactly two arguments are provided
@@ -144,6 +113,6 @@ function unzipz
     end
 end
 
-set fish_greeting # Disable greeting
+## Fish Prompt ##
 
 fastfetch
