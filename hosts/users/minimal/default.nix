@@ -15,9 +15,9 @@ in
   users.users.${hostSpec.username} = {
     isNormalUser = true;
     password = hostSpec.password;
+    group = "ryot";
     extraGroups = [
       "wheel"
-      "ryot"
     ];
   };
 }
