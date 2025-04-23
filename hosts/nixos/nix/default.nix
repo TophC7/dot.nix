@@ -16,6 +16,7 @@
 }:
 let
   username = "toph";
+  user = config.secretsSpec.users.${username};
 in
 {
   imports = lib.flatten [
@@ -37,12 +38,11 @@ in
   hostSpec = {
     hostName = "nix";
     username = username;
-    handle = "tophC7";
-    password = "[REDACTED]";
-    [REDACTED];
-    email = "[REDACTED]";
-    userFullName = "[REDACTED]";
-    isARM = false;
+    password = user.password;
+    email = user.email;
+    handle = user.handle;
+    userFullName = user.fullName;
+    isServer = true;
   };
 
   networking = {
@@ -53,12 +53,6 @@ in
   programs.nix-ld.enable = true;
   # environment.systemPackages = with pkgs; [
   # ];
-
-  # environment.etc = {
-  #   "cloudflared/.keep" = {
-  #     text = "This directory is used to store cloudflared configuration files.";
-  #   };
-  # };
 
   # https://wiki.nixos.org/wiki/FAQ/When_do_I_update_stateVersion
   system.stateVersion = "24.11";

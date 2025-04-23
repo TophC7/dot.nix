@@ -14,6 +14,8 @@
 }:
 let
   username = "toph";
+  user = config.secretsSpec.users.${username};
+  firewall = config.secretsSpec.firewall.komodo;
 in
 {
   imports = lib.flatten [
@@ -40,47 +42,19 @@ in
   hostSpec = {
     hostName = "komodo";
     username = username;
-    handle = "tophC7";
-    password = "[REDACTED]";
-    [REDACTED];
-    email = "[REDACTED]";
-    userFullName = "[REDACTED]";
-    isARM = false;
+    password = user.password;
+    email = user.email;
+    handle = user.handle;
+    userFullName = user.fullName;
+    isServer = true;
   };
 
   networking = {
     enableIPv6 = false;
-    # Container Ports
     firewall = {
-      allowedTCPPorts = [
-        [REDACTED]
-        [REDACTED]
-        [REDACTED]
-        222 # Forgejo SSH
-        [REDACTED]
-        [REDACTED]
-        [REDACTED]
-        [REDACTED]
-        [REDACTED]
-        8080 # File Browser
-        [REDACTED]
-        [REDACTED]
-        [REDACTED]
-        [REDACTED]
-        [REDACTED]
-      ];
-
-      # Game Server Ports
-      allowedTCPPortRanges = [
-        {
-          [REDACTED]
-          [REDACTED]
-        }
-      ];
-
-      allowedUDPPorts = [
-        8089 # Grafana
-      ];
+      allowedTCPPorts = firewall.allowedTCPPorts;
+      allowedTCPPortRanges = firewall.allowedTCPPortRanges;
+      allowedUDPPorts = firewall.allowedUDPPorts;
     };
   };
 
@@ -90,12 +64,6 @@ in
     lazydocker
     compose2nix
   ];
-
-  # environment.etc = {
-  #   "cloudflared/.keep" = {
-  #     text = "This directory is used to store cloudflared configuration files.";
-  #   };
-  # };
 
   # https://wiki.nixos.org/wiki/FAQ/When_do_I_update_stateVersion
   system.stateVersion = "24.11";

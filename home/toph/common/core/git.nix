@@ -6,13 +6,17 @@
   inputs,
   ...
 }:
+let
+  handle = config.hostSpec.handle;
+  email = config.hostSpec.email;
+in
 {
   programs.git = {
     enable = true;
     package = pkgs.gitAndTools.gitFull;
 
-    userName = "[REDACTED]";
-    userEmail = "[REDACTED]";
+    userName = handle;
+    userEmail = email;
 
     ignores = [
       ".csvignore"

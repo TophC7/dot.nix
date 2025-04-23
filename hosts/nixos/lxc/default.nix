@@ -16,6 +16,7 @@
 }:
 let
   username = "toph";
+  user = config.secretsSpec.users.${username};
 in
 {
   imports = lib.flatten [
@@ -35,12 +36,11 @@ in
   hostSpec = {
     hostName = "lxc";
     username = username;
-    handle = "tophC7";
-    password = "[REDACTED]";
-    [REDACTED];
-    email = "[REDACTED]";
-    userFullName = "[REDACTED]";
-    isARM = false;
+    password = user.password;
+    email = user.email;
+    handle = user.handle;
+    userFullName = user.fullName;
+    isServer = true;
   };
 
   networking = {

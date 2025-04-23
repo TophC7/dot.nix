@@ -11,15 +11,15 @@
 }:
 
 let
-  hostSpec = config.hostSpec.username;
+  user = config.hostSpec.username;
   default = {
     command = "${pkgs.greetd.tuigreet}/bin/tuigreet --asterisks --time --time-format '%I:%M %p | %a • %h | %F' --cmd uwsm start default";
-    user = "toph";
+    user = user;
   };
   initial = {
     # command = "${pkgs.hyprland}/bin/Hyprland";
     command = "uwsm start default";
-    user = "toph";
+    user = user;
   };
 in
 {

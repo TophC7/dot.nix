@@ -14,6 +14,8 @@
 }:
 let
   username = "toph";
+  user = config.secretsSpec.users.${username};
+  firewall = config.secretsSpec.firewall.proxy;
 in
 {
   imports = lib.flatten [
@@ -39,22 +41,16 @@ in
   hostSpec = {
     hostName = "proxy";
     username = username;
-    handle = "tophC7";
-    password = "[REDACTED]";
-    [REDACTED];
-    email = "[REDACTED]";
-    userFullName = "[REDACTED]";
-    isARM = false;
+    password = user.password;
+    email = user.email;
+    handle = user.handle;
+    userFullName = user.fullName;
+    isServer = true;
   };
 
   networking = {
     enableIPv6 = false;
-    # Container Ports
-    [REDACTED]
-      80 # Caddy
-      443 # Caddy
-      [REDACTED]
-    ];
+    firewall.allowedTCPPorts = firewall.allowedTCPPorts;
   };
 
   ## System-wide packages ##

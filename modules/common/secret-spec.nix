@@ -129,8 +129,8 @@ in
               default = [ ];
               # example = [
               #   {
-              #     [REDACTED]
-              #     [REDACTED]
+              #     from = 25565;
+              #     to = 25570;
               #   }
               # ];
             };
@@ -162,8 +162,8 @@ in
               default = [ ];
               # example = [
               #   {
-              #     [REDACTED]
-              #     [REDACTED]
+              #     from = 25565;
+              #     to = 25570;
               #   }
               # ];
             };
