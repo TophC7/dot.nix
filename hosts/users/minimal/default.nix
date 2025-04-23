@@ -14,7 +14,7 @@ in
   # Set a temp password for use by minimal builds like installer and iso
   users.users.${hostSpec.username} = {
     isNormalUser = true;
-    password = hostSpec.password;
+    hashedPassword = hostSpec.hashedPassword;
     group = "ryot";
     extraGroups = [
       "wheel"

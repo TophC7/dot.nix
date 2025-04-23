@@ -25,7 +25,7 @@ in
     createHome = true;
     description = "Admin";
     homeMode = "750";
-    password = hostSpec.password;
+    hashedPassword = hostSpec.hashedPassword;
     uid = 1000;
     group = "ryot";
     extraGroups = lib.flatten [
@@ -51,7 +51,7 @@ in
   # root's ssh key are mainly used for remote deployment, borg, and some other specific ops
   users.users.root = {
     shell = pkgs.bash;
-    password = lib.mkForce hostSpec.password;
+    hashedPassword = lib.mkForce hostSpec.hashedPassword;
     openssh.authorizedKeys.keys = config.users.users.${hostSpec.username}.openssh.authorizedKeys.keys; # root's ssh keys are mainly used for remote deployment.
   };
 }

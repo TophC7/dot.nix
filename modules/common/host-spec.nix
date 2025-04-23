@@ -17,7 +17,7 @@
       description = "The username for the host's user";
     };
 
-    password = lib.mkOption {
+    hashedPassword = lib.mkOption {
       type = lib.types.str;
       description = "Hashed password for the host's user";
     };

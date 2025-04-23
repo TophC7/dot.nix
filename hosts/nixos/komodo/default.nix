@@ -42,7 +42,7 @@ in
   hostSpec = {
     hostName = "komodo";
     username = username;
-    password = user.password;
+    hashedPassword = user.hashedPassword;
     email = user.email;
     handle = user.handle;
     userFullName = user.fullName;

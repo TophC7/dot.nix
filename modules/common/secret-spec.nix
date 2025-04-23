@@ -68,7 +68,7 @@ in
       type = lib.types.attrsOf (
         lib.types.submodule {
           options = {
-            password = lib.mkOption {
+            hashedPassword = lib.mkOption {
               type = lib.types.str;
               description = "Hashed password for the user"; # nix-shell -p whois --run 'mkpasswd --method=sha-512 --rounds=656000'
             };

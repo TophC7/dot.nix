@@ -41,7 +41,7 @@ in
   hostSpec = {
     hostName = "cloud";
     username = username;
-    password = user.password;
+    hashedPassword = user.hashedPassword;
     email = user.email;
     handle = user.handle;
     userFullName = user.fullName;

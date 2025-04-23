@@ -54,7 +54,7 @@ in
   hostSpec = {
     hostName = "rune";
     username = username;
-    password = user.password;
+    hashedPassword = user.hashedPassword;
     email = user.email;
     handle = user.handle;
     userFullName = user.fullName;

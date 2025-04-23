@@ -36,7 +36,7 @@ in
   hostSpec = {
     hostName = "lxc";
     username = username;
-    password = user.password;
+    hashedPassword = user.hashedPassword;
     email = user.email;
     handle = user.handle;
     userFullName = user.fullName;
