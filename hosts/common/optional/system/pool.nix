@@ -2,6 +2,7 @@
 let
   username = config.hostSpec.username;
   homeDir = config.hostSpec.home;
+  pve-key = config.secretsSpec.ssh.privateKeys.pve;
 in
 {
   # For less permission issues with SSHFS
@@ -23,7 +24,7 @@ in
         "reconnect"
         "_netdev"
         "allow_other"
-        "identityfile=${homeDir}/.ssh/pve"
+        "identityfile=${pve-key}"
       ];
     };
 

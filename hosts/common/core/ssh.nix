@@ -1,9 +1,4 @@
 {
-  lib,
-  config,
-  ...
-}:
-{
   programs.ssh.startAgent = true;
 
   services.openssh = {

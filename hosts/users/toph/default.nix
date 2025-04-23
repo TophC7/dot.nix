@@ -9,15 +9,16 @@ let
   hostSpec = config.hostSpec;
   username = hostSpec.username;
   homeDir = hostSpec.home;
-  pubKeys = lib.filesystem.listFilesRecursive ./keys;
+  _shell = hostSpec.shell;
+  pubKeys = builtins.attrValues config.secretsSpec.ssh.publicKeys;
 in
 {
   users.users.${username} = {
     name = hostSpec.username;
-    shell = pkgs.fish; # default shell
+    shell = _shell;
 
     # These get placed into /etc/ssh/authorized_keys.d/<name> on nixos
-    openssh.authorizedKeys.keys = lib.lists.forEach pubKeys (key: builtins.readFile key);
+    openssh.authorizedKeys.keys = pubKeys;
   };
 
   # Create ssh sockets directory for controlpaths when homemanager not loaded (i.e. isMinimal)
@@ -38,7 +39,7 @@ in
   home-manager = {
     extraSpecialArgs = {
       inherit pkgs inputs;
-      hostSpec = config.hostSpec;
+      inherit (config) secretsSpec hostSpec;
     };
     users.${username}.imports = lib.flatten (
       lib.optional (!hostSpec.isMinimal) [

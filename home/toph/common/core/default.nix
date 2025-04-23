@@ -10,6 +10,7 @@
 let
   username = config.hostSpec.username;
   homeDir = config.hostSpec.home;
+  shell = config.hostSpec.shell;
 in
 {
   imports = lib.flatten [
@@ -18,7 +19,7 @@ in
       "modules/home"
     ])
     ./asdf.nix
-    ./bash.nix
+    ./bash.nix # TODO: setup a nicer bash config... or zsh
     ./bat.nix
     ./direnv.nix
     ./fastfetch
@@ -26,7 +27,7 @@ in
     ./git.nix
     ./ranger.nix
     ./screen.nix
-    ./ssh
+    ./ssh.nix
     ./zoxide.nix
   ];
 
@@ -45,7 +46,7 @@ in
       EDITOR = "micro";
       FLAKE = "${homeDir}/git/Nix/dot.nix";
       MANPAGER = "batman"; # see ./cli/bat.nix
-      SHELL = "fish";
+      SHELL = shell;
       TERM = "foot";
       VISUAL = "micro";
     };
