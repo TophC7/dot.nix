@@ -5,6 +5,7 @@
   ...
 }:
 {
+  #TODO: Scripts might need a rework
   programs.fastfetch =
     let
       hostname = config.hostSpec.hostName;
@@ -16,7 +17,6 @@
       enable = true;
       settings = {
         logo = {
-          # Created with Chafa
           source = builtins.readFile logoFile;
           type = "data";
           position = "left";
@@ -38,63 +38,6 @@
           };
           separator = "";
         };
-        # modules = [
-        #   {
-        #     type = "colors";
-        #     symbol = "square";
-        #   }
-        #   "break"
-        #   {
-        #     key = "{#31} ┤ user »{#keys}";
-        #     type = "title";
-        #     format = "{user-name}";
-        #   }
-        #   {
-        #     key = "{#32} ┤ host »{#keys}";
-        #     type = "title";
-        #     format = "{host-name}";
-        #   }
-        #   {
-        #     key = "{#33} ┤ uptime »{#keys}";
-        #     type = "uptime";
-        #   }
-        #   {
-        #     key = "{#34} ┤ distro »{#keys}";
-        #     type = "os";
-        #   }
-        #   {
-        #     key = "{#36} ┤ desktop »{#keys}";
-        #     type = "de";
-        #   }
-        #   {
-        #     key = "{#32} ┤ shell »{#keys}";
-        #     type = "shell";
-        #   }
-        #   {
-        #     key = "{#33} ┤ cpu »{#keys}";
-        #     type = "cpu";
-        #     showPeCoreCount = true;
-        #   }
-        #   {
-        #     key = "{#34} ┤ disk »{#keys}";
-        #     type = "disk";
-        #     folders = "/";
-        #   }
-        #   {
-        #     key = "{#35} ┤ memory »{#keys}";
-        #     type = "memory";
-        #   }
-        #   {
-        #     key = "{#36} ┤ network »{#keys}";
-        #     type = "localip";
-        #     format = "{ipv4} ({ifname})";
-        #   }
-        #   "break"
-        #   {
-        #     type = "colors";
-        #     symbol = "square";
-        #   }
-        # ];
         modules = [
           "break"
           {
@@ -107,7 +50,7 @@
           {
             key = "weather » {#keys}";
             keyColor = "1;97";
-            shell = "${pkgs.fish}/bin/fish";
+            shell = "${lib.getExe pkgs.fish}";
             text = "fish ${weather} 'Richmond'";
             type = "command";
           }
@@ -128,7 +71,7 @@
             key = "shell   » {#keys}";
             keyColor = "1;33";
             type = "command";
-            shell = "${pkgs.fish}/bin/fish";
+            shell = "${lib.getExe pkgs.fish}";
           }
           {
             key = "uptime  » {#keys}";
