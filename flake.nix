@@ -121,6 +121,12 @@
                   self.overlays.default
                 ];
               }
+
+              # Import secrets
+              ./modules/common/secret-spec.nix
+              ./secrets.nix
+
+              # Host-specific configuration
               ./hosts/nixos/${host}
             ];
           };
