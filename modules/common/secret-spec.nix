@@ -42,9 +42,9 @@ in
             default = { };
           };
           knownHosts = lib.mkOption {
-            type = lib.types.attrsOf lib.types.str;
-            description = "SSH known hosts entries keyed by hostname";
-            default = { };
+            type = lib.types.listOf lib.types.str;
+            description = "SSH known hosts entries";
+            default = [ ];
           };
         };
       };

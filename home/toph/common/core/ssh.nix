@@ -42,6 +42,8 @@ in
           chmod 400 $HOME/.ssh/config
         '';
       };
+
+      ".ssh/known_hosts".text = lib.concatStringsSep "\n" secretsSpec.ssh.knownHosts;
     }
     # Dynamically add all SSH private keys using the existing store paths
     # Ensures the keys have correct permissions and are not symlinks
