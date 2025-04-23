@@ -7,7 +7,8 @@
   ...
 }:
 let
-  handle = config.hostSpec.handle;
+  # handle = config.hostSpec.handle;
+  fullName = config.hostSpec.userFullName;
   email = config.hostSpec.email;
 in
 {
@@ -15,7 +16,7 @@ in
     enable = true;
     package = pkgs.gitAndTools.gitFull;
 
-    userName = handle;
+    userName = fullName;
     userEmail = email;
 
     ignores = [
