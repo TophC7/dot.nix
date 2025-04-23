@@ -4,14 +4,13 @@
 let
   # Only available in the Komodo LXC
   DockerStorage = "/mnt/DockerStorage/komodo/stacks/authentik";
+  env = config.secretsSpec.docker.authentik;
 in
 {
   # Containers
   virtualisation.oci-containers.containers."authentik-postgresql" = {
     image = "docker.io/library/postgres:16-alpine";
-    environmentFiles = [
-      ./authentik.env
-    ];
+    environment = env;
     volumes = [
       "${DockerStorage}/database:/var/lib/postgresql/data:rw"
     ];
@@ -48,9 +47,7 @@ in
   };
   virtualisation.oci-containers.containers."authentik-redis" = {
     image = "docker.io/library/redis:alpine";
-    environmentFiles = [
-      ./authentik.env
-    ];
+    environment = env;
     volumes = [
       "${DockerStorage}/redis:/data:rw"
     ];
@@ -94,9 +91,7 @@ in
   };
   virtualisation.oci-containers.containers."authentik-server" = {
     image = "ghcr.io/goauthentik/server:2024.12.2";
-    environmentFiles = [
-      ./authentik.env
-    ];
+    environment = env;
     volumes = [
       "${DockerStorage}/custom-templates:/templates:rw"
       "${DockerStorage}/media:/media:rw"
@@ -138,9 +133,7 @@ in
   };
   virtualisation.oci-containers.containers."authentik-worker" = {
     image = "ghcr.io/goauthentik/server:2024.12.2";
-    environmentFiles = [
-      ./authentik.env
-    ];
+    environment = env;
     volumes = [
       "${DockerStorage}/certs:/certs:rw"
       "${DockerStorage}/media:/media:rw"

@@ -1,9 +1,16 @@
 {
-  config,
-  lib,
   pkgs,
+  config,
   ...
 }:
+let
+  cloudflare = pkgs.writeTextFile {
+    name = "cloudflare.ini";
+    text = ''
+      CF_DNS_API_TOKEN=${config.secretsSpec.api.cloudflare}
+    '';
+  };
+in
 {
 
   # letsencrypt
@@ -12,7 +19,7 @@
     defaults = {
       email = "chris@toph.cc";
       dnsProvider = "cloudflare";
-      environmentFile = ./cloudflare.ini;
+      environmentFile = cloudflare;
     };
     certs = {
       "goldenlemon.cc" = {

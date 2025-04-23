@@ -8,14 +8,13 @@
 let
   # Only available in the Komodo LXC
   DockerStorage = "/mnt/DockerStorage/komodo";
+  env = config.secretsSpec.docker.komodo;
 in
 {
   # Containers
   virtualisation.oci-containers.containers."komodo-core" = {
     image = "ghcr.io/moghtech/komodo-core:latest";
-    environmentFiles = [
-      ./komodo.env
-    ];
+    environment = env;
     volumes = [
       "${DockerStorage}/cache:/repo-cache:rw"
     ];
@@ -61,9 +60,7 @@ in
 
   virtualisation.oci-containers.containers."komodo-mongo" = {
     image = "mongo";
-    environmentFiles = [
-      ./komodo.env
-    ];
+    environment = env;
     volumes = [
       "${DockerStorage}/mongo/config:/data/configdb:rw"
       "${DockerStorage}/mongo/data:/data/db:rw"
@@ -110,9 +107,7 @@ in
 
   virtualisation.oci-containers.containers."komodo-periphery" = {
     image = "ghcr.io/moghtech/komodo-periphery:latest";
-    environmentFiles = [
-      ./komodo.env
-    ];
+    environment = env;
     volumes = [
       "/proc:/proc:rw"
       "/var/run/docker.sock:/var/run/docker.sock:rw"
