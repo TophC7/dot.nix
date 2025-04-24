@@ -1,4 +1,5 @@
 
 nixos/modules/nextcloud/nextcloud-admin-pass
 .BAK/
+.chat
 *.bak
