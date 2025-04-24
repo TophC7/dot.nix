@@ -21,6 +21,9 @@
   # System-wide packages, in case we log in as root
   environment.systemPackages = with pkgs; [
     curl
+    git
+    git-crypt
+    gpg-tui
     micro
     openssh
     ranger

@@ -34,6 +34,9 @@ in
 
           # Git for repo management
           git
+          git-crypt
+          gnupg
+          gpg-tui
 
           # Shells
           fish

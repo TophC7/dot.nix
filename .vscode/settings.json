@@ -1,16 +1,25 @@
 {
-    "explorer.fileNesting.patterns": {
-        ".gitignore": ".gitattributes, .envrc, readme",
-        "flake.nix": "flake.lock, shell.nix, checks.nix"
-    },
     "editor.formatOnSave": true,
     "editor.formatOnSaveMode": "file",
+    "explorer.fileNesting.patterns": {
+        ".gitignore": ".gitattributes, .envrc, readme",
+        "flake.nix": "flake.lock, shell.nix, secrets.nix"
+    },
+    "files.exclude": {
+        ".git-crypt": true
+    },
     "terminal.integrated.defaultProfile.linux": "fish-fhs",
     "terminal.integrated.profiles.linux": {
-        // ...
         "fish-fhs": {
-            "path": "systemd-run",
-            "args": ["--user", "--pty", "--quiet", "--same-dir", "--service-type=exec", "fish"]
+            "args": [
+                "--user",
+                "--pty",
+                "--quiet",
+                "--same-dir",
+                "--service-type=exec",
+                "fish"
+            ],
+            "path": "systemd-run"
         }
     }
 }
