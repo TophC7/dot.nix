@@ -68,6 +68,11 @@
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
+    yay = {
+      url = "git+https://git.ryot.foo/toph/yay.nix.git";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     zen-browser = {
       url = "github:youwen5/zen-browser-flake";
       inputs.nixpkgs.follows = "nixpkgs-unstable";

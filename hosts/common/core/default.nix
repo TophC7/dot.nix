@@ -7,6 +7,9 @@
   pkgs,
   ...
 }:
+let
+  yay = inputs.yay.packages.${pkgs.system}.default;
+in
 {
   imports = lib.flatten [
     inputs.home-manager.nixosModules.home-manager
@@ -29,7 +32,7 @@
     ranger
     sshfs
     wget
-    yay # my yay @ pkgs teehee
+    yay # my yay teehee
   ];
 
   # Enable CUPS to print documents.
