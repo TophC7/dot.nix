@@ -43,7 +43,13 @@ in
         '';
       };
 
-      ".ssh/known_hosts".text = lib.concatStringsSep "\n" secretsSpec.ssh.knownHosts;
+      ".ssh/known_hosts_source" = {
+        source = pkgs.writeText "known-hosts" (lib.concatStringsSep "\n" secretsSpec.ssh.knownHosts);
+        onChange = ''
+          cp $HOME/.ssh/known_hosts_source $HOME/.ssh/known_hosts
+          chmod 644 $HOME/.ssh/known_hosts
+        '';
+      };
     }
     # Dynamically add all SSH private keys using the existing store paths
     # Ensures the keys have correct permissions and are not symlinks
