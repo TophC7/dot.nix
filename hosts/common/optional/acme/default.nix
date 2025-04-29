@@ -4,22 +4,27 @@
   ...
 }:
 let
-  cloudflare = pkgs.writeTextFile {
-    name = "cloudflare.ini";
-    text = ''
-      CF_DNS_API_TOKEN=${config.secretsSpec.api.cloudflare}
-    '';
-  };
+  # Create a VERY simple environment file with absolutely minimal formatting
+  cloudflareEnvFile = pkgs.writeText "cloudflare.env" ''
+    CLOUDFLARE_DNS_API_TOKEN=${config.secretsSpec.api.cloudflare}
+  '';
 in
 {
+  environment.systemPackages = [ pkgs.lego ];
 
-  # letsencrypt
   security.acme = {
     acceptTerms = true;
     defaults = {
       email = "chris@toph.cc";
-      dnsProvider = "cloudflare";
-      environmentFile = cloudflare;
+      dnsProvider = "cloudflare"; # Use Cloudflare's DNS
+      environmentFile = cloudflareEnvFile;
+      enableDebugLogs = true;
+      extraLegoFlags = [
+        "--dns.resolvers=1.1.1.1:53,8.8.8.8:53"
+        "--dns.propagation-wait=60s" # Wait for 60 seconds for DNS propagation
+        "--dns-timeout=60"
+        "--http-timeout=60"
+      ];
     };
     certs = {
       "goldenlemon.cc" = {
