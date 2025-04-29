@@ -14,6 +14,9 @@ in
     ])
   ];
 
+  # Less permission issues with pool
+  programs.fuse.userAllowOther = true;
+  # File system co
   # INFO: Cloud is the pool provider
   fileSystems = {
     "/pool" = {
@@ -26,10 +29,10 @@ in
         "minfreespace=50G"
         "fsname=mergerfs"
         "category.create=mfs"
+        "nfsopenhack=all"
         "nonempty"
         "uid=1000"
         "gid=1004" # Ryot group
-        "posix_acl=true"
       ];
     };
 
