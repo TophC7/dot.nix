@@ -6,7 +6,6 @@
 ###############################################################
 
 {
-  inputs,
   lib,
   config,
   pkgs,
@@ -19,6 +18,9 @@ let
 in
 {
   imports = lib.flatten [
+    ## Komodo Only ##
+    ./config
+
     ## Hardware ##
     ./hardware.nix
 
@@ -28,12 +30,9 @@ in
 
       ## Optional Configs ##
       "hosts/common/optional/acme"
-      "hosts/common/optional/caddy"
       "hosts/common/optional/docker.nix"
-      "hosts/common/containers/authentik"
-      "hosts/common/containers/komodo"
 
-      ## Komodo Specific ##
+      ## Host User ##
       "hosts/users/${username}" # # Not the best solution but I always have one user so ¯\_(ツ)_/¯
     ])
   ];
@@ -66,5 +65,5 @@ in
   ];
 
   # https://wiki.nixos.org/wiki/FAQ/When_do_I_update_stateVersion
-  system.stateVersion = "24.11";
+  system.stateVersion = "25.05";
 }
