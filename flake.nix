@@ -63,6 +63,12 @@
     #   inputs.nixpkgs.follows = "nixpkgs";
     # };
 
+    snapraid-aio = {
+      # url = "git+https://git.ryot.foo/toph/snapraid-aio.nix.git";
+      url = "git+https://git.ryot.foo/toph/snapraid-aio.nix.git";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     vscode-server = {
       url = "github:nix-community/nixos-vscode-server";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
