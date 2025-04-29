@@ -2,12 +2,8 @@
 let
   username = config.hostSpec.username;
   homeDir = config.hostSpec.home;
-  pve-key = config.secretsSpec.ssh.privateKeys.pve;
 in
 {
-  # For less permission issues with SSHFS
-  programs.fuse.userAllowOther = true;
-
   # Create the directories if they do not exist
   systemd.tmpfiles.rules = [
     "d /pool 2775 ${username} ryot -"
@@ -17,14 +13,16 @@ in
   # File system configuration
   fileSystems = {
     "/pool" = {
-      device = "${username}@cloud:/pool";
-      fsType = "sshfs";
+      device = "cloud:/";
+      fsType = "nfs";
       options = [
-        "defaults"
-        "reconnect"
         "_netdev"
-        "allow_other"
-        "identityfile=${pve-key}"
+        "defaults"
+        "nfsvers=4.2"
+        "noacl"
+        "noatime"
+        "nofail"
+        "sec=sys"
       ];
     };
 
@@ -35,6 +33,18 @@ in
         "bind"
         "nofail"
       ];
+    };
+  };
+
+  # Ensure NFS client support is complete
+  boot.supportedFilesystems = [ "nfs" ];
+  # services.rpcbind.enable = true;
+
+  # Optional: Configure ID mapping if needed
+  services.nfs.idmapd.settings = {
+    General = {
+      Domain = "local"; # Must match on server and client
+      Verbosity = 0;
     };
   };
 }

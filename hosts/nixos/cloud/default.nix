@@ -1,12 +1,11 @@
 ###############################################################
 #
-#  Prozy - LXC Container
-#  NixOS container, Ryzen 5 5600G (3 Cores), 2GB/2GB RAM/SWAP
+#  Cloud - LXC Container
+#  NixOS container, Ryzen 5 5600G (4th Cores), 4GB/4GB RAM/SWAP
 #
 ###############################################################
 
 {
-  inputs,
   lib,
   config,
   pkgs,
@@ -19,6 +18,10 @@ let
 in
 {
   imports = lib.flatten [
+
+    ## Cloud Only ##
+    ./config
+
     ## Hardware ##
     ./hardware.nix
 
@@ -28,12 +31,10 @@ in
 
       ## Optional Configs ##
       "hosts/common/optional/acme"
-      "hosts/common/optional/caddy"
       "hosts/common/optional/docker.nix"
-      "hosts/common/optional/containers/cloudflared.nix"
 
-      ## Cloud Specific ##
-      "hosts/users/${username}" # # Not the best solution but I always have one user so ¯\_(ツ)_/¯
+      ## Host user ##
+      "hosts/users/${username}" # Not the best solution but I always have one user so ¯\_(ツ)_/¯
     ])
   ];
 
@@ -50,21 +51,21 @@ in
 
   networking = {
     enableIPv6 = false;
-    firewall.allowedTCPPorts = firewall.allowedTCPPorts;
+    firewall = {
+      allowedTCPPorts = firewall.allowedTCPPorts;
+      allowedUDPPorts = firewall.allowedUDPPorts;
+    };
   };
 
   ## System-wide packages ##
   programs.nix-ld.enable = true;
   environment.systemPackages = with pkgs; [
+    apprise
     lazydocker
+    mergerfs
+    snapraid
   ];
 
-  environment.etc = {
-    "cloudflared/.keep" = {
-      text = "This directory is used to store cloudflared configuration files.";
-    };
-  };
-
   # https://wiki.nixos.org/wiki/FAQ/When_do_I_update_stateVersion
-  system.stateVersion = "24.11";
+  system.stateVersion = "25.05";
 }

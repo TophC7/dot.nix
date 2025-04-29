@@ -1,6 +1,6 @@
 ###############################################################
 #
-#  Prozy - LXC Container
+#  Proxy - LXC Container
 #  NixOS container, Ryzen 5 5600G (3 Cores), 2GB/2GB RAM/SWAP
 #
 ###############################################################
@@ -19,6 +19,9 @@ let
 in
 {
   imports = lib.flatten [
+    ## Proxy Only ##
+    ./config
+
     ## Hardware ##
     ./hardware.nix
 
@@ -28,11 +31,9 @@ in
 
       ## Optional Configs ##
       "hosts/common/optional/acme"
-      "hosts/common/optional/caddy"
       "hosts/common/optional/docker.nix"
-      "hosts/common/optional/containers/cloudflared.nix"
 
-      ## Proxy Specific ##
+      ## Proxy User ##
       "hosts/users/${username}" # # Not the best solution but I always have one user so ¯\_(ツ)_/¯
     ])
   ];
