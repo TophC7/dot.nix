@@ -18,6 +18,17 @@ let
         grep -q "BEGIN OPENSSH PRIVATE KEY" "$out" || (echo "Invalid SSH key format"; exit 1)
       '';
     };
+
+  # Function to build an Apprise URL from SMTP settings
+  buildAppriseUrl =
+    {
+      host,
+      user,
+      password,
+      from,
+      ...
+    }:
+    "mailtos://_?user=${user}&pass=${password}&smtp=${host}&from=${from}&to=${user}";
 in
 {
   options.secretsSpec = {
@@ -88,6 +99,45 @@ in
               type = lib.types.listOf lib.types.str;
               description = "SSH public keys for the user";
               default = [ ];
+            };
+            smtp = lib.mkOption {
+              type = lib.types.submodule (
+                { config, ... }:
+                {
+                  options = {
+                    host = lib.mkOption {
+                      type = lib.types.str;
+                      description = "SMTP server hostname";
+                    };
+                    user = lib.mkOption {
+                      type = lib.types.str;
+                      description = "SMTP username for authentication";
+                    };
+                    password = lib.mkOption {
+                      type = lib.types.str;
+                      description = "SMTP password for authentication";
+                    };
+                    port = lib.mkOption {
+                      type = lib.types.port;
+                      description = "SMTP server port";
+                      default = 587;
+                    };
+                    from = lib.mkOption {
+                      type = lib.types.str;
+                      description = "Email address to send from";
+                    };
+                    notifyUrl = lib.mkOption {
+                      type = lib.types.str;
+                      description = "Apprise URL for sending notifications via this SMTP account";
+                    };
+                  };
+                  config = {
+                    notifyUrl = "mailtos://_?user=${config.user}&pass=${config.password}&smtp=${config.host}&from=${config.from}&to=${config.user}";
+                  };
+                }
+              );
+              description = "SMTP configuration for the user";
+              default = null;
             };
           };
         }

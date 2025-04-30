@@ -6,7 +6,7 @@
 }:
 let
 
-  apprise-url = config.secretsSpec.api.apprise-url;
+  apprise-url = config.secretsSpec.users.admin.smtp.notifyUrl;
 
   snapraid-aio = inputs.snapraid-aio.nixosModules.default;
   snapraid-aio-config = pkgs.writeTextFile {
@@ -96,6 +96,18 @@ let
       exclude *.unrecoverable
       exclude /tmp/
       exclude /lost+found/
+      exclude /var/tmp/
+      exclude /var/cache/
+      exclude /var/log/
+      exclude .trash/
+      exclude .Trash-1000/
+      exclude .Trash/
+      # These dirs change data all the time
+      # so I back them up in borg repos that are not excluded 
+      exclude /mnt/drive1/DockerStorage/
+      exclude /mnt/drive1/data/forgejo
+      exclude /mnt/drive2/data/forgejo
+      exclude /mnt/drive3/data/forgejo
     '';
   };
 in
