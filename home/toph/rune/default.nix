@@ -72,8 +72,4 @@
       scale = 1.20;
     }
   ];
-
-  # home.file = {
-  #   "run-mac.sh".source = config.lib.file.mkOutOfStoreSymlink "${pkgs.macos-ventura-image.runScript}";
-  # };
 }

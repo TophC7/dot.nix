@@ -5,10 +5,33 @@ let
 in
 {
   # Create the directories if they do not exist
-  systemd.tmpfiles.rules = [
-    "d /pool 2775 ${username} ryot -"
-    "d ${homeDir}/git 2775 ${username} ryot -"
-  ];
+  systemd = {
+    tmpfiles.rules = [
+      "d /pool 2775 ${username} ryot -"
+    ];
+
+    services.createGitSymlink = {
+      description = "Create symlink from home directory to pool/git";
+      after = [
+        "network.target"
+        "pool.mount"
+      ];
+      requires = [ "pool.mount" ];
+      wantedBy = [ "multi-user.target" ];
+      script = ''
+        mkdir -p /pool/git
+        chown ${username}:ryot /pool/git
+        chmod 2775 /pool/git
+        rm -rf ${homeDir}/git
+        ln -sf /pool/git ${homeDir}/git
+        chown -h ${username}:ryot ${homeDir}/git
+      '';
+      serviceConfig = {
+        Type = "oneshot";
+        RemainAfterExit = true;
+      };
+    };
+  };
 
   # File system configuration
   fileSystems = {
@@ -23,15 +46,6 @@ in
         "noatime"
         "nofail"
         "sec=sys"
-      ];
-    };
-
-    "${homeDir}/git" = {
-      fsType = "none";
-      device = "/pool/git";
-      options = [
-        "bind"
-        "nofail"
       ];
     };
   };
