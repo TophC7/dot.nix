@@ -160,10 +160,14 @@ in
       title = "Docker Storage";
       repo = dockerStorageRepo;
       sourcePath = "/mnt/drive1/DockerStorage";
+      # INFO: This shit confusing but basically
+      # keeps the last 7 days,
+      # then keeps AT LEAST ONE for last 4 weeks
+      # and finally AT LEAST ONE for the last 3 months
       keepDaily = 7;
       keepWeekly = 4;
       keepMonthly = 3;
-      schedule = "Mon *-*-* 04:00:00";
+      schedule = "*-*-* 03:00:00"; # Daily at 3am
     })
 
     (mkBorgBackupService {
@@ -171,10 +175,10 @@ in
       title = "Forgejo";
       repo = forgejoRepo;
       sourcePath = "/pool/forgejo";
-      keepDaily = 14;
+      keepDaily = 7;
       keepWeekly = 4;
       keepMonthly = 3;
-      schedule = "*-*-1/2 04:00:00";
+      schedule = "*-*-* 03:00:00";
     })
   ];
 }

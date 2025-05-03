@@ -104,10 +104,10 @@ let
       exclude .Trash/
       # These dirs change data all the time
       # so I back them up in borg repos that are not excluded 
-      exclude /mnt/drive1/DockerStorage/
-      exclude /mnt/drive1/data/forgejo
-      exclude /mnt/drive2/data/forgejo
-      exclude /mnt/drive3/data/forgejo
+      exclude /DockerStorage/
+      exclude /data/forgejo/
+      exclude /data/forgejo/
+      exclude /data/forgejo/
     '';
   };
 in
@@ -129,6 +129,6 @@ in
   services.snapraid-aio = {
     enable = true;
     configFile = snapraid-aio-config;
-    schedule = "*-*-* 03:00:00"; # Run daily at 3am
+    schedule = "*-*-* 04:00:00"; # Run daily at 3am
   };
 }
