@@ -60,7 +60,7 @@ let
     STATS=$(cat ${logFile}.stats || echo "No stats available")
   '';
 
-  # Unified backup service generator
+  # Unified backup service generator with optional features
   mkBorgBackupService =
     {
       name,
@@ -70,8 +70,25 @@ let
       keepDaily,
       keepWeekly,
       keepMonthly,
-      schedule,
+      schedule ? null,
+      enableNotifications ? true,
+      verbose ? false,
     }:
+    let
+      maybeCreateTimer = lib.optionalAttrs (schedule != null) {
+        timers."backup-${name}" = {
+          description = "Timer for ${title} Backup";
+          wantedBy = [ "timers.target" ];
+          timerConfig = {
+            OnCalendar = schedule;
+            Persistent = true;
+            RandomizedDelaySec = "5min";
+          };
+        };
+      };
+
+      logPrefix = if verbose then "set -x;" else "";
+    in
     {
       services."backup-${name}" = {
         description = "Backup ${title} with Borg";
@@ -79,6 +96,7 @@ let
 
         script = ''
           ${borgCommonSettings}
+          ${logPrefix}  # Add verbose logging if enabled
 
           LOG_FILE="/tmp/borg-${name}-backup-$(date +%Y%m%d-%H%M%S).log"
           ${initRepo repo}
@@ -87,13 +105,15 @@ let
           ARCHIVE_NAME="${name}-$(date +%Y-%m-%d_%H%M%S)"
           START_TIME=$(date +%s)
 
+          # Add verbose output redirection if enabled
+          ${if verbose then "exec 3>&1 4>&2" else ""}
           ${pkgs.borgbackup}/bin/borg create \
             --stats \
             --compression zstd,15 \
             --exclude '*.tmp' \
             --exclude '*/tmp/*' \
             ${repo}::$ARCHIVE_NAME \
-            ${sourcePath} >> $LOG_FILE 2>&1
+            ${sourcePath} >> $LOG_FILE 2>&1 ${if verbose then "| tee /dev/fd/3" else ""}
 
           BACKUP_STATUS=$?
           END_TIME=$(date +%s)
@@ -107,34 +127,33 @@ let
             --keep-daily ${toString keepDaily} \
             --keep-weekly ${toString keepWeekly} \
             --keep-monthly ${toString keepMonthly} \
-            ${repo} >> $LOG_FILE 2>&1
+            ${repo} >> $LOG_FILE 2>&1 ${if verbose then "| tee /dev/fd/3" else ""}
 
           PRUNE_STATUS=$?
 
           echo -e "\nRemaining archives after pruning:" >> $LOG_FILE
           ${pkgs.borgbackup}/bin/borg list ${repo} >> $LOG_FILE 2>&1 || true
 
-          if [ $BACKUP_STATUS -eq 0 ] && [ $PRUNE_STATUS -eq 0 ]; then
-            ${sendNotification "✅ ${title} Backup Complete" "${title} backup completed successfully on $(hostname) at $(date)\nDuration: $(date -d@$DURATION -u +%H:%M:%S)\n\n$STATS"}
-          else
-            ${sendNotification "❌ ${title} Backup Failed" "${title} backup failed on $(hostname) at $(date)\n\nBackup Status: $BACKUP_STATUS\nPrune Status: $PRUNE_STATUS\n\nPartial Stats:\n$STATS\n\nSee $LOG_FILE for details"}
-          fi
+          ${
+            if enableNotifications then
+              ''
+                if [ $BACKUP_STATUS -eq 0 ] && [ $PRUNE_STATUS -eq 0 ]; then
+                  ${sendNotification "✅ ${title} Backup Complete" "${title} backup completed successfully on $(hostname) at $(date)\nDuration: $(date -d@$DURATION -u +%H:%M:%S)\n\n$STATS"}
+                else
+                  ${sendNotification "❌ ${title} Backup Failed" "${title} backup failed on $(hostname) at $(date)\n\nBackup Status: $BACKUP_STATUS\nPrune Status: $PRUNE_STATUS\n\nPartial Stats:\n$STATS\n\nSee $LOG_FILE for details"}
+                fi
+              ''
+            else
+              "echo 'Notifications disabled' >> $LOG_FILE"
+          }
 
           rm -f $LOG_FILE.stats
           exit $BACKUP_STATUS
         '';
       };
 
-      timers."backup-${name}" = {
-        description = "Timer for ${title} Backup";
-        wantedBy = [ "timers.target" ];
-        timerConfig = {
-          OnCalendar = schedule;
-          Persistent = true;
-          RandomizedDelaySec = "5min";
-        };
-      };
-    };
+    }
+    // maybeCreateTimer;
 
   # Common service configuration
   commonServiceConfig = {
@@ -151,7 +170,6 @@ in
 {
   environment.systemPackages = with pkgs; [
     borgbackup
-    apprise
   ];
 
   systemd = lib.mkMerge [
@@ -167,7 +185,10 @@ in
       keepDaily = 7;
       keepWeekly = 4;
       keepMonthly = 3;
-      schedule = "*-*-* 03:00:00"; # Daily at 3am
+      # No schedule = no timer created
+      # schedule = "*-*-* 03:00:00";
+      enableNotifications = false;
+      verbose = true;
     })
 
     (mkBorgBackupService {
@@ -178,7 +199,9 @@ in
       keepDaily = 7;
       keepWeekly = 4;
       keepMonthly = 3;
-      schedule = "*-*-* 03:00:00";
+      # schedule = "*-*-* 03:00:00";
+      enableNotifications = false;
+      verbose = true;
     })
   ];
 }

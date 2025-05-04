@@ -7,4 +7,8 @@
     };
     oci-containers.backend = "docker";
   };
+
+  environment.systemPackages = with pkgs; [
+    lazydocker
+  ];
 }

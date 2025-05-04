@@ -1,12 +1,13 @@
 {
   pkgs,
   inputs,
+  lib,
   config,
   ...
 }:
 let
-
-  apprise-url = config.secretsSpec.users.admin.smtp.notifyUrl;
+  users = config.secretsSpec.users;
+  apprise-url = lib.custom.mkAppriseUrl users.admin.smtp "relay@ryot.foo";
 
   snapraid-aio = inputs.snapraid-aio.nixosModules.default;
   snapraid-aio-config = pkgs.writeTextFile {
@@ -20,7 +21,7 @@ let
       APPRISE_URL=""
       APPRISE_ATTACH=1
       APPRISE_BIN="${pkgs.apprise}/bin/apprise"
-      APPRISE_EMAIL=1
+      APPRISE_EMAIL=0
       APPRISE_EMAIL_URL="${apprise-url}"
       TELEGRAM=0
       DISCORD=0
@@ -116,19 +117,19 @@ in
     inputs.snapraid-aio.nixosModules.default
   ];
 
-  # Make sure the SnapRAID config exists
-  environment.etc."snapraid.conf".source = snapraid-conf;
-
   # Create required directories
   systemd.tmpfiles.rules = [
     "d /var/lib/snapraid-aio 0755 root root -"
     "d /var/log/snapraid 0755 root root -"
   ];
 
+  environment.systemPackages = [ pkgs.snapraid ];
+  environment.etc."snapraid.conf".source = snapraid-conf;
+
   # Set up snapraid-aio service
   services.snapraid-aio = {
     enable = true;
     configFile = snapraid-aio-config;
-    schedule = "*-*-* 04:00:00"; # Run daily at 3am
+    # schedule = "*-*-* 04:00:00"; # Run daily at 3am
   };
 }

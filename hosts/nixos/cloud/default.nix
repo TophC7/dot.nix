@@ -60,10 +60,7 @@ in
   ## System-wide packages ##
   programs.nix-ld.enable = true;
   environment.systemPackages = with pkgs; [
-    apprise
-    lazydocker
     mergerfs
-    snapraid
   ];
 
   # https://wiki.nixos.org/wiki/FAQ/When_do_I_update_stateVersion

@@ -18,17 +18,6 @@ let
         grep -q "BEGIN OPENSSH PRIVATE KEY" "$out" || (echo "Invalid SSH key format"; exit 1)
       '';
     };
-
-  # Function to build an Apprise URL from SMTP settings
-  buildAppriseUrl =
-    {
-      host,
-      user,
-      password,
-      from,
-      ...
-    }:
-    "mailtos://_?user=${user}&pass=${password}&smtp=${host}&from=${from}&to=${user}";
 in
 {
   options.secretsSpec = {
@@ -126,13 +115,6 @@ in
                       type = lib.types.str;
                       description = "Email address to send from";
                     };
-                    notifyUrl = lib.mkOption {
-                      type = lib.types.str;
-                      description = "Apprise URL for sending notifications via this SMTP account";
-                    };
-                  };
-                  config = {
-                    notifyUrl = "mailtos://_?user=${config.user}&pass=${config.password}&smtp=${config.host}&from=${config.from}&to=${config.user}";
                   };
                 }
               );

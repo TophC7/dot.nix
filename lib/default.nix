@@ -18,4 +18,20 @@
         ) (builtins.readDir path)
       )
     );
+
+  # Generate an Apprise URL for sending notifications
+  # Can be called with smtp config and recipient:
+  # mkAppriseUrl smtpConfig recipient
+  # Or with individual parameters:
+  # mkAppriseUrl { user = "user"; password = "pass"; host = "smtp.example.com"; from = "sender@example.com"; } "recipient@example.com"
+  mkAppriseUrl =
+    smtp: recipient:
+    let
+      smtpUser = if builtins.isAttrs smtp then smtp.user else smtp;
+      smtpPass = if builtins.isAttrs smtp then smtp.password else recipient;
+      smtpHost = if builtins.isAttrs smtp then smtp.host else "";
+      smtpFrom = if builtins.isAttrs smtp then smtp.from else "";
+      to = if builtins.isAttrs smtp then recipient else smtp.user;
+    in
+    "mailtos://_?user=${smtpUser}&pass=${smtpPass}&smtp=${smtpHost}&from=${smtpFrom}&to=${to}";
 }
