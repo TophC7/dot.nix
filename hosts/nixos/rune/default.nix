@@ -27,21 +27,21 @@ in
 
     (map lib.custom.relativeToRoot [
       ## Required Configs ##
-      "hosts/common/core"
+      "hosts/global/core"
 
       ## Optional Configs ##
-      "hosts/common/optional/audio.nix" # pipewire and cli controls
-      "hosts/common/optional/adb.nix" # android tools
-      "hosts/common/optional/bluetooth.nix"
-      "hosts/common/optional/ddcutil.nix" # ddcutil for monitor controls
-      "hosts/common/optional/gaming.nix" # steam, gamescope, gamemode, and related hardware
-      # "hosts/common/optional/gnome.nix" # desktop
-      "hosts/common/optional/hyprland" # desktop
-      "hosts/common/optional/libvirt.nix" # vm tools
-      "hosts/common/optional/nvtop.nix" # GPU monitor (not available in home-manager)
-      "hosts/common/optional/plymouth.nix" # fancy boot screen
-      "hosts/common/optional/vial.nix" # KB setup
-      # "hosts/common/optional/ventura.nix" # macos vm
+      "hosts/global/common/audio.nix" # pipewire and cli controls
+      "hosts/global/common/adb.nix" # android tools
+      "hosts/global/common/bluetooth.nix"
+      "hosts/global/common/ddcutil.nix" # ddcutil for monitor controls
+      "hosts/global/common/gaming.nix" # steam, gamescope, gamemode, and related hardware
+      # "hosts/global/common/gnome.nix" # desktop
+      "hosts/global/common/hyprland" # desktop
+      "hosts/global/common/libvirt.nix" # vm tools
+      "hosts/global/common/nvtop.nix" # GPU monitor (not available in home-manager)
+      "hosts/global/common/plymouth.nix" # fancy boot screen
+      "hosts/global/common/vial.nix" # KB setup
+      # "hosts/global/common/ventura.nix" # macos vm
 
       ## Misc Inputs ##
 

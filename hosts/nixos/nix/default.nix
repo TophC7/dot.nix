@@ -25,7 +25,7 @@ in
 
     (map lib.custom.relativeToRoot [
       ## Required Configs ##
-      "hosts/common/core"
+      "hosts/global/core"
 
       ## Optional Configs ##
 

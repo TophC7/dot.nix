@@ -24,15 +24,15 @@ in
 
     (map lib.custom.relativeToRoot [
       ## Required Configs ##
-      "hosts/common/core"
+      "hosts/global/core"
 
       ## Optional Configs ##
-      "hosts/common/optional/audio.nix" # pipewire and cli controls
-      # "hosts/common/optional/gaming.nix" # steam, gamescope, gamemode, and related hardware
-      # "hosts/common/optional/gnome.nix" # desktop
-      "hosts/common/optional/hyprland" # desktop
-      # "hosts/common/optional/nvtop.nix" # GPU monitor (not available in home-manager)
-      # "hosts/common/optional/plymouth.nix" # fancy boot screen
+      "hosts/global/common/audio.nix" # pipewire and cli controls
+      # "hosts/global/common/gaming.nix" # steam, gamescope, gamemode, and related hardware
+      # "hosts/global/common/gnome.nix" # desktop
+      "hosts/global/common/hyprland" # desktop
+      # "hosts/global/common/nvtop.nix" # GPU monitor (not available in home-manager)
+      # "hosts/global/common/plymouth.nix" # fancy boot screen
 
       ## Misc Inputs ##
 

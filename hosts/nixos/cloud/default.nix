@@ -27,11 +27,11 @@ in
 
     (map lib.custom.relativeToRoot [
       ## Required Configs ##
-      "hosts/common/core"
+      "hosts/global/core"
 
       ## Optional Configs ##
-      "hosts/common/optional/acme"
-      "hosts/common/optional/docker.nix"
+      "hosts/global/common/acme"
+      "hosts/global/common/docker.nix"
 
       ## Host user ##
       "hosts/users/${username}" # Not the best solution but I always have one user so ¯\_(ツ)_/¯

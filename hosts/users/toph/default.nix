@@ -16,12 +16,11 @@ in
   users.users.${username} = {
     name = hostSpec.username;
     shell = _shell;
-
     # These get placed into /etc/ssh/authorized_keys.d/<name> on nixos
     openssh.authorizedKeys.keys = pubKeys;
   };
 
-  # Create ssh sockets directory for controlpaths when homemanager not loaded (i.e. isMinimal)
+  # Create ssh directory when homemanager is not loaded
   systemd.tmpfiles.rules =
     let
       user = config.users.users.${username}.name;
@@ -31,7 +30,6 @@ in
       "d ${homeDir}/.ssh 0750 ${user} ${group} -"
     ];
 
-  # No matter what environment we are in we want these tools
   programs.fish.enable = true;
 }
 # Import the user's personal/home configurations, unless the environment is minimal

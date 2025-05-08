@@ -10,7 +10,7 @@ in
 {
   imports = lib.flatten [
     (map lib.custom.relativeToRoot [
-      "hosts/common/optional/system/lxc.nix"
+      "hosts/global/common/system/lxc.nix"
     ])
   ];
 

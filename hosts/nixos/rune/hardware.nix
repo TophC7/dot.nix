@@ -14,7 +14,7 @@
   imports = lib.flatten [
     (modulesPath + "/installer/scan/not-detected.nix")
     (map lib.custom.relativeToRoot [
-      "hosts/common/optional/system/pool.nix"
+      "hosts/global/common/system/pool.nix"
     ])
   ];
 

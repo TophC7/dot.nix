@@ -12,7 +12,7 @@ in
   imports = lib.flatten [
     (modulesPath + "/profiles/qemu-guest.nix")
     (map lib.custom.relativeToRoot [
-      "hosts/common/optional/system/pool.nix"
+      "hosts/global/common/system/pool.nix"
     ])
   ];
 
