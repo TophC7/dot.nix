@@ -16,7 +16,7 @@ in
     (lib.custom.scanPaths ./.)
 
     (map lib.custom.relativeToRoot [
-      "modules/common"
+      "modules/global"
       "hosts/users"
     ])
   ];

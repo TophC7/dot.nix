@@ -15,7 +15,7 @@ in
 {
   imports = lib.flatten [
     (map lib.custom.relativeToRoot [
-      "modules/common"
+      "modules/global"
       "modules/home"
     ])
     ./asdf.nix

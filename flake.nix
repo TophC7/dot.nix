@@ -134,7 +134,7 @@
               }
 
               # Import secrets
-              ./modules/common/secret-spec.nix
+              ./modules/global/secret-spec.nix
               ./secrets.nix
 
               # Host-specific configuration
