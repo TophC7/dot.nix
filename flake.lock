@@ -75,11 +75,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1744989088,
-        "narHash": "sha256-j3HCGYdauq74hZzlgsDpQKx8rKLRX2oNhrsS8Jr8ZE8=",
+        "lastModified": 1746393010,
+        "narHash": "sha256-hKKgN1aR+KFybG+w9FqZpKntd5dC3VULHA1nYMonxiI=",
         "owner": "rishabh5321",
         "repo": "better-control-flake",
-        "rev": "0c4480620461c1b5d8bcf1112b915be5a26f8308",
+        "rev": "40d2f963e8e7373839fd044142915a9871b8de61",
         "type": "github"
       },
       "original": {
@@ -1061,11 +1061,11 @@
         "snapraid-aio-src": "snapraid-aio-src"
       },
       "locked": {
-        "lastModified": 1745877167,
-        "narHash": "sha256-I1LF6QlQnQmpsom676VNWzbA5xY1ksgwMyPh1b5JoG0=",
+        "lastModified": 1746380924,
+        "narHash": "sha256-A/TBPzpKMKQF3n4GVw7AD5nUio+bzPrngvWVLGoOPKU=",
         "ref": "refs/heads/main",
-        "rev": "fb1b3606270ce8ceaea8534a046eb1dda08c54dc",
-        "revCount": 1,
+        "rev": "c13880e2626a88d0ba9b69a75443654a720ae9f8",
+        "revCount": 2,
         "type": "git",
         "url": "https://git.ryot.foo/toph/snapraid-aio.nix.git"
       },

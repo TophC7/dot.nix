@@ -1,5 +1,6 @@
 {
   config,
+  inputs,
   lib,
   pkgs,
   ...
@@ -16,6 +17,8 @@ let
   #notify-send = "${pkgs.libnotify}/bin/notify-send";
   #playerctl = lib.getExe pkgs.playerctl; # installed via /home/common/optional/desktops/playerctl.nix
   #swaylock = "lib.getExe pkgs.swaylock;
+
+  betterControl = inputs.better-control.packages.${pkgs.system}.better-control;
 
   defaultApp =
     type: "${pkgs.gtk3}/bin/gtk-launch $(${pkgs.xdg-utils}/bin/xdg-mime query default ${type})";
@@ -61,6 +64,7 @@ let
           # "SUPER,         P,              exec,                       ${launcher} --app color" # Color Picker
           # "SUPER,         V,              exec,                       ${launcher} --app clip" # Clipboard
           # "SUPER,         X,              exec,                       ${launcher} --app power" # Power Menu
+          "SUPER,         X,              exec,                       ${lib.getExe betterControl} -pm" # Power Menu
 
           ## System ##
           "SUPER,         L,              exec,                       hyprlock"
