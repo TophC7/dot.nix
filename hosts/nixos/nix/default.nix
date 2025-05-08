@@ -28,9 +28,6 @@ in
       "hosts/global/core"
 
       ## Optional Configs ##
-
-      ## Nix Specific ##
-      "hosts/users/${username}" # # Not the best solution but I always have one user so ¯\_(ツ)_/¯
     ])
   ];
 

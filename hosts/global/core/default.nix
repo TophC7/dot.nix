@@ -17,7 +17,6 @@ in
 
     (map lib.custom.relativeToRoot [
       "modules/global"
-      "hosts/users"
     ])
   ];
 
@@ -73,17 +72,6 @@ in
   hardware.enableAllFirmware = true;
 
   security.sudo = {
-    extraRules = [
-      {
-        users = [ config.hostSpec.username ];
-        commands = [
-          {
-            command = "ALL";
-            options = [ "NOPASSWD" ];
-          }
-        ];
-      }
-    ];
     extraConfig = ''
       Defaults lecture = never # rollback results in sudo lectures after each reboot, it's somewhat useless anyway
       Defaults pwfeedback # password input feedback - makes typed password visible as asterisks

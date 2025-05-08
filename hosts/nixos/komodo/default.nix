@@ -31,9 +31,6 @@ in
       ## Optional Configs ##
       "hosts/global/common/acme"
       "hosts/global/common/docker.nix"
-
-      ## Host User ##
-      "hosts/users/${username}" # # Not the best solution but I always have one user so ¯\_(ツ)_/¯
     ])
   ];
 

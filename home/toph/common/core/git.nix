@@ -4,12 +4,12 @@
   lib,
   config,
   inputs,
+  hostSpec,
   ...
 }:
 let
-  # handle = config.hostSpec.handle;
-  fullName = config.hostSpec.userFullName;
-  email = config.hostSpec.email;
+  fullName = hostSpec.userFullName;
+  email = hostSpec.email;
 in
 {
   programs.git = {
@@ -48,7 +48,7 @@ in
         ];
       };
 
-      url = lib.optionalAttrs (!config.hostSpec.isMinimal) {
+      url = lib.optionalAttrs (!hostSpec.isMinimal) {
         # Only force ssh if it's not minimal
         "ssh://git@github.com" = {
           pushInsteadOf = "https://github.com";

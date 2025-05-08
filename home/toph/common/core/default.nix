@@ -8,9 +8,9 @@
   ...
 }:
 let
-  username = config.hostSpec.username;
-  homeDir = config.hostSpec.home;
-  shell = config.hostSpec.shell;
+  username = hostSpec.username;
+  homeDir = hostSpec.home;
+  shell = hostSpec.shell;
 in
 {
   imports = lib.flatten [
@@ -30,8 +30,6 @@ in
     ./ssh.nix
     ./zoxide.nix
   ];
-
-  inherit hostSpec;
 
   services.ssh-agent.enable = true;
 

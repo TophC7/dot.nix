@@ -2,13 +2,14 @@
   lib,
   pkgs,
   config,
+  hostSpec,
   ...
 }:
 {
   #TODO: Scripts might need a rework
   programs.fastfetch =
     let
-      hostname = config.hostSpec.hostName;
+      hostname = hostSpec.hostName;
       logoFile = ./. + "/host/${hostname}.txt";
       weather = import ./scripts/weather.nix { inherit pkgs; };
       title = import ./scripts/title.nix { inherit pkgs; };

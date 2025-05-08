@@ -35,9 +35,6 @@ in
       # "hosts/global/common/plymouth.nix" # fancy boot screen
 
       ## Misc Inputs ##
-
-      ## VM Specific ##
-      "hosts/users/${username}" # Not the best solution but I always have just one user so ¯\_(ツ)_/¯
     ])
 
   ];

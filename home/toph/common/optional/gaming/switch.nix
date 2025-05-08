@@ -3,6 +3,7 @@
   pkgs,
   config,
   lib,
+  hostSpec,
   ...
 }:
 
@@ -14,7 +15,7 @@ let
   #   inherit pkgs;
   # };
 
-  homeDir = config.hostSpec.home;
+  homeDir = hostSpec.home;
 
   borg-wrapper = pkgs.writeScript "borg-wrapper" ''
     #!${lib.getExe pkgs.fish}

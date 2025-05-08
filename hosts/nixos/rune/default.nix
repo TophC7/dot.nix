@@ -18,6 +18,8 @@ let
 in
 {
   imports = lib.flatten [
+    ## Rune Only ##
+    # ./config
 
     ## Hardware ##
     ./hardware.nix
@@ -41,12 +43,6 @@ in
       "hosts/global/common/nvtop.nix" # GPU monitor (not available in home-manager)
       "hosts/global/common/plymouth.nix" # fancy boot screen
       "hosts/global/common/vial.nix" # KB setup
-      # "hosts/global/common/ventura.nix" # macos vm
-
-      ## Misc Inputs ##
-
-      ## Rune Specific ##
-      "hosts/users/${username}" # # Not the best solution but I always have one user so ¯\_(ツ)_/¯
     ])
   ];
 
