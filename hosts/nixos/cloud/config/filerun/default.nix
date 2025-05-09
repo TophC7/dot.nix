@@ -59,7 +59,7 @@ in
       "/pool/filerun/user-files:/user-files:rw"
     ];
     ports = [
-      "8282:80/tcp"
+      "8181:80/tcp"
     ];
     dependsOn = [
       "filerun-db"
