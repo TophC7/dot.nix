@@ -2,8 +2,6 @@
     "$schema": "https://json.schemastore.org/tsconfig",
     "compilerOptions": {
         "experimentalDecorators": true,
-        // "checkJs": true,
-        // "allowJs": true,
         "jsx": "react-jsx",
         "jsxImportSource": "astal/gtk4",
         "module": "ES2022",
