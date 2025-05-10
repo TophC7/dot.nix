@@ -39,7 +39,7 @@
       packages.${system} = {
         default = ags.lib.bundle {
           inherit pkgs;
-          src = src/.;
+          src = ./.;
           name = "ags-shell";
           entry = "app.ts";
           gtk4 = true;
