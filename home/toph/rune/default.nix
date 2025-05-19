@@ -9,16 +9,15 @@
     ## Required Configs ##
     ../common/core # required
 
-    ## Host-specific Optional Configs ##
+    ## Optional Configs ##
     ../common/optional/browsers
-    # ../common/optional/gnome
-    ../common/optional/hyprland
+    ../common/optional/gnome
     ../common/optional/development
     ../common/optional/gaming
-    ../common/optional/xdg.nix # file associations
+    ../common/optional/xdg.nix
 
-    ## Home-specific Configs ##
-    ./desktop
+    ## Rune Specific ##
+    ./config
   ];
 
   ## Packages with no needed configs ##
@@ -42,34 +41,6 @@
       ## Productivity ##
       gimp
       inkscape
-
-      xdg-desktop-portal-gtk
-      xdg-desktop-portal-hyprland
       ;
   };
-
-  monitors = [
-    {
-      name = "DP-1";
-      x = 900;
-      y = 0;
-      width = 3840;
-      height = 2160;
-      refreshRate = 120;
-      primary = true;
-      scale = 1.20;
-      vrr = 2;
-    }
-    {
-      name = "HDMI-A-2";
-      x = 0;
-      y = 0;
-      width = 1920;
-      height = 1080;
-      refreshRate = 60;
-      primary = false;
-      transform = 3;
-      scale = 1.20;
-    }
-  ];
 }

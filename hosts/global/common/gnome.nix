@@ -1,12 +1,18 @@
-{ pkgs, ... }:
+{ pkgs, config, ... }:
 {
   # Enable the X11 windowing system.
   services.xserver = {
     enable = true;
 
     # Enable the GNOME Desktop Environment.
-    displayManager.gdm.enable = true;
     desktopManager.gnome.enable = true;
+    displayManager = {
+      gdm.enable = true;
+      autoLogin = {
+        enable = true;
+        user = config.hostSpec.username;
+      };
+    };
 
     # Configure keymap in X11
     xkb = {
@@ -15,22 +21,26 @@
     };
   };
 
-  services.udev.packages = with pkgs; [ gnome-settings-daemon ];
+  #INFO: Fix for autoLogin
+  systemd.services."getty@tty1".enable = false;
+  systemd.services."autovt@tty1".enable = false;
 
+  services.udev.packages = with pkgs; [ gnome-settings-daemon ];
   environment.systemPackages = with pkgs; [
     gnome-tweaks
+    gnomeExtensions.alphabetical-app-grid
     gnomeExtensions.appindicator
     gnomeExtensions.blur-my-shell
-    gnomeExtensions.clipboard-indicator
     gnomeExtensions.color-picker
     gnomeExtensions.control-monitor-brightness-and-volume-with-ddcutil
-    gnomeExtensions.dash-to-panel
-    gnomeExtensions.tiling-shell
-    gnomeExtensions.vitals
-    # gnomeExtensions.just-perfection
-    gnomeExtensions.alphabetical-app-grid
+    gnomeExtensions.dash-in-panel
+    gnomeExtensions.just-perfection
+    gnomeExtensions.pano
+    gnomeExtensions.paperwm
     gnomeExtensions.quick-settings-audio-devices-hider
     gnomeExtensions.quick-settings-audio-devices-renamer
+    gnomeExtensions.undecorate
+    gnomeExtensions.vitals
   ];
 
   ## Exclusions ##
@@ -38,14 +48,20 @@
   environment.gnome.excludePackages = (
     with pkgs;
     [
-      atomix # puzzle game
-      epiphany # web browser
-      evince # document viewer
-      gedit # text editor
+      atomix
+      baobab
+      epiphany
+      # evince
+      geary
+      gedit
+      gnome-console
+      gnome-contacts
       gnome-maps
       gnome-music
       gnome-photos
+      gnome-terminal
       gnome-tour
+      gnome-user-docs
       gnomeExtensions.applications-menu
       gnomeExtensions.launch-new-instance
       gnomeExtensions.light-style
@@ -54,9 +70,10 @@
       gnomeExtensions.system-monitor
       gnomeExtensions.window-list
       gnomeExtensions.windownavigator
-      hitori # sudoku game
-      iagno # go game
-      tali # poker game
+      hitori
+      iagno
+      simple-scan
+      tali
       yelp
     ]
   );
