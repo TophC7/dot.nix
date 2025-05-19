@@ -8,13 +8,6 @@
 }:
 
 let
-  # citron-emu = pkgs.callPackage (lib.custom.relativeToRoot "pkgs/common/citron-emu/package.nix") {
-  #   inherit pkgs;
-  # };
-  # borgtui = pkgs.callPackage (lib.custom.relativeToRoot "pkgs/common/borgtui/package.nix") {
-  #   inherit pkgs;
-  # };
-
   homeDir = hostSpec.home;
 
   borg-wrapper = pkgs.writeScript "borg-wrapper" ''

@@ -7,6 +7,13 @@
 {
   hardware.xone.enable = true; # xbox controller
 
+  hardware.opengl = {
+    enable = true;
+    driSupport32Bit = true;
+  };
+
+  services.xserver.videoDrivers = [ "amdgpu" ];
+
   programs = {
     steam = {
       enable = true;
@@ -31,30 +38,24 @@
               ;
 
             inherit (pkgs)
+              gamemode
+              gamescope # !!!: DO NOT ADD GAMESCOPE ANYWHERE ELSE IN CONFIG, IT WILL BREAK!
+              gperftools
+              keyutils
+              libkrb5
               libpng
               libpulseaudio
               libvorbis
-              libkrb5
-              keyutils
-              gperftools
-              gamemode
               ;
           });
       };
       extraCompatPackages = [ pkgs.unstable.proton-ge-bin ];
       gamescopeSession.enable = true;
     };
-    #gamescope launch args set dynamically in home/<user>/common/optional/gaming
-    gamescope = {
-      enable = true;
-      capSysNice = true;
-    };
-    # to run steam games in game mode, add the following to the game's properties from within steam
-    # gamemoderun %command%
+
     gamemode = {
       enable = true;
       settings = {
-        #see gamemode man page for settings info
         general = {
           softrealtime = "auto";
           inhibit_screensaver = 1;
@@ -73,3 +74,5 @@
     };
   };
 }
+
+# gamescope --adaptive-sync --backend sdl --expose-wayland --force-grab-cursor --framerate-limit 120 --immediate-flips --output-height 2160 --output-width 3840 --prefer-output DP-1 --rt -- gamemoderun %command%
