@@ -15,9 +15,7 @@
         delta # diffing
         gh # github cli
 
-        logisim-evolution
         mcaselector
-        prettierd
 
         # nix
         nixpkgs-review

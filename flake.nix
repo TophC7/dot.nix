@@ -28,19 +28,7 @@
       inputs.nixpkgs.follows = "nixpkgs-stable";
     };
 
-    # TODO: theming
-
-    ## Hyprland ##
-
-    watershot = {
-      url = "github:Liassica/watershot/165dd431c95054ac1bfea2f9a85e1be924af21c9";
-      inputs.nixpkgs.follows = "nixpkgs-stable";
-    };
-
-    better-control = {
-      url = "github:rishabh5321/better-control-flake";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    ## Theming ##
 
     rose-pine-hyprcursor = {
       url = "github:ndom91/rose-pine-hyprcursor";

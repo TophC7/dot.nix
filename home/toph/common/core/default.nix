@@ -1,5 +1,3 @@
-#FIXME: Move attrs that will only work on linux to nixos.nix
-#FIXME: if pulling in homemanager for isMinimal maybe set up conditional for some packages
 {
   config,
   lib,
@@ -18,17 +16,7 @@ in
       "modules/global"
       "modules/home"
     ])
-    ./asdf.nix
-    ./bash.nix # TODO: setup a nicer bash config... or zsh
-    ./bat.nix
-    ./direnv.nix
-    ./fastfetch
-    ./fish
-    ./git.nix
-    ./ranger.nix
-    ./screen.nix
-    ./ssh.nix
-    ./zoxide.nix
+    (lib.custom.scanPaths ./.)
   ];
 
   services.ssh-agent.enable = true;
@@ -43,9 +31,8 @@ in
     sessionVariables = {
       EDITOR = "micro";
       FLAKE = "${homeDir}/git/Nix/dot.nix";
-      MANPAGER = "batman"; # see ./cli/bat.nix
+      MANPAGER = "batman";
       SHELL = shell;
-      TERM = "foot";
       VISUAL = "micro";
     };
     preferXdgDirectories = true; # whether to make programs use XDG directories whenever supported
@@ -67,15 +54,14 @@ in
     };
   };
 
+  # Core pkgs with no configs
   home.packages = builtins.attrValues {
     inherit (pkgs)
-      # Packages that don't have custom configs go here
       btop # resource monitor
       coreutils # basic gnu utils
       dust # disk usage
       eza # ls replacement
       jq # json parser
-      p7zip # compression & encryption
       pre-commit # git hooks
       trashy # trash cli
       unrar # rar extraction

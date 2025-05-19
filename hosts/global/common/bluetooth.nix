@@ -25,17 +25,9 @@
     };
   };
 
-  services.blueman.enable = true;
-  # these 2 options below were not mentioned in wiki
-
   boot = {
     extraModprobeConfig = ''
       options bluetooth enable_ecred=1
     '';
   };
-
-  environment.systemPackages = with pkgs; [
-    bluez-tools
-    bluetuith # can transfer files via OBEX
-  ];
 }
