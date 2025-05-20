@@ -30,7 +30,8 @@
 
       ## Social ##
       telegram-desktop
-      vesktop
+      discord
+      betterdiscordctl
 
       ## Tools ##
       bitwarden-desktop

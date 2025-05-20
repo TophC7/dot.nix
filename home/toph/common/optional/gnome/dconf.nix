@@ -64,6 +64,10 @@ with lib.hm.gvariant;
       ];
     };
 
+    "org/gnome/desktop/wm/preferences" = {
+      num-workspaces = 3;
+    };
+
     "org/gnome/desktop/wm/keybindings" = {
       maximize = [ ];
       move-to-monitor-down = [ ];
@@ -116,6 +120,7 @@ with lib.hm.gvariant;
     };
 
     "org/gnome/settings-daemon/plugins/media-keys" = {
+      rotate-video-lock-static = [ ];
       www = [ "<Super>w" ];
       custom-keybindings = [
         "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/"
@@ -166,7 +171,7 @@ with lib.hm.gvariant;
         "zen.desktop"
         "code.desktop"
         "spotify.desktop"
-        "vesktop.desktop"
+        "discord.desktop"
         "org.telegram.desktop.desktop"
         "appeditor-local-application-1.desktop"
         "Ryujinx.desktop"
@@ -201,6 +206,12 @@ with lib.hm.gvariant;
     };
 
     "org/gnome/shell/extensions/blur-my-shell/applications" = {
+      blacklist = [
+        "Plank"
+        "com.desktop.ding"
+        "Conky"
+        ".gamescope-wrapped"
+      ];
       blur = true;
       dynamic-opacity = false;
       enable-all = true;
@@ -327,7 +338,23 @@ with lib.hm.gvariant;
       vertical-margin = 8;
       vertical-margin-bottom = 8;
       window-gap = 8;
-      winprops = [ ];
+      winprops = [
+        ''
+          {"wm_class":"com.mitchellh.ghostty","scratch_layer":true}
+        ''
+        ''
+          {"wm_class":"code","preferredWidth":"70%"}
+        ''
+        ''
+          {"wm_class":"discord","preferredWidth":"100%","spaceIndex":1}
+        ''
+        ''
+          {"wm_class":"org.gnome.Nautilus","scratch_layer":true}
+        ''
+        ''
+          {"wm_class":"gnome-control-center","scratch_layer":true}
+        ''
+      ];
     };
 
     "org/gnome/shell/extensions/paperwm/keybindings" = {
@@ -344,12 +371,12 @@ with lib.hm.gvariant;
       live-alt-tab-scratch = [ "" ];
       live-alt-tab-scratch-backward = [ "" ];
       move-down = [ "<Shift><Super>Down" ];
-      move-down-workspace = [ "" ];
+      move-down-workspace = [ "<Control><Super>Down" ];
       move-left = [ "<Shift><Super>Left" ];
       move-monitor-above = [ "" ];
       move-monitor-below = [ "" ];
-      move-monitor-left = [ "<Shift><Alt><Super>Left" ];
-      move-monitor-right = [ "<Shift><Alt><Super>Right" ];
+      move-monitor-left = [ "<Control><Super>Left" ];
+      move-monitor-right = [ "<Control><Super>Right" ];
       move-previous-workspace = [ "" ];
       move-previous-workspace-backward = [ "" ];
       move-right = [ "<Shift><Super>Right" ];
@@ -358,7 +385,7 @@ with lib.hm.gvariant;
       move-space-monitor-left = [ "" ];
       move-space-monitor-right = [ "" ];
       move-up = [ "<Shift><Super>Up" ];
-      move-up-workspace = [ "" ];
+      move-up-workspace = [ "<Control><Super>Up" ];
       new-window = [ "<Super>n" ];
       previous-workspace = [ "" ];
       previous-workspace-backward = [ "" ];
@@ -366,7 +393,7 @@ with lib.hm.gvariant;
       swap-monitor-below = [ "" ];
       swap-monitor-left = [ "" ];
       swap-monitor-right = [ "" ];
-      switch-down-workspace = [ "" ];
+      switch-down-workspace = [ "<Super>Page_Down" ];
       switch-focus-mode = [ "<Alt><Super>a" ];
       switch-monitor-above = [ "" ];
       switch-monitor-below = [ "" ];
@@ -375,7 +402,7 @@ with lib.hm.gvariant;
       switch-next = [ "" ];
       switch-open-window-position = [ "" ];
       switch-previous = [ "" ];
-      switch-up-workspace = [ "" ];
+      switch-up-workspace = [ "<Super>Page_Up" ];
       take-window = [ "" ];
       toggle-maximize-width = [ "" ];
       toggle-scratch = [ "<Super>BackSpace" ];
@@ -439,8 +466,8 @@ with lib.hm.gvariant;
     };
 
     "org/gnome/shell/extensions/quicksettings-audio-devices-renamer" = {
-      input-names-map = ''{'Microphone – USB  Live camera': 'NO', 'Digital Input (S/PDIF) – USB  Live camera': 'NO', 'Microphone – HyperX Cloud Alpha S': 'Cloud S'}'';
-      output-names-map = ''{'HDMI / DisplayPort 3 – HD-Audio Generic': 'Navi', 'HDMI / DisplayPort – Rembrandt Radeon High Definition Audio Controller': 'NO', 'Analog Output – HyperX Cloud Alpha S': 'NO', 'Digital Output (S/PDIF) – HyperX Cloud Alpha S': 'Cloud S', 'Dummy Output': 'Dummy Output'}'';
+      input-names-map = ''{'Microphone \– USB  Live camera': 'NO', 'Digital Input (S/PDIF) \– USB  Live camera': 'NO', 'Microphone \– HyperX Cloud Alpha S': 'Cloud S'}'';
+      output-names-map = ''{'HDMI / DisplayPort 3 \– HD-Audio Generic': 'Navi', 'HDMI / DisplayPort \– Rembrandt Radeon High Definition Audio Controller': 'NO', 'Analog Output \– HyperX Cloud Alpha S': 'NO', 'Digital Output (S/PDIF) \– HyperX Cloud Alpha S': 'Cloud S', 'Dummy Output': 'Dummy Output'}'';
     };
 
     "org/gnome/shell/extensions/user-theme" = {
