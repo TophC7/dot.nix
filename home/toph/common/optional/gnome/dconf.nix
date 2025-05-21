@@ -64,10 +64,6 @@ with lib.hm.gvariant;
       ];
     };
 
-    "org/gnome/desktop/wm/preferences" = {
-      num-workspaces = 3;
-    };
-
     "org/gnome/desktop/wm/keybindings" = {
       maximize = [ ];
       move-to-monitor-down = [ ];
@@ -93,6 +89,8 @@ with lib.hm.gvariant;
         "<Shift><Super>Above_Tab"
         "<Shift><Alt>Above_Tab"
       ];
+      switch-input-source = [ ];
+      switch-input-source-backward = [ ];
       switch-panels = [ "<Control><Alt>Tab" ];
       switch-panels-backward = [ "<Shift><Control><Alt>Tab" ];
       switch-to-workspace-1 = [ ];
@@ -104,6 +102,10 @@ with lib.hm.gvariant;
       toggle-application-view = [ "" ];
       toggle-message-tray = [ "" ];
       unmaximize = [ ];
+    };
+
+    "org/gnome/desktop/wm/preferences" = {
+      num-workspaces = 3;
     };
 
     "org/gnome/nautilus/preferences" = {
@@ -120,13 +122,21 @@ with lib.hm.gvariant;
     };
 
     "org/gnome/settings-daemon/plugins/media-keys" = {
-      rotate-video-lock-static = [ ];
-      www = [ "<Super>w" ];
       custom-keybindings = [
         "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/"
         "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/"
         "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2/"
       ];
+      next = [ "AudioNext" ];
+      play = [ "AudioPlay" ];
+      previous = [ "AudioPrev" ];
+      reboot = [ "<Super>r" ];
+      rotate-video-lock-static = [ ];
+      shutdown = [ "<Super>x" ];
+      volume-down = [ "AudioLowerVolume" ];
+      volume-mute = [ "AudioMute" ];
+      volume-up = [ "AudioRaiseVolume" ];
+      www = [ "<Super>w" ];
     };
 
     "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0" = {
@@ -211,6 +221,7 @@ with lib.hm.gvariant;
         "com.desktop.ding"
         "Conky"
         ".gamescope-wrapped"
+        "steam_app_2993780"
       ];
       blur = true;
       dynamic-opacity = false;
@@ -299,7 +310,9 @@ with lib.hm.gvariant;
     };
 
     "org/gnome/shell/extensions/pano" = {
-      history-length = 100;
+      global-shortcut = [ "<Super>v" ];
+      history-length = 500;
+      incognito-shortcut = [ "<Shift><Super>v" ];
       is-in-incognito = false;
       window-position = mkUint32 2;
     };
@@ -445,29 +458,73 @@ with lib.hm.gvariant;
 
     "org/gnome/shell/extensions/quicksettings-audio-devices-hider" = {
       available-input-names = [
-        "Microphone \8211 USB  Live camera"
         "Digital Input (S/PDIF) \8211 USB  Live camera"
         "Microphone \8211 HyperX Cloud Alpha S"
-      ];
-      available-output-names = [
-        "HDMI / DisplayPort 3 \8211 HD-Audio Generic"
-        "HDMI / DisplayPort \8211 Rembrandt Radeon High Definition Audio Controller"
-        "Analog Output \8211 HyperX Cloud Alpha S"
-        "Digital Output (S/PDIF) \8211 HyperX Cloud Alpha S"
-      ];
-      excluded-input-names = [
-        "Digital Input (S/PDIF) \8211 USB  Live camera"
         "Microphone \8211 USB  Live camera"
       ];
-      excluded-output-names = [
-        "HDMI / DisplayPort \8211 Rembrandt Radeon High Definition Audio Controller"
+      available-output-names = [
         "Analog Output \8211 HyperX Cloud Alpha S"
+        "Digital Output (S/PDIF) \8211 HyperX Cloud Alpha S"
+        "HDMI / DisplayPort \8211 Rembrandt Radeon High Definition Audio Controller"
+        "HDMI / DisplayPort 3 \8211 HD-Audio Generic"
+      ];
+      excluded-input-names = [
+        "Digital Input (S/PDIF) – USB  Live camera"
+        "Digital Input (S/PDIF) \8211 USB  Live camera"
+        "Digital Input (S/PDIF) 8211 USB  Live camera"
+        "Digital Input (S/PDIF) 8211 USB  Live camera"
+        "Microphone – USB  Live camera"
+        "Microphone \8211 USB  Live camera"
+        "Microphone 8211 USB  Live camera"
+        "Microphone 8211 USB  Live camera"
+      ];
+      excluded-output-names = [
+        "Analog Output – HyperX Cloud Alpha S"
+        "Analog Output \8211 HyperX Cloud Alpha S"
+        "Analog Output 8211 HyperX Cloud Alpha S"
+        "Analog Output 8211 HyperX Cloud Alpha S"
+        "HDMI / DisplayPort – Rembrandt Radeon High Definition Audio Controller"
+        "HDMI / DisplayPort \8211 Rembrandt Radeon High Definition Audio Controller"
+        "HDMI / DisplayPort 8211 Rembrandt Radeon High Definition Audio Controller"
+        "HDMI / DisplayPort 8211 Rembrandt Radeon High Definition Audio Controller"
       ];
     };
 
     "org/gnome/shell/extensions/quicksettings-audio-devices-renamer" = {
-      input-names-map = ''{'Microphone \– USB  Live camera': 'NO', 'Digital Input (S/PDIF) \– USB  Live camera': 'NO', 'Microphone \– HyperX Cloud Alpha S': 'Cloud S'}'';
-      output-names-map = ''{'HDMI / DisplayPort 3 \– HD-Audio Generic': 'Navi', 'HDMI / DisplayPort \– Rembrandt Radeon High Definition Audio Controller': 'NO', 'Analog Output \– HyperX Cloud Alpha S': 'NO', 'Digital Output (S/PDIF) \– HyperX Cloud Alpha S': 'Cloud S', 'Dummy Output': 'Dummy Output'}'';
+      input-names-map = [
+        (lib.hm.gvariant.mkDictionaryEntry [
+          "Microphone – USB  Live camera"
+          "NO"
+        ])
+        (lib.hm.gvariant.mkDictionaryEntry [
+          "Digital Input (S/PDIF) – USB  Live camera"
+          "NO"
+        ])
+        (lib.hm.gvariant.mkDictionaryEntry [
+          "Microphone – HyperX Cloud Alpha S"
+          "Cloud S"
+        ])
+      ];
+      output-names-map = [
+        (lib.hm.gvariant.mkDictionaryEntry [
+          "HDMI / DisplayPort 3 – HD-Audio Generic"
+          "ROG"
+        ])
+        (lib.hm.gvariant.mkDictionaryEntry [
+          "HDMI / DisplayPort – Rembrandt Radeon High Definition Audio Controller"
+          "NO"
+        ])
+        (lib.hm.gvariant.mkDictionaryEntry [
+          "Analog Output – HyperX Cloud Alpha S"
+          "NO"
+        ])
+        (lib.hm.gvariant.mkDictionaryEntry [
+          "Digital Output (S/PDIF) – HyperX Cloud Alpha S"
+          "Cloud S"
+        ])
+      ];
+      # input-names-map = ''{'Microphone – USB  Live camera': 'NO', 'Digital Input (S/PDIF) – USB  Live camera': 'NO', 'Microphone – HyperX Cloud Alpha S': 'Cloud S'}'';
+      # output-names-map = ''{'HDMI / DisplayPort 3 – HD-Audio Generic': 'ROG', 'HDMI / DisplayPort – Rembrandt Radeon High Definition Audio Controller': 'NO', 'Analog Output – HyperX Cloud Alpha S': 'NO', 'Digital Output (S/PDIF) – HyperX Cloud Alpha S': 'Cloud S'}'';
     };
 
     "org/gnome/shell/extensions/user-theme" = {
@@ -498,13 +555,15 @@ with lib.hm.gvariant;
 
     "org/gnome/shell/keybindings" = {
       focus-active-notification = [ ];
+      screenshot = [ "Print" ];
+      screenshot-window = [ ];
       shift-overview-down = [ ];
       shift-overview-up = [ ];
+      show-screen-recording-ui = [ ];
+      show-screenshot-ui = [ "<Shift>Print" ];
       toggle-application-view = [ "Home" ];
-      toggle-message-tray = [
-        "<Super>v"
-        "<Super>m"
-      ];
+      toggle-message-tray = [ "<Super>s" ];
+      toggle-quick-settings = [ "<Super>a" ];
     };
 
     "org/gnome/shell/world-clocks" = {
