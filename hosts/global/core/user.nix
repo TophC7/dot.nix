@@ -88,7 +88,7 @@ in
       imports = [
         (
           { config, ... }:
-          import (lib.custom.relativeToRoot "home/${username}/${hostSpec.hostName}") {
+          import (lib.custom.relativeToRoot "home/users/${username}") {
             inherit
               config
               hostSpec

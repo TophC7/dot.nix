@@ -1,14 +1,17 @@
 {
+  lib,
   pkgs,
   ...
 }:
 {
-  imports = [
-    ## Required Configs ##
-    ../common/core # required
+  imports = lib.flatten [
+    ## Common Imports ##
+    (map lib.custom.relativeToRoot [
+      "home/global/common/vscode-server.nix"
+    ])
 
-    ## Host-specific Optional Configs ##
-    ../common/optional/vscode-server.nix
+    ## Nix Specific ##
+    # ./config
   ];
 
   ## Packages with no needed configs ##

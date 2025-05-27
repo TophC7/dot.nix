@@ -1,20 +1,20 @@
 {
   pkgs,
+  lib,
   inputs,
   config,
   ...
 }:
 {
-  imports = [
-    ## Required Configs ##
-    ../common/core # required
-
-    ## Optional Configs ##
-    ../common/optional/browsers
-    ../common/optional/gnome
-    ../common/optional/development
-    ../common/optional/gaming
-    ../common/optional/xdg.nix
+  imports = lib.flatten [
+    ## Common Imports ##
+    (map lib.custom.relativeToRoot [
+      "home/global/common/browsers"
+      "home/global/common/gnome"
+      "home/global/common/development"
+      "home/global/common/gaming"
+      "home/global/common/xdg.nix"
+    ])
 
     ## Rune Specific ##
     ./config
