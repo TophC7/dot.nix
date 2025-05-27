@@ -12,8 +12,6 @@
     driSupport32Bit = true;
   };
 
-  services.xserver.videoDrivers = [ "amdgpu" ];
-
   programs = {
     steam = {
       enable = true;
