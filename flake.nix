@@ -3,9 +3,6 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-
-    # Pin stable vs unstable: use nixpkgs-stable for critical packages while nixpkgs follows the beta branch.
-    # See overlays "stable-packages" and "unstable-packages" in ./overlays/default.nix.
     nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-24.11";
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
 
@@ -79,21 +76,16 @@
       inherit (self) outputs;
       inherit (nixpkgs) lib;
 
-      ARM = "aarch64-linux"; # ARM systems
-      X86 = "x86_64-linux"; # x86_64 systems
+      ARM = "aarch64-linux";
+      X86 = "x86_64-linux";
 
-      #
-      # ========= Architectures =========
-      #
       forAllSystems = nixpkgs.lib.genAttrs [
         ARM
         X86
       ];
 
-      #
-      # ========= Host Config Functions =========
-      #
-      # Handle a given host config based on whether its underlying system is nixos or darwin
+      ## Host Config ##
+
       mkHost = host: isARM: {
         ${host} =
           let
@@ -108,14 +100,12 @@
                 isARM
                 ;
               system = systemFunc;
-              # ========== Extend lib with lib.custom ==========
-              # NOTE: This approach allows lib.custom to propagate into hm
-              # see: https://github.com/nix-community/home-manager/pull/3454
+              # INFO: Extend lib with lib.custom; This approach allows lib.custom to propagate into hm
               lib = nixpkgs.lib.extend (self: super: { custom = import ./lib { inherit (nixpkgs) lib; }; });
             };
             modules = [
-              # Apply the overlays to make custom packages available
               {
+                #INFO: Overlay application for custom packages
                 nixpkgs.overlays = [
                   self.overlays.default
                 ];
@@ -133,25 +123,13 @@
       # Invoke mkHost for each host config that is declared for either X86 or ARM
       mkHostConfigs =
         hosts: isARM: lib.foldl (acc: set: acc // set) { } (lib.map (host: mkHost host isARM) hosts);
-      # Return the hosts declared in the given directory
       readHosts = folder: lib.attrNames (builtins.readDir ./hosts/${folder});
     in
     {
-      #
-      # ========= Overlays =========
-      #
-      # Custom modifications/overrides to upstream packages.
       overlays = import ./overlays { inherit inputs; };
 
-      #
-      # ========= Host Configurations =========
-      #
-      # Building configurations is available through `just rebuild` or `nixos-rebuild --flake .#hostname`
       nixosConfigurations = mkHostConfigs (readHosts "nixos") false;
 
-      # ========= Packages =========
-      #
-      # Add custom packages to be shared or upstreamed.
       packages = forAllSystems (
         system:
         let

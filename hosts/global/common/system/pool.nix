@@ -19,12 +19,7 @@ in
       requires = [ "pool.mount" ];
       wantedBy = [ "multi-user.target" ];
       script = ''
-        umount /pool/git
-        mkdir -p /pool/git
-        chown ${username}:ryot /pool/git
-        chmod 2775 /pool/git
         ln -sf /pool/git ${homeDir}/git
-        chown -h ${username}:ryot ${homeDir}/git
       '';
       serviceConfig = {
         Type = "oneshot";
