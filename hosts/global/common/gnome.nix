@@ -1,20 +1,29 @@
 { pkgs, config, ... }:
 {
-  # Enable the X11 windowing system.
+  ## DE ##
+
   services.xserver = {
     enable = true;
 
-    # Enable the GNOME Desktop Environment.
-    desktopManager.gnome.enable = true;
+    desktopManager.gnome = {
+      enable = true;
+      extraGSettingsOverridePackages = [ pkgs.mutter ];
+      extraGSettingsOverrides = ''
+        [org.gnome.mutter]
+        experimental-features=['scale-monitor-framebuffer']
+      '';
+    };
     displayManager = {
-      gdm.enable = true;
+      gdm = {
+        enable = true;
+        wayland = true;
+      };
       autoLogin = {
         enable = true;
         user = config.hostSpec.username;
       };
     };
 
-    # Configure keymap in X11
     xkb = {
       layout = "us";
       variant = "";
