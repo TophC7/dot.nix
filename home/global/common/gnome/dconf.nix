@@ -162,6 +162,7 @@ with lib.hm.gvariant;
     };
 
     "org/gnome/shell" = {
+      disable-user-extensions = false;
       enabled-extensions = [
         "user-theme@gnome-shell-extensions.gcampax.github.com"
         "dash-in-panel@fthx"
