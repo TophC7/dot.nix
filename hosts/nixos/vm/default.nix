@@ -13,7 +13,7 @@
   ...
 }:
 let
-  username = "toph";
+  username = "cesar";
   user = config.secretsSpec.users.${username};
 in
 {
@@ -28,10 +28,7 @@ in
 
       ## Optional Configs ##
       "hosts/global/common/audio.nix" # pipewire and cli controls
-      # "hosts/global/common/gaming.nix" # steam, gamescope, gamemode, and related hardware
-      # "hosts/global/common/gnome.nix" # desktop
-      "hosts/global/common/hyprland" # desktop
-      # "hosts/global/common/nvtop.nix" # GPU monitor (not available in home-manager)
+      "hosts/global/common/gnome.nix" # desktop
       # "hosts/global/common/plymouth.nix" # fancy boot screen
 
       ## Misc Inputs ##
