@@ -1,0 +1,26 @@
+system: base16
+slug: Gojo
+name: Gojo
+author: tophc7
+variant: dark
+palette:
+  base00: "231F33"
+  base01: "2D293B"
+  base02: "363343"
+  base03: "494653"
+  base04: "FBD5AC"
+  base05: "FBD9BB"
+  base06: "FBDDC9"
+  base07: "FAE5E6"
+  base08: "EC2444" # Red
+  base09: "D97912" # Orange
+  base0A: "EDD224" # Yellow
+  base0B: "57C922" # Green
+  base0C: "4948EB" # Cyan
+  base0D: "2D1C75" # Blue
+  base0E: "81318B" # Purple
+  base0F: "FF7A81" # Magenta
+
+# https://coolors.co/231f33-2d293b-363343-494653-fbd5ac-fbd9bb-fbddc9-fae5e6
+# https://coolors.co/ec2444-d97912-edd224-57c922-4948eb-2d1c75-81318b-ff7a81
+

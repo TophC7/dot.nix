@@ -24,8 +24,8 @@ in
   stylix = {
     enable = true;
     autoEnable = true;
-    base16Scheme = ./soraka.yaml;
-    image = ./wallpapers/soraka.jpg;
+    base16Scheme = ./gojo.yaml;
+    image = ./wallpapers/gojo.jpg;
     polarity = "dark";
     fonts = {
       serif = {
