@@ -24,3 +24,4 @@ palette:
 # https://coolors.co/231f33-2d293b-363343-494653-fbd5ac-fbd9bb-fbddc9-fae5e6
 # https://coolors.co/ec2444-d97912-edd224-57c922-4948eb-2d1c75-81318b-ff7a81
 
+#  flavours generate dark ./wallpapers/gojo.jpg --stdout > gojo.yaml

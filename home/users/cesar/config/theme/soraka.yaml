@@ -23,3 +23,5 @@ palette:
 
 # https://coolors.co/1f2333-2a293f-352e4a-4a3960-92bdea-c9d5f5-e4e1fa-ffecff
 # https://coolors.co/d44763-f7a94e-fceea1-8de364-a5e4eb-313568-be68c9-c2708f
+
+#  flavours generate dark ./wallpapers/soraka.jpg --stdout > soraka.yaml
