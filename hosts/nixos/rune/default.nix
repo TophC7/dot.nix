@@ -19,6 +19,7 @@ in
 {
   imports = lib.flatten [
     ## Rune Only ##
+    inputs.chaotic.nixosModules.default
     # ./config
 
     ## Hardware ##
@@ -68,6 +69,8 @@ in
 
   environment.sessionVariables = {
     AMD_VULKAN_ICD = "RADV";
+    RADV_PERFTEST = "aco";
+    PROTON_USE_D9VK = 1;
   };
 
   # https://wiki.nixos.org/wiki/FAQ/When_do_I_update_stateVersion

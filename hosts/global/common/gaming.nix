@@ -5,8 +5,6 @@
   ...
 }:
 {
-  hardware.xone.enable = true; # xbox controller
-
   hardware.opengl = {
     enable = true;
     driSupport32Bit = true;
