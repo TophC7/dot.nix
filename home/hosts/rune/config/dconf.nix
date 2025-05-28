@@ -5,11 +5,52 @@ with lib.hm.gvariant;
 
 {
   dconf.settings = {
-    "org/gnome/TextEditor" = lib.mkDefault {
+    "org/gnome/TextEditor" = {
       style-scheme = "stylix";
     };
 
-    "org/gnome/desktop/input-sources" = lib.mkDefault {
+    "org/gnome/desktop/app-folders" = {
+      folder-children = [
+        "System"
+        "Utilities"
+        "Useless Launchers"
+      ];
+    };
+
+    "org/gnome/desktop/app-folders/folders/System" = {
+      apps = [
+        "org.gnome.baobab.desktop"
+        "org.gnome.DiskUtility.desktop"
+        "org.gnome.Logs.desktop"
+        "org.gnome.SystemMonitor.desktop"
+        "org.gnome.tweaks.desktop"
+      ];
+      name = "X-GNOME-Shell-System.directory";
+      translate = true;
+    };
+
+    "org/gnome/desktop/app-folders/folders/Utilities" = {
+      apps = [
+        "org.gnome.Connections.desktop"
+        "org.gnome.FileRoller.desktop"
+        "org.gnome.font-viewer.desktop"
+        "org.gnome.Loupe.desktop"
+        "org.gnome.seahorse.Application.desktop"
+      ];
+      name = "X-GNOME-Shell-Utilities.directory";
+      translate = true;
+    };
+
+    "org/gnome/desktop/app-folders/folders/Useless" = {
+      apps = [
+        "fish.desktop"
+        "ranger.desktop"
+      ];
+      name = "Useless Launchers";
+      translate = false;
+    };
+
+    "org/gnome/desktop/input-sources" = {
       sources = [
         (mkTuple [
           "xkb"
@@ -23,7 +64,7 @@ with lib.hm.gvariant;
       ];
     };
 
-    "org/gnome/desktop/wm/keybindings" = lib.mkDefault {
+    "org/gnome/desktop/wm/keybindings" = {
       maximize = [ ];
       move-to-monitor-down = [ ];
       move-to-monitor-left = [ ];
@@ -63,15 +104,28 @@ with lib.hm.gvariant;
       unmaximize = [ ];
     };
 
-    "org/gnome/desktop/wm/preferences" = lib.mkForce {
+    "org/gnome/desktop/wm/preferences" = {
       num-workspaces = 3;
     };
 
     "org/gnome/mutter" = {
-      experimental-features = lib.mkDefault [ "scale-monitor-framebuffer" ];
+      experimental-features = [ "scale-monitor-framebuffer" ];
     };
 
-    "org/gnome/settings-daemon/plugins/media-keys" = lib.mkDefault {
+    "org/gnome/nautilus/preferences" = {
+      default-folder-viewer = "icon-view";
+      migrated-gtk-settings = true;
+      search-filter-time-type = "last_modified";
+    };
+
+    "org/gnome/settings-daemon/plugins/color" = {
+      night-light-enabled = true;
+      night-light-schedule-automatic = false;
+      night-light-schedule-from = 19.0;
+      night-light-temperature = mkUint32 3892;
+    };
+
+    "org/gnome/settings-daemon/plugins/media-keys" = {
       custom-keybindings = [
         "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/"
         "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/"
@@ -89,27 +143,27 @@ with lib.hm.gvariant;
       www = [ "<Super>w" ];
     };
 
-    "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0" = lib.mkDefault {
+    "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0" = {
       binding = "<Super>t";
       command = "ghostty";
       name = "Terminal";
     };
 
-    "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1" = lib.mkDefault {
+    "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1" = {
       binding = "<Super>f";
       command = "nautilus";
       name = "Files";
     };
 
-    "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2" = lib.mkDefault {
+    "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2" = {
       binding = "<Super>e";
       command = "code";
       name = "Code";
     };
 
     "org/gnome/shell" = {
-      disable-user-extensions = lib.mkForce false;
-      enabled-extensions = lib.mkDefault [
+      disable-user-extensions = false;
+      enabled-extensions = [
         "user-theme@gnome-shell-extensions.gcampax.github.com"
         "dash-in-panel@fthx"
         "AlphabeticalAppGrid@stuarthayhurst"
@@ -125,20 +179,28 @@ with lib.hm.gvariant;
         "quicksettings-audio-devices-hider@marcinjahn.com"
         "undecorate@sun.wxg@gmail.com"
       ];
-      favorite-apps = lib.mkDefault [
+      favorite-apps = [
         "com.mitchellh.ghostty.desktop"
         "org.gnome.Nautilus.desktop"
+        "win11.desktop"
         "zen.desktop"
         "code.desktop"
+        "spotify.desktop"
+        "discord.desktop"
+        "org.telegram.desktop.desktop"
+        "appeditor-local-application-1.desktop"
+        "Ryujinx.desktop"
+        "Marvel Rivals.desktop"
       ];
-      last-selected-power-profile = lib.mkDefault "performance";
+      last-selected-power-profile = "performance";
+      welcome-dialog-last-shown-version = "48.1";
     };
 
     "org/gnome/shell/extensions/alphabetical-app-grid" = {
-      folder-order-position = lib.mkDefault "start";
+      folder-order-position = "start";
     };
 
-    "org/gnome/shell/extensions/appindicator" = lib.mkDefault {
+    "org/gnome/shell/extensions/appindicator" = {
       icon-brightness = 0.0;
       icon-contrast = 0.0;
       icon-opacity = 240;
@@ -148,23 +210,23 @@ with lib.hm.gvariant;
       tray-pos = "right";
     };
 
-    "org/gnome/shell/extensions/blur-my-shell" = lib.mkDefault {
+    "org/gnome/shell/extensions/blur-my-shell" = {
       hacks-level = 1;
       settings-version = 2;
     };
 
-    "org/gnome/shell/extensions/blur-my-shell/appfolder" = lib.mkDefault {
+    "org/gnome/shell/extensions/blur-my-shell/appfolder" = {
       brightness = 1.0;
       sigma = 85;
     };
 
-    "org/gnome/shell/extensions/blur-my-shell/applications" = lib.mkDefault {
+    "org/gnome/shell/extensions/blur-my-shell/applications" = {
       blacklist = [
         "Plank"
         "com.desktop.ding"
         "Conky"
         ".gamescope-wrapped"
-        "steam_app_*"
+        "steam_app_2993780"
       ];
       blur = true;
       dynamic-opacity = false;
@@ -173,11 +235,11 @@ with lib.hm.gvariant;
       sigma = 85;
     };
 
-    "org/gnome/shell/extensions/blur-my-shell/coverflow-alt-tab" = lib.mkDefault {
+    "org/gnome/shell/extensions/blur-my-shell/coverflow-alt-tab" = {
       pipeline = "pipeline_default";
     };
 
-    "org/gnome/shell/extensions/blur-my-shell/dash-to-dock" = lib.mkDefault {
+    "org/gnome/shell/extensions/blur-my-shell/dash-to-dock" = {
       blur = false;
       brightness = 1.0;
       override-background = true;
@@ -188,23 +250,23 @@ with lib.hm.gvariant;
       unblur-in-overview = true;
     };
 
-    "org/gnome/shell/extensions/blur-my-shell/dash-to-panel" = lib.mkDefault {
+    "org/gnome/shell/extensions/blur-my-shell/dash-to-panel" = {
       blur-original-panel = false;
     };
 
-    "org/gnome/shell/extensions/blur-my-shell/hidetopbar" = lib.mkDefault {
+    "org/gnome/shell/extensions/blur-my-shell/hidetopbar" = {
       compatibility = false;
     };
 
-    "org/gnome/shell/extensions/blur-my-shell/lockscreen" = lib.mkDefault {
+    "org/gnome/shell/extensions/blur-my-shell/lockscreen" = {
       pipeline = "pipeline_default";
     };
 
-    "org/gnome/shell/extensions/blur-my-shell/overview" = lib.mkDefault {
+    "org/gnome/shell/extensions/blur-my-shell/overview" = {
       pipeline = "pipeline_default";
     };
 
-    "org/gnome/shell/extensions/blur-my-shell/panel" = lib.mkDefault {
+    "org/gnome/shell/extensions/blur-my-shell/panel" = {
       brightness = 1.0;
       override-background = true;
       pipeline = "pipeline_default";
@@ -212,11 +274,11 @@ with lib.hm.gvariant;
       static-blur = false;
     };
 
-    "org/gnome/shell/extensions/blur-my-shell/screenshot" = lib.mkDefault {
+    "org/gnome/shell/extensions/blur-my-shell/screenshot" = {
       pipeline = "pipeline_default";
     };
 
-    "org/gnome/shell/extensions/dash-in-panel" = lib.mkDefault {
+    "org/gnome/shell/extensions/dash-in-panel" = {
       button-margin = 6;
       center-dash = true;
       colored-dot = true;
@@ -228,7 +290,7 @@ with lib.hm.gvariant;
       show-label = true;
     };
 
-    "org/gnome/shell/extensions/just-perfection" = lib.mkDefault {
+    "org/gnome/shell/extensions/just-perfection" = {
       accessibility-menu = true;
       activities-button = false;
       clock-menu = true;
@@ -252,7 +314,7 @@ with lib.hm.gvariant;
       workspaces-in-app-grid = true;
     };
 
-    "org/gnome/shell/extensions/pano" = lib.mkDefault {
+    "org/gnome/shell/extensions/pano" = {
       global-shortcut = [ "<Super>v" ];
       history-length = 500;
       incognito-shortcut = [ "<Shift><Super>v" ];
@@ -260,7 +322,7 @@ with lib.hm.gvariant;
       window-position = mkUint32 2;
     };
 
-    "org/gnome/shell/extensions/paperwm" = lib.mkDefault {
+    "org/gnome/shell/extensions/paperwm" = {
       cycle-height-steps = [
         0.25
         0.3
@@ -313,7 +375,7 @@ with lib.hm.gvariant;
       ];
     };
 
-    "org/gnome/shell/extensions/paperwm/keybindings" = lib.mkDefault {
+    "org/gnome/shell/extensions/paperwm/keybindings" = {
       center = [ "<Super>c" ];
       center-horizontally = [ "" ];
       center-vertically = [ "" ];
@@ -367,11 +429,114 @@ with lib.hm.gvariant;
       toggle-top-and-position-bar = [ "" ];
     };
 
-    "org/gnome/shell/extensions/user-theme" = lib.mkDefault {
+    "org/gnome/shell/extensions/paperwm/workspaces" = {
+      list = [
+        "d3fe7ebc-4b28-4738-98b8-d4cd3e31cf7f"
+        "5291a627-8b95-48f4-bfd4-1f9e56b5234b"
+        "77949e36-39cc-4831-ad12-48054589a02a"
+        "407eab83-d3cd-4974-8d32-8fe0de05579c"
+        "0617efdf-c223-434c-9fd2-8bf9bedf9700"
+      ];
+    };
+
+    "org/gnome/shell/extensions/paperwm/workspaces/0617efdf-c223-434c-9fd2-8bf9bedf9700" = {
+      index = 4;
+    };
+
+    "org/gnome/shell/extensions/paperwm/workspaces/407eab83-d3cd-4974-8d32-8fe0de05579c" = {
+      index = 3;
+    };
+
+    "org/gnome/shell/extensions/paperwm/workspaces/5291a627-8b95-48f4-bfd4-1f9e56b5234b" = {
+      index = 1;
+      show-top-bar = true;
+    };
+
+    "org/gnome/shell/extensions/paperwm/workspaces/77949e36-39cc-4831-ad12-48054589a02a" = {
+      index = 2;
+    };
+
+    "org/gnome/shell/extensions/paperwm/workspaces/d3fe7ebc-4b28-4738-98b8-d4cd3e31cf7f" = {
+      index = 0;
+      show-top-bar = true;
+    };
+
+    "org/gnome/shell/extensions/quicksettings-audio-devices-hider" = {
+      available-input-names = [
+        "Digital Input (S/PDIF) \8211 USB  Live camera"
+        "Microphone \8211 HyperX Cloud Alpha S"
+        "Microphone \8211 USB  Live camera"
+      ];
+      available-output-names = [
+        "Analog Output \8211 HyperX Cloud Alpha S"
+        "Digital Output (S/PDIF) \8211 HyperX Cloud Alpha S"
+        "HDMI / DisplayPort \8211 Rembrandt Radeon High Definition Audio Controller"
+        "HDMI / DisplayPort 3 \8211 HD-Audio Generic"
+      ];
+      excluded-input-names = [
+        "Digital Input (S/PDIF) – USB  Live camera"
+        "Digital Input (S/PDIF) \8211 USB  Live camera"
+        "Digital Input (S/PDIF) 8211 USB  Live camera"
+        "Digital Input (S/PDIF) 8211 USB  Live camera"
+        "Microphone – USB  Live camera"
+        "Microphone \8211 USB  Live camera"
+        "Microphone 8211 USB  Live camera"
+        "Microphone 8211 USB  Live camera"
+      ];
+      excluded-output-names = [
+        "Analog Output – HyperX Cloud Alpha S"
+        "Analog Output \8211 HyperX Cloud Alpha S"
+        "Analog Output 8211 HyperX Cloud Alpha S"
+        "Analog Output 8211 HyperX Cloud Alpha S"
+        "HDMI / DisplayPort – Rembrandt Radeon High Definition Audio Controller"
+        "HDMI / DisplayPort \8211 Rembrandt Radeon High Definition Audio Controller"
+        "HDMI / DisplayPort 8211 Rembrandt Radeon High Definition Audio Controller"
+        "HDMI / DisplayPort 8211 Rembrandt Radeon High Definition Audio Controller"
+      ];
+    };
+
+    "org/gnome/shell/extensions/quicksettings-audio-devices-renamer" = {
+      input-names-map = [
+        (lib.hm.gvariant.mkDictionaryEntry [
+          "Microphone – USB  Live camera"
+          "NO"
+        ])
+        (lib.hm.gvariant.mkDictionaryEntry [
+          "Digital Input (S/PDIF) – USB  Live camera"
+          "NO"
+        ])
+        (lib.hm.gvariant.mkDictionaryEntry [
+          "Microphone – HyperX Cloud Alpha S"
+          "Cloud S"
+        ])
+      ];
+      output-names-map = [
+        (lib.hm.gvariant.mkDictionaryEntry [
+          "HDMI / DisplayPort 3 – HD-Audio Generic"
+          "ROG"
+        ])
+        (lib.hm.gvariant.mkDictionaryEntry [
+          "HDMI / DisplayPort – Rembrandt Radeon High Definition Audio Controller"
+          "NO"
+        ])
+        (lib.hm.gvariant.mkDictionaryEntry [
+          "Analog Output – HyperX Cloud Alpha S"
+          "NO"
+        ])
+        (lib.hm.gvariant.mkDictionaryEntry [
+          "Digital Output (S/PDIF) – HyperX Cloud Alpha S"
+          "Cloud S"
+        ])
+      ];
+      # input-names-map = ''{'Microphone – USB  Live camera': 'NO', 'Digital Input (S/PDIF) – USB  Live camera': 'NO', 'Microphone – HyperX Cloud Alpha S': 'Cloud S'}'';
+      # output-names-map = ''{'HDMI / DisplayPort 3 – HD-Audio Generic': 'ROG', 'HDMI / DisplayPort – Rembrandt Radeon High Definition Audio Controller': 'NO', 'Analog Output – HyperX Cloud Alpha S': 'NO', 'Digital Output (S/PDIF) – HyperX Cloud Alpha S': 'Cloud S'}'';
+    };
+
+    "org/gnome/shell/extensions/user-theme" = {
       name = "Stylix";
     };
 
-    "org/gnome/shell/extensions/vitals" = lib.mkDefault {
+    "org/gnome/shell/extensions/vitals" = {
       alphabetize = true;
       fixed-widths = true;
       hide-icons = false;
@@ -393,7 +558,7 @@ with lib.hm.gvariant;
       use-higher-precision = false;
     };
 
-    "org/gnome/shell/keybindings" = lib.mkDefault {
+    "org/gnome/shell/keybindings" = {
       focus-active-notification = [ ];
       screenshot = [ "Print" ];
       screenshot-window = [ ];
@@ -406,7 +571,11 @@ with lib.hm.gvariant;
       toggle-quick-settings = [ "<Super>a" ];
     };
 
-    "org/virt-manager/virt-manager/connections" = lib.mkDefault {
+    "org/gnome/shell/world-clocks" = {
+      locations = [ ];
+    };
+
+    "org/virt-manager/virt-manager/connections" = {
       autoconnect = [ "qemu:///system" ];
       uris = [ "qemu:///system" ];
     };

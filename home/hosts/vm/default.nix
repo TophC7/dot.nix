@@ -9,31 +9,22 @@
     (map lib.custom.relativeToRoot [
       "home/global/common/browsers"
       "home/global/common/gnome"
-      "home/global/common/development"
-      "home/global/common/vscode-server.nix"
+      "home/global/common/vscode"
       "home/global/common/xdg.nix"
     ])
 
     ## VM Specific ##
-    # ./config
+    ./config
   ];
 
   ## Packages with no needed configs ##
   home.packages = builtins.attrValues {
     inherit (pkgs)
+      ## Media ##
+      cider # Apple Music
+
       ## Tools ##
       inspector
-      foot
       ;
   };
-
-  monitors = [
-    {
-      name = "Virtual-1";
-      width = 2560;
-      height = 1440;
-      refreshRate = 60;
-      primary = true;
-    }
-  ];
 }

@@ -1,0 +1,25 @@
+system: base16
+slug: Soraka
+name: Soraka
+author: tophc7
+variant: dark
+palette:
+  base00: "1F2333"
+  base01: "2A293F"
+  base02: "352E4A"
+  base03: "4A3960"
+  base04: "92BDEA"
+  base05: "C9D5F5"
+  base06: "E4E1FA"
+  base07: "FFECFF"
+  base08: "D44763" # Red
+  base09: "F7A94E" # Orange
+  base0A: "FCEEA1" # Yellow
+  base0B: "8DE364" # Green
+  base0C: "A5E4EB" # Cyan
+  base0D: "313568" # Blue
+  base0E: "BE68C9" # Purple
+  base0F: "C2708F" # Magenta
+
+# https://coolors.co/1f2333-2a293f-352e4a-4a3960-92bdea-c9d5f5-e4e1fa-ffecff
+# https://coolors.co/d44763-f7a94e-fceea1-8de364-a5e4eb-313568-be68c9-c2708f

@@ -59,9 +59,18 @@ in
     inherit (pkgs)
       btop # resource monitor
       coreutils # basic gnu utils
+      delta # diffing
+      difftastic # diffing
+      direnv # environment per directory
       dust # disk usage
       eza # ls replacement
+      gh # github cli
       jq # json parser
+      man-pages
+      man-pages-posix
+      nixfmt-rfc-style # nix formatter
+      nixpkgs-review # nix review tool
+      nmap # network scanner
       pre-commit # git hooks
       trashy # trash cli
       unrar # rar extraction
