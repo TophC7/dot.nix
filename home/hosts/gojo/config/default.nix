@@ -1,4 +1,7 @@
+{ lib, ... }:
 {
+  imports = lib.custom.scanPaths ./.;
+
   #   home.file.".config/monitors_source" = {
   #     source = ./monitors.xml;
   #     onChange = ''

@@ -71,6 +71,13 @@ with lib.hm.gvariant;
       experimental-features = lib.mkDefault [ "scale-monitor-framebuffer" ];
     };
 
+    "org/gnome/settings-daemon/plugins/color" = lib.mkDefault {
+      night-light-enabled = true;
+      night-light-schedule-automatic = false;
+      night-light-schedule-from = 19.0;
+      night-light-temperature = mkUint32 3892;
+    };
+
     "org/gnome/settings-daemon/plugins/media-keys" = lib.mkDefault {
       custom-keybindings = [
         "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/"
@@ -149,6 +156,12 @@ with lib.hm.gvariant;
       tray-pos = "right";
     };
 
+    "org/gnome/shell/extensions/auto-accent-colour" = lib.mkDefault {
+      disable-cache = false;
+      hide-indicator = true;
+      highlight-mode = true;
+    };
+
     "org/gnome/shell/extensions/blur-my-shell" = lib.mkDefault {
       hacks-level = 1;
       settings-version = 2;
@@ -217,7 +230,7 @@ with lib.hm.gvariant;
       pipeline = "pipeline_default";
     };
 
-    "org/gnome/shell/extensions/color-picker/" = lib.mkDefault {
+    "org/gnome/shell/extensions/color-picker" = lib.mkDefault {
       auto-copy = true;
       color-picker-shortcut = [ "<Control><Super>c" ];
       enable-format = true;

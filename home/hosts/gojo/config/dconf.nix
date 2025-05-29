@@ -9,7 +9,6 @@ with lib.hm.gvariant;
       favorite-apps = [
         "com.mitchellh.ghostty.desktop"
         "org.gnome.Nautilus.desktop"
-        "win11.desktop"
         "zen.desktop"
         "code.desktop"
         "spotify.desktop"
@@ -18,6 +17,7 @@ with lib.hm.gvariant;
         "steam.desktop"
         "Ryujinx.desktop"
         "Marvel Rivals.desktop"
-      ]
+      ];
     };
+  };
 }

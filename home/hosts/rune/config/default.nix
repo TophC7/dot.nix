@@ -1,4 +1,7 @@
+{ lib, ... }:
 {
+  imports = lib.custom.scanPaths ./.;
+
   xdg.desktopEntries = {
     nixvm = {
       name = "NixOS VM";
