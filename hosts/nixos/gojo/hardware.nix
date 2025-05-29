@@ -1,3 +1,4 @@
+# FIXME: FIX to hardware.fix once out of VM, this is TEMP vm hardware config
 {
   config,
   lib,
@@ -11,9 +12,6 @@ in
 {
   imports = lib.flatten [
     (modulesPath + "/profiles/qemu-guest.nix")
-    (map lib.custom.relativeToRoot [
-      "hosts/global/common/system/pool.nix"
-    ])
   ];
 
   ## Boot ##
@@ -46,13 +44,14 @@ in
     extraModulePackages = [ ];
   };
 
-  fileSystems = {
-    "/" = {
-      device = "/dev/disk/by-uuid/7ec7d686-6f4c-482f-8b9d-4337a06afc48";
-      fsType = "ext4";
-    };
+  fileSystems."/" = {
+    device = "/dev/disk/by-uuid/5f1ad3a9-18ce-42ab-83ea-b67bccaa6972";
+    fsType = "ext4";
   };
-  swapDevices = [ ];
+
+  swapDevices = [
+    { device = "/dev/disk/by-uuid/e3fc8d25-31a5-48c1-8c81-c6c237f671bb"; }
+  ];
 
   # Enables DHCP on each ethernet and wireless interface. In case of scripted networking
   # (the default) this is the recommended approach. When using systemd-networkd it's
