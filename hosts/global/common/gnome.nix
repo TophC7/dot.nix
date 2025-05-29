@@ -39,6 +39,7 @@
     gnome-tweaks
     gnomeExtensions.alphabetical-app-grid
     gnomeExtensions.appindicator
+    gnomeExtensions.auto-accent-colour
     gnomeExtensions.blur-my-shell
     gnomeExtensions.color-picker
     gnomeExtensions.control-monitor-brightness-and-volume-with-ddcutil

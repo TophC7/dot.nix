@@ -110,20 +110,21 @@ with lib.hm.gvariant;
     "org/gnome/shell" = {
       disable-user-extensions = lib.mkForce false;
       enabled-extensions = lib.mkDefault [
-        "user-theme@gnome-shell-extensions.gcampax.github.com"
-        "dash-in-panel@fthx"
         "AlphabeticalAppGrid@stuarthayhurst"
-        "color-picker@tuberry"
-        "monitor-brightness-volume@ailin.nemui"
-        "quicksettings-audio-devices-renamer@marcinjahn.com"
-        "Vitals@CoreCoding.com"
         "appindicatorsupport@rgcjonas.gmail.com"
-        "paperwm@paperwm.github.com"
-        "just-perfection-desktop@just-perfection"
-        "pano@elhan.io"
+        "auto-accent-colour@Wartybix"
         "blur-my-shell@aunetx"
+        "color-picker@tuberry"
+        "dash-in-panel@fthx"
+        "just-perfection-desktop@just-perfection"
+        "monitor-brightness-volume@ailin.nemui"
+        "pano@elhan.io"
+        "paperwm@paperwm.github.com"
         "quicksettings-audio-devices-hider@marcinjahn.com"
+        "quicksettings-audio-devices-renamer@marcinjahn.com"
         "undecorate@sun.wxg@gmail.com"
+        "user-theme@gnome-shell-extensions.gcampax.github.com"
+        "Vitals@CoreCoding.com"
       ];
       favorite-apps = lib.mkDefault [
         "com.mitchellh.ghostty.desktop"
@@ -214,6 +215,17 @@ with lib.hm.gvariant;
 
     "org/gnome/shell/extensions/blur-my-shell/screenshot" = lib.mkDefault {
       pipeline = "pipeline_default";
+    };
+
+    "org/gnome/shell/extensions/color-picker/" = lib.mkDefault {
+      auto-copy = true;
+      color-picker-shortcut = [ "<Control><Super>c" ];
+      enable-format = true;
+      enable-notify = false;
+      enable-shortcut = true;
+      enable-sound = false;
+      notify-sound = mkUint32 1;
+      notify-style = mkUint32 0;
     };
 
     "org/gnome/shell/extensions/dash-in-panel" = lib.mkDefault {

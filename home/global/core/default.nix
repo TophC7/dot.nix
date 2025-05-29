@@ -30,7 +30,7 @@ in
     ];
     sessionVariables = {
       EDITOR = "micro";
-      FLAKE = "${homeDir}/git/Nix/dot.nix";
+      FLAKE = lib.mkDefault "${homeDir}/git/Nix/dot.nix";
       MANPAGER = "batman";
       SHELL = lib.getExe shell;
       VISUAL = "micro";
