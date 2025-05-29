@@ -14,11 +14,12 @@
       ];
     in
     import nixpkgs { inherit overlays; },
+  inputs ? null,
   ...
 }:
 let
-  # Explicitly add the yay package to the shell in case overlay fucks up
-  yay = import ./pkgs/yay/package.nix { inherit pkgs lib; };
+  # Import yay directly from its flake, incase overlay or config flake fucks up
+  yay = builtins.getFlake "git+https://git.ryot.foo/toph/yay.nix.git";
   inherit (pkgs) lib;
 in
 {
@@ -32,7 +33,7 @@ in
           home-manager
           nh
 
-          # Git for repo management
+          # Git and git-crypt
           git
           git-crypt
           gnupg
@@ -45,7 +46,7 @@ in
           # Config tools
           dconf2nix
 
-          # Network tools (for recovery scenarios)
+          # Network tools
           curl
           wget
 
@@ -55,7 +56,7 @@ in
           gzip
           zstd
 
-          # Text editors for emergency config edits
+          # Text editors
           micro
           nano
 
@@ -67,9 +68,10 @@ in
           ;
       }
       ++ [
-        yay
+        yay.packages.${pkgs.system}.default
       ];
 
+    # Overwrite FLAKE to current path, for yay and nh
     FLAKE = toString ./.;
 
     shellHook = ''

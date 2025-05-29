@@ -3,6 +3,8 @@
 #  Nix - LXC Container
 #  NixOS container, Ryzen 5 5600G (10 Cores), 12GB/6GB RAM/SWAP
 #
+#  Remote Desktop access, with vscode-server, WIP
+#
 ###############################################################
 
 # TODO: x2go server for remote access

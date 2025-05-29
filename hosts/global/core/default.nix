@@ -20,7 +20,7 @@ in
     ])
   ];
 
-  # System-wide packages, in case we log in as root
+  # System-wide packages, root accessible
   environment.systemPackages = with pkgs; [
     curl
     git
@@ -34,14 +34,12 @@ in
     yay # my yay teehee
   ];
 
-  # Enable CUPS to print documents.
+  # Enable print to PDF.
   services.printing.enable = true;
-
   # Force home-manager to use global packages
   home-manager.useGlobalPkgs = true;
   # If there is a conflict file that is backed up, use this extension
   home-manager.backupFileExtension = "homeManagerBackupFileExtension";
-  # home-manager.useUserPackages = true;
 
   ## Overlays ##
   nixpkgs = {
@@ -67,7 +65,6 @@ in
   };
 
   ## SUDO and Terminal ##
-  # Database for aiding terminal-based programs
   environment.enableAllTerminfo = true;
   hardware.enableAllFirmware = true;
 

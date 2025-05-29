@@ -1,9 +1,6 @@
-#
-# This file defines overlays/custom modifications to upstream packages
-#
+# Defines overlays/custom modifications to upstream packages
 
 { inputs, ... }:
-
 let
   # Adds my custom packages
   additions =
@@ -11,7 +8,7 @@ let
     let
       packages = prev.lib.packagesFromDirectoryRecursive {
         callPackage = prev.lib.callPackageWith final;
-        directory = ../pkgs; # Changed from ../pkgs/common to ../pkgs
+        directory = ../pkgs;
       };
     in
     packages;

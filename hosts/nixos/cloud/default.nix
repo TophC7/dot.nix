@@ -1,7 +1,9 @@
 ###############################################################
 #
 #  Cloud - LXC Container
-#  NixOS container, Ryzen 5 5600G (4th Cores), 4GB/4GB RAM/SWAP
+#  NixOS container, Ryzen 5 5600G (4 Cores), 4GB/4GB RAM/SWAP
+#
+#  Storage, NFS, Filerun, and Backups
 #
 ###############################################################
 
@@ -18,7 +20,6 @@ let
 in
 {
   imports = lib.flatten [
-
     ## Cloud Only ##
     ./config
 

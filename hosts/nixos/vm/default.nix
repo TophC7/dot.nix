@@ -13,12 +13,11 @@
   ...
 }:
 let
-  username = "cesar";
+  username = "toph";
   user = config.secretsSpec.users.${username};
 in
 {
   imports = lib.flatten [
-
     ## Hardware ##
     ./hardware.nix
 
@@ -27,9 +26,8 @@ in
       "hosts/global/core"
 
       ## Optional Configs ##
-      "hosts/global/common/audio.nix" # pipewire and cli controls
       "hosts/global/common/gnome.nix" # desktop
-      # "hosts/global/common/plymouth.nix" # fancy boot screen
+      "hosts/global/common/plymouth.nix" # fancy boot screen
 
       ## Misc Inputs ##
     ])
@@ -70,5 +68,5 @@ in
   ];
 
   # https://wiki.nixos.org/wiki/FAQ/When_do_I_update_stateVersion
-  system.stateVersion = "24.11";
+  system.stateVersion = "25.05";
 }

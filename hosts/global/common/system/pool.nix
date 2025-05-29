@@ -19,7 +19,11 @@ in
       requires = [ "pool.mount" ];
       wantedBy = [ "multi-user.target" ];
       script = ''
-        ln -sf /pool/git ${homeDir}/git
+        if [ -e ${homeDir}/git ]; then
+          echo "Ignoring: ${homeDir}/git already exists"
+        else
+          ln -sf /pool/git ${homeDir}/git
+        fi
       '';
       serviceConfig = {
         Type = "oneshot";
@@ -28,7 +32,7 @@ in
     };
   };
 
-  # File system configuration
+  # Mount the NFS share at /pool
   fileSystems = {
     "/pool" = {
       device = "cloud:/";
@@ -49,7 +53,6 @@ in
   boot.supportedFilesystems = [ "nfs" ];
   # services.rpcbind.enable = true;
 
-  # Optional: Configure ID mapping if needed
   services.nfs.idmapd.settings = {
     General = {
       Domain = "local"; # Must match on server and client

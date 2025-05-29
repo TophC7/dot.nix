@@ -2,6 +2,7 @@
   services.caddy = {
     enable = true;
     virtualHosts = {
+      ## Filerun ##
       "drive.ryot.foo" = {
         useACMEHost = "ryot.foo";
         extraConfig = ''

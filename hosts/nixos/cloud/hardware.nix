@@ -16,7 +16,7 @@ in
 
   # Less permission issues with pool
   programs.fuse.userAllowOther = true;
-  # File system co
+
   # INFO: Cloud is the pool provider
   fileSystems = {
     "/pool" = {

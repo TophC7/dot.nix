@@ -5,7 +5,6 @@
   ...
 }:
 {
-  ## NETWORKING ##
   networking = {
     dhcpcd.enable = false;
     hostName = config.hostSpec.hostName;

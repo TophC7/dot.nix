@@ -7,7 +7,6 @@
 
     settings = {
       AllowUsers = null; # everyone
-      # Harden
       PasswordAuthentication = false;
       PermitRootLogin = "no";
       KbdInteractiveAuthentication = false;

@@ -9,6 +9,6 @@
   };
 
   environment.systemPackages = with pkgs; [
-    lazydocker
+    lazydocker # Simple TUI
   ];
 }

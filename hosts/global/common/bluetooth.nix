@@ -11,10 +11,11 @@
         ConnectionLatency = 10;
         ConnectionSupervisionTimeout = 100;
       };
+
       Policy = {
         AutoEnable = "true";
       };
-      # make Xbox Series X controller work
+
       General = {
         Enable = "Source,Sink,Media,Socket";
         FastConnectable = true;

@@ -3,7 +3,7 @@
 #  Barebones LXC Container for Proxmox
 #
 #  This is a special host for LXC installations in Proxmox.
-#  Has the barebones configuration needed to then setup the wanted new host config
+#  Has the bare-bones configuration needed to then setup the wanted new host config
 #
 ###############################################################
 

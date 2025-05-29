@@ -18,6 +18,7 @@
         package = pkgs.protontricks;
       };
 
+      # PKGs needed for gamescope to work within steam
       package = pkgs.steam.override {
         extraPkgs =
           pkgs:
@@ -70,5 +71,3 @@
     };
   };
 }
-
-# gamescope --adaptive-sync --backend sdl --expose-wayland --force-grab-cursor --framerate-limit 120 --immediate-flips --output-height 2160 --output-width 3840 --prefer-output DP-1 --rt -- gamemoderun %command%

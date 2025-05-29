@@ -6,7 +6,6 @@
       ;
   };
 
-  # Configurations for ddcutil
   hardware.i2c.enable = true;
   services.udev = {
     enable = true;

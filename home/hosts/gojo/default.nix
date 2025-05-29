@@ -8,14 +8,14 @@
   imports = lib.flatten [
     ## Common Imports ##
     (map lib.custom.relativeToRoot [
-      "home/global/common/browsers"
       "home/global/common/gaming"
       "home/global/common/gnome"
       "home/global/common/vscode"
       "home/global/common/xdg.nix"
+      "home/global/common/zen.nix"
     ])
 
-    ## VM Specific ##
+    ## Gojo Specific ##
     ./config
   ];
 

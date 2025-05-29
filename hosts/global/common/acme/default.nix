@@ -4,7 +4,6 @@
   ...
 }:
 let
-  # Create a VERY simple environment file with absolutely minimal formatting
   cloudflareEnvFile = pkgs.writeText "cloudflare.env" ''
     CLOUDFLARE_DNS_API_TOKEN=${config.secretsSpec.api.cloudflare}
   '';

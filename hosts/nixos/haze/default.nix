@@ -1,7 +1,7 @@
 ###############################################################
 #
-#  Rune - Main Desktop
-#  NixOS running on Ryzen 9 7900X3D , Radeon RX 6950 XT, 32GB RAM
+#  Haze - Cesar's Desktop
+#  NixOS running on Ryzen 7 ___ , Radeon RX 6950 XT, 32GB RAM
 #
 ###############################################################
 
@@ -18,7 +18,7 @@ let
 in
 {
   imports = lib.flatten [
-    ## Rune Only ##
+    ## Haze Only ##
     inputs.chaotic.nixosModules.default
     # ./config
 

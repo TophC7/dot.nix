@@ -19,7 +19,6 @@ in
     qemu = {
       package = pkgs.stable.qemu_kvm;
       runAsRoot = true;
-      # HW TPM Emulation (need to check what systems I have already have hw TPM that could be used)
       swtpm.enable = true;
       ovmf = {
         enable = true;
@@ -80,7 +79,6 @@ in
     };
   };
 
-  # Need to add [File (in the menu bar) -> Add connection] when start for the first time
   programs.virt-manager.enable = true;
 
   environment.systemPackages = with pkgs.stable; [

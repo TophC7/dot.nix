@@ -3,6 +3,8 @@
 #  Komodo - LXC Container
 #  NixOS container, Ryzen 5 5600G (12 Cores), 30GB/2GB RAM/SWAP
 #
+#  Docker Environment, Managed by with Komodo
+#
 ###############################################################
 
 {

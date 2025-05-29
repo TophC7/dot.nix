@@ -14,10 +14,10 @@ palette:
   base07: "FAF7E6"
   base08: "EE2E00" # Red
   base09: "F7A94E" # Orange
-  base0A: "2B57B6" # Yellow
+  base0A: "FCEEA1" # Yellow
   base0B: "8DE364" # Green
   base0C: "59A3C0" # Cyan
-  base0D: "FCEEA1" # Blue
+  base0D: "2B57B6" # Blue
   base0E: "AC92BF" # Purple
   base0F: "EA5E79" # Magenta
 

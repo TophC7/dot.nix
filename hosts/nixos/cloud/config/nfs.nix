@@ -1,6 +1,5 @@
 { config, lib, ... }:
 {
-  # Install and configure NFS server
   services.nfs.server = {
     enable = true;
 

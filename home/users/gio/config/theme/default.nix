@@ -81,7 +81,7 @@ in
       # name = "Qogir";
       package = (
         pkgs.papirus-icon-theme.override {
-          color = "violet";
+          color = "carmine";
         }
       );
       name = "Papirus";

@@ -1,9 +1,9 @@
-# FIXME(lib.custom): Add some stuff from hmajid2301/dotfiles/lib/module/default.nix, as simplifies option declaration
 { lib, ... }:
 {
   # use path relative to the root of the project
   relativeToRoot = lib.path.append ../.;
 
+  # Scans the given directory for NixOS modules and imports them.
   scanPaths =
     path:
     builtins.map (f: (path + "/${f}")) (

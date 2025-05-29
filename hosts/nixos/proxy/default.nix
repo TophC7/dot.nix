@@ -3,6 +3,8 @@
 #  Proxy - LXC Container
 #  NixOS container, Ryzen 5 5600G (3 Cores), 2GB/2GB RAM/SWAP
 #
+#  Cloudflare Tunnel Proxy, Zero Trust access
+#
 ###############################################################
 
 {

@@ -9,6 +9,7 @@
       enable = true;
       theme = lib.mkForce "motion";
       themePackages = [
+        # TODO: Make customizable by user
         (pkgs.adi1090x-plymouth-themes.override { selected_themes = [ "motion" ]; })
       ];
     };
