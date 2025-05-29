@@ -1,6 +1,6 @@
 {
   imports = [
-    ./chromium.nix
+    # ./chromium.nix
     ./zen.nix
   ];
 }

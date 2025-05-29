@@ -59,7 +59,7 @@
     [
       atomix
       baobab
-      epiphany
+      # epiphany
       # evince
       geary
       gedit
