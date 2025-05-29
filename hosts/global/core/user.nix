@@ -46,7 +46,7 @@ in
         "video"
       ])
     ];
-    openssh.authorizedKeys.keys = builtins.attrValues config.secretsSpec.ssh.publicKeys or [ ];
+    openssh.authorizedKeys.keys = user.ssh.publicKeys or [ ];
   };
 
   # Special sudo config for user
@@ -69,7 +69,7 @@ in
   users.users.root = {
     shell = pkgs.bash;
     hashedPassword = lib.mkForce hostSpec.hashedPassword;
-    openssh.authorizedKeys.keys = builtins.attrValues config.secretsSpec.ssh.publicKeys or [ ];
+    openssh.authorizedKeys.keys = user.ssh.publicKeys or [ ];
   };
 }
 // lib.optionalAttrs (inputs ? "home-manager") {

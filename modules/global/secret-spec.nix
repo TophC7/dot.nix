@@ -70,7 +70,15 @@ in
                   privateKeys = lib.mkOption {
                     type = lib.types.attrsOf lib.types.path;
                     description = "SSH private key file paths keyed by name";
-                    readOnly = true;
+                    default = { };
+                    apply =
+                      _:
+                      let
+                        userName = config.hostSpec.username;
+                        userConfig = config.secretsSpec.users.${userName} or { };
+                        privateKeyContents = userConfig.ssh.privateKeyContents or { };
+                      in
+                      lib.mapAttrs (name: content: mkSshKeyFile "${userName}-${name}" content) privateKeyContents;
                   };
                   config = lib.mkOption {
                     type = lib.types.path;
@@ -104,7 +112,15 @@ in
                   privateKey = lib.mkOption {
                     type = lib.types.path;
                     description = "GPG private key file path";
-                    readOnly = true;
+                    default = null;
+                    apply =
+                      _:
+                      let
+                        userName = config.hostSpec.username;
+                        userConfig = config.secretsSpec.users.${userName} or { };
+                        privateKeyContent = userConfig.gpg.privateKeyContents or "";
+                      in
+                      if privateKeyContent != "" then mkGpgKeyFile userName privateKeyContent else null;
                   };
                   trust = lib.mkOption {
                     type = lib.types.str;
@@ -247,26 +263,4 @@ in
       default = { };
     };
   };
-
-  config.secretsSpec.users = lib.mapAttrs (
-    userName: userConfig:
-    userConfig
-    // {
-      ## Auto-generate SSH private key files ##
-      ssh = userConfig.ssh // {
-        privateKeys = lib.mapAttrs (
-          name: content: mkSshKeyFile "${userName}-${name}" content
-        ) userConfig.ssh.privateKeyContents;
-      };
-
-      ## Auto-generate GPG private key file ##
-      gpg = userConfig.gpg // {
-        privateKey =
-          if userConfig.gpg.privateKeyContents != "" then
-            mkGpgKeyFile "${userName}-gpg" userConfig.gpg.privateKeyContents
-          else
-            null;
-      };
-    }
-  ) config.secretsSpec.users;
 }

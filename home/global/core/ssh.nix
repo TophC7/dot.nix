@@ -8,7 +8,7 @@
 }:
 let
   ## Get the current user's SSH config ##
-  userSsh = secretsSpec.users.${hostSpec.user}.ssh;
+  userSsh = secretsSpec.users.${hostSpec.username}.ssh;
 
   ## Generate local key paths for the config ##
   sshKeysMap = lib.mapAttrs (name: _: "${hostSpec.home}/.ssh/${name}") userSsh.privateKeys;
