@@ -158,7 +158,6 @@ let
 in
 {
   home.packages = with pkgs; [
-    citron-emu
     ryubing
     borgbackup
     borgtui
@@ -196,34 +195,35 @@ in
       };
     };
 
-    citron-emu = {
-      name = "Citron w/ Borg Backups";
-      comment = "Citron Emulator with Borg Backups";
-      exec = mkLaunchCommand {
-        savePath = "${homeDir}/.local/share/citron/nand/user/save";
-        backupPath = "/pool/Backups/Switch/CitronSaves";
-        maxBackups = 30;
-        command = "citron-emu";
-      };
-      icon = "applications-games";
-      type = "Application";
-      terminal = false;
-      categories = [
-        "Game"
-        "Emulator"
-      ];
-      mimeType = [
-        "application/x-nx-nca"
-        "application/x-nx-nro"
-        "application/x-nx-nso"
-        "application/x-nx-nsp"
-        "application/x-nx-xci"
-      ];
-      prefersNonDefaultGPU = true;
-      settings = {
-        StartupWMClass = "Citron";
-        GenericName = "Nintendo Switch Emulator";
-      };
-    };
+    # FIXME: change to edenemu
+    # citron-emu = {
+    #   name = "Citron w/ Borg Backups";
+    #   comment = "Citron Emulator with Borg Backups";
+    #   exec = mkLaunchCommand {
+    #     savePath = "${homeDir}/.local/share/citron/nand/user/save";
+    #     backupPath = "/pool/Backups/Switch/CitronSaves";
+    #     maxBackups = 30;
+    #     command = "citron-emu";
+    #   };
+    #   icon = "applications-games";
+    #   type = "Application";
+    #   terminal = false;
+    #   categories = [
+    #     "Game"
+    #     "Emulator"
+    #   ];
+    #   mimeType = [
+    #     "application/x-nx-nca"
+    #     "application/x-nx-nro"
+    #     "application/x-nx-nso"
+    #     "application/x-nx-nsp"
+    #     "application/x-nx-xci"
+    #   ];
+    #   prefersNonDefaultGPU = true;
+    #   settings = {
+    #     StartupWMClass = "Citron";
+    #     GenericName = "Nintendo Switch Emulator";
+    #   };
+    # };
   };
 }
