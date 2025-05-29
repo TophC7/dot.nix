@@ -6,7 +6,7 @@
   ...
 }:
 let
-  # Function to create a private key file in the Nix store with proper permissions
+  ## SSH key creation function ##
   mkSshKeyFile =
     name: content:
     pkgs.writeTextFile {
@@ -14,56 +14,24 @@ let
       text = content;
       executable = false;
       checkPhase = ''
-        # Verify it's a valid SSH key (optional)
         grep -q "BEGIN OPENSSH PRIVATE KEY" "$out" || (echo "Invalid SSH key format"; exit 1)
+      '';
+    };
+
+  ## GPG key creation function ##
+  mkGpgKeyFile =
+    name: content:
+    pkgs.writeTextFile {
+      name = "gpg-key-${name}";
+      text = content;
+      executable = false;
+      checkPhase = ''
+        grep -q "BEGIN PGP PRIVATE KEY BLOCK" "$out" || (echo "Invalid GPG key format"; exit 1)
       '';
     };
 in
 {
   options.secretsSpec = {
-    ssh = lib.mkOption {
-      type = lib.types.submodule {
-        options = {
-          # privateKeys are set up automagically 🌠, see config below
-          privateKeyContents = lib.mkOption {
-            type = lib.types.attrsOf lib.types.str;
-            description = "SSH private key contents keyed by name";
-            default = { };
-          };
-          privateKeys = lib.mkOption {
-            type = lib.types.attrsOf lib.types.path;
-            description = "SSH private key file paths keyed by name";
-            # default = { };
-            readOnly = true;
-          };
-          publicKeys = lib.mkOption {
-            type = lib.types.attrsOf lib.types.str;
-            description = "SSH public keys keyed by name";
-            default = { };
-          };
-          knownHosts = lib.mkOption {
-            type = lib.types.listOf lib.types.str;
-            description = "SSH known hosts entries";
-            default = [ ];
-          };
-        };
-      };
-      default = { };
-      description = "SSH key related secrets";
-    };
-
-    api = lib.mkOption {
-      type = lib.types.attrsOf lib.types.str;
-      description = "API keys keyed by service name";
-      default = { };
-    };
-
-    docker = lib.mkOption {
-      type = lib.types.attrsOf (lib.types.attrsOf lib.types.str);
-      description = "Docker environment variables keyed by container name";
-      default = { };
-    };
-
     users = lib.mkOption {
       type = lib.types.attrsOf (
         lib.types.submodule {
@@ -84,40 +52,98 @@ in
               type = lib.types.str;
               description = "Full name of the user";
             };
-            sshKeys = lib.mkOption {
-              type = lib.types.listOf lib.types.str;
-              description = "SSH public keys for the user";
-              default = [ ];
-            };
-            smtp = lib.mkOption {
-              type = lib.types.submodule (
-                { config, ... }:
-                {
-                  options = {
-                    host = lib.mkOption {
-                      type = lib.types.str;
-                      description = "SMTP server hostname";
-                    };
-                    user = lib.mkOption {
-                      type = lib.types.str;
-                      description = "SMTP username for authentication";
-                    };
-                    password = lib.mkOption {
-                      type = lib.types.str;
-                      description = "SMTP password for authentication";
-                    };
-                    port = lib.mkOption {
-                      type = lib.types.port;
-                      description = "SMTP server port";
-                      default = 587;
-                    };
-                    from = lib.mkOption {
-                      type = lib.types.str;
-                      description = "Email address to send from";
-                    };
+
+            ## SSH configuration ##
+            ssh = lib.mkOption {
+              type = lib.types.submodule {
+                options = {
+                  publicKeys = lib.mkOption {
+                    type = lib.types.listOf lib.types.str;
+                    description = "SSH public keys for the user";
+                    default = [ ];
                   };
-                }
-              );
+                  privateKeyContents = lib.mkOption {
+                    type = lib.types.attrsOf lib.types.str;
+                    description = "SSH private key contents keyed by name";
+                    default = { };
+                  };
+                  privateKeys = lib.mkOption {
+                    type = lib.types.attrsOf lib.types.path;
+                    description = "SSH private key file paths keyed by name";
+                    readOnly = true;
+                  };
+                  config = lib.mkOption {
+                    type = lib.types.path;
+                    description = "SSH config file path";
+                  };
+                  knownHosts = lib.mkOption {
+                    type = lib.types.listOf lib.types.str;
+                    description = "SSH known hosts entries";
+                    default = [ ];
+                  };
+                };
+              };
+              default = { };
+              description = "SSH configuration for the user";
+            };
+
+            ## GPG configuration ##
+            gpg = lib.mkOption {
+              type = lib.types.submodule {
+                options = {
+                  publicKey = lib.mkOption {
+                    type = lib.types.str;
+                    description = "GPG public key content";
+                    default = "";
+                  };
+                  privateKeyContents = lib.mkOption {
+                    type = lib.types.str;
+                    description = "GPG private key content";
+                    default = "";
+                  };
+                  privateKey = lib.mkOption {
+                    type = lib.types.path;
+                    description = "GPG private key file path";
+                    readOnly = true;
+                  };
+                  trust = lib.mkOption {
+                    type = lib.types.str;
+                    description = "GPG trust database content (base64)";
+                    default = "";
+                  };
+                };
+              };
+              default = { };
+              description = "GPG configuration for the user";
+            };
+
+            ## SMTP configuration ##
+            smtp = lib.mkOption {
+              type = lib.types.submodule {
+                options = {
+                  host = lib.mkOption {
+                    type = lib.types.str;
+                    description = "SMTP server hostname";
+                  };
+                  user = lib.mkOption {
+                    type = lib.types.str;
+                    description = "SMTP username for authentication";
+                  };
+                  password = lib.mkOption {
+                    type = lib.types.str;
+                    description = "SMTP password for authentication";
+                  };
+                  port = lib.mkOption {
+                    type = lib.types.port;
+                    description = "SMTP server port";
+                    default = 587;
+                  };
+                  from = lib.mkOption {
+                    type = lib.types.str;
+                    description = "Email address to send from";
+                  };
+                };
+              };
               description = "SMTP configuration for the user";
               default = null;
             };
@@ -128,6 +154,7 @@ in
       default = { };
     };
 
+    ## Firewall configurations by host ##
     firewall = lib.mkOption {
       type = lib.types.attrsOf (
         lib.types.submodule {
@@ -205,9 +232,41 @@ in
       description = "Firewall configuration by host";
       default = { };
     };
+
+    ## API keys ##
+    api = lib.mkOption {
+      type = lib.types.attrsOf lib.types.str;
+      description = "API keys keyed by service name";
+      default = { };
+    };
+
+    ## Docker environment variables ##
+    docker = lib.mkOption {
+      type = lib.types.attrsOf (lib.types.attrsOf lib.types.str);
+      description = "Docker environment variables keyed by container name";
+      default = { };
+    };
   };
 
-  config.secretsSpec.ssh.privateKeys = lib.mapAttrs (
-    name: content: mkSshKeyFile name content
-  ) config.secretsSpec.ssh.privateKeyContents;
+  config.secretsSpec.users = lib.mapAttrs (
+    userName: userConfig:
+    userConfig
+    // {
+      ## Auto-generate SSH private key files ##
+      ssh = userConfig.ssh // {
+        privateKeys = lib.mapAttrs (
+          name: content: mkSshKeyFile "${userName}-${name}" content
+        ) userConfig.ssh.privateKeyContents;
+      };
+
+      ## Auto-generate GPG private key file ##
+      gpg = userConfig.gpg // {
+        privateKey =
+          if userConfig.gpg.privateKeyContents != "" then
+            mkGpgKeyFile "${userName}-gpg" userConfig.gpg.privateKeyContents
+          else
+            null;
+      };
+    }
+  ) config.secretsSpec.users;
 }

@@ -7,52 +7,35 @@
   ...
 }:
 let
-  # Generate local key paths for the config
-  sshKeysMap = lib.mapAttrs (name: _: "${hostSpec.home}/.ssh/${name}") secretsSpec.ssh.privateKeys;
+  ## Get the current user's SSH config ##
+  userSsh = secretsSpec.users.${hostSpec.user}.ssh;
 
-  # Create the SSH config file with local paths
-  sshConfig = pkgs.writeText "ssh-config" ''
-    Host git.ryot.foo
-      IdentityFile ${sshKeysMap.git}
-
-    Host *
-      ForwardAgent no
-      AddKeysToAgent yes
-      Compression no
-      ServerAliveInterval 5
-      ServerAliveCountMax 3
-      HashKnownHosts no
-      UserKnownHostsFile ~/.ssh/known_hosts
-      ControlMaster no
-      ControlPath ~/.ssh/master-%r@%n:%p
-      ControlPersist no
-
-      IdentityFile ${sshKeysMap.pve}
-      UpdateHostKeys ask
-  '';
+  ## Generate local key paths for the config ##
+  sshKeysMap = lib.mapAttrs (name: _: "${hostSpec.home}/.ssh/${name}") userSsh.privateKeys;
 in
 {
   home.file =
     {
-      # SSH config file
+      ## SSH config file ##
       ".ssh/config_source" = {
-        source = sshConfig;
+        source = userSsh.config;
         onChange = ''
           cp $HOME/.ssh/config_source $HOME/.ssh/config
           chmod 400 $HOME/.ssh/config
         '';
       };
 
+      ## Known hosts ##
       ".ssh/known_hosts_source" = {
-        source = pkgs.writeText "known-hosts" (lib.concatStringsSep "\n" secretsSpec.ssh.knownHosts);
+        source = pkgs.writeText "known-hosts" (lib.concatStringsSep "\n" userSsh.knownHosts);
         onChange = ''
           cp $HOME/.ssh/known_hosts_source $HOME/.ssh/known_hosts
           chmod 644 $HOME/.ssh/known_hosts
         '';
       };
     }
-    # Dynamically add all SSH private keys using the existing store paths
-    # Ensures the keys have correct permissions and are not symlinks
+
+    ## Dynamically copy all SSH private keys from store ensuring symlinks  are not used ##
     // lib.mapAttrs' (name: path: {
       name = ".ssh/${name}_source";
       value = {
@@ -62,5 +45,5 @@ in
           chmod 600 $HOME/.ssh/${name}
         '';
       };
-    }) secretsSpec.ssh.privateKeys;
+    }) userSsh.privateKeys;
 }
