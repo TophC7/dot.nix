@@ -25,7 +25,7 @@ in
     enable = true;
     autoEnable = true;
     base16Scheme = ./soraka.yaml;
-    image = ./wallpapers/soraka.jpg;
+    image = ./wallpapers/soraka.png;
     polarity = "dark";
     fonts = {
       serif = {
@@ -81,7 +81,7 @@ in
       # name = "Qogir";
       package = (
         pkgs.papirus-icon-theme.override {
-          color = "violet";
+          color = "paleorange";
         }
       );
       name = "Papirus";
