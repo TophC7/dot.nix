@@ -8,7 +8,7 @@
 let
   username = hostSpec.username;
   homeDir = hostSpec.home;
-  shell = hostSpec.shell;
+  shell = hostSpec.shell or pkgs.fish;
 in
 {
   imports = lib.flatten [
@@ -32,7 +32,7 @@ in
       EDITOR = "micro";
       FLAKE = "${homeDir}/git/Nix/dot.nix";
       MANPAGER = "batman";
-      SHELL = shell;
+      SHELL = lib.getExe shell;
       VISUAL = "micro";
     };
     preferXdgDirectories = true; # whether to make programs use XDG directories whenever supported

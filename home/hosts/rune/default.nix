@@ -42,7 +42,9 @@
       ## Productivity ##
       gimp
       inkscape
+      ;
 
+    inherit (pkgs.jetbrains)
       ## Development ##
       idea-ultimate
       ;
