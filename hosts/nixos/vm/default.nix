@@ -62,9 +62,9 @@ in
   ## System-wide packages ##
   environment.systemPackages = with pkgs; [
     openssh
-    ranger
     sshfs
     wget
+    yazi
   ];
 
   # https://wiki.nixos.org/wiki/FAQ/When_do_I_update_stateVersion

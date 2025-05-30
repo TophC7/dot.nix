@@ -28,7 +28,7 @@ with lib.hm.gvariant;
         "protontricks.desktop"
         "qt5ct.desktop"
         "qt6ct.desktop"
-        "ranger.desktop"
+        # "ranger.desktop"
         "org.gnome.SystemMonitor.desktop"
         "org.gnome.tweaks.desktop"
       ];

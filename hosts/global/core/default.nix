@@ -28,10 +28,10 @@ in
     gpg-tui
     micro
     openssh
-    ranger
     sshfs
     wget
     yay # my yay teehee
+    yazi
   ];
 
   # Enable print to PDF.
