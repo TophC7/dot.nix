@@ -184,7 +184,7 @@ For setting up a new system (in NixOS) with this configuration:
 #### **1. Clone Configuration Repository**
 ```bash
 # Get yay.nix temporarily for installation
-nix shell github:Tophc7/yay.nix --extra-experimental-features flakes --extra-experimental-features nix-commands --no-write-lock-file
+nix shell github:Tophc7/yay.nix --extra-experimental-features flakes --extra-experimental-features nix-command --no-write-lock-file
 
 # Clone the configuration repository using yay try
 yay try git git-crypt micro
@@ -212,7 +212,7 @@ git-crypt unlock <<path/to/symmetric.key>> # Or use GPG key
 2. **Login to TTY**
 3. **Rebuild system:**
    ```bash
-   nix shell github:Tophc7/yay.nix --extra-experimental-features flakes --extra-experimental-features nix-commands --no-write-lock-file
+   nix shell github:Tophc7/yay.nix --extra-experimental-features flakes --extra-experimental-features nix-command --no-write-lock-file
    yay rebuild -H gojo -p ~/Documents/dot.nix -e
    sudo reboot -f
    ```

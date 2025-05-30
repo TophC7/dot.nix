@@ -28,7 +28,8 @@
     };
 
     # Use the cachyos kernel for better performance
-    kernelPackages = pkgs.linuxPackages_cachyos;
+    # kernelPackages = pkgs.linuxPackages_cachyos;
+    kernelPackages = pkgs.linuxPackages_latest;
 
     initrd = {
       systemd.enable = true;
