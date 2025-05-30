@@ -50,29 +50,20 @@
     ];
     extraModulePackages = [ ];
   };
+  fileSystems."/" =
+    { device = "/dev/disk/by-uuid/5615474c-c665-407e-8f60-c221414ae343";
+      fsType = "ext4";
+    };
 
-  # For less permission issues with SSHFS
-  programs.fuse.userAllowOther = true;
+  fileSystems."/boot" =
+    { device = "/dev/disk/by-uuid/C9F2-4C1F";
+      fsType = "vfat";
+      options = [ "fmask=0077" "dmask=0077" ];
+    };
 
-  # FIXME: Fix on first boot
-  # fileSystems = {
-  #   "/" = {
-  #     device = "/dev/disk/by-uuid/d38c182c-6f05-4bf3-8a45-5532c10fd342";
-  #     fsType = "ext4";
-  #   };
-
-  #   "/boot" = {
-  #     device = "/dev/disk/by-uuid/5B39-A7CB";
-  #     fsType = "vfat";
-  #     options = [
-  #       "fmask=0077"
-  #       "dmask=0077"
-  #     ];
-  #   };
-  # };
-
-  # FIXME: Fix on first boot
-  # swapDevices = [ { device = "/dev/disk/by-uuid/6586847d-eba9-4317-9077-98ae9b2812c9"; } ];
+  swapDevices =
+    [ { device = "/dev/disk/by-uuid/10529583-bde9-4aad-8001-f5954c4a1474"; }
+    ];
 
   time.hardwareClockInLocalTime = true; # Fixes windows dual-boot time issues
 
