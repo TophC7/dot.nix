@@ -29,13 +29,12 @@ in
       "${homeDir}/.local/bin"
     ];
     sessionVariables = {
-      EDITOR = "micro";
-      VISUAL = "micro";
+      EDITOR = lib.mkDefault "micro";
+      VISUAL = lib.mkDefault "micro";
       FLAKE = lib.mkDefault "${homeDir}/git/Nix/dot.nix";
       SHELL = lib.getExe shell;
     };
     preferXdgDirectories = true; # whether to make programs use XDG directories whenever supported
-
   };
 
   #TODO(xdg): maybe move this to its own xdg.nix?
