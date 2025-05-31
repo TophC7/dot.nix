@@ -6,7 +6,6 @@
   modulesPath,
   ...
 }:
-
 {
   imports = lib.flatten [
     (modulesPath + "/installer/scan/not-detected.nix")
@@ -28,8 +27,7 @@
     };
 
     # Use the cachyos kernel for better performance
-    # kernelPackages = pkgs.linuxPackages_cachyos;
-    kernelPackages = pkgs.linuxPackages_latest;
+    kernelPackages = pkgs.linuxPackages_cachyos;
 
     initrd = {
       systemd.enable = true;
@@ -50,20 +48,24 @@
     ];
     extraModulePackages = [ ];
   };
-  fileSystems."/" =
-    { device = "/dev/disk/by-uuid/5615474c-c665-407e-8f60-c221414ae343";
-      fsType = "ext4";
-    };
 
-  fileSystems."/boot" =
-    { device = "/dev/disk/by-uuid/C9F2-4C1F";
-      fsType = "vfat";
-      options = [ "fmask=0077" "dmask=0077" ];
-    };
+  fileSystems."/" = {
+    device = "/dev/disk/by-uuid/5615474c-c665-407e-8f60-c221414ae343";
+    fsType = "ext4";
+  };
 
-  swapDevices =
-    [ { device = "/dev/disk/by-uuid/10529583-bde9-4aad-8001-f5954c4a1474"; }
+  fileSystems."/boot" = {
+    device = "/dev/disk/by-uuid/C9F2-4C1F";
+    fsType = "vfat";
+    options = [
+      "fmask=0077"
+      "dmask=0077"
     ];
+  };
+
+  swapDevices = [
+    { device = "/dev/disk/by-uuid/10529583-bde9-4aad-8001-f5954c4a1474"; }
+  ];
 
   time.hardwareClockInLocalTime = true; # Fixes windows dual-boot time issues
 
