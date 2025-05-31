@@ -105,6 +105,24 @@ in
 
   programs.home-manager.enable = true;
 
+  ## NIX NIX NIX ##
+  home.file =
+    let
+      nixConfig = pkgs.writeText "config.nix" ''
+        {
+          allowUnfree = true;
+          permittedInsecurePackages = [
+            "ventoy-gtk3-1.1.05"
+          ];
+        }
+      '';
+    in
+    {
+      ".config/nixpkgs/config.nix" = {
+        source = nixConfig;
+      };
+    };
+
   # Nicely reload system units when changing configs
   systemd.user.startServices = "sd-switch";
 }

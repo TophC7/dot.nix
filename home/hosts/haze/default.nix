@@ -22,10 +22,22 @@
   home.packages = builtins.attrValues {
     inherit (pkgs)
       ## Media ##
-      cider # Apple Music
+      ffmpeg
+      spotify
+      gpu-screen-recorder-gtk
+
+      ## Social ##
+      telegram-desktop
+      discord
+      betterdiscordctl
 
       ## Tools ##
+      bitwarden-desktop
       inspector
+
+      ## Productivity ##
+      gimp
+      inkscape
       ;
   };
 }
