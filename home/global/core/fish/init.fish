@@ -2,10 +2,6 @@ set fish_greeting # Disable greeting
 
 ## Aliases and Overrides ##
 
-function cd
-    zoxide $argv
-end
-
 function ls
     eza $argv
 end
@@ -62,7 +58,7 @@ function zipz
     # - The tar command outputs the archive to stdout.
     # - zstd compresses it using 4 threads (-T4) and a compression level of 12 (-12).
     # - The -c flag forces zstd to write to stdout.
-    tar cf - $directory | nix run nixpkgs#zstd -- -c -T5 -15 -v > $output_file
+    tar cf - $directory | nix run nixpkgs#zstd -- -c -T5 -15 -v >$output_file
 
     # Check the exit status of the pipeline
     if test $status -eq 0

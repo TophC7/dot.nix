@@ -30,10 +30,9 @@ in
     ];
     sessionVariables = {
       EDITOR = "micro";
-      FLAKE = lib.mkDefault "${homeDir}/git/Nix/dot.nix";
-      MANPAGER = "batman";
-      SHELL = lib.getExe shell;
       VISUAL = "micro";
+      FLAKE = lib.mkDefault "${homeDir}/git/Nix/dot.nix";
+      SHELL = lib.getExe shell;
     };
     preferXdgDirectories = true; # whether to make programs use XDG directories whenever supported
 
@@ -57,27 +56,16 @@ in
   # Core pkgs with no configs
   home.packages = builtins.attrValues {
     inherit (pkgs)
-      btop # resource monitor
       coreutils # basic gnu utils
-      delta # diffing
-      difftastic # diffing
       direnv # environment per directory
       dust # disk usage
       eza # ls replacement
-      gh # github cli
-      jq # json parser
-      man-pages
-      man-pages-posix
-      nixfmt-rfc-style # nix formatter
-      nixpkgs-review # nix review tool
       nmap # network scanner
-      pre-commit # git hooks
       trashy # trash cli
       unrar # rar extraction
       unzip # zip extraction
-      xdg-user-dirs
-      xdg-utils # provide cli tools such as `xdg-mime` and `xdg-open`
       zip # zip compression
+      microsoft-edit
       ;
   };
 
