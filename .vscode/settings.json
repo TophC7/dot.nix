@@ -21,5 +21,576 @@
             ],
             "path": "systemd-run"
         }
-    }
+    }   , "highlight.regex.regexes": [
+        {
+            "languageIds": [
+                "css",
+                "fish",
+                "go",
+                "java",
+                "javascript",
+                "jsonc",
+                "nix",
+                "postcss",
+                "rust",
+                "shellscript",
+                "svelte",
+                "typescript",
+                "yuck"
+            ],
+            "regexes": [
+                {
+                    "decorations": [
+                        {
+                            "backgroundColor": "#4ebbff99",
+                            "isWholeLine": true,
+                            "overviewRulerColor": "#4ebbff"
+                        }
+                    ],
+                    "regex": "(<|</)(script)(.*)",
+                    "regexes": [
+                        {
+                            "decorations": [
+                                {
+                                    "color": "#4ebbff"
+                                }
+                            ],
+                            "regex": "[</>]"
+                        },
+                        {
+                            "decorations": [
+                                {
+                                    "color": "#ffa07a"
+                                }
+                            ],
+                            "regex": "script"
+                        }
+                    ],
+                    "regexFlag": "gm"
+                },
+                {
+                    "decorations": [
+                        {
+                            "backgroundColor": "#ffa07a99",
+                            "isWholeLine": true,
+                            "overviewRulerColor": "#ffa07a"
+                        }
+                    ],
+                    "regex": "(<|</)(style)(.*)",
+                    "regexes": [
+                        {
+                            "decorations": [
+                                {
+                                    "color": "#ffa07a"
+                                }
+                            ],
+                            "regex": "[</>]"
+                        },
+                        {
+                            "decorations": [
+                                {
+                                    "color": "#7ad9ff"
+                                }
+                            ],
+                            "regex": "style"
+                        }
+                    ],
+                    "regexFlag": "gm"
+                },
+                {
+                    "regex": "(/\\*|<\\!--)(.|[\r\n])*?((\\*/|-->)|-->)",
+                    "regexes": [
+                        {
+                            "decorations": [
+                                {
+                                    "color": "#d4be98",
+                                    "fontWeight": "bold",
+                                    "index": 0
+                                }
+                            ],
+                            "regex": "\\B:D"
+                        },
+                        {
+                            "decorations": [
+                                {
+                                    "color": "#f00",
+                                    "fontWeight": "bold",
+                                    "index": 0
+                                }
+                            ],
+                            "regex": "\\!\\!\\!"
+                        },
+                        {
+                            "decorations": [
+                                {
+                                    "color": "#D8A657",
+                                    "fontWeight": "bold",
+                                    "index": 0
+                                }
+                            ],
+                            "regex": "\\^\\^"
+                        },
+                        {
+                            "decorations": [
+                                {
+                                    "color": "#E78A4E",
+                                    "fontWeight": "bold",
+                                    "index": 1
+                                },
+                                {
+                                    "color": "#D3869B",
+                                    "fontWeight": "bold",
+                                    "index": 2
+                                }
+                            ],
+                            "regex": "(<)(>)"
+                        },
+                        {
+                            "decorations": [
+                                {
+                                    "fontWeight": "bold",
+                                    "index": 0
+                                },
+                                {
+                                    "backgroundColor": "#804600",
+                                    "color": "#d4be98",
+                                    "index": 1,
+                                    "overviewRulerColor": "#804600"
+                                }
+                            ],
+                            "regex": "(.*TODO:)((.|\\r|\\n)*?(\\*/|-->)$)",
+                            "regexes": [
+                                {
+                                    "decorations": [
+                                        {
+                                            "index": 0
+                                        },
+                                        {
+                                            "backgroundColor": "#80460099",
+                                            "color": "#d4be98",
+                                            "index": 2,
+                                            "overviewRulerColor": "#80460099"
+                                        }
+                                    ],
+                                    "index": 2,
+                                    "regex": "([\\s]+)?( .*)"
+                                }
+                            ]
+                        },
+                        {
+                            "decorations": [
+                                {
+                                    "fontWeight": "bold",
+                                    "index": 0
+                                },
+                                {
+                                    "backgroundColor": "#fffacd",
+                                    "color": "#282828",
+                                    "index": 1,
+                                    "overviewRulerColor": "#fffacd"
+                                }
+                            ],
+                            "regex": "(.*NOTE:)((.|\\r|\\n)*?(\\*/|-->)$)",
+                            "regexes": [
+                                {
+                                    "decorations": [
+                                        {
+                                            "index": 0
+                                        },
+                                        {
+                                            "backgroundColor": "#fffacd99",
+                                            "color": "#282828",
+                                            "index": 2,
+                                            "overviewRulerColor": "#fffacd99"
+                                        }
+                                    ],
+                                    "index": 2,
+                                    "regex": "([\\s]+)?( .*)"
+                                }
+                            ]
+                        },
+                        {
+                            "decorations": [
+                                {
+                                    "fontWeight": "bold",
+                                    "index": 0
+                                },
+                                {
+                                    "backgroundColor": "#6495ed",
+                                    "color": "#282828",
+                                    "index": 1,
+                                    "overviewRulerColor": "#6495ed"
+                                }
+                            ],
+                            "regex": "(.*IDEA:)((.|\\r|\\n)*?(\\*/|-->)$)",
+                            "regexes": [
+                                {
+                                    "decorations": [
+                                        {
+                                            "index": 0
+                                        },
+                                        {
+                                            "backgroundColor": "#6495ed99",
+                                            "color": "#282828",
+                                            "index": 2,
+                                            "overviewRulerColor": "#6495ed99"
+                                        }
+                                    ],
+                                    "index": 2,
+                                    "regex": "([\\s]+)?( .*)"
+                                }
+                            ]
+                        },
+                        {
+                            "decorations": [
+                                {
+                                    "fontWeight": "bold",
+                                    "index": 0
+                                },
+                                {
+                                    "backgroundColor": "#66cc99",
+                                    "color": "#282828",
+                                    "index": 1,
+                                    "overviewRulerColor": "#66cc99"
+                                }
+                            ],
+                            "regex": "(.*INFO:)((.|\\r|\\n)*?(\\*/|-->)$)",
+                            "regexes": [
+                                {
+                                    "decorations": [
+                                        {
+                                            "index": 0
+                                        },
+                                        {
+                                            "backgroundColor": "#66cc9999",
+                                            "color": "#282828",
+                                            "index": 2,
+                                            "overviewRulerColor": "#66cc9999"
+                                        }
+                                    ],
+                                    "index": 2,
+                                    "regex": "([\\s]+)?( .*)"
+                                }
+                            ]
+                        },
+                        {
+                            "decorations": [
+                                {
+                                    "fontWeight": "bold",
+                                    "index": 0
+                                },
+                                {
+                                    "backgroundColor": "#591d77",
+                                    "color": "#d4be98",
+                                    "index": 1,
+                                    "overviewRulerColor": "#591d77"
+                                }
+                            ],
+                            "regex": "(.*(?:ABOUT|EXP|\\?+):)((.|\\r|\\n)*?(\\*/|-->)$)",
+                            "regexes": [
+                                {
+                                    "decorations": [
+                                        {
+                                            "index": 0
+                                        },
+                                        {
+                                            "backgroundColor": "#591d7799",
+                                            "color": "#d4be98",
+                                            "index": 2,
+                                            "overviewRulerColor": "#591d7799"
+                                        }
+                                    ],
+                                    "index": 2,
+                                    "regex": "([\\s]+)?( .*)"
+                                }
+                            ]
+                        },
+                        {
+                            "decorations": [
+                                {
+                                    "fontWeight": "bold",
+                                    "index": 0
+                                },
+                                {
+                                    "backgroundColor": "#a74165",
+                                    "color": "#d4be98",
+                                    "index": 1,
+                                    "overviewRulerColor": "#a74165"
+                                }
+                            ],
+                            "regex": "(.*(?:FIXME|FIX|BUG|DEBUG|HACK|REMOVE):)((.|\\r|\\n)*?(\\*/|-->)$)",
+                            "regexes": [
+                                {
+                                    "decorations": [
+                                        {
+                                            "index": 0
+                                        },
+                                        {
+                                            "backgroundColor": "#a7416599",
+                                            "color": "#d4be98",
+                                            "index": 2,
+                                            "overviewRulerColor": "#a7416599"
+                                        }
+                                    ],
+                                    "index": 2,
+                                    "regex": "([\\s]+)?( .*)"
+                                }
+                            ]
+                        },
+                        {
+                            "decorations": [
+                                {
+                                    "fontWeight": "bold",
+                                    "index": 0
+                                },
+                                {
+                                    "backgroundColor": "#c36c5c",
+                                    "color": "#d4be98",
+                                    "index": 1,
+                                    "overviewRulerColor": "#c36c5c"
+                                }
+                            ],
+                            "regex": "(.*(?:SKELETON|COMPONENT):)((.|\\r|\\n)*?(\\*/|-->)$)",
+                            "regexes": [
+                                {
+                                    "decorations": [
+                                        {
+                                            "index": 0
+                                        },
+                                        {
+                                            "backgroundColor": "#c36c5c99",
+                                            "color": "#d4be98",
+                                            "index": 2,
+                                            "overviewRulerColor": "#c36c5c99"
+                                        }
+                                    ],
+                                    "index": 2,
+                                    "regex": "([\\s]+)?( .*)"
+                                }
+                            ]
+                        }
+                    ],
+                    "regexFlag": "gm",
+                    "regexLimit": 25000
+                },
+                {
+                    "regex": "(?<=\\s*)(//|#|;)(.|\r\n)*?$",
+                    "regexes": [
+                        {
+                            "decorations": [
+                                {
+                                    "color": "#d4be98",
+                                    "fontWeight": "bold",
+                                    "index": 0
+                                }
+                            ],
+                            "regex": "\\B:D"
+                        },
+                        {
+                            "decorations": [
+                                {
+                                    "fontWeight": "bold",
+                                    "index": 0
+                                },
+                                {
+                                    "color": "#D8A657",
+                                    "index": 1
+                                },
+                                {
+                                    "color": "#d4be98",
+                                    "index": 2
+                                },
+                                {
+                                    "color": "#d4be98",
+                                    "index": 4
+                                },
+                                {
+                                    "color": "#D8A657",
+                                    "index": 5
+                                }
+                            ],
+                            "regex": "(^/|#|;)(/|#|;)(.*)(/|#|;)(/|#|;$)"
+                        },
+                        {
+                            "decorations": [
+                                {
+                                    "color": "#f00",
+                                    "fontWeight": "bold",
+                                    "index": 0
+                                }
+                            ],
+                            "regex": "\\!\\!\\!"
+                        },
+                        {
+                            "decorations": [
+                                {
+                                    "color": "#D8A657",
+                                    "fontWeight": "bold",
+                                    "index": 0
+                                }
+                            ],
+                            "regex": "\\^\\^"
+                        },
+                        {
+                            "decorations": [
+                                {
+                                    "color": "#E78A4E",
+                                    "fontWeight": "bold",
+                                    "index": 1
+                                },
+                                {
+                                    "color": "#D3869B",
+                                    "fontWeight": "bold",
+                                    "index": 2
+                                }
+                            ],
+                            "regex": "(<)(>)"
+                        },
+                        {
+                            "decorations": [
+                                {
+                                    "color": "#d4be98",
+                                    "fontWeight": "bold",
+                                    "index": 0
+                                },
+                                {
+                                    "backgroundColor": "#804600",
+                                    "index": 1,
+                                    "overviewRulerColor": "#804600"
+                                },
+                                {
+                                    "backgroundColor": "#80460099",
+                                    "index": 2,
+                                    "overviewRulerColor": "#80460099"
+                                }
+                            ],
+                            "regex": "(.*TODO:)(.*)"
+                        },
+                        {
+                            "decorations": [
+                                {
+                                    "color": "#282828",
+                                    "fontWeight": "bold",
+                                    "index": 0
+                                },
+                                {
+                                    "backgroundColor": "#fffacd",
+                                    "index": 1,
+                                    "overviewRulerColor": "#fffacd"
+                                },
+                                {
+                                    "backgroundColor": "#fffacd99",
+                                    "index": 2,
+                                    "overviewRulerColor": "#fffacd99"
+                                }
+                            ],
+                            "regex": "(.*NOTE:)(.*)"
+                        },
+                        {
+                            "decorations": [
+                                {
+                                    "color": "#282828",
+                                    "fontWeight": "bold",
+                                    "index": 0
+                                },
+                                {
+                                    "backgroundColor": "#6495ed",
+                                    "index": 1,
+                                    "overviewRulerColor": "#6495ed"
+                                },
+                                {
+                                    "backgroundColor": "#6495ed99",
+                                    "index": 2,
+                                    "overviewRulerColor": "#6495ed99"
+                                }
+                            ],
+                            "regex": "(.*IDEA:)(.*)"
+                        },
+                        {
+                            "decorations": [
+                                {
+                                    "color": "#282828",
+                                    "fontWeight": "bold",
+                                    "index": 0
+                                },
+                                {
+                                    "backgroundColor": "#66cc99",
+                                    "index": 1,
+                                    "overviewRulerColor": "#66cc99"
+                                },
+                                {
+                                    "backgroundColor": "#66cc9999",
+                                    "index": 2,
+                                    "overviewRulerColor": "#66cc9999"
+                                }
+                            ],
+                            "regex": "(.*INFO:)(.*)"
+                        },
+                        {
+                            "decorations": [
+                                {
+                                    "color": "#d4be98",
+                                    "fontWeight": "bold",
+                                    "index": 0
+                                },
+                                {
+                                    "backgroundColor": "#591d77",
+                                    "index": 1,
+                                    "overviewRulerColor": "#591d77"
+                                },
+                                {
+                                    "backgroundColor": "#591d7799",
+                                    "index": 2,
+                                    "overviewRulerColor": "#591d7799"
+                                }
+                            ],
+                            "regex": "(.*(?:ABOUT|EXP|\\?+):)(.*)"
+                        },
+                        {
+                            "decorations": [
+                                {
+                                    "color": "#d4be98",
+                                    "fontWeight": "bold",
+                                    "index": 0
+                                },
+                                {
+                                    "backgroundColor": "#a74165",
+                                    "index": 1,
+                                    "overviewRulerColor": "#a74165"
+                                },
+                                {
+                                    "backgroundColor": "#a7416599",
+                                    "index": 2,
+                                    "overviewRulerColor": "#a7416599"
+                                }
+                            ],
+                            "regex": "(.*(?:FIXME|FIX|BUG|DEBUG|HACK|REMOVE):)(.*)"
+                        },
+                        {
+                            "decorations": [
+                                {
+                                    "color": "#d4be98",
+                                    "fontWeight": "bold",
+                                    "index": 0
+                                },
+                                {
+                                    "backgroundColor": "#c36c5c",
+                                    "index": 1,
+                                    "overviewRulerColor": "#c36c5c"
+                                },
+                                {
+                                    "backgroundColor": "#c36c5c99",
+                                    "index": 2,
+                                    "overviewRulerColor": "#c36c5c99"
+                                }
+                            ],
+                            "regex": "(.*(?:SKELETON|COMPONENT):)(.*)"
+                        }
+                    ],
+                    "regexFlag": "gm",
+                    "regexLimit": 25000
+                }
+            ]
+        }
+    ],
 }

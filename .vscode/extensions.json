@@ -1,0 +1,23 @@
+{
+    "recommendations": [
+        "bierner.emojisense",
+        "mkhl.direnv",
+        "irongeek.vscode-env",
+        "bmalehorn.vscode-fish",
+        "github.copilot",
+        "github.copilot-chat",
+        "golang.go",
+        "eamodio.gitlens",
+        "mblet.highlight-regex",
+        "oderwat.indent-rainbow",
+        "visualstudioexptteam.vscodeintellicode",
+        "visualstudioexptteam.intellicode-api-usage-examples",
+        "yzhang.markdown-all-in-one",
+        "shd101wyy.markdown-preview-enhanced",
+        "bierner.markdown-preview-github-styles",
+        "bbenoist.nix",
+        "brettm12345.nixfmt-vscode",
+        "ryu1kn.partial-diff",
+        "jeffersonlicet.snipped"
+    ]
+}
