@@ -5,6 +5,10 @@
 > **My NixOS & Home Manager Multi User/Host Configuration**  
 > A modular Nix flake managing multiple systems and users with a focus on reproducibility and ease of maintenance.
 
+![alt text](lib/public/inv.png)
+![alt text](lib/public/inv1.png)
+![alt text](lib/public/gojo.png)
+![alt text](lib/public/gojo1.png)
 ---
 
 ## 🏗️ Architecture Overview
