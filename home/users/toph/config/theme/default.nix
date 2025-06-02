@@ -5,6 +5,8 @@
   ...
 }:
 let
+  isServer = hostSpec.isServer or false;
+
   qogir = pkgs.qogir-icon-theme.override {
     colorVariants = [
       "dark"
@@ -14,9 +16,8 @@ let
       "ubuntu"
     ];
   };
-
 in
-{
+lib.mkIf (!isServer) {
   imports = [
     inputs.stylix.homeManagerModules.stylix
   ];

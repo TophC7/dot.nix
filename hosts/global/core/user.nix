@@ -71,32 +71,37 @@ in
   };
 }
 // lib.optionalAttrs (inputs ? "home-manager") {
-  # Setup root home?
-  home-manager.users.root = lib.optionalAttrs (!isMinimal) {
-    home.stateVersion = "24.05"; # Avoid error
-  };
-
   # Set up home-manager for the configured user
   home-manager = {
     extraSpecialArgs = {
       inherit pkgs inputs;
       inherit (config) secretsSpec hostSpec;
     };
-    users.${username} = lib.optionalAttrs (!isMinimal) {
-      imports = [
-        (
-          { config, ... }:
-          import (lib.custom.relativeToRoot "home/users/${username}") {
-            inherit
-              config
-              hostSpec
-              inputs
-              lib
-              pkgs
-              ;
-          }
-        )
-      ];
+    users = {
+      root.home.stateVersion = "24.05"; # Avoid error
+      ${username} = {
+        imports = [
+          (
+            { config, ... }:
+            import
+              (
+                if isMinimal then
+                  lib.custom.relativeToRoot "home/global/core"
+                else
+                  lib.custom.relativeToRoot "home/users/${username}"
+              )
+              {
+                inherit
+                  config
+                  hostSpec
+                  inputs
+                  lib
+                  pkgs
+                  ;
+              }
+          )
+        ];
+      };
     };
   };
 }

@@ -46,6 +46,7 @@ in
     handle = user.handle;
     userFullName = user.fullName;
     isServer = true;
+    isMinimal = true;
   };
 
   networking = {

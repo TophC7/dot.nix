@@ -1,3 +1,0 @@
-{
-  # No Special Home
-}
