@@ -34,6 +34,7 @@
       ## Tools ##
       bitwarden-desktop
       inspector
+      solaar
 
       ## Productivity ##
       gimp

@@ -37,6 +37,7 @@
       bitwarden-desktop
       inspector
       remmina
+      solaar
       vial # KB setup
 
       ## Productivity ##

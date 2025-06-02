@@ -49,6 +49,11 @@
     #   inputs.nixpkgs.follows = "nixpkgs";
     # };
 
+    solaar = {
+      url = "github:Svenum/Solaar-Flake";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     snapraid-aio = {
       # url = "git+https://git.ryot.foo/toph/snapraid-aio.nix.git";
       url = "git+https://git.ryot.foo/toph/snapraid-aio.nix.git";

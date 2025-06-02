@@ -131,6 +131,7 @@ with lib.hm.gvariant;
         "quicksettings-audio-devices-renamer@marcinjahn.com"
         "undecorate@sun.wxg@gmail.com"
         "user-theme@gnome-shell-extensions.gcampax.github.com"
+        "solaar-extension@sidevesh"
         "Vitals@CoreCoding.com"
       ];
       favorite-apps = lib.mkDefault [
