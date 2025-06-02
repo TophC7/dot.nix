@@ -1,5 +1,6 @@
 {
   lib,
+  pkgs,
   hostSpec,
   ...
 }:
@@ -11,7 +12,7 @@
   ];
 
   home.sessionVariables = {
-    EDITOR = lib.mkDefault "${lib.getExe pkgs.microsoft-edit}";
-    VISUAL = lib.mkDefault "${lib.getExe pkgs.microsoft-edit}";
+    EDITOR = "${lib.getExe pkgs.microsoft-edit}";
+    VISUAL = "${lib.getExe pkgs.microsoft-edit}";
   };
 }

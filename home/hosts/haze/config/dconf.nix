@@ -16,6 +16,7 @@ with lib.hm.gvariant;
         "org.telegram.desktop.desktop"
         "steam.desktop"
         "Ryujinx.desktop"
+        "Overwatch 2.desktop"
         "Marvel Rivals.desktop"
       ];
     };

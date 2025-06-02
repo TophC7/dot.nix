@@ -37,8 +37,6 @@ in
     preferXdgDirectories = true; # whether to make programs use XDG directories whenever supported
   };
 
-  #TODO(xdg): maybe move this to its own xdg.nix?
-  # xdg packages are pulled in below
   xdg = {
     enable = true;
     userDirs = {
@@ -59,12 +57,12 @@ in
       direnv # environment per directory
       dust # disk usage
       eza # ls replacement
+      microsoft-edit
       nmap # network scanner
       trashy # trash cli
       unrar # rar extraction
       unzip # zip extraction
       zip # zip compression
-      microsoft-edit
       ;
   };
 
@@ -72,7 +70,6 @@ in
     enable = true;
   };
 
-  # disable manuals as nmd fails to build often
   manual = {
     html.enable = false;
     json.enable = false;
