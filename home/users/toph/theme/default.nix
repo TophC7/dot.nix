@@ -1,6 +1,7 @@
 {
   pkgs,
   inputs,
+  hostSpec,
   lib,
   ...
 }:
@@ -14,18 +15,17 @@ let
       "ubuntu"
     ];
   };
-
 in
 {
   imports = [
-    inputs.stylix.homeManagerModules.stylix
+    inputs.stylix.homeModules.stylix
   ];
 
   stylix = {
     enable = true;
     autoEnable = true;
-    base16Scheme = ./gojo.yaml;
-    image = ./wallpapers/gojo.jpg;
+    base16Scheme = ./invincible.yaml;
+    image = ./wallpapers/invincible.jpg;
     polarity = "dark";
     fonts = {
       serif = {
@@ -81,7 +81,7 @@ in
       # name = "Qogir";
       package = (
         pkgs.papirus-icon-theme.override {
-          color = "carmine";
+          color = "yellow";
         }
       );
       name = "Papirus";
@@ -89,6 +89,10 @@ in
   };
 
   home.file = {
+    # ".config/stylix/invincible.yaml" = {
+    #   source = ./invincible.yaml;
+    # };
+
     "Pictures/Wallpapers" = {
       source = ./wallpapers;
       recursive = true;

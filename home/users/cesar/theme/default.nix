@@ -1,6 +1,7 @@
 {
   pkgs,
   inputs,
+  hostSpec,
   lib,
   ...
 }:

@@ -1,12 +1,11 @@
 {
   pkgs,
   inputs,
+  hostSpec,
   lib,
   ...
 }:
 let
-  isServer = hostSpec.isServer or false;
-
   qogir = pkgs.qogir-icon-theme.override {
     colorVariants = [
       "dark"
@@ -16,8 +15,9 @@ let
       "ubuntu"
     ];
   };
+
 in
-lib.mkIf (!isServer) {
+{
   imports = [
     inputs.stylix.homeManagerModules.stylix
   ];
@@ -25,8 +25,8 @@ lib.mkIf (!isServer) {
   stylix = {
     enable = true;
     autoEnable = true;
-    base16Scheme = ./invincible.yaml;
-    image = ./wallpapers/invincible.jpg;
+    base16Scheme = ./gojo.yaml;
+    image = ./wallpapers/gojo.jpg;
     polarity = "dark";
     fonts = {
       serif = {
@@ -82,7 +82,7 @@ lib.mkIf (!isServer) {
       # name = "Qogir";
       package = (
         pkgs.papirus-icon-theme.override {
-          color = "yellow";
+          color = "carmine";
         }
       );
       name = "Papirus";
@@ -90,10 +90,6 @@ lib.mkIf (!isServer) {
   };
 
   home.file = {
-    # ".config/stylix/invincible.yaml" = {
-    #   source = ./invincible.yaml;
-    # };
-
     "Pictures/Wallpapers" = {
       source = ./wallpapers;
       recursive = true;

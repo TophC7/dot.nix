@@ -55,7 +55,6 @@ in
     email = user.email;
     handle = user.handle;
     userFullName = user.fullName;
-    isServer = true;
   };
 
   networking = {
