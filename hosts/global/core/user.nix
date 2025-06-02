@@ -16,7 +16,7 @@ let
 in
 {
   users.groups = {
-    ryot = lib.mkIf (!isMinimal) {
+    ryot = {
       gid = 1004;
       members = [ username ];
     };
@@ -31,7 +31,7 @@ in
     homeMode = "750";
     hashedPassword = user.hashedPassword or hostSpec.hashedPassword;
     uid = 1000;
-    group = if !isMinimal then "ryot" else "users";
+    group = "ryot";
     shell = hostSpec.shell or pkgs.fish;
     extraGroups = lib.flatten [
       "wheel"

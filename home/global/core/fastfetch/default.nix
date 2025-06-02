@@ -10,7 +10,11 @@
   programs.fastfetch =
     let
       hostname = hostSpec.hostName;
-      logoFile = ./. + "/host/${hostname}.txt";
+      logoFile =
+        let
+          hostLogoPath = ./. + "/host/${hostname}.txt";
+        in
+        if builtins.pathExists hostLogoPath then hostLogoPath else ./host/nix.txt;
       weather = import ./scripts/weather.nix { inherit pkgs; };
       title = import ./scripts/title.nix { inherit pkgs; };
     in
