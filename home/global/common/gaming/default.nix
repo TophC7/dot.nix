@@ -13,7 +13,7 @@
   ];
 }
 
-# INFO: Example working commands for running gamescope
+# INFO: Example working commands for running gamescope, excuse the mess lol
 
 # gamescope --adaptive-sync --backend sdl --expose-wayland --force-grab-cursor --framerate-limit 120 --immediate-flips --output-height 2160 --output-width 3840 --prefer-output DP-3 --rt -- gamemoderun %command%
 
