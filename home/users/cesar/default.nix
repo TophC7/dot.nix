@@ -1,6 +1,7 @@
 {
   lib,
   hostSpec,
+  pkgs,
   ...
 }:
 {
