@@ -5,10 +5,11 @@
 > **My NixOS & Home Manager Multi User/Host Configuration**  
 > A modular Nix flake managing multiple systems and users with a focus on reproducibility and ease of maintenance.
 
-![alt text](lib/public/inv.png)
-![alt text](lib/public/inv1.png)
-![alt text](lib/public/gojo.png)
-![alt text](lib/public/gojo1.png)
+![Screenshot with Invincible wallpaper](lib/public/inv.png)
+![Screenshot with Invincible wallpaper](lib/public/inv1.png)
+![Screenshot with Gojo wallpaper](lib/public/gojo.png)
+![Screenshot with Gojo wallpaper](lib/public/gojo1.png)
+![Screenshot with Soraka wallpaper](lib/public/soraka.png)
 ---
 
 ## 🏗️ Architecture Overview
@@ -46,6 +47,7 @@ The heart of the configuration, managing:
 ### **Configuration Specifications**
 - **`host-spec.nix`**: Defines host attributes (hostname, user, hardware type, desktop environment)
 - **`secret-spec.nix`**: Structures for secrets, firewall rules, Docker environments, Users, etc
+  - Example [secrets.nix](/lib/public/secrets.example.nix)
 
 ---
 
