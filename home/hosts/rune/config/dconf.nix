@@ -28,7 +28,7 @@ with lib.hm.gvariant;
         "protontricks.desktop"
         "qt5ct.desktop"
         "qt6ct.desktop"
-        # "ranger.desktop"
+        "yazi.desktop"
         "org.gnome.SystemMonitor.desktop"
         "org.gnome.tweaks.desktop"
       ];
@@ -80,12 +80,14 @@ with lib.hm.gvariant;
         "org.telegram.desktop.desktop"
         "steam.desktop"
         "Ryujinx.desktop"
+        "FANTASY LIFE i The Girl Who Steals Time.desktop"
         "Marvel Rivals.desktop"
       ];
       last-selected-power-profile = "performance";
       welcome-dialog-last-shown-version = "48.1";
     };
 
+    ## FIXME: Something is off with the Cloud S output
     "org/gnome/shell/extensions/quicksettings-audio-devices-hider" = {
       available-input-names = [
         "Digital Input (S/PDIF) \8211 USB  Live camera"
