@@ -34,7 +34,7 @@ This repository follows a **layered, modular approach** that separates system-le
 
 ### **Flake Management (`flake.nix`)**
 The heart of the configuration, managing:
-- **External Dependencies**: `nixpkgs`, `home-manager`, `stylix`, hardware modules
+- **External Dependencies**: `nixpkgs`, `home-manager`, `stylix`, `hardware modules`, `solaar`, `snapraid-aio`, `chaotic`
 - **System Outputs**: Complete NixOS configurations for each host
 - **Custom Packages**: Exposed packages from `pkgs/`
 - **Overlays**: Package modifications and additions
@@ -45,7 +45,7 @@ The heart of the configuration, managing:
 - **Content**: SSH keys, API tokens, hashed passwords, SMTP credentials
 
 ### **Configuration Specifications**
-- **`host-spec.nix`**: Defines host attributes (hostname, user, hardware type, desktop environment)
+- **`host-spec.nix`**: Defines host attributes (hostname, user, hardware type, desktop environment, `isMinimal` for server configurations)
 - **`secret-spec.nix`**: Structures for secrets, firewall rules, Docker environments, Users, etc
   - Example [secrets.nix](/lib/public/secrets.example.nix)
 
@@ -82,6 +82,7 @@ Each system in `hosts/nixos/<hostname>/` contains:
 | **rune**   | Desktop       | My workstation         | Ryzen 9 7900X3D, RX 9070 XT | Gaming, Development, VMs          |
 | **gojo**   | Desktop       | Giovanni's workstation | Ryzen CPU, RX 6950 XT       | Gaming, Development               |
 | **haze**   | Desktop       | Cesar's workstation    | Ryzen 7, RX 6950 XT         | Gaming, Development               |
+| **sock**   | Server        | Backup & Storage       | Intel N150                  | WIP; Hosted on Firewall           |
 | **cloud**  | LXC Container | Storage & NFS          | 4C/4GB                      | File storage, NFS server, Backups |
 | **komodo** | LXC Container | Docker orchestration   | 12C/30GB                    | Authentik, Komodo, Web services   |
 | **proxy**  | LXC Container | Network proxy          | 3C/2GB                      | Cloudflare tunnels, Caddy         |
