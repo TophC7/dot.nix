@@ -1,9 +1,11 @@
 {
   lib,
+  stdenv,
   rustPlatform,
   fetchFromGitHub,
   versionCheckHook,
   nix-update-script,
+  icu,
 }:
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "microsoft-edit";
@@ -26,6 +28,22 @@ rustPlatform.buildRustPackage (finalAttrs: {
     ./write-filled-fix.patch
   ];
 
+  buildInputs = [
+    icu
+  ];
+
+  postFixup =
+    let
+      rpathAppend = lib.makeLibraryPath [ icu ];
+    in
+    lib.optionalString stdenv.hostPlatform.isElf ''
+      patchelf $out/bin/edit \
+        --add-rpath ${rpathAppend}
+    ''
+    + lib.optionalString stdenv.hostPlatform.isDarwin ''
+      ${stdenv.cc.targetPrefix}install_name_tool -add_rpath ${rpathAppend} $out/bin/edit
+    '';
+
   # Disabled for now, microsoft/edit#194
   doInstallCheck = false;
   nativeInstallCheckInputs = [ versionCheckHook ];
@@ -47,5 +65,6 @@ rustPlatform.buildRustPackage (finalAttrs: {
     changelog = "https://github.com/microsoft/edit/releases/tag/v${finalAttrs.version}";
     license = lib.licenses.mit;
     maintainers = with lib.maintainers; [ RossSmyth ]; # https://github.com/NixOS/nixpkgs/pull/409075
+    platforms = lib.platforms.all;
   };
 })
