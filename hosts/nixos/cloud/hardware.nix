@@ -28,6 +28,7 @@ in
         "allow_other"
         "minfreespace=50G"
         "fsname=mergerfs"
+        "func.getattr=newest"
         "category.create=mfs"
         "nfsopenhack=all"
         "nonempty"

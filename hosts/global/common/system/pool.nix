@@ -45,6 +45,10 @@ in
         "noatime"
         "nofail"
         "sec=sys"
+        "noac" # Disable attribute caching
+        "lookupcache=none" # Disable lookup caching
+        "intr" # Allow interruption
+        "hard" # Hard mount (retry on failure)
       ];
     };
   };
@@ -55,7 +59,7 @@ in
 
   services.nfs.idmapd.settings = {
     General = {
-      Domain = "local"; # Must match on server and client
+      Domain = "ryot.local"; # Must match on server and client
       Verbosity = 0;
     };
   };
