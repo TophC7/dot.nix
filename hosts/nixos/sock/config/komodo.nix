@@ -7,7 +7,7 @@
 }:
 let
   # Only available in the Sock LXC
-  DockerStorage = "/OchreStorage/komodo";
+  OchreStorage = "/OchreStorage/komodo";
   env = config.secretsSpec.docker.komodo-sock;
 in
 {
@@ -16,7 +16,7 @@ in
     image = "ghcr.io/moghtech/komodo-core:latest";
     environment = env;
     volumes = [
-      "${DockerStorage}/cache:/repo-cache:rw"
+      "${OchreStorage}/cache:/repo-cache:rw"
     ];
     ports = [
       "9120:9120/tcp"
@@ -62,8 +62,8 @@ in
     image = "mongo";
     environment = env;
     volumes = [
-      "${DockerStorage}/mongo/config:/data/configdb:rw"
-      "${DockerStorage}/mongo/data:/data/db:rw"
+      "${OchreStorage}/mongo/config:/data/configdb:rw"
+      "${OchreStorage}/mongo/data:/data/db:rw"
     ];
     cmd = [
       "--quiet"
@@ -111,9 +111,9 @@ in
     volumes = [
       "/proc:/proc:rw"
       "/var/run/docker.sock:/var/run/docker.sock:rw"
-      "${DockerStorage}/repos:/etc/komodo/repos:rw"
-      "${DockerStorage}/ssl:/etc/komodo/ssl:rw"
-      "${DockerStorage}/stacks:${DockerStorage}/stacks:rw"
+      "${OchreStorage}/repos:/etc/komodo/repos:rw"
+      "${OchreStorage}/ssl:/etc/komodo/ssl:rw"
+      "${OchreStorage}/stacks:${OchreStorage}/stacks:rw"
     ];
     ports = [
       "8120:8120/tcp"
