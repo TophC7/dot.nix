@@ -128,8 +128,8 @@ Each user in `home/users/<username>/` includes:
 ### **Stylix Integration**
 - **Unified Theming**: Base16 color schemes applied system-wide
 - **Custom Schemes**: User-specific YAML color definitions
-- **Coverage**: GTK, terminal, VS Code (optional), wallpapers
-- **Fonts**: Consistent typography (Lexend, Monocraft, Laila)
+- **Coverage**: GTK, terminal (`ghostty`), VS Code (optional), wallpapers
+- **Fonts**: Consistent typography (Lexend, `Monocraft Nerd Fonts`, Laila)
 
 ### **GNOME Customization**
 - **Window Management**: PaperWM for tiling workflow
@@ -140,45 +140,45 @@ Each user in `home/users/<username>/` includes:
 
 ## 🔧 Notable Features
 
-### **🎮 Gaming Infrastructure**
-- **Steam Integration**: Proton, GameScope, GameMode optimizations
-- **Emulator Backup System**: Automated Borg backups for save files
+### **🎮 Enhanced Gaming**
+- **Optimized Stack**: Steam integration with Proton, GameScope, and GameMode.
+- **Automated Emulator Backups**: `borg-wrapper` script (Fish-based) leverages `inotify-tools` and `borgbackup` for automatic, incremental save file backups for emulators like Ryujinx.
   ```nix
-  # Automatic save backup for Ryujinx with inotify monitoring
-  borg-wrapper -p "~/.config/Ryujinx/bis/user/save" 
-               -o "/pool/Backups/Switch/RyubingSaves" 
+  # Example: Automatic save backup for Ryujinx
+  borg-wrapper -p "~/.config/Ryujinx/bis/user/save" \
+               -o "/pool/Backups/Switch/RyubingSaves" \
                -m 30 -- ryujinx
   ```
-- **Hardware Optimization**: AMD GPU settings, VRR support
+- **Hardware Tuning**: Includes AMD GPU specific settings (e.g., `lact` for tuning) and Variable Refresh Rate (VRR) support.
 
-### **🗄️ Storage & Backup Strategy**
+### **🗄️ Robust Storage & Backups**
+- **Centralized Storage (Cloud Host)**: Utilizes a MergerFS pool for unified drive access, exported via NFS (mounted as `/pool` on other hosts).
+- **Data Integrity**: SnapRAID provides parity-based data protection for the storage pool.
+- **Comprehensive Backups**: Provides incremental backups of critical data, like Docker volumes and Forgejo instances, with Apprise notifications.
+- **Automated Backup Chain**: Systemd timers orchestrate SnapRAID syncs and Borg backups.
 
-#### **Cloud Host (Storage Server)**
-- **MergerFS Pool**: Unified storage across multiple drives
-- **NFS Export**: Mounted as `/pool` on other hosts
-- **SnapRAID Protection**: Parity-based data protection
-- **Borg Backups**: Incremental backups for critical data
-
-#### **Backup Chain**
-```mermaid
-graph TD
-    A[SnapRAID Sync] --> B[Borg Docker Storage]
-    B --> C[Borg Forgejo]
-    C --> D[Notification]
-    
-    E[inotify] --> F[Game Save Backups]
-    F --> G[Borg Game Saves]
-```
+### **🖥️ Streamlined Desktop & User Experience**
+- **Custom Fish Shell**: Enhanced with the Tide prompt, `grc` for colorized output, and some utility functions
+- **Modern Terminal**: `ghostty` as the default terminal emulator, themed with Stylix.
+- **Efficient File Management**: `yazi` configured as the terminal file manager.
+- **Curated Applications**: Includes configurations for applications like the Zen browser and VS Code.
+- **XDG & Mime Associations**: Sensible default applications configured via `xdg.mimeApps`, using `handlr-regex` for flexibility.
 
 ### **🐳 Container Management**
 - **Komodo Integration**: Docker stack management through web UI
 - **Service Definitions**: Authentik SSO, Caddy reverse proxy, various applications
 - **compose2nix**: Docker Compose files converted to NixOS modules
 
-### **🔐 Security & Access**
-- **SSH Key Management**: Automated deployment of public/private keys
-- **Cloudflare Integration**: Zero Trust tunnels for external access
-- **ACME Certificates**: Automated Let's Encrypt with DNS challenge
+### **🐳 Advanced Container Management**
+- **Docker Orchestration**: Komodo provides a web UI for managing Docker stacks.
+- **Key Services**: Pre-defined declarative configurations for services like Authentik (SSO) and Caddy (reverse proxy).
+- **Declarative Stacks**: `compose2nix` is used to convert Docker Compose files into NixOS declarative modules for services like FileRun, Authentik, etc.
+
+### **🔐 Integrated Security**
+- **Encrypted Secrets**: `git-crypt` for managing sensitive data in git.
+- **Secure Remote Access**: Cloudflare Tunnels for Zero Trust access to services.
+- **Automated Certificates**: ACME (Let's Encrypt) with DNS challenges for SSL/TLS.
+- **SSH Key Deployment**: Automated management and deployment of SSH keys.
 
 ---
 
@@ -254,12 +254,7 @@ yay untar myfiles.tar.zst
   export FLAKE="$HOME/Documents/dot.nix"
   yay rebuild  # Will automatically use $FLAKE path
   ```
-
-### **Custom Tools Integration**
-- **`yay`**: Primary rebuild and management tool (see [yay.nix](https://github.com/Tophc7/yay.nix))
-- **`nh`**: Nix helper for cleaner rebuild output  
-- **`borgtui`**: Custom TUI for managing Borg repositories
-
+  
 ---
 
 ## 📚 Development Philosophy
@@ -283,15 +278,18 @@ yay untar myfiles.tar.zst
 
 ## 🔗 Key Technologies
 
-| Category           | Technologies                          |
-| ------------------ | ------------------------------------- |
-| **Core**           | NixOS, Home Manager, Nix Flakes       |
-| **Desktop**        | GNOME, PaperWM, Stylix                |
-| **Virtualization** | libvirt, QEMU, LXC containers         |
-| **Storage**        | MergerFS, SnapRAID, BorgBackup, NFS   |
-| **Containers**     | Docker, Komodo                        |
-| **Security**       | git-crypt, ACME, Cloudflare           |
-| **Monitoring**     | Apprise notifications, systemd timers |
+| Category           | Technologies                                         |
+| ------------------ | ---------------------------------------------------- |
+| **Core**           | NixOS, Home Manager, Nix Flakes                      |
+| **Shell**          | Fish Shell, Tide Prompt                              |
+| **Desktop**        | GNOME, PaperWM, Stylix, Ghostty, Yazi                |
+| **Virtualization** | libvirt, QEMU, LXC                                   |
+| **Storage**        | MergerFS, SnapRAID, BorgBackup, NFS, `inotify-tools` |
+| **Containers**     | Docker, Komodo, compose2nix                          |
+| **Security**       | git-crypt, ACME, Cloudflare Tunnels                  |
+| **Development**    | VS Code (Patched SSH), `nixfmt`, `biome`             |
+| **Gaming**         | Steam, Proton, GameScope, GameMode, `lact`           |
+| **Monitoring**     | Apprise notifications, systemd timers                |
 
 ---
 
@@ -310,5 +308,18 @@ yay untar myfiles.tar.zst
 - `shell.nix` - Recovery environment
 - `modules/global/host-spec.nix` - Host attribute definitions
 - `modules/global/secret-spec.nix` - Secret structure definitions
+
+---
+
+## 👥 Credits & Acknowledgments
+
+This configuration is built upon the excellent foundation provided by **[EmergentMind's configuration](https://github.com/EmergentMind/nix-config)**. Many core architectural decisions and implementation patterns draw heavily from their work, including but not limited to:
+
+- **Host Specification System**: The `host-spec.nix` pattern and `mkHost` function structure
+- **Modular Architecture**: The separation of system and user configurations
+
+A huge thank you to EmergentMind for creating such a well-structured and educational NixOS configuration that serves as my introduction to NixOS and its wonders. Their work made this homelab setup possible and continues to influence It.
+
+---
 
 This configuration emphasizes **reproducibility**, **security**, and **maintainability** while supporting a complex multi-user, multi-host homelab environment. I quite love it, hope it serves as inspo to some of you out there.
