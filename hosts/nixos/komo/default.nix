@@ -1,6 +1,6 @@
 ###############################################################
 #
-#  Komodo - LXC Container
+#  Komo - LXC Container
 #  NixOS container, Ryzen 5 5600G (12 Cores), 30GB/2GB RAM/SWAP
 #
 #  Docker Environment, Managed by with Komodo
@@ -16,11 +16,11 @@
 let
   username = "toph";
   user = config.secretsSpec.users.${username};
-  firewall = config.secretsSpec.firewall.komodo;
+  firewall = config.secretsSpec.firewall.komo;
 in
 {
   imports = lib.flatten [
-    ## Komodo Only ##
+    ## Komo Only ##
     ./config
 
     ## Hardware ##
@@ -38,7 +38,7 @@ in
 
   ## Host Specifications ##
   hostSpec = {
-    hostName = "komodo";
+    hostName = "komo";
     username = username;
     hashedPassword = user.hashedPassword;
     email = user.email;

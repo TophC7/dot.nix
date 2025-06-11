@@ -64,13 +64,6 @@
         '';
       };
 
-      "mail.ryot.foo" = {
-        useACMEHost = "ryot.foo";
-        extraConfig = ''
-          reverse_proxy localhost:9002
-        '';
-      };
-
       "map.ryot.foo" = {
         useACMEHost = "ryot.foo";
         extraConfig = ''
@@ -89,13 +82,6 @@
         useACMEHost = "ryot.foo";
         extraConfig = ''
           reverse_proxy localhost:3000 
-        '';
-      };
-
-      "upsnap.ryot.foo" = {
-        useACMEHost = "ryot.foo";
-        extraConfig = ''
-          reverse_proxy localhost:8090
         '';
       };
     };

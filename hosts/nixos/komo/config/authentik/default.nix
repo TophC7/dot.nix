@@ -6,7 +6,7 @@
   ...
 }:
 let
-  # Only available in the Komodo LXC
+  # Only available in the Komo LXC
   DockerStorage = "/mnt/DockerStorage/komodo/stacks/authentik";
   env = config.secretsSpec.docker.authentik;
 in
@@ -94,7 +94,7 @@ in
     ];
   };
   virtualisation.oci-containers.containers."authentik-server" = {
-    image = "ghcr.io/goauthentik/server:2024.12.2";
+    image = "ghcr.io/goauthentik/server:2025.6.1";
     environment = env;
     volumes = [
       "${DockerStorage}/custom-templates:/templates:rw"
@@ -136,7 +136,7 @@ in
     ];
   };
   virtualisation.oci-containers.containers."authentik-worker" = {
-    image = "ghcr.io/goauthentik/server:2024.12.2";
+    image = "ghcr.io/goauthentik/server:2025.6.1";
     environment = env;
     volumes = [
       "${DockerStorage}/certs:/certs:rw"
