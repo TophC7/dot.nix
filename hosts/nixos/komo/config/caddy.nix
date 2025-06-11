@@ -25,7 +25,32 @@
       "frp.ryot.foo" = {
         useACMEHost = "ryot.foo";
         extraConfig = ''
-          reverse_proxy localhost:4041
+          route {
+            # 1) Proxy all outpost requests back to Authentik
+            reverse_proxy /outpost.goauthentik.io/* localhost:9000
+
+            # 2) Protect everything else via forward_auth
+            forward_auth localhost:9000 {
+              uri     /outpost.goauthentik.io/auth/caddy
+              # copy user info headers from Authentik
+              copy_headers  X-Authentik-Username X-Authentik-Groups \
+                            X-Authentik-Entitlements X-Authentik-Email \
+                            X-Authentik-Name X-Authentik-Uid \
+                            X-Authentik-Jwt X-Authentik-Meta-Jwks \
+                            X-Authentik-Meta-Outpost X-Authentik-Meta-Provider \
+                            X-Authentik-Meta-App X-Authentik-Meta-Version
+              trusted_proxies private_ranges
+            }
+
+            # 3) If authenticated, proxy to your FRP UI
+            reverse_proxy localhost:4041 {
+              header_up Host             {host}
+              header_up X-Real-IP         {remote}
+              header_up X-Forwarded-For   {remote}
+              header_up X-Forwarded-Proto {scheme}
+              header_up X-Forwarded-Port  {server_port}
+            }
+          }
         '';
       };
 
