@@ -12,14 +12,20 @@
       no-resolv = true;
 
       server = [
-        "104.40.3.1" # Query openWRT first for non-ryot.foo domains
-        "1.1.1.1" # Fallback public DNS
-        "1.0.0.1" # Fallback public DNS
-        "8.8.8.8" # Fallback public DNS
+        "104.40.3.1" # Query openWRT first
+        "1.1.1.1" # Redundancy
+        "1.0.0.1"
+        "8.8.8.8"
       ];
 
-      address = [
+      # INFO: Why this setup for services?
+      # - OpenWRT forwards every *.ryot.foo query to this DNS server
+      # - dnsmasq hands out fixed IPs for those subdomains.
+      # - Each target host runs Caddy to serve its site.
+      # No Docker labels, no discovery magic—just reliable routing clearly documented with Nix.
+      # Its not automated but this is a homelab... ill survive
 
+      address = [
         ## CLOUD ##
         "/drive.ryot.foo/104.40.3.24"
 
@@ -45,7 +51,6 @@
         ## SOCK ##
         "/upsnap.ryot.foo/104.40.3.54"
         "/sock.ryot.foo/104.40.3.54"
-
       ];
 
       cache-size = 1000;
