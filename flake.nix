@@ -134,7 +134,12 @@
     {
       overlays = import ./overlays { inherit inputs; };
 
-      nixosConfigurations = mkHostConfigs (readHosts "nixos") false;
+      nixosConfigurations =
+        # Generate X86 configurations
+        (mkHostConfigs (readHosts "nixos") false)
+        //
+          # Generate ARM configurations
+          (mkHostConfigs (readHosts "arm") true);
 
       packages = forAllSystems (
         system:
