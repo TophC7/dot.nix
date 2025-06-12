@@ -61,7 +61,7 @@ in
   ];
 
   environment.variables = {
-    FLAKE = "${hostSpec.home}/git/dot.nix";
+    FLAKE = "${config.hostSpec.home}/git/dot.nix";
   };
 
   # https://wiki.nixos.org/wiki/FAQ/When_do_I_update_stateVersion
