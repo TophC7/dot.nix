@@ -19,7 +19,7 @@
       ];
 
       # INFO: Why this setup for services?
-      # - OpenWRT forwards every *.ryot.foo query to this DNS server
+      # - OpenWRT forwards every *ryot.foo and *toph.cc query to this DNS server
       # - dnsmasq hands out fixed IPs for those subdomains.
       # - Each target host runs Caddy to serve its site.
       # No Docker labels, no discovery magic—just reliable routing clearly documented with Nix.
@@ -47,6 +47,8 @@
         "/map.ryot.foo/104.40.3.44"
         "/outline.ryot.foo/104.40.3.44"
         "/plane.ryot.foo/104.40.3.44"
+
+        "/blog.toph.cc/104.40.3.44"
 
         ## SOCK ##
         "/upsnap.ryot.foo/104.40.3.54"

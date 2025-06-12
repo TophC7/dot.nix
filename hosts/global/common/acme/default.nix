@@ -34,13 +34,13 @@ in
       #   extraDomainNames = [ "*.kwahson.com" ];
       # };
 
-      # "kwahson.xyz" = {
-      #   extraDomainNames = [ "*.kwahson.xyz" ];
-      # };
+      "kwahson.xyz" = {
+        extraDomainNames = [ "*.kwahson.xyz" ];
+      };
 
-      # "toph.cc" = {
-      #   extraDomainNames = [ "*.toph.cc" ];
-      # };
+      "toph.cc" = {
+        extraDomainNames = [ "*.toph.cc" ];
+      };
 
       "ryot.foo" = {
         extraDomainNames = [ "*.ryot.foo" ];

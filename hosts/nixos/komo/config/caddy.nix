@@ -2,12 +2,17 @@
   services.caddy = {
     enable = true;
     virtualHosts = {
-      # "ryot.foo" = {
-      #   useACMEHost = "ryot.foo";
-      #   extraConfig = ''
-      #     reverse_proxy 104.40.3.44:80
-      #   '';
-      # };
+
+      ## TOPH.CC ##
+
+      "blog.toph.cc" = {
+        useACMEHost = "toph.cc";
+        extraConfig = ''
+          reverse_proxy localhost:2368
+        '';
+      };
+
+      ## RYOT.FOO ##
 
       "auth.ryot.foo" = {
         useACMEHost = "ryot.foo";
