@@ -92,54 +92,55 @@
 
       ## Host Config ##
 
-      mkHost = host: isARM: {
-        ${host} =
-          let
-            func = if isARM then ARM else X86;
-            systemFunc = func;
-          in
-          lib.nixosSystem {
+      # read host-dirs under e.g. hosts/x86 or hosts/arm
+      readHosts = arch: lib.attrNames (builtins.readDir ./hosts/${arch});
+
+      # build one host, choosing folder + system by isARM flag
+      mkHost =
+        host: isARM:
+        let
+          folder = if isARM then "arm" else "x86";
+          system = if isARM then ARM else X86;
+        in
+        {
+          "${host}" = lib.nixosSystem {
             specialArgs = {
               inherit
                 inputs
                 outputs
                 isARM
+                system
                 ;
-              system = systemFunc;
-              # INFO: Extend lib with lib.custom; This approach allows lib.custom to propagate into hm
-              lib = nixpkgs.lib.extend (self: super: { custom = import ./lib { inherit (nixpkgs) lib; }; });
+              lib = nixpkgs.lib.extend (
+                # INFO: Extend lib with lib.custom; This approach allows lib.custom to propagate into hm
+                self: super: {
+                  custom = import ./lib { inherit (nixpkgs) lib; };
+                }
+              );
             };
             modules = [
-              {
-                #INFO: Overlay application for custom packages
-                nixpkgs.overlays = [
-                  self.overlays.default
-                ];
-              }
+              { nixpkgs.overlays = [ self.overlays.default ]; }
 
               # Import secrets
               ./modules/global/secret-spec.nix
               ./secrets.nix
 
               # Host-specific configuration
-              ./hosts/nixos/${host}
+              ./hosts/${folder}/${host}
             ];
           };
-      };
+        };
+
       # Invoke mkHost for each host config that is declared for either X86 or ARM
       mkHostConfigs =
         hosts: isARM: lib.foldl (acc: set: acc // set) { } (lib.map (host: mkHost host isARM) hosts);
-      readHosts = folder: lib.attrNames (builtins.readDir ./hosts/${folder});
     in
     {
       overlays = import ./overlays { inherit inputs; };
 
+      # now point at x86 *and* arm directories explicitly
       nixosConfigurations =
-        # Generate X86 configurations
-        (mkHostConfigs (readHosts "nixos") false)
-        //
-          # Generate ARM configurations
-          (mkHostConfigs (readHosts "arm") true);
+        (mkHostConfigs (readHosts "x86") false) // (mkHostConfigs (readHosts "arm") true);
 
       packages = forAllSystems (
         system:
