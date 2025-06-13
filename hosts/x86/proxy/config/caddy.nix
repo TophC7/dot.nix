@@ -2,6 +2,13 @@
   services.caddy = {
     enable = true;
     virtualHosts = {
+      "adguard.ryot.foo" = {
+        useACMEHost = "ryot.foo";
+        extraConfig = ''
+          reverse_proxy localhost:3000
+        '';
+      };
+
       "cloudflared.ryot.foo" = {
         useACMEHost = "ryot.foo";
         extraConfig = ''
