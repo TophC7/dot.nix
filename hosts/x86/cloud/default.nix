@@ -31,7 +31,6 @@ in
       "hosts/global/core"
 
       ## Optional Configs ##
-      "hosts/global/common/acme"
       "hosts/global/common/docker.nix"
     ])
   ];

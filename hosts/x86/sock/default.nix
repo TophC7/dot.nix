@@ -16,7 +16,6 @@
 let
   username = "toph";
   user = config.secretsSpec.users.${username};
-  firewall = config.secretsSpec.firewall.sock;
 in
 {
   imports = lib.flatten [
@@ -31,7 +30,6 @@ in
       "hosts/global/core"
 
       ## Optional Configs ##
-      "hosts/global/common/acme"
       "hosts/global/common/docker.nix"
     ])
   ];
@@ -50,11 +48,6 @@ in
 
   networking = {
     enableIPv6 = false;
-    firewall = {
-      allowedTCPPorts = firewall.allowedTCPPorts;
-      allowedTCPPortRanges = firewall.allowedTCPPortRanges;
-      allowedUDPPorts = firewall.allowedUDPPorts;
-    };
   };
 
   ## System-wide packages ##

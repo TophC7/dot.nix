@@ -17,6 +17,7 @@ in
 
     (map lib.custom.relativeToRoot [
       "modules/global"
+      "modules/nixos"
     ])
   ];
 

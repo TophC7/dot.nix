@@ -5,7 +5,7 @@
 */
 {
   # Containers
-  virtualisation.oci-containers.containers."adguard-adguard" = {
+  virtualisation.oci-containers.containers."adguard" = {
     image = "adguard/adguardhome:latest";
     volumes = [
       "/etc/adguard/confdir:/opt/adguardhome/conf:rw"
@@ -24,7 +24,8 @@
       "--network=adguard_default"
     ];
   };
-  systemd.services."docker-adguard-adguard" = {
+
+  systemd.services."docker-adguard" = {
     serviceConfig = {
       Restart = lib.mkOverride 90 "always";
       RestartMaxDelaySec = lib.mkOverride 90 "1m";
