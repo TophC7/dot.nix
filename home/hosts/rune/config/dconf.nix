@@ -111,10 +111,10 @@ with lib.hm.gvariant;
         "Microphone 8211 USB  Live camera"
       ];
       excluded-output-names = [
-        "Analog Output – HyperX Cloud Alpha S"
-        "Analog Output \8211 HyperX Cloud Alpha S"
-        "Analog Output 8211 HyperX Cloud Alpha S"
-        "Analog Output 8211 HyperX Cloud Alpha S"
+        # "Analog Output – HyperX Cloud Alpha S"
+        # "Analog Output \8211 HyperX Cloud Alpha S"
+        # "Analog Output 8211 HyperX Cloud Alpha S"
+        # "Analog Output 8211 HyperX Cloud Alpha S"
         "HDMI / DisplayPort – Rembrandt Radeon High Definition Audio Controller"
         "HDMI / DisplayPort \8211 Rembrandt Radeon High Definition Audio Controller"
         "HDMI / DisplayPort 8211 Rembrandt Radeon High Definition Audio Controller"
@@ -148,7 +148,7 @@ with lib.hm.gvariant;
         ])
         (lib.hm.gvariant.mkDictionaryEntry [
           "Analog Output – HyperX Cloud Alpha S"
-          "NO"
+          "Cloud S - 7.1"
         ])
         (lib.hm.gvariant.mkDictionaryEntry [
           "Digital Output (S/PDIF) – HyperX Cloud Alpha S"

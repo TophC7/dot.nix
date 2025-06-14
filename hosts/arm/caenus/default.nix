@@ -1,7 +1,7 @@
 ###############################################################
 #
 #  Caenus - Oracle VPS
-#  NixOS VPS, ____, ____
+#  NixOS VPS,  4vCPU, 24Ggb RAM, 200GB
 #
 #  Public IP
 #

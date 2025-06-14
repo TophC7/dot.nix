@@ -322,19 +322,25 @@ with lib.hm.gvariant;
       window-gap = 8;
       winprops = [
         ''
+          {"wm_class":"Code","preferredWidth":"70%","spaceIndex":0}
+        ''
+        ''
           {"wm_class":"com.mitchellh.ghostty","scratch_layer":true}
-        ''
-        ''
-          {"wm_class":"code","preferredWidth":"70%"}
         ''
         ''
           {"wm_class":"discord","preferredWidth":"100%","spaceIndex":1}
         ''
         ''
+          {"wm_class":"gnome-control-center","scratch_layer":true}
+        ''
+        ''
+          {"wm_class":"gnome-extensions-app","scratch_layer":true}
+        ''
+        ''
           {"wm_class":"org.gnome.Nautilus","scratch_layer":true}
         ''
         ''
-          {"wm_class":"gnome-control-center","scratch_layer":true}
+          {"wm_class":"TelegramDesktop","spaceIndex":1}
         ''
       ];
     };
