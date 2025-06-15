@@ -3,7 +3,7 @@
 	"editor.formatOnSaveMode": "file",
 	"explorer.fileNesting.patterns": {
 		".gitignore": ".gitattributes, .envrc, readme",
-		"flake.nix": "flake.lock, shell.nix, secrets.nix"
+		"flake.nix": "flake.lock, *.nix"
 	},
 	"files.exclude": {
 		".git-crypt": true

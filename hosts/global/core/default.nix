@@ -105,9 +105,6 @@ in
       min-free = 128000000; # 128MB
       max-free = 1000000000; # 1GB
 
-      substituters = [ "https://hyprland.cachix.org" ];
-      trusted-public-keys = [ "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc=" ];
-
       trusted-users = [ "@wheel" ];
       # Deduplicate and optimize nix store
       auto-optimise-store = true;

@@ -1,32 +1,23 @@
 { pkgs, config, ... }:
 {
   ## DE ##
-
-  services.xserver = {
+  services.desktopManager.gnome = {
     enable = true;
+    extraGSettingsOverridePackages = [ pkgs.mutter ];
+    extraGSettingsOverrides = ''
+      [org.gnome.mutter]
+      experimental-features=['scale-monitor-framebuffer']
+    '';
+  };
 
-    desktopManager.gnome = {
+  services.displayManager = {
+    gdm = {
       enable = true;
-      extraGSettingsOverridePackages = [ pkgs.mutter ];
-      extraGSettingsOverrides = ''
-        [org.gnome.mutter]
-        experimental-features=['scale-monitor-framebuffer']
-      '';
+      wayland = true;
     };
-    displayManager = {
-      gdm = {
-        enable = true;
-        wayland = true;
-      };
-      autoLogin = {
-        enable = true;
-        user = config.hostSpec.username;
-      };
-    };
-
-    xkb = {
-      layout = "us";
-      variant = "";
+    autoLogin = {
+      enable = true;
+      user = config.hostSpec.username;
     };
   };
 
@@ -54,7 +45,6 @@
   ];
 
   ## Exclusions ##
-  services.xserver.excludePackages = [ pkgs.xterm ];
   environment.gnome.excludePackages = (
     with pkgs;
     [

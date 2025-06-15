@@ -1,3 +1,4 @@
+{ lib, ... }:
 {
   programs.ssh.startAgent = true;
 
@@ -7,8 +8,8 @@
 
     settings = {
       AllowUsers = null; # everyone
-      PasswordAuthentication = false;
-      PermitRootLogin = "no";
+      PasswordAuthentication = lib.mkDefault false;
+      PermitRootLogin = lib.mkDefault "no";
       KbdInteractiveAuthentication = false;
       # Automatically remove stale sockets
       StreamLocalBindUnlink = "yes";
