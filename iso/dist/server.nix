@@ -36,4 +36,27 @@ in
     enable = true;
     keyMap = "us";
   };
+
+  home-manager = lib.mkForce {
+    extraSpecialArgs = {
+      inherit pkgs inputs;
+      inherit (config) secretsSpec hostSpec;
+    };
+    users = {
+      root.home.stateVersion = "24.05"; # Avoid error
+      ${username} = {
+        imports = [
+          (import "${inputs.dot-nix}/home/global/core" {
+            inherit
+              config
+              hostSpec
+              inputs
+              lib
+              pkgs
+              ;
+          })
+        ];
+      };
+    };
+  };
 }
