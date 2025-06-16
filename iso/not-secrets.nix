@@ -48,4 +48,8 @@ in
       };
     };
   };
+
+  # Override the installation-cd defaults to prevent password conflicts
+  users.users.nixos.initialHashedPassword = lib.mkForce null;
+  users.users.root.initialHashedPassword = lib.mkForce null;
 }
