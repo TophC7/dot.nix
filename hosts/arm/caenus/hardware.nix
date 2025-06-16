@@ -19,18 +19,13 @@ in
   ## Boot ##
   boot = {
     loader = {
-      grub = {
-        enable = true;
-        device = "/dev/vda";
-        useOSProber = true;
-      };
+      systemd-boot.enable = true;
       efi.canTouchEfiVariables = true;
       timeout = 3;
     };
 
     # use latest kernel
     kernelPackages = pkgs.linuxPackages_latest;
-
     initrd = {
       availableKernelModules = [
         "ahci"
@@ -42,6 +37,7 @@ in
       systemd.enable = true;
       verbose = false;
     };
+    kernelParams = [ "net.ifnames=0" ];
     kernelModules = [ ];
     extraModulePackages = [ ];
   };
