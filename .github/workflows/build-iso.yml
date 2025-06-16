@@ -17,22 +17,16 @@ jobs:
     strategy:
       matrix:
         include:
-          # x86 ISOs on x86 runners
           - iso-type: server
             arch: x86
-            runner: ubuntu-latest
-          - iso-type: desktop
-            arch: x86
-            runner: ubuntu-latest
-          # ARM ISOs on ARM runners
           - iso-type: server
             arch: arm
-            runner: ubuntu-latest-arm64
+          - iso-type: desktop
+            arch: x86
           - iso-type: desktop
             arch: arm
-            runner: ubuntu-latest-arm64
 
-    runs-on: ${{ matrix.runner }}
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
@@ -41,8 +35,21 @@ jobs:
       - name: Install Nix
         uses: DeterminateSystems/nix-installer-action@v9
 
+      - name: Setup QEMU for ARM emulation
+        if: ${{ matrix.arch == 'arm' }}
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: arm64
+
       - name: Setup Nix cache
         uses: DeterminateSystems/magic-nix-cache-action@v2
+
+      - name: Enable ARM emulation
+        if: ${{ matrix.arch == 'arm' }}
+        run: |
+          echo "extra-platforms = aarch64-linux" >> $HOME/.config/nix/nix.conf
+          echo "extra-sandbox-paths = /run/binfmt" >> $HOME/.config/nix/nix.conf
+          sudo systemctl restart nix-daemon.service
 
       - name: Build ISO (with retry)
         uses: nick-fields/retry@v3
@@ -52,15 +59,27 @@ jobs:
           retry_wait_seconds: 30
           command: |
             cd iso
-            nix build .#${{ matrix.iso-type }}-iso-${{ matrix.arch }} \
-              --print-build-logs \
-              --accept-flake-config
+            if [ "${{ matrix.arch }}" = "arm" ]; then
+              nix build .#${{ matrix.iso-type }}-iso-arm \
+                --system x86_64-linux \
+                --extra-platforms aarch64-linux \
+                --print-build-logs \
+                --accept-flake-config
+            else
+              nix build .#${{ matrix.iso-type }}-iso-x86 \
+                --print-build-logs \
+                --accept-flake-config
+            fi
 
       - name: Get ISO filename
         id: iso-info
         run: |
           cd iso
-          ISO_PATH=$(nix build .#${{ matrix.iso-type }}-iso-${{ matrix.arch }} --print-out-paths --no-link)
+          if [ "${{ matrix.arch }}" = "arm" ]; then
+            ISO_PATH=$(nix build .#${{ matrix.iso-type }}-iso-arm --print-out-paths --no-link)
+          else
+            ISO_PATH=$(nix build .#${{ matrix.iso-type }}-iso-x86 --print-out-paths --no-link)
+          fi
           ISO_FILE=$(find $ISO_PATH -name "*.iso" -o -name "*.iso.zst" | head -1)
           ISO_NAME=$(basename "$ISO_FILE")
           echo "iso-path=$ISO_FILE" >> $GITHUB_OUTPUT
@@ -99,7 +118,7 @@ jobs:
             - **Server ISOs**: Minimal server environment with SSH access
             - **Desktop ISOs**: GNOME desktop environment for installation
             - **x86**: Intel/AMD 64-bit systems
-            - **ARM**: ARM64 systems
+            - **ARM**: ARM64 systems (cross-compiled)
 
             ### Usage:
             1. Download the appropriate ISO for your system
