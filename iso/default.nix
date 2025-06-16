@@ -7,15 +7,17 @@
   system,
   ...
 }:
+let
+  isCross = pkgs.stdenv.buildPlatform.system != pkgs.stdenv.hostPlatform.system;
+in
 {
-  ## ISO ##
   isoImage = {
     isoName = lib.mkForce "nixos-${config.hostSpec.hostName}-${config.system.nixos.label}-${pkgs.stdenv.hostPlatform.system}.iso";
     makeEfiBootable = true;
     makeUsbBootable = true;
     compressImage = false;
     squashfsCompression = lib.mkIf isARM "gzip";
-    includeSystemBuildDependencies = lib.mkIf isARM false;
+    includeSystemBuildDependencies = lib.mkIf (isARM || isCross) false;
   };
 
   ## SSH  & NETWORK ##
@@ -56,7 +58,6 @@
   system.stateVersion = "25.05";
   nixpkgs.hostPlatform = system;
   users.mutableUsers = lib.mkForce true; # Allow password changes
-  boot.kernelPackages = pkgs.linuxPackages_latest;
 
   nixpkgs.config = {
     allowUnsupportedSystem = true;

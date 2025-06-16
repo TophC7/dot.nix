@@ -87,7 +87,7 @@
           }) configs
         );
 
-      # Generate packages per system - each system only exposes its own packages
+      # Generate packages per system - all available on x86_64 via cross-compilation
       mkPackages =
         system:
         let
@@ -103,13 +103,11 @@
     {
       nixosConfigurations = mkConfigurations;
 
-      # Each system only exposes packages it can build
       packages = {
-        "${X86}" = mkPackages X86;
+        "${X86}" = (mkPackages X86) // (mkPackages ARM);
         "${ARM}" = mkPackages ARM;
       };
 
-      # For convenience - all systems get all configs
       inherit (dot-nix.outputs) overlays;
     };
 }
