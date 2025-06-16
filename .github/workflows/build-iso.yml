@@ -17,6 +17,7 @@ jobs:
     strategy:
       matrix:
         include:
+          # Build both x86 and ARM ISOs on x86 runners
           - iso-type: server
             arch: x86
           - iso-type: server
@@ -35,6 +36,9 @@ jobs:
       - name: Install Nix
         uses: DeterminateSystems/nix-installer-action@v9
 
+      - name: Mount binfmt_misc
+        run: sudo mount binfmt_misc -t binfmt_misc /proc/sys/fs/binfmt_misc
+
       - name: Setup QEMU for ARM emulation
         if: ${{ matrix.arch == 'arm' }}
         uses: docker/setup-qemu-action@v3
@@ -43,13 +47,6 @@ jobs:
 
       - name: Setup Nix cache
         uses: DeterminateSystems/magic-nix-cache-action@v2
-
-      - name: Enable ARM emulation
-        if: ${{ matrix.arch == 'arm' }}
-        run: |
-          echo "extra-platforms = aarch64-linux" >> $HOME/.config/nix/nix.conf
-          echo "extra-sandbox-paths = /run/binfmt" >> $HOME/.config/nix/nix.conf
-          sudo systemctl restart nix-daemon.service
 
       - name: Build ISO (with retry)
         uses: nick-fields/retry@v3
@@ -62,7 +59,7 @@ jobs:
             if [ "${{ matrix.arch }}" = "arm" ]; then
               nix build .#${{ matrix.iso-type }}-iso-arm \
                 --system x86_64-linux \
-                --extra-platforms aarch64-linux \
+                --option extra-platforms aarch64-linux \
                 --print-build-logs \
                 --accept-flake-config
             else
