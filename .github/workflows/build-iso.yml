@@ -1,0 +1,112 @@
+name: Build NixOS ISOs
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "iso/**"
+      - "hosts/global/**"
+      - "home/global/**"
+      - "modules/**"
+      - "flake.nix"
+      - "flake.lock"
+  workflow_dispatch:
+
+jobs:
+  build-iso:
+    strategy:
+      matrix:
+        include:
+          # x86 ISOs on x86 runners
+          - iso-type: server
+            arch: x86
+            runner: ubuntu-latest
+          - iso-type: desktop
+            arch: x86
+            runner: ubuntu-latest
+          # ARM ISOs on ARM runners
+          - iso-type: server
+            arch: arm
+            runner: ubuntu-latest-arm64
+          - iso-type: desktop
+            arch: arm
+            runner: ubuntu-latest-arm64
+
+    runs-on: ${{ matrix.runner }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@v9
+
+      - name: Setup Nix cache
+        uses: DeterminateSystems/magic-nix-cache-action@v2
+
+      - name: Build ISO (with retry)
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 60
+          max_attempts: 3
+          retry_wait_seconds: 30
+          command: |
+            cd iso
+            nix build .#${{ matrix.iso-type }}-iso-${{ matrix.arch }} \
+              --print-build-logs \
+              --accept-flake-config
+
+      - name: Get ISO filename
+        id: iso-info
+        run: |
+          cd iso
+          ISO_PATH=$(nix build .#${{ matrix.iso-type }}-iso-${{ matrix.arch }} --print-out-paths --no-link)
+          ISO_FILE=$(find $ISO_PATH -name "*.iso" -o -name "*.iso.zst" | head -1)
+          ISO_NAME=$(basename "$ISO_FILE")
+          echo "iso-path=$ISO_FILE" >> $GITHUB_OUTPUT
+          echo "iso-name=$ISO_NAME" >> $GITHUB_OUTPUT
+
+      - name: Upload ISO as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: nixos-${{ matrix.iso-type }}-${{ matrix.arch }}-iso
+          path: ${{ steps.iso-info.outputs.iso-path }}
+          retention-days: 30
+
+  create-release:
+    needs: build-iso
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./isos
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ./isos/**/*.iso*
+          tag_name: ${{ github.ref_name }}
+          name: NixOS ISOs ${{ github.ref_name }}
+          body: |
+            ## NixOS ISOs for ${{ github.ref_name }}
+
+            This release contains automatically built NixOS ISOs based on my configuration.
+
+            ### Available ISOs:
+            - **Server ISOs**: Minimal server environment with SSH access
+            - **Desktop ISOs**: GNOME desktop environment for installation
+            - **x86**: Intel/AMD 64-bit systems
+            - **ARM**: ARM64 systems
+
+            ### Usage:
+            1. Download the appropriate ISO for your system
+            2. Flash to USB or boot in VM
+            3. Default credentials: user `nixos`, password `nixos`
+            4. SSH is enabled for remote installation
+
+            Built automatically from commit: ${{ github.sha }}
+          draft: false
+          prerelease: false

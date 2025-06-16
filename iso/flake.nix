@@ -10,8 +10,6 @@
     };
   };
 
-  ## TODO: Add a github action to automatically create iso releases
-
   outputs =
     {
       self,
@@ -89,7 +87,7 @@
           }) configs
         );
 
-      # Generate packages for all systems
+      # Generate packages per system - each system only exposes its own packages
       mkPackages =
         system:
         let
@@ -105,10 +103,13 @@
     {
       nixosConfigurations = mkConfigurations;
 
-      # Easy build commands for each architecture
-      packages = lib.genAttrs systems mkPackages;
+      # Each system only exposes packages it can build
+      packages = {
+        "${X86}" = mkPackages X86;
+        "${ARM}" = mkPackages ARM;
+      };
 
-      # Pass through the main flake's outputs (optional)
+      # For convenience - all systems get all configs
       inherit (dot-nix.outputs) overlays;
     };
 }
