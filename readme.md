@@ -2,7 +2,7 @@
 
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/TophC7/dot.nix)
 
-> **My NixOS & Home Manager Multi User/Host Configuration**  
+> **My NixOS & Home Manager Multi User/Host Configuration**
 > A modular Nix flake managing multiple systems and users with a focus on reproducibility and ease of maintenance.
 
 ![Screenshot with Invincible wallpaper](lib/public/inv.png)
@@ -21,11 +21,15 @@ This repository follows a **layered, modular approach** that separates system-le
 ├── ❄️ flake.nix                    # Central entry point & dependency management
 ├── 🔐 secrets.nix                  # Encrypted secrets (git-crypt)
 ├── 🏠 hosts/                       # System-level configurations
-├── 👤 home/                        # User environment configurations  
+│   ├── x86/                        # Intel/AMD 64-bit systems
+│   └── arm/                        # ARM64 systems
+├── 👤 home/                        # User environment configurations
 ├── 📦 modules/                     # Reusable configuration modules
 ├── 🎨 overlays/                    # Package customizations
 ├── 📋 pkgs/                        # Custom package definitions
-└── 🛠️ lib/                         # Helper functions & utilities
+├── 🛠️ lib/                         # Helper functions & utilities
+├── 🔧 iso/                         # ISO build configurations
+└── ⚙️ .github/workflows/           # CI/CD automation
 ```
 
 ---
@@ -57,16 +61,21 @@ The heart of the configuration, managing:
 ```
 hosts/global/
 ├── core/                           # Essential base settings
+│   ├── default.nix                 # Core system imports & Nix configuration
 │   ├── fonts.nix                   # Font management
 │   ├── networking.nix              # Network configuration
 │   ├── ssh.nix                     # SSH server setup
-│   └── user.nix                    # User account setup
+│   └── user.nix                    # User account setup & Home Manager integration
 └── common/                         # Optional system features
     ├── audio.nix                   # PipeWire audio stack
     ├── gaming.nix                  # Steam, GameMode, hardware optimizations
     ├── gnome.nix                   # GNOME desktop environment
-    ├── docker.nix                  # Docker setup
-    └── libvirt.nix                 # VM tools and management
+    ├── docker.nix                  # Docker setup with update-containers script
+    ├── libvirt.nix                 # VM tools and management
+    ├── warp.nix                    # Cloudflare WARP VPN support
+    └── system/
+        ├── pool.nix                # NFS pool mounting & symlink management
+        └── lxc.nix                 # Central hardware configuration for LXC hosts
 ```
 
 ### **Host-Specific Configurations**
@@ -77,17 +86,18 @@ Each system in `hosts/nixos/<hostname>/` contains:
 
 #### 🖥️ **Current Hosts**
 
-| Host       | Type          | Purpose                | Hardware                    | Services                          |
-| ---------- | ------------- | ---------------------- | --------------------------- | --------------------------------- |
-| **rune**   | Desktop       | My workstation         | Ryzen 9 7900X3D, RX 9070 XT | Gaming, Development, VMs          |
-| **gojo**   | Desktop       | Giovanni's workstation | Ryzen CPU, RX 6950 XT       | Gaming, Development               |
-| **haze**   | Desktop       | Cesar's workstation    | Ryzen 7, RX 6950 XT         | Gaming, Development               |
-| **sock**   | Server        | Backup & Storage       | Intel N150                  | WIP; Hosted on Firewall           |
-| **cloud**  | LXC Container | Storage & NFS          | 4C/4GB                      | File storage, NFS server, Backups |
-| **komodo** | LXC Container | Docker orchestration   | 12C/30GB                    | Authentik, Komodo, Web services   |
-| **proxy**  | LXC Container | Network proxy          | 3C/2GB                      | Cloudflare tunnels, Caddy         |
-| **nix**    | LXC Container | Development server     | 10C/12GB                    | Remote development, VSCode server |
-| **vm**     | VM            | Testing environment    | Variable                    | System testing                    |
+| Host       | Type          | Purpose                | Hardware                    | Services                         |
+| ---------- | ------------- | ---------------------- | --------------------------- | -------------------------------- |
+| **rune**   | Desktop       | My workstation         | Ryzen 9 7900X3D, RX 9070 XT | Gaming, Development, VMs         |
+| **gojo**   | Desktop       | Giovanni's workstation | Ryzen 7 7800X3D, RX 7900 XT | Gaming, Development              |
+| **haze**   | Desktop       | Cesar's workstation    | Ryzen 7, RX 6950 XT         | Gaming, Development              |
+| **caenus** | Server        | Oracle VPS             | ARM 4vCPU, 24GB RAM, 200GB  | FRP, Public IP                   |
+| **sock**   | Server        | Backup & Storage       | Intel N150                  | Komodo (Docker), Backups, Newt   |
+| **cloud**  | LXC Container | Storage & NFS          | 4C/4GB                      | File storage, NFS, Newt          |
+| **komodo** | LXC Container | Docker orchestration   | 12C/30GB                    | Authentik, Komodo (Docker), Newt |
+| **proxy**  | LXC Container | Network proxy          | 3C/2GB                      | Pangolin, AdGuard, Newt          |
+| **nix**    | LXC Container | Development server     | 10C/12GB                    | **Not Deployed ATM**             |
+| **vm**     | VM            | Testing environment    | Variable                    | System testing                   |
 
 ---
 
@@ -103,8 +113,11 @@ home/global/
 │   └── ssh.nix                     # SSH client configuration
 └── common/                         # Optional user applications
     ├── gaming/                     # Gaming tools & emulator backups
+    │   └── switch.nix              # Nintendo Switch emulator with Borg backups
     ├── gnome/                      # GNOME-specific programs & settings
+    │   └── dconf.nix               # Enhanced PaperWM & extension configs
     ├── vscode/                     # VS Code with patched SSH
+    ├── xdg.nix                     # XDG directory & file associations
     └── zen.nix                     # Zen browser configuration
 ```
 
@@ -164,14 +177,9 @@ Each user in `home/users/<username>/` includes:
 - **Curated Applications**: Includes configurations for applications like the Zen browser and VS Code.
 - **XDG & Mime Associations**: Sensible default applications configured via `xdg.mimeApps`, using `handlr-regex` for flexibility.
 
-### **🐳 Container Management**
-- **Komodo Integration**: Docker stack management through web UI
-- **Service Definitions**: Authentik SSO, Caddy reverse proxy, various applications
-- **compose2nix**: Docker Compose files converted to NixOS modules
-
 ### **🐳 Advanced Container Management**
 - **Docker Orchestration**: Komodo provides a web UI for managing Docker stacks.
-- **Key Services**: Pre-defined declarative configurations for services like Authentik (SSO) and Caddy (reverse proxy).
+- **Key Services**: Pre-defined declarative configurations for services like Authentik (SSO) and Pangolin (reverse proxy).
 - **Declarative Stacks**: `compose2nix` is used to convert Docker Compose files into NixOS declarative modules for services like FileRun, Authentik, etc.
 
 ### **🔐 Integrated Security**
@@ -190,12 +198,12 @@ For setting up a new system (in NixOS) with this configuration:
 
 #### **1. Clone Configuration Repository**
 ```bash
-# Get yay.nix temporarily for installation
-nix shell github:Tophc7/yay.nix --extra-experimental-features flakes --extra-experimental-features nix-command --no-write-lock-file
+# Enter development shell with necessary tools for installation
+nix develop github:TophC7/dot.nix --extra-experimental-features "flakes nix-command"
 
 # Clone the configuration repository using yay try
-yay try git git-crypt micro
-cd ~/Documents/
+FLAKE=~/Documents/dot.nix
+cd ~/Documents
 git clone https://github.com/tophc7/dot.nix
 ```
 
@@ -205,22 +213,53 @@ cd ~/Documents/dot.nix
 git-crypt unlock <<path/to/symmetric.key>> # Or use GPG key
 ```
 
+<details>
+<summary><b>Setup Your Own Secrets</b></summary>
+
+Since you won't have access to the encrypted secrets, create your own:
+
+```bash
+cd ~/Documents/dot.nix
+
+# Copy the example and customize it
+cp lib/public/secrets.example.nix secrets.nix
+
+# Edit with your credentials, SSH keys, etc.
+micro secrets.nix
+
+# Initialize git-crypt for your secrets
+git-crypt init
+git-crypt add-gpg-user YOUR_GPG_KEY_ID
+```
+
+After setting up your secrets, encrypt the file:
+```bash
+git add secrets.nix
+git-crypt lock
+```
+
+</details>
+
 #### **3. Configure Hardware Settings**
-1. **Compare hardware configurations:**
+1. Compare hardware configurations:
    ```bash
-   micro ~/Documents/dot.nix/hosts/nixos/gojo/hardware.nix
+   # Note: path structure (hosts/x86/ or hosts/arm/)
+   micro ~/Documents/dot.nix/hosts/x86/gojo/hardware.nix
    micro /etc/nixos/hardware-configuration.nix
    ```
 
-2. **Update hardware.nix** with the `fileSystems` and `swapDevices` from the generated `/etc/nixos/hardware-configuration.nix`
+2. Update hardware.nix with the `fileSystems` and `swapDevices` from the generated `/etc/nixos/hardware-configuration.nix`
 
-#### **4. Install Configuration (TTY)**
-1. **Switch to TTY**: `Ctrl+Alt+F2`
-2. **Login to TTY**
-3. **Rebuild system:**
+#### **4. Install Configuration (TTY Recommended)**
+1. Switch to TTY: `Ctrl+Alt+F2` (to avoid desktop service conflicts)
+2. Login to TTY
+3. Rebuild system:
    ```bash
-   nix shell github:Tophc7/yay.nix --extra-experimental-features flakes --extra-experimental-features nix-command --no-write-lock-file
-   yay rebuild -H gojo -p ~/Documents/dot.nix -e
+   # Enter development shell again with necessary tools for installation
+   nix develop github:TophC7/dot.nix --extra-experimental-features "flakes nix-command"
+
+   # Rebuild with your host configuration
+   yay rebuild -H your-hostname -p ~/Documents/dot.nix
    sudo reboot -f
    ```
 
@@ -244,7 +283,7 @@ yay try fastfetch -- fastfetch
 # Create archives
 yay tar myfiles/
 
-# Extract archives  
+# Extract archives
 yay untar myfiles.tar.zst
 ```
 
@@ -254,9 +293,30 @@ yay untar myfiles.tar.zst
   export FLAKE="$HOME/Documents/dot.nix"
   yay rebuild  # Will automatically use $FLAKE path
   ```
-  
+
 ---
 
+## 🔧 ISO Generation
+
+### **Automated Build System**
+- **GitHub Actions**: CI/CD pipeline for ISO releases
+- **Variants**: Server (minimal) and Desktop (GNOME) ISOs
+- **Architectures**: x86_64 and aarch64 support with optimized builds
+- **Cross-compilation**: ARM ISOs can be built on x86_64 systems
+- **Distribution**: Automatic releases with artifact uploads (X86 only)
+
+### **Local Building**
+```bash
+# Build locally
+cd iso
+nix build .#server-iso-x86
+nix build .#desktop-iso-arm
+
+# Cross-compile ARM ISOs on x86_64 systems 
+nix build .#server-iso-arm --system x86_64-linux --extra-platforms aarch64-linux
+```
+
+---
 ## 📚 Development Philosophy
 
 ### **Modularity**
@@ -286,28 +346,38 @@ yay untar myfiles.tar.zst
 | **Virtualization** | libvirt, QEMU, LXC                                   |
 | **Storage**        | MergerFS, SnapRAID, BorgBackup, NFS, `inotify-tools` |
 | **Containers**     | Docker, Komodo, compose2nix                          |
-| **Security**       | git-crypt, ACME, Cloudflare Tunnels                  |
+| **Networking**     | Newt, Pangolin, AdGuard Home, Cloudflare WARP        |
+| **Reverse Proxy**  | Traefik (via Pangolin)                               |
+| **Security**       | git-crypt, ACME, Zero Trust tunneling                |
 | **Development**    | VS Code (Patched SSH), `nixfmt`, `biome`             |
 | **Gaming**         | Steam, Proton, GameScope, GameMode, `lact`           |
 | **Monitoring**     | Apprise notifications, systemd timers                |
+| **CI/CD**          | GitHub Actions, Automated ISO builds                 |
 
----
+---9;ulj]
 
 ## 📝 Quick Reference
 
-### **Directory Structure**
-- `hosts/nixos/<name>/` - System configurations
-- `home/users/<name>/` - User environments  
-- `home/hosts/<name>/` - Host-specific user overrides
-- `modules/global/` - Shared specifications
-- `pkgs/` - Custom packages
+### **Key Configuration Files**
 - `secrets.nix` - Encrypted secrets (git-crypt)
-
-### **Key Files**
-- `flake.nix` - Dependency management & outputs
-- `shell.nix` - Recovery environment
 - `modules/global/host-spec.nix` - Host attribute definitions
 - `modules/global/secret-spec.nix` - Secret structure definitions
+- `modules/nixos/newt.nix` - Newt tunneling service module
+- `flake.nix` - Main dependency management & host discovery
+- `iso/flake.nix` - ISO generation configuration
+
+### **Frequently Modified Directories**
+- `home/users/<name>/` - Individual user configurations
+- `home/global/` - Shared user settings & applications
+- `hosts/global/` - System-wide shared configurations
+- `hosts/{x86,arm}/<name>/` - Host-specific system configs
+- `home/hosts/<name>/` - Host-specific user overrides
+- `pkgs/` - Custom package definitions
+
+### **Development Workflow**
+- `shell.nix` - Recovery environment for troubleshooting
+- `.github/workflows/` - CI/CD for ISO builds
+- `iso/` - ISO build system (separate flake)
 
 ---
 
