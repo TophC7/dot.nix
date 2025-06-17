@@ -123,15 +123,16 @@ with lib.hm.gvariant;
         "blur-my-shell@aunetx"
         "color-picker@tuberry"
         "dash-in-panel@fthx"
+        # "eepresetselector@ulville.github.io"
         "just-perfection-desktop@just-perfection"
         "monitor-brightness-volume@ailin.nemui"
         "pano@elhan.io"
         "paperwm@paperwm.github.com"
         "quicksettings-audio-devices-hider@marcinjahn.com"
         "quicksettings-audio-devices-renamer@marcinjahn.com"
+        "solaar-extension@sidevesh"
         "undecorate@sun.wxg@gmail.com"
         "user-theme@gnome-shell-extensions.gcampax.github.com"
-        "solaar-extension@sidevesh"
         "Vitals@CoreCoding.com"
       ];
       favorite-apps = lib.mkDefault [
@@ -322,7 +323,7 @@ with lib.hm.gvariant;
       window-gap = 8;
       winprops = [
         ''
-          {"wm_class":"Code","preferredWidth":"70%","spaceIndex":0}
+          {"wm_class":"Code","spaceIndex":0}
         ''
         ''
           {"wm_class":"com.mitchellh.ghostty","scratch_layer":true}

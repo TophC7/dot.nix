@@ -31,7 +31,6 @@ in
 
       ## Misc Inputs ##
     ])
-
   ];
 
   ## Host Specifications ##

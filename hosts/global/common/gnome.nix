@@ -1,6 +1,14 @@
 { pkgs, config, ... }:
 {
   ## DE ##
+  services.xserver = {
+    enable = true;
+    xkb = {
+      layout = "us";
+      variant = "";
+    };
+  };
+
   services.desktopManager.gnome = {
     enable = true;
     extraGSettingsOverridePackages = [ pkgs.mutter ];
@@ -45,6 +53,7 @@
   ];
 
   ## Exclusions ##
+  services.xserver.excludePackages = [ pkgs.xterm ];
   environment.gnome.excludePackages = (
     with pkgs;
     [

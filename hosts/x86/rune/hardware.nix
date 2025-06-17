@@ -48,6 +48,9 @@
       "amdgpu"
     ];
     extraModulePackages = [ ];
+
+    # Allow running ARM binaries on x86_64; for Cross Compilation
+    binfmt.emulatedSystems = [ "aarch64-linux" ];
   };
 
   # For less permission issues with SSHFS
