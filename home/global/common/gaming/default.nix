@@ -10,6 +10,12 @@
   home.packages = with pkgs; [
     prismlauncher
     steam-run
+    (heroic.override {
+      extraPkgs = pkgs: [
+        pkgs.gamescope
+        pkgs.gamemode
+      ];
+    })
     # modrinth-app
   ];
 }
