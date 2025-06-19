@@ -323,7 +323,13 @@ with lib.hm.gvariant;
       window-gap = 8;
       winprops = [
         ''
+          {"wm_class":"Waydroid","preferredWidth":"100%","spaceIndex":2,"title":""}
+        ''
+        ''
           {"wm_class":"Code","spaceIndex":0}
+        ''
+        ''
+          {"wm_class":"com.jaoushingan.WaydroidHelper","scratch_layer":true}
         ''
         ''
           {"wm_class":"com.mitchellh.ghostty","scratch_layer":true}
@@ -336,6 +342,9 @@ with lib.hm.gvariant;
         ''
         ''
           {"wm_class":"gnome-extensions-app","scratch_layer":true}
+        ''
+        ''
+          {"wm_class":"org.gnome.Extensions","scratch_layer":true}
         ''
         ''
           {"wm_class":"org.gnome.Nautilus","scratch_layer":true}

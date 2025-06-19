@@ -9,6 +9,7 @@
 
   home.packages = with pkgs; [
     prismlauncher
+    steam-run
     # modrinth-app
   ];
 }

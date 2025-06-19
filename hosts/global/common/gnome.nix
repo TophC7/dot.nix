@@ -1,14 +1,6 @@
 { pkgs, config, ... }:
 {
   ## DE ##
-  services.xserver = {
-    enable = true;
-    xkb = {
-      layout = "us";
-      variant = "";
-    };
-  };
-
   services.desktopManager.gnome = {
     enable = true;
     extraGSettingsOverridePackages = [ pkgs.mutter ];
@@ -23,9 +15,22 @@
       enable = true;
       wayland = true;
     };
+
+    # Set the custom session as default
+    defaultSession = "gnome";
+
     autoLogin = {
       enable = true;
       user = config.hostSpec.username;
+    };
+  };
+
+  # Configure keyboard layout for Wayland
+  services.xserver = {
+    enable = false;
+    xkb = {
+      layout = "us";
+      variant = "";
     };
   };
 
@@ -53,7 +58,6 @@
   ];
 
   ## Exclusions ##
-  services.xserver.excludePackages = [ pkgs.xterm ];
   environment.gnome.excludePackages = (
     with pkgs;
     [
