@@ -13,10 +13,6 @@
             type = lib.types.bool;
             default = false;
           };
-          noBar = lib.mkOption {
-            type = lib.types.bool;
-            default = false;
-          };
           width = lib.mkOption {
             type = lib.types.int;
             example = 1920;
@@ -44,22 +40,21 @@
           transform = lib.mkOption {
             type = lib.types.int;
             default = 0;
+            description = "Screen orientation: 0 = landscape, 1 = portrait left, 2 = portrait right, 3 = landscape flipped";
           };
           enabled = lib.mkOption {
             type = lib.types.bool;
             default = true;
           };
-          workspace = lib.mkOption {
-            type = lib.types.nullOr lib.types.str;
-            description = "Defines a workspace that should persist on this monitor.";
-            default = null;
+          hdr = lib.mkOption {
+            type = lib.types.bool;
+            default = false;
           };
           vrr = lib.mkOption {
-            type = lib.types.int;
-            description = "Variable Refresh Rate aka Adaptive Sync aka AMD FreeSync.\nValues are oriented towards hyprland's vrr values which are:\n0 = off, 1 = on, 2 = fullscreen only\nhttps://wiki.hyprland.org/Configuring/Variables/#misc";
-            default = 0;
+            type = lib.types.bool;
+            description = "Variable Refresh Rate aka Adaptive Sync aka AMD FreeSync.";
+            default = false;
           };
-
         };
       }
     );

@@ -90,7 +90,7 @@ Each system in `hosts/nixos/<hostname>/` contains:
 | ---------- | ------------- | ---------------------- | --------------------------- | -------------------------------- |
 | **rune**   | Desktop       | My workstation         | Ryzen 9 7900X3D, RX 9070 XT | Gaming, Development, VMs         |
 | **gojo**   | Desktop       | Giovanni's workstation | Ryzen 7 7800X3D, RX 7900 XT | Gaming, Development              |
-| **haze**   | Desktop       | Cesar's workstation    | Ryzen 7, RX 6950 XT         | Gaming, Development              |
+| **haze**   | Desktop       | Cesar's workstation    | Ryzen 5 7600x, RX 7600      | Gaming, Development              |
 | **caenus** | Server        | Oracle VPS             | ARM 4vCPU, 24GB RAM, 200GB  | FRP, Public IP                   |
 | **sock**   | Server        | Backup & Storage       | Intel N150                  | Komodo (Docker), Backups, Newt   |
 | **cloud**  | LXC Container | Storage & NFS          | 4C/4GB                      | File storage, NFS, Newt          |

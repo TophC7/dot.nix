@@ -34,4 +34,18 @@
       to = if builtins.isAttrs smtp then recipient else smtp.user;
     in
     "mailtos://_?user=${smtpUser}&pass=${smtpPass}&smtp=${smtpHost}&from=${smtpFrom}&to=${to}";
+
+  # Get the primary monitor from a list of monitors
+  # Falls back to first monitor if no primary is set
+  getPrimaryMonitor =
+    monitors:
+    let
+      primaryMonitors = builtins.filter (m: m.primary or false) monitors;
+    in
+    if builtins.length primaryMonitors > 0 then
+      builtins.head primaryMonitors
+    else if builtins.length monitors > 0 then
+      builtins.head monitors
+    else
+      null;
 }
