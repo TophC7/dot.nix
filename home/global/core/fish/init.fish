@@ -1,4 +1,10 @@
-set fish_greeting # Disable greeting
+function fish_greeting
+    if test "$SIXEL" = true; or string match -q xterm-256color "$TERM"
+        fastfetch --logo-type sixel
+    else
+        fastfetch
+    end
+end
 
 ## Aliases and Overrides ##
 
@@ -108,7 +114,3 @@ function unzipz
         return 1
     end
 end
-
-## Fish Prompt ##
-
-fastfetch

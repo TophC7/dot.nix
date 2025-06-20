@@ -1,7 +1,7 @@
 ###############################################################
 #
 #  Haze - Cesar's Desktop
-#  NixOS running on Ryzen 7 ___ , Radeon RX 6950 XT, 32GB RAM
+#  NixOS running on Ryzen 5 7600x, Radeon RX 7600, 32GB RAM
 #
 ###############################################################
 

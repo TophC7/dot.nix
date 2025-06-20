@@ -6,15 +6,14 @@
   ...
 }:
 {
-  #TODO: Scripts might need a rework
   programs.fastfetch =
     let
       hostname = hostSpec.hostName;
       logoFile =
         let
-          hostLogoPath = ./. + "/host/${hostname}.txt";
+          hostLogoPath = ./. + "/host/images/${hostname}.png";
         in
-        if builtins.pathExists hostLogoPath then hostLogoPath else ./host/nix.txt;
+        if builtins.pathExists hostLogoPath then hostLogoPath else ./host/images/nix.png;
       weather = import ./scripts/weather.nix { inherit pkgs; };
       title = import ./scripts/title.nix { inherit pkgs; };
     in
@@ -22,12 +21,14 @@
       enable = true;
       settings = {
         logo = {
-          source = builtins.readFile logoFile;
-          type = "data";
-          position = "left";
+          type = "kitty";
+          source = logoFile;
+          width = 21; # columns
+          height = 12; # rows
           padding = {
-            top = 0;
-            right = 0;
+            top = 1;
+            right = 2;
+            left = 2;
           };
         };
         display = {
@@ -72,7 +73,11 @@
             type = "wm";
           }
           {
-            text = "printf '%s%s' (string upper (string sub -l 1 $SHELL)) (string lower (string sub -s 2 $SHELL))";
+            text =
+              let
+                name = lib.getName pkgs.fish;
+              in
+              "printf '%s%s' (string upper (string sub -l 1 ${name})) (string lower (string sub -s 2 ${name}))";
             key = "shell   » {#keys}";
             keyColor = "1;33";
             type = "command";
