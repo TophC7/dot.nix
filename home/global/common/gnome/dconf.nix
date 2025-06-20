@@ -322,10 +322,7 @@ with lib.hm.gvariant;
       vertical-margin-bottom = 8;
       window-gap = 8;
       winprops = [
-        ''
-          {"wm_class":"Waydroid","preferredWidth":"100%","spaceIndex":2,"title":""}
-        ''
-        ''
+                ''
           {"wm_class":"Code","spaceIndex":0}
         ''
         ''
@@ -351,6 +348,12 @@ with lib.hm.gvariant;
         ''
         ''
           {"wm_class":"TelegramDesktop","spaceIndex":1}
+        ''
+        ''
+          {"wm_class":"Waydroid","preferredWidth":"100%","spaceIndex":0,"title":""}
+        ''
+        ''
+          {"wm_class":".gamescope-wrapped","preferredWidth":"100%","spaceIndex":2}
         ''
       ];
     };

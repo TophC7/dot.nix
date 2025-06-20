@@ -1,4 +1,9 @@
-{ pkgs, config, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 {
   ## DE ##
   services.desktopManager.gnome = {
@@ -17,7 +22,7 @@
     };
 
     # Set the custom session as default
-    defaultSession = "gnome";
+    defaultSession = lib.mkForce "gnome";
 
     autoLogin = {
       enable = true;
