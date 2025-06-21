@@ -1,5 +1,5 @@
 function fish_greeting
-    if test "$SIXEL" = true; or string match -q xterm-256color "$TERM"
+    if not string match -q "*ghostty*" "$TERM"
         fastfetch --logo-type sixel
     else
         fastfetch
