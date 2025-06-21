@@ -1,3 +1,6 @@
+## NOTE:
+## This is only configured for AMD GPUs; Nvidia might require additional configuration.
+## For example host (PC) configuration using this module go to hosts/x86/rune
 {
   pkgs,
   lib,
@@ -6,17 +9,15 @@
   ...
 }:
 {
-
   hardware.graphics = {
     enable = true;
     enable32Bit = true;
   };
 
-  # AMDgpu tool
   environment.systemPackages = with pkgs; [
-    lact
+    lact # AMDgpu tool
     gamescope
-    # gamescope-wsi
+    # gamescope-wsi # TODO: Test again in future updates, borked atm 06/21/25
   ];
 
   systemd = {
@@ -34,7 +35,6 @@
         package = pkgs.protontricks;
       };
 
-      # PKGs needed for gamescope to work within steam
       package = pkgs.steam.override {
         extraPkgs =
           pkgs:

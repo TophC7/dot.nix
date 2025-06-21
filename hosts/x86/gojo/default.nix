@@ -65,12 +65,6 @@ in
     asdf-vm
   ];
 
-  environment.sessionVariables = {
-    AMD_VULKAN_ICD = "RADV";
-    RADV_PERFTEST = "aco";
-    PROTON_USE_D9VK = 1;
-  };
-
   # FIXME: Remove once out of VM
   # VM guest additions to improve host-guest interaction
   services.spice-vdagentd.enable = true;

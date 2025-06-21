@@ -1,3 +1,6 @@
+## NOTE:
+## This is only configured for AMD GPUs; Nvidia might require additional configuration.
+## For example host (PC) configuration using this module go to home/hosts/rune
 {
   pkgs,
   config,
@@ -14,7 +17,7 @@ let
 
   # INFO: Example working commands for running games in steam-session
   ## Rivals ##
-  # SteamDeck=1 LD_PRELOAD="" PROTON_ENABLE_NVAPI=1 PROTON_ENABLE_WAYLAND=1 VKD3D_DISABLE_EXTENSIONS=VK_KHR_present_wait gamemoderun %command%  -PSOCompileMode=1 -dx12
+  # SteamDeck=1 LD_PRELOAD="" PROTON_ENABLE_NVAPI=1 PROTON_ENABLE_WAYLAND=1 VKD3D_DISABLE_EXTENSIONS=VK_KHR_present_wait gamemoderun %command% -PSOCompileMode=1 -dx12
   ## Stats Overlay ##
   # gamemoderun mangohud %command%
 
