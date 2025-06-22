@@ -15,6 +15,9 @@ let
   VRR = primaryMonitor.vrr or false;
   HDR = primaryMonitor.hdr or false;
 
+  cursorTheme = config.home.pointerCursor.name or "Adwaita";
+  cursorPackage = config.home.pointerCursor.package or pkgs.gnome.adwaita-icon-theme;
+
   # INFO: Example working commands for running games in steam-session
   ## Rivals ##
   # SteamDeck=1 LD_PRELOAD="" PROTON_ENABLE_NVAPI=1 PROTON_ENABLE_WAYLAND=1 VKD3D_DISABLE_EXTENSIONS=VK_KHR_present_wait gamemoderun %command% -PSOCompileMode=1 -dx12
@@ -22,16 +25,28 @@ let
   # gamemoderun mangohud %command%
 
   gamescope-env = ''
-    set -x CAP_SYS_NICE eip
     set -x DXVK_HDR 1
     set -x ENABLE_GAMESCOPE_WSI 1
     set -x ENABLE_HDR_WSI 1
     set -x AMD_VULKAN_ICD RADV
     set -x RADV_PERFTEST aco
     set -x SDL_VIDEODRIVER wayland
+    set -x XCURSOR_THEME '${cursorTheme}'
+    set -x XCURSOR_PATH '${cursorPackage}/share/icons'
+
+    # Gamescope display identifier
+    set -x GAMESCOPE_WAYLAND_DISPLAY "gamescope-0"
+
+    # Steam specific environment variables 
     set -x STEAM_FORCE_DESKTOPUI_SCALING 1
     set -x STEAM_GAMEPADUI 1
     set -x STEAM_GAMESCOPE_CLIENT 1
+
+    # Lutris specific environment variables
+    set -x LUTRIS_SKIP_INIT 1
+    set -x DISABLE_LAYER_AMD_SWITCHABLE_GRAPHICS_1 1
+    set -x DISABLE_LAYER_NV_OPTIMUS_1 1
+
   '';
 
   # Base gamescope options
@@ -46,7 +61,6 @@ let
       "-r"
       "${toString REFRESH_RATE}"
       "-f"
-      "--expose-wayland"
       "--backend"
       "sdl"
       "--rt"
@@ -64,6 +78,13 @@ let
   # Run gamescope with a set working environment
   gamescope-run = pkgs.writeScriptBin "gamescope-run" ''
     #!${lib.getExe pkgs.fish}
+
+    # Check if we're already inside a Gamescope session
+    if set -q GAMESCOPE_WAYLAND_DISPLAY
+      echo "Already inside Gamescope session ($GAMESCOPE_WAYLAND_DISPLAY), running command directly..."
+      # Skip gamescope and run the command directly
+      exec $argv
+    end
 
     # Session Environment
     ${gamescope-env}
@@ -99,7 +120,7 @@ let
     end
 
     # Execute gamescope with the final arguments and the command
-    exec ${lib.getExe pkgs.gamescope} $final_args -- $argv
+    exec ${lib.getExe pkgs.gamescope_git} $final_args -- $argv
   '';
 
   ## Effectively forces gamescope-run to be the default way to use Steam
@@ -109,30 +130,51 @@ let
     # This script wraps the original steam command to launch it
     # with gamescope-run in a big picture mode.
     # All arguments passed to this script are forwarded.
-    exec ${gamescope-run}/bin/gamescope-run -x "-e" ${lib.getExe pkgs.steam} -tenfoot -steamdeck -gamepadui $argv
+    exec ${lib.getExe gamescope-run} -x "-e" ${lib.getExe pkgs.steam} -tenfoot -steamdeck -gamepadui $argv
+  '';
+
+  ## Ensures that all Lutris game launches go through Gamescope
+  ## !!! This breaks the Lutris GUI, so use the overridden .desktop entry for opening Lutris itself
+  lutris-wrapper = pkgs.writeScriptBin "lutris" ''
+    #!${lib.getExe pkgs.fish}
+    # This script wraps the original lutris command to launch it
+    # with gamescope-run. All arguments passed to this script are forwarded.
+    exec ${lib.getExe gamescope-run} -x "--force-windows-fullscreen" ${lib.getExe pkgs.lutris} $argv
   '';
 in
 {
   home.packages = with pkgs; [
     steam-run
-    gamescope-run
     steam-wrapper
+    gamescope-run
+    lutris-wrapper
   ];
 
   xdg.desktopEntries =
     let
-      steamBigPictureCmd = ''${lib.getExe gamescope-run} -x "-e" ${lib.getExe pkgs.steam} -tenfoot -steamdeck -gamepadui'';
+      steamBigPictureCmd = ''${lib.getExe gamescope-run} -x "-e" ${lib.getExe pkgs.steam} -tenfoot -steamdeck'';
       heroicGamescopeCmd = ''${lib.getExe gamescope-run} -x "--force-windows-fullscreen" ${lib.getExe pkgs.heroic}'';
     in
     {
       steam = {
         name = "Steam";
-        comment = "Steam Big Picture (Gamescope)";
+        comment = "Steam Big Picture in Gamescope Session";
         exec = steamBigPictureCmd;
         icon = "steam";
         type = "Application";
         terminal = false;
         categories = [ "Game" ];
+        mimeType = [
+          "x-scheme-handler/steam"
+          "x-scheme-handler/steamlink"
+        ];
+        settings = {
+          StartupNotify = "true";
+          StartupWMClass = "Steam";
+          PrefersNonDefaultGPU = "true";
+          X-KDE-RunOnDiscreteGpu = "true";
+          Keywords = "gaming;";
+        };
         actions = {
           bigpicture = {
             name = "Steam Client (No Gamescope)";
@@ -141,8 +183,8 @@ in
         };
       };
 
-      "com.heroicgameslauncher.hgl.desktop" = {
-        name = "Heroic Games Launcher (Gamescope)";
+      "com.heroicgameslauncher.hgl" = {
+        name = "Heroic Games Launcher";
         comment = "Heroic in Gamescope Session";
         exec = heroicGamescopeCmd;
         icon = "com.heroicgameslauncher.hgl";
@@ -153,6 +195,29 @@ in
           regular = {
             name = "Heroic (No Gamescope)";
             exec = "${lib.getExe pkgs.heroic}";
+          };
+        };
+      };
+
+      "net.lutris.Lutris" = {
+        name = "Lutris";
+        comment = "Video Game Preservation Platform";
+        exec = "${lib.getExe pkgs.lutris} %U";
+        icon = "net.lutris.Lutris";
+        type = "Application";
+        terminal = false;
+        categories = [ "Game" ];
+        mimeType = [ "x-scheme-handler/lutris" ];
+        settings = {
+          StartupNotify = "true";
+          StartupWMClass = "Lutris";
+          Keywords = "gaming;wine;emulator;";
+          X-GNOME-UsesNotifications = "true";
+        };
+        actions = {
+          regular = {
+            name = "Lutris (Gamescope BROKEN)";
+            exec = ''${lib.getExe gamescope-run} -x "--force-windows-fullscreen --expose-wayland" ${lib.getExe pkgs.lutris} %U'';
           };
         };
       };

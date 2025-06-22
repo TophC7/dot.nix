@@ -16,13 +16,35 @@
 
   environment.systemPackages = with pkgs; [
     lact # AMDgpu tool
-    gamescope
-    # gamescope-wsi # TODO: Test again in future updates, borked atm 06/21/25
+    heroic
+    gamescope_git
+    gamescope-wsi_git
+    (pkgs.lutris.override {
+      extraPkgs = pkgs: [
+        pkgs.wineWowPackages.waylandFull
+        pkgs.winetricks
+        vulkan-tools
+        xterm
+      ];
+    })
   ];
 
   systemd = {
     packages = with pkgs; [ lact ];
     services.lactd.wantedBy = [ "multi-user.target" ];
+  };
+
+  # Instead of set -x CAP_SYS_NICE eip
+  services.ananicy = {
+    enable = true;
+    package = pkgs.ananicy-cpp;
+    rulesProvider = pkgs.ananicy-cpp;
+    extraRules = [
+      {
+        "name" = "gamescope";
+        "nice" = -20;
+      }
+    ];
   };
 
   programs = {
@@ -63,7 +85,8 @@
           });
       };
       extraCompatPackages = [ pkgs.unstable.proton-ge-bin ];
-      gamescopeSession.enable = true;
+      # Conflicting with gamescope_git
+      # gamescopeSession.enable = true;
     };
 
     gamemode = {
