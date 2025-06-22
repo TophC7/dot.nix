@@ -1,11 +1,15 @@
 {
   pkgs,
+  lib,
   ...
 }:
-# INFO: Based on https://github.com/fcambus/ansiweather
+let
+  jq = lib.getExe pkgs.jq;
+in
 pkgs.writeScript "weather" ''
   #!/usr/bin/env fish
 
+  # INFO: Based on https://github.com/fcambus/ansiweather
   # Usage: ./weather.fish "Richmond,US"
 
   if not set -q argv[1]
@@ -28,17 +32,17 @@ pkgs.writeScript "weather" ''
   set weather_data (curl -s "$WEATHER_API_URL")
 
   # Parse needed fields
-  set city_name (set_color -i green)(echo $weather_data | jq -r '.name')(set_color reset)
-  set temperature (echo $weather_data | jq -r '.main.temp' | xargs printf "%.0f")
-  set humidity (echo $weather_data | jq -r '.main.humidity')
-  set weather_main (echo $weather_data | jq -r '.weather[0].main')
-  set lon (echo $weather_data | jq -r '.coord.lon')
-  set lat (echo $weather_data | jq -r '.coord.lat')
+  set city_name (set_color -i green)(echo $weather_data | ${jq} -r '.name')(set_color reset)
+  set temperature (echo $weather_data | ${jq} -r '.main.temp' | xargs printf "%.0f")
+  set humidity (echo $weather_data | ${jq} -r '.main.humidity')
+  set weather_main (echo $weather_data | ${jq} -r '.weather[0].main')
+  set lon (echo $weather_data | ${jq} -r '.coord.lon')
+  set lat (echo $weather_data | ${jq} -r '.coord.lat')
 
   # Fetch UVI data
   set UVI_API_URL "https://api.openweathermap.org/data/2.5/uvi?lat=$lat&lon=$lon&appid=$API_KEY"
   set uvi_data (curl -s "$UVI_API_URL")
-  set uvi (echo $uvi_data | jq -r '.value')
+  set uvi (echo $uvi_data | ${jq} -r '.value')
 
   # Helper function for weather icon
   function weather_icon

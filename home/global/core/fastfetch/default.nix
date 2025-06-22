@@ -14,7 +14,7 @@
           hostLogoPath = ./. + "/host/images/${hostname}.png";
         in
         if builtins.pathExists hostLogoPath then hostLogoPath else ./host/images/nix.png;
-      weather = import ./scripts/weather.nix { inherit pkgs; };
+      weather = import ./scripts/weather.nix { inherit pkgs lib; };
       title = import ./scripts/title.nix { inherit pkgs; };
     in
     {
