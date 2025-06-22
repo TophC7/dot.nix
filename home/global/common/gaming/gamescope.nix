@@ -130,7 +130,7 @@ let
     # This script wraps the original steam command to launch it
     # with gamescope-run in a big picture mode.
     # All arguments passed to this script are forwarded.
-    exec ${lib.getExe gamescope-run} -x "-e" ${lib.getExe pkgs.steam} -tenfoot -steamdeck -gamepadui $argv
+    exec ${lib.getExe gamescope-run} -x "-e" ${lib.getExe pkgs.steam} -tenfoot $argv
   '';
 
   ## Ensures that all Lutris game launches go through Gamescope
@@ -150,76 +150,76 @@ in
     lutris-wrapper
   ];
 
-  xdg.desktopEntries =
-    let
-      steamBigPictureCmd = ''${lib.getExe gamescope-run} -x "-e" ${lib.getExe pkgs.steam} -tenfoot -steamdeck'';
-      heroicGamescopeCmd = ''${lib.getExe gamescope-run} -x "--force-windows-fullscreen" ${lib.getExe pkgs.heroic}'';
-    in
-    {
-      steam = {
-        name = "Steam";
-        comment = "Steam Big Picture in Gamescope Session";
-        exec = steamBigPictureCmd;
-        icon = "steam";
-        type = "Application";
-        terminal = false;
-        categories = [ "Game" ];
-        mimeType = [
-          "x-scheme-handler/steam"
-          "x-scheme-handler/steamlink"
-        ];
-        settings = {
-          StartupNotify = "true";
-          StartupWMClass = "Steam";
-          PrefersNonDefaultGPU = "true";
-          X-KDE-RunOnDiscreteGpu = "true";
-          Keywords = "gaming;";
-        };
-        actions = {
-          bigpicture = {
-            name = "Steam Client (No Gamescope)";
-            exec = "${lib.getExe pkgs.steam}";
-          };
-        };
+  xdg.desktopEntries = {
+    steam = {
+      name = "Steam";
+      comment = "Steam Big Picture in Gamescope Session";
+      exec = "${lib.getExe steam-wrapper}";
+      icon = "steam";
+      type = "Application";
+      terminal = false;
+      categories = [ "Game" ];
+      mimeType = [
+        "x-scheme-handler/steam"
+        "x-scheme-handler/steamlink"
+      ];
+      settings = {
+        StartupNotify = "true";
+        StartupWMClass = "Steam";
+        PrefersNonDefaultGPU = "true";
+        X-KDE-RunOnDiscreteGpu = "true";
+        Keywords = "gaming;";
       };
-
-      "com.heroicgameslauncher.hgl" = {
-        name = "Heroic Games Launcher";
-        comment = "Heroic in Gamescope Session";
-        exec = heroicGamescopeCmd;
-        icon = "com.heroicgameslauncher.hgl";
-        type = "Application";
-        terminal = false;
-        categories = [ "Game" ];
-        actions = {
-          regular = {
-            name = "Heroic (No Gamescope)";
-            exec = "${lib.getExe pkgs.heroic}";
-          };
-        };
-      };
-
-      "net.lutris.Lutris" = {
-        name = "Lutris";
-        comment = "Video Game Preservation Platform";
-        exec = "${lib.getExe pkgs.lutris} %U";
-        icon = "net.lutris.Lutris";
-        type = "Application";
-        terminal = false;
-        categories = [ "Game" ];
-        mimeType = [ "x-scheme-handler/lutris" ];
-        settings = {
-          StartupNotify = "true";
-          StartupWMClass = "Lutris";
-          Keywords = "gaming;wine;emulator;";
-          X-GNOME-UsesNotifications = "true";
-        };
-        actions = {
-          regular = {
-            name = "Lutris (Gamescope BROKEN)";
-            exec = ''${lib.getExe gamescope-run} -x "--force-windows-fullscreen --expose-wayland" ${lib.getExe pkgs.lutris} %U'';
-          };
+      actions = {
+        bigpicture = {
+          name = "Steam Client (No Gamescope)";
+          exec = "${lib.getExe pkgs.steam}";
         };
       };
     };
+
+    "com.heroicgameslauncher.hgl" = {
+      name = "Heroic Games Launcher";
+      comment = "Heroic in Gamescope Session";
+      exec = ''${lib.getExe gamescope-run} -x "--force-windows-fullscreen" ${lib.getExe pkgs.heroic}'';
+      icon = "com.heroicgameslauncher.hgl";
+      type = "Application";
+      terminal = false;
+      categories = [ "Game" ];
+      actions = {
+        regular = {
+          name = "Heroic (No Gamescope)";
+          exec = "${lib.getExe pkgs.heroic}";
+        };
+      };
+    };
+
+    "net.lutris.Lutris" = {
+      name = "Lutris";
+      comment = "Video Game Preservation Platform";
+      exec = "${lib.getExe pkgs.lutris} %U";
+      icon = "net.lutris.Lutris";
+      type = "Application";
+      terminal = false;
+      categories = [ "Game" ];
+      mimeType = [ "x-scheme-handler/lutris" ];
+      settings = {
+        StartupNotify = "true";
+        StartupWMClass = "Lutris";
+        Keywords = "gaming;wine;emulator;";
+        X-GNOME-UsesNotifications = "true";
+      };
+      actions = {
+        broken = {
+          name = "Lutris (Gamescope BROKEN)";
+          exec = ''${lib.getExe gamescope-run} -x "--force-windows-fullscreen" ${lib.getExe pkgs.lutris}'';
+        };
+
+        broken-exposed = {
+          name = "Lutris (Gamescope BROKEN; Exposed Wayland)";
+          exec = ''${lib.getExe gamescope-run} -x "--force-windows-fullscreen --expose-wayland" ${lib.getExe pkgs.lutris}'';
+        };
+      };
+    };
+  };
 }
