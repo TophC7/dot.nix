@@ -43,6 +43,11 @@
       ];
       kernelModules = [ ];
     };
+
+    # Workaround for boot issues
+    kernelParams = [
+      "amdgpu.dcdebugmask=0x10"
+    ];
     kernelModules = [
       "kvm-amd"
       "amdgpu"

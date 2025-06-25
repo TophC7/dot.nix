@@ -16,9 +16,14 @@ let
   linuxModifications = final: prev: prev.lib.mkIf final.stdenv.isLinux { };
 
   modifications = final: prev: {
-    # example = prev.example.overrideAttrs (oldAttrs: let ... in {
-    # ...
-    # });
+    ## FIXME: Workaround, amd drivers are borked on current nixpkgs-unstable
+    linux-firmware = prev.linux-firmware.overrideAttrs (old: rec {
+      version = "20250509";
+      src = prev.fetchzip {
+        url = "https://cdn.kernel.org/pub/linux/kernel/firmware/linux-firmware-${version}.tar.xz";
+        hash = "sha256-0FrhgJQyCeRCa3s0vu8UOoN0ZgVCahTQsSH0o6G6hhY=";
+      };
+    });
   };
 
   stable-packages = final: _prev: {
