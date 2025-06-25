@@ -28,7 +28,7 @@
 
       ## Social ##
       telegram-desktop
-      discord
+      discord-krisp
       betterdiscordctl
 
       ## Tools ##

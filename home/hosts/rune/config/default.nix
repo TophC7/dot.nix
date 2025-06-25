@@ -36,7 +36,7 @@
       primary = true;
       width = 3840;
       height = 2160;
-      refreshRate = 60;
+      refreshRate = 120;
       x = 0;
       y = 0;
       scale = 1.0;

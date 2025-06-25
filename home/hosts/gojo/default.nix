@@ -34,7 +34,7 @@
 
       ## Social ##
       betterdiscordctl
-      discord
+      discord-krisp
       telegram-desktop
 
       ## Tools ##
