@@ -22,6 +22,7 @@
     extraOptions = [
       "--network-alias=adguard"
       "--network=adguard_default"
+      "--network=newt"
     ];
   };
 
