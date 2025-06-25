@@ -6,44 +6,50 @@
 }:
 {
   ## DE ##
-  services.desktopManager.gnome = {
-    enable = true;
-    extraGSettingsOverridePackages = [ pkgs.mutter ];
-    extraGSettingsOverrides = ''
-      [org.gnome.mutter]
-      experimental-features=['scale-monitor-framebuffer']
-    '';
-  };
-
-  services.displayManager = {
-    gdm = {
+  services = {
+    desktopManager.gnome = {
       enable = true;
-      wayland = true;
+      extraGSettingsOverridePackages = [ pkgs.mutter ];
+      extraGSettingsOverrides = ''
+        [org.gnome.mutter]
+        experimental-features=['scale-monitor-framebuffer']
+      '';
     };
 
-    # Set the custom session as default
-    defaultSession = lib.mkForce "gnome";
+    # hosts/global/core/ssh.nix handles this
+    gnome.gcr-ssh-agent.enable = false;
 
-    autoLogin = {
-      enable = true;
-      user = config.hostSpec.username;
-    };
-  };
+    displayManager = {
+      gdm = {
+        enable = true;
+        wayland = true;
+      };
 
-  # Configure keyboard layout for Wayland
-  services.xserver = {
-    enable = false;
-    xkb = {
-      layout = "us";
-      variant = "";
+      # Set the custom session as default
+      defaultSession = lib.mkForce "gnome";
+
+      autoLogin = {
+        enable = true;
+        user = config.hostSpec.username;
+      };
     };
+
+    # Configure keyboard layout for Wayland
+    xserver = {
+      enable = false;
+      xkb = {
+        layout = "us";
+        variant = "";
+      };
+    };
+
+    udev.packages = with pkgs; [ gnome-settings-daemon ];
   };
 
   #INFO: Fix for autoLogin
   systemd.services."getty@tty1".enable = false;
   systemd.services."autovt@tty1".enable = false;
 
-  services.udev.packages = with pkgs; [ gnome-settings-daemon ];
   environment.systemPackages = with pkgs; [
     gnome-tweaks
     gnomeExtensions.alphabetical-app-grid
