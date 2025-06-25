@@ -18,10 +18,12 @@ let
   modifications = final: prev: {
     ## FIXME: Workaround, amd drivers are borked on current nixpkgs-unstable
     linux-firmware = prev.linux-firmware.overrideAttrs (old: rec {
-      version = "20250509";
-      src = prev.fetchzip {
-        url = "https://cdn.kernel.org/pub/linux/kernel/firmware/linux-firmware-${version}.tar.xz";
-        hash = "sha256-0FrhgJQyCeRCa3s0vu8UOoN0ZgVCahTQsSH0o6G6hhY=";
+      version = "20250625";
+      src = prev.fetchFromGitLab {
+        owner = "kernel-firmware";
+        repo = "linux-firmware";
+        rev = "b05fabcd6f2a16d50b5f86c389dde7a33f00bb81";
+        hash = "sha256-AvSsyfKP57Uhb3qMrf6PpNHKbXhD9IvFT1kcz5J7khM=";
       };
     });
   };
