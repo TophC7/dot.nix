@@ -97,6 +97,7 @@ in
           allowUnfree = true;
           permittedInsecurePackages = [
             "ventoy-gtk3-1.1.05"
+            "modrinth-app"
           ];
         }
       '';

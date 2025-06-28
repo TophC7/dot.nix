@@ -43,6 +43,11 @@
       ## Productivity ##
       gimp
       inkscape
+      eloquent
+
+      ## Minecraft ##
+      modrinth-app
+      gdlauncher-carbon
       ;
 
     inherit (pkgs.jetbrains)
