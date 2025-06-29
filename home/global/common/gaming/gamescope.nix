@@ -2,9 +2,10 @@
 ## This is only configured for AMD GPUs; Nvidia might require additional configuration.
 ## For example host (PC) configuration using this module go to home/hosts/rune
 {
-  pkgs,
   config,
   lib,
+  osConfig,
+  pkgs,
   ...
 }:
 let
@@ -33,6 +34,11 @@ let
     set -x SDL_VIDEODRIVER wayland
     set -x XCURSOR_THEME '${cursorTheme}'
     set -x XCURSOR_PATH '${cursorPackage}/share/icons'
+
+    # Wayland specific environment variables
+    # set -x PROTON_USE_SDL 1
+    set -x PROTON_USE_WAYLAND 1
+    set -x PROTON_ENABLE_HDR 1
 
     # Gamescope display identifier
     set -x GAMESCOPE_WAYLAND_DISPLAY "gamescope-0"
@@ -119,18 +125,22 @@ let
         set -a final_args (string split ' ' -- $GAMESCOPE_EXTRA_OPTS)
     end
 
+    # Show the command being executed
+    echo -e "\033[1;36m[gamescope-run]\033[0m Running: \033[1;34m${lib.getExe pkgs.gamescope_git}\033[0m $final_args \033[1;32m--\033[0m $argv"
+
     # Execute gamescope with the final arguments and the command
     exec ${lib.getExe pkgs.gamescope_git} $final_args -- $argv
   '';
 
   ## Effectively forces gamescope-run to be the default way to use Steam
   ## Why? Because , .desktops created by Steam would not run under gamescope-run otherwise
+  ## !!! do not use 'pkgs.steam', it will not be configured correctly
   steam-wrapper = pkgs.writeScriptBin "steam" ''
     #!${lib.getExe pkgs.fish}
     # This script wraps the original steam command to launch it
     # with gamescope-run in a big picture mode.
     # All arguments passed to this script are forwarded.
-    exec ${lib.getExe gamescope-run} -x "-e" ${lib.getExe pkgs.steam} -tenfoot $argv
+    exec ${lib.getExe gamescope-run} -x "-e" ${lib.getExe osConfig.programs.steam.package} -tenfoot $argv
   '';
 
   ## Ensures that all Lutris game launches go through Gamescope

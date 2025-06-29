@@ -74,19 +74,21 @@
 
             inherit (pkgs)
               gamemode
-              mangohud
               gperftools
               keyutils
               libkrb5
               libpng
               libpulseaudio
               libvorbis
+              mangohud
               ;
           });
       };
-      extraCompatPackages = [ pkgs.unstable.proton-ge-bin ];
-      # Conflicting with gamescope_git
-      # gamescopeSession.enable = true;
+      extraCompatPackages = with pkgs; [
+        proton-ge-bin
+        proton-ge-custom
+        proton-cachyos
+      ];
     };
 
     gamemode = {
