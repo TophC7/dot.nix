@@ -34,14 +34,19 @@
 
     stylix.url = "github:danth/stylix";
 
-    ## Misc Packages ##
+    ## Gaming Packages ##
 
     nix-gaming = {
       url = "github:fufexan/nix-gaming";
-      inputs = {
-        nixpkgs.follows = "nixpkgs";
-      };
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
+
+    play = {
+      url = "github:tophc7/play.nix";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+    };
+
+    ## Misc Packages ##
 
     # nixcord.url = "github:kaylorben/nixcord";
     # spicetify-nix = {
@@ -57,7 +62,7 @@
     snapraid-aio = {
       # url = "git+https://git.ryot.foo/toph/snapraid-aio.nix.git";
       url = "git+https://git.ryot.foo/toph/snapraid-aio.nix.git";
-      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
     vscode-server = {
@@ -67,7 +72,7 @@
 
     yay = {
       url = "git+https://git.ryot.foo/toph/yay.nix.git";
-      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
     zen-browser = {
