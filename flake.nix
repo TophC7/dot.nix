@@ -60,8 +60,7 @@
     };
 
     snapraid-aio = {
-      # url = "git+https://git.ryot.foo/toph/snapraid-aio.nix.git";
-      url = "git+https://git.ryot.foo/toph/snapraid-aio.nix.git";
+      url = "github:tophc7/snapraid-aio.nix";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
@@ -71,7 +70,7 @@
     };
 
     yay = {
-      url = "git+https://git.ryot.foo/toph/yay.nix.git";
+      url = "github:tophc7/yay.nix";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
