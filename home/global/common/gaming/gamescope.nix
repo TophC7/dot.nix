@@ -27,7 +27,7 @@
     wrappers = {
       steam = {
         enable = true;
-        package = osConfig.programs.steam.package;
+        command = "${lib.getExe osConfig.programs.steam.package} -bigpicture -tenfoot";
         extraOptions = {
           "steam" = true; # equivalent to --steam flag
         };
@@ -63,7 +63,7 @@
     steam = {
       name = "Steam";
       comment = "Steam Big Picture in Gamescope Session";
-      exec = "${lib.getExe config.play.wrappers.steam.wrappedPackage} -bigpicture -tenfoot";
+      exec = "${lib.getExe config.play.wrappers.steam.wrappedPackage}";
       icon = "steam";
       type = "Application";
       terminal = false;
