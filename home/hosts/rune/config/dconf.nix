@@ -10,7 +10,56 @@ with lib.hm.gvariant;
       folder-children = [
         "System"
         "Utilities"
+        "9749f26a-a257-4d4f-937f-e3dd64217eb5"
+        "2e37c30a-0da6-400b-b4d1-172dd613cddc"
       ];
+    };
+
+    "folders/2e37c30a-0da6-400b-b4d1-172dd613cddc" = {
+      apps = [
+        "Against the Storm.desktop"
+        "ASTRONEER.desktop"
+        "Bloons TD 6.desktop"
+        "Bloons TD Battles 2.desktop"
+        "Enshrouded.desktop"
+        "It Takes Two.desktop"
+        "Persona5 The Phantom X.desktop"
+        "R.E.P.O..desktop"
+        "The Alters.desktop"
+      ];
+      name = "Games";
+    };
+
+    "org/gnome/desktop/app-folders/folders/9749f26a-a257-4d4f-937f-e3dd64217eb5" = {
+      apps = [
+        "waydroid.de.szalkowski.activitylauncher.desktop"
+        "waydroid.com.android.inputmethod.latin.desktop"
+        "waydroid.com.handycloset.android.eraser.desktop"
+        "waydroid.org.lineageos.jelly.desktop"
+        "waydroid.com.android.calculator2.desktop"
+        "waydroid.org.lineageos.etar.desktop"
+        "waydroid.com.android.camera2.desktop"
+        "waydroid.com.android.deskclock.desktop"
+        "waydroid.com.android.contacts.desktop"
+        "waydroid.com.android.documentsui.desktop"
+        "waydroid.com.android.gallery3d.desktop"
+        "waydroid.com.google.android.apps.bard.desktop"
+        "waydroid.com.android.vending.desktop"
+        "waydroid.com.google.android.apps.chromecast.app.desktop"
+        "waydroid.app.pinya.lime.desktop"
+        "waydroid.com.mojang.minecraftpe.desktop"
+        "waydroid.com.atomicadd.tinylauncher.desktop"
+        "waydroid.org.lineageos.eleven.desktop"
+        "waydroid.tw.nekomimi.nekogram.desktop"
+        "waydroid.com.smartpack.packagemanager.desktop"
+        "waydroid.org.lineageos.recorder.desktop"
+        "waydroid.com.android.settings.desktop"
+        "waydroid.com.niksoftware.snapseed.desktop"
+        "Waydroid.desktop"
+        "com.jaoushingan.WaydroidHelper.desktop"
+      ];
+      name = "Waydroid";
+      translate = false;
     };
 
     "org/gnome/desktop/app-folders/folders/System" = {
@@ -21,6 +70,7 @@ with lib.hm.gvariant;
         "fish.desktop"
         "io.github.nokse22.inspector.desktop"
         "kvantummanager.desktop"
+        "io.github.ilya_zlobintsev.LACT.desktop"
         "org.gnome.Logs.desktop"
         "cups.desktop"
         "micro.desktop"
@@ -28,9 +78,10 @@ with lib.hm.gvariant;
         "protontricks.desktop"
         "qt5ct.desktop"
         "qt6ct.desktop"
-        "yazi.desktop"
+        "solaar.desktop"
         "org.gnome.SystemMonitor.desktop"
         "org.gnome.tweaks.desktop"
+        "yazi.desktop"
       ];
       name = "X-GNOME-Shell-System.directory";
       translate = true;
@@ -62,6 +113,36 @@ with lib.hm.gvariant;
       translate = true;
     };
 
+    "org/gnome/desktop/app-folders/folders/c4b3dde8-cab4-48b0-a20d-6519c6cee231" = {
+      apps = [
+        "waydroid.de.szalkowski.activitylauncher.desktop"
+        "waydroid.com.android.inputmethod.latin.desktop"
+        "waydroid.com.handycloset.android.eraser.desktop"
+        "waydroid.org.lineageos.jelly.desktop"
+        "waydroid.com.android.calculator2.desktop"
+        "waydroid.org.lineageos.etar.desktop"
+        "waydroid.com.android.camera2.desktop"
+        "waydroid.com.android.deskclock.desktop"
+        "waydroid.com.android.contacts.desktop"
+        "waydroid.com.android.documentsui.desktop"
+        "waydroid.com.android.gallery3d.desktop"
+        "waydroid.com.google.android.apps.bard.desktop"
+        "waydroid.com.android.vending.desktop"
+        "waydroid.com.google.android.apps.chromecast.app.desktop"
+        "waydroid.app.pinya.lime.desktop"
+        "waydroid.com.mojang.minecraftpe.desktop"
+        "waydroid.com.atomicadd.tinylauncher.desktop"
+        "waydroid.org.lineageos.eleven.desktop"
+        "waydroid.tw.nekomimi.nekogram.desktop"
+        "waydroid.com.smartpack.packagemanager.desktop"
+        "waydroid.org.lineageos.recorder.desktop"
+        "waydroid.com.android.settings.desktop"
+        "waydroid.com.niksoftware.snapseed.desktop"
+      ];
+      name = "Android";
+      translate = false;
+    };
+
     "org/gnome/nautilus/preferences" = {
       default-folder-viewer = "icon-view";
       migrated-gtk-settings = true;
@@ -87,7 +168,6 @@ with lib.hm.gvariant;
       welcome-dialog-last-shown-version = "48.1";
     };
 
-    ## FIXME: Something is off with the Cloud S output
     "org/gnome/shell/extensions/quicksettings-audio-devices-hider" = {
       available-input-names = [
         "Digital Input (S/PDIF) \8211 USB  Live camera"
