@@ -25,7 +25,7 @@
     };
 
     wrappers = {
-      steam = {
+      steam = lib.mkDefault {
         enable = true;
         command = "${lib.getExe osConfig.programs.steam.package} -bigpicture -tenfoot";
         extraOptions = {
@@ -37,7 +37,7 @@
         };
       };
 
-      heroic = {
+      heroic = lib.mkDefault {
         enable = true;
         package = pkgs.heroic; # No special package configured by play.nix
         extraOptions = {
@@ -45,7 +45,7 @@
         };
       };
 
-      lutris = {
+      lutris = lib.mkDefault {
         enable = true;
         package = osConfig.play.lutris.package;
         extraOptions = {
@@ -58,9 +58,10 @@
     };
   };
 
-  # Override default desktop entries to use gamescope wrappers
   xdg.desktopEntries = {
-    steam = {
+
+    ## Steam and Games ##
+    steam = lib.mkDefault {
       name = "Steam";
       comment = "Steam Big Picture in Gamescope Session";
       exec = "${lib.getExe config.play.wrappers.steam.wrappedPackage}";
@@ -80,14 +81,19 @@
         Keywords = "gaming;";
       };
       actions = {
-        bigpicture = {
+        client = {
           name = "Steam Client (No Gamescope)";
-          exec = "${lib.getExe (config.play.steam.package or pkgs.steam)}";
+          exec = "${lib.getExe osConfig.programs.steam.package}";
+        };
+        steamdeck = {
+          name = "Steam Deck (Gamescope)";
+          exec = "${lib.getExe config.play.wrappers.steam.wrappedPackage} -steamdeck";
         };
       };
     };
 
-    "com.heroicgameslauncher.hgl" = {
+    ## Other Launchers ##
+    "com.heroicgameslauncher.hgl" = lib.mkDefault {
       name = "Heroic Games Launcher";
       comment = "Heroic in Gamescope Session";
       exec = "${lib.getExe config.play.wrappers.heroic.wrappedPackage}";
@@ -103,10 +109,10 @@
       };
     };
 
-    "net.lutris.Lutris" = {
+    "net.lutris.Lutris" = lib.mkDefault {
       name = "Lutris";
       comment = "Video Game Preservation Platform";
-      exec = "${lib.getExe (config.play.lutris.package or pkgs.lutris)} %U";
+      exec = "${lib.getExe osConfig.play.lutris.package} %U";
       icon = "net.lutris.Lutris";
       type = "Application";
       terminal = false;
@@ -126,9 +132,7 @@
 
         broken-exposed = {
           name = "Lutris (Gamescope BROKEN; Exposed Wayland)";
-          exec = ''${lib.getExe config.play.gamescoperun.package} -x "--force-windows-fullscreen --expose-wayland" ${
-            lib.getExe (config.play.lutris.package or pkgs.lutris)
-          }'';
+          exec = ''${lib.getExe config.play.gamescoperun.package} -x "--force-windows-fullscreen --expose-wayland" ${lib.getExe osConfig.play.lutris.package}'';
         };
       };
     };
