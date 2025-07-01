@@ -17,14 +17,11 @@ palette:
   base0A: "E8D792" # Yellow
   base0B: "99D27F" # Green
   base0C: "85CED8" # Cyan
-  base0D: "282E7B" # Blue
+  base0D: "424BC2" # Blue
   base0E: "514A8F" # Purple
   base0F: "754558" # Magenta
 
-# https://coolors.co/1f2332-42444d-656569-898784-aca8a0-d0c9bb-d7d1c6-ded9d0
-# https://coolors.co/8f66b9-827767-be5a47-9c7149-7d7772-8d7177-857665-947066
-
-# https://coolors.co/1f2333-2a293f-352e4a-4a3960-92bdea-c9d5f5-e4e1fa-ffecff
-# https://coolors.co/d44763-f7a94e-fceea1-8de364-a5e4eb-313568-be68c9-c2708f
+# https://coolors.co/1D2434-2D364D-3D4967-4D5B80-DEC2A3-E7CDBA-EFD7D1-FFECFF
+# https://coolors.co/A22A48-CC9C66-E8D792-99D27F-85CED8-424BC2-514A8F-754558
 
 #  flavours generate dark ./wallpapers/soraka.jpg --stdout > soraka.yaml
