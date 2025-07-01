@@ -24,46 +24,114 @@ with lib.hm.gvariant;
     };
 
     "org/gnome/desktop/wm/keybindings" = lib.mkDefault {
-      maximize = [ ];
-      move-to-monitor-down = [ ];
-      move-to-monitor-left = [ ];
-      move-to-monitor-right = [ ];
-      move-to-monitor-up = [ ];
-      move-to-workspace-down = [ "<Control><Shift><Alt>Down" ];
-      move-to-workspace-left = [ ];
-      move-to-workspace-right = [ ];
-      move-to-workspace-up = [ "<Control><Shift><Alt>Up" ];
-      shift-overview-down = [ "" ];
-      shift-overview-up = [ "" ];
-      switch-applications = [ ];
-      switch-applications-backward = [
-        "<Shift><Super>Tab"
-        "<Shift><Alt>Tab"
-      ];
+      ## Workspace switching ##
+      switch-to-workspace-1 = [ ]; # Default: ['<Super>Home']
+      switch-to-workspace-2 = [ ];
+      switch-to-workspace-3 = [ ];
+      switch-to-workspace-4 = [ ];
+      switch-to-workspace-5 = [ ];
+      switch-to-workspace-6 = [ ];
+      switch-to-workspace-7 = [ ];
+      switch-to-workspace-8 = [ ];
+      switch-to-workspace-9 = [ ];
+      switch-to-workspace-10 = [ ];
+      switch-to-workspace-11 = [ ];
+      switch-to-workspace-12 = [ ];
+      switch-to-workspace-left = [ ]; # Default: ['<Super>Page_Up','<Super><Alt>Left','<Control><Alt>Left']
+      switch-to-workspace-right = [ ]; # Default: ['<Super>Page_Down','<Super><Alt>Right','<Control><Alt>Right']
+      switch-to-workspace-up = [ ]; # Default: ['<Control><Alt>Up']
+      switch-to-workspace-down = [ ]; # Default: ['<Control><Alt>Down']
+      switch-to-workspace-last = [ ]; # Default: ['<Super>End']
+
+      ## Application/Window switching ##
       switch-group = [
         "<Super>Above_Tab"
         "<Alt>Above_Tab"
+        # Default: ['<Super>Above_Tab','<Alt>Above_Tab']
       ];
       switch-group-backward = [
         "<Shift><Super>Above_Tab"
         "<Shift><Alt>Above_Tab"
+        # Default: ['<Shift><Super>Above_Tab','<Shift><Alt>Above_Tab']
       ];
-      switch-input-source = [ ];
-      switch-input-source-backward = [ ];
-      switch-panels = [ "<Control><Alt>Tab" ];
-      switch-panels-backward = [ "<Shift><Control><Alt>Tab" ];
-      switch-to-workspace-1 = [ ];
-      switch-to-workspace-down = [ "" ];
-      switch-to-workspace-last = [ ];
-      switch-to-workspace-left = [ ];
-      switch-to-workspace-right = [ ];
-      switch-to-workspace-up = [ "" ];
-      toggle-application-view = [ "" ];
-      toggle-message-tray = [ "" ];
-      unmaximize = [ ];
+      switch-applications = [ ]; # Default: ['<Super>Tab','<Alt>Tab']
+      switch-applications-backward = [
+        "<Shift><Super>Tab"
+        "<Shift><Alt>Tab"
+        # Default: ['<Shift><Super>Tab','<Shift><Alt>Tab']
+      ];
+      switch-windows = [ ];
+      switch-windows-backward = [ ];
+      switch-panels = [ "<Control><Alt>Tab" ]; # Default: ['<Control><Alt>Tab']
+      switch-panels-backward = [ "<Shift><Control><Alt>Tab" ]; # Default: ['<Shift><Control><Alt>Tab']
+
+      ## Direct cycling ##
+      cycle-group = [ ]; # Default: ['<Alt>F6']
+      cycle-group-backward = [ ]; # Default: ['<Shift><Alt>F6']
+      cycle-windows = [ ]; # Default: ['<Alt>Escape']
+      cycle-windows-backward = [ ]; # Default: ['<Shift><Alt>Escape']
+      cycle-panels = [ ]; # Default: ['<Control><Alt>Escape']
+      cycle-panels-backward = [ ]; # Default: ['<Shift><Control><Alt>Escape']
+
+      ## Window management ##
+      show-desktop = [ ];
+      panel-main-menu = [ ]; # DEPRECATED
+      panel-run-dialog = [ ]; # Default: ['<Alt>F2']
+      set-spew-mark = [ ];
+      activate-window-menu = [ ]; # Default: ['<Alt>space']
+      toggle-fullscreen = [ ];
+      toggle-maximized = [ ]; # Default: ['<Alt>F10']
+      toggle-above = [ ];
+      maximize = [ ]; # Default: ['<Super>Up']
+      unmaximize = [ ]; # Default: ['<Super>Down','<Alt>F5']
+      minimize = [ ]; # Default: ['<Super>h']
+      close = [ ]; # Default: ['<Alt>F4']
+      begin-move = [ ]; # Default: ['<Alt>F7']
+      begin-resize = [ ]; # Default: ['<Alt>F8']
+      toggle-on-all-workspaces = [ ];
+      move-to-workspace-1 = [ ]; # Default: ['<Super><Shift>Home']
+      move-to-workspace-2 = [ ];
+      move-to-workspace-3 = [ ];
+      move-to-workspace-4 = [ ];
+      move-to-workspace-5 = [ ];
+      move-to-workspace-6 = [ ];
+      move-to-workspace-7 = [ ];
+      move-to-workspace-8 = [ ];
+      move-to-workspace-9 = [ ];
+      move-to-workspace-10 = [ ];
+      move-to-workspace-11 = [ ];
+      move-to-workspace-12 = [ ];
+      move-to-workspace-last = [ ]; # Default: ['<Super><Shift>End']
+      move-to-workspace-left = [ ]; # Default: ['<Super><Shift>Page_Up','<Super><Shift><Alt>Left','<Control><Shift><Alt>Left']
+      move-to-workspace-right = [ ]; # Default: ['<Super><Shift>Page_Down','<Super><Shift><Alt>Right','<Control><Shift><Alt>Right']
+      move-to-workspace-up = [ ]; # Default: ['<Control><Shift><Alt>Up']
+      move-to-workspace-down = [ ]; # Default: ['<Control><Shift><Alt>Down']
+      move-to-monitor-left = [ ]; # Default: ['<Super><Shift>Left']
+      move-to-monitor-right = [ ]; # Default: ['<Super><Shift>Right']
+      move-to-monitor-up = [ ]; # Default: ['<Super><Shift>Up']
+      move-to-monitor-down = [ ]; # Default: ['<Super><Shift>Down']
+      raise-or-lower = [ ];
+      raise = [ ];
+      lower = [ ];
+      maximize-vertically = [ ];
+      maximize-horizontally = [ ];
+      move-to-corner-nw = [ ];
+      move-to-corner-ne = [ ];
+      move-to-corner-sw = [ ];
+      move-to-corner-se = [ ];
+      move-to-side-n = [ ];
+      move-to-side-s = [ ];
+      move-to-side-e = [ ];
+      move-to-side-w = [ ];
+      move-to-center = [ ];
+      always-on-top = [ ];
+
+      ## Input switching ##
+      switch-input-source = [ ]; # Default: ['<Super>space','XF86Keyboard']
+      switch-input-source-backward = [ ]; # Default: ['<Shift><Super>space','<Shift>XF86Keyboard']
     };
 
-    "org/gnome/desktop/wm/preferences" = lib.mkForce {
+    "org/gnome/desktop/wm/preferences" = lib.mkDefault {
       num-workspaces = 3;
     };
 
@@ -75,40 +143,127 @@ with lib.hm.gvariant;
       night-light-enabled = true;
       night-light-schedule-automatic = false;
       night-light-schedule-from = 19.0;
-      night-light-temperature = mkUint32 3892;
+      night-light-temperature = (mkUint32 3892);
     };
 
-    "org/gnome/settings-daemon/plugins/media-keys" = lib.mkDefault {
+    "org/gnome/settings-daemon/plugins/media-keys" = {
       custom-keybindings = [
         "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/"
         "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/"
-        "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2/"
       ];
+
+      ## Non-static ##:
+      battery-status = [ ];
+      calculator = [ ];
+      control-center = [ ];
+      decrease-text-size = [ ];
+      eject = [ ];
+      email = [ ];
+      help = [ ]; # Default: ['', '<Super>F1']
+      hibernate = [ ];
+      home = [ ];
+      increase-text-size = [ ];
+      keyboard-brightness-down = [ ];
+      keyboard-brightness-toggle = [ ];
+      keyboard-brightness-up = [ ];
+      logout = [ "<Control><Alt>Delete" ];
+      magnifier = [ ]; # Default: ['<Alt><Super>8']
+      magnifier-zoom-in = [ ]; # Default: ['<Alt><Super>equal']
+      magnifier-zoom-out = [ ]; # Default: ['<Alt><Super>minus']
+      media = [ ];
+      mic-mute = [ ];
       next = [ "AudioNext" ];
+      on-screen-keyboard = [ ];
+      pause = [ ];
       play = [ "AudioPlay" ];
+      playback-forward = [ ];
+      playback-random = [ ];
+      playback-repeat = [ ];
+      playback-rewind = [ ];
+      power = [ ];
       previous = [ "AudioPrev" ];
       reboot = [ "<Super>r" ];
-      rotate-video-lock-static = [ ];
+      rfkill = [ ];
+      rfkill-bluetooth = [ ];
+      rotate-video-lock = [ ];
+      screen-brightness-cycle = [ ];
+      screen-brightness-down = [ ];
+      screen-brightness-up = [ ];
+      screenreader = [ ];
+      screensaver = [ ]; # Default: ['<Super>l']
+      search = [ ];
       shutdown = [ "<Super>x" ];
+      stop = [ ];
+      suspend = [ ];
+      toggle-contrast = [ ];
+      touchpad-off = [ ];
+      touchpad-on = [ ];
+      touchpad-toggle = [ ];
       volume-down = [ "AudioLowerVolume" ];
+      volume-down-precise = [ ];
+      volume-down-quiet = [ ];
       volume-mute = [ "AudioMute" ];
+      volume-mute-quiet = [ ];
+      volume-step = 5; # Default: 6
       volume-up = [ "AudioRaiseVolume" ];
+      volume-up-precise = [ ];
+      volume-up-quiet = [ ];
       www = [ "<Super>w" ];
+
+      ## Static keys ##
+      # NOTE: Many of these interfere with custom keybindings, so I just disable them
+      battery-status-static = [ ]; # Default: ['XF86Battery']
+      calculator-static = [ ]; # Default: ['XF86Calculator']
+      control-center-static = [ ]; # Default: ['XF86Tools']
+      eject-static = [ ]; # Default: ['XF86Eject']
+      email-static = [ ]; # Default: ['XF86Mail']
+      hibernate-static = [ ]; # Default: ['XF86Suspend', 'XF86Hibernate']
+      home-static = [ "<Super>f" ]; # Default: ['XF86Explorer']
+      keyboard-brightness-down-static = [ ]; # Default: ['XF86KbdBrightnessDown']
+      keyboard-brightness-toggle-static = [ ]; # Default: ['XF86KbdLightOnOff']
+      keyboard-brightness-up-static = [ ]; # Default: ['XF86KbdBrightnessUp']
+      media-static = [ ]; # Default: ['XF86AudioMedia']
+      mic-mute-static = [ ]; # Default: ['XF86AudioMicMute']
+      next-static = [ ]; # Default: ['XF86AudioNext', '<Ctrl>XF86AudioNext']
+      pause-static = [ ]; # Default: ['XF86AudioPause']
+      play-static = [ ]; # Default: ['XF86AudioPlay', '<Ctrl>XF86AudioPlay']
+      playback-forward-static = [ ]; # Default: ['XF86AudioForward']
+      playback-random-static = [ ]; # Default: ['XF86AudioRandomPlay']
+      playback-repeat-static = [ ]; # Default: ['XF86AudioRepeat']
+      playback-rewind-static = [ ]; # Default: ['XF86AudioRewind']
+      power-static = [ ]; # Default: ['XF86PowerOff']
+      previous-static = [ ]; # Default: ['XF86AudioPrev', '<Ctrl>XF86AudioPrev']
+      rfkill-bluetooth-static = [ ]; # Default: ['XF86Bluetooth']
+      rfkill-static = [ ]; # Default: ['XF86WLAN', 'XF86UWB', 'XF86RFKill']
+      rotate-video-lock-static = [ ]; # Default: ['<Super>o', 'XF86RotationLockToggle']
+      screen-brightness-cycle-static = [ ]; # Default: ['XF86MonBrightnessCycle']
+      screen-brightness-down-static = [ ]; # Default: ['XF86MonBrightnessDown']
+      screen-brightness-up-static = [ ]; # Default: ['XF86MonBrightnessUp']
+      screensaver-static = [ ]; # Default: ['XF86ScreenSaver']
+      search-static = [ ]; # Default: ['XF86Search']
+      stop-static = [ ]; # Default: ['XF86AudioStop']
+      suspend-static = [ ]; # Default: ['XF86Sleep']
+      touchpad-off-static = [ ]; # Default: ['XF86TouchpadOff']
+      touchpad-on-static = [ ]; # Default: ['XF86TouchpadOn']
+      touchpad-toggle-static = [ ]; # Default: ['XF86TouchpadToggle', '<Ctrl><Super>XF86TouchpadToggle']
+      volume-down-precise-static = [ ]; # Default: ['<Shift>XF86AudioLowerVolume', '<Ctrl><Shift>XF86AudioLowerVolume']
+      volume-down-quiet-static = [ ]; # Default: ['<Alt>XF86AudioLowerVolume', '<Alt><Ctrl>XF86AudioLowerVolume']
+      volume-down-static = [ ]; # Default: ['XF86AudioLowerVolume', '<Ctrl>XF86AudioLowerVolume']
+      volume-mute-quiet-static = [ ]; # Default: ['<Alt>XF86AudioMute']
+      volume-mute-static = [ ]; # Default: ['XF86AudioMute']
+      volume-up-precise-static = [ ]; # Default: ['<Shift>XF86AudioRaiseVolume', '<Ctrl><Shift>XF86AudioRaiseVolume']
+      volume-up-quiet-static = [ ]; # Default: ['<Alt>XF86AudioRaiseVolume', '<Alt><Ctrl>XF86AudioRaiseVolume']
+      volume-up-static = [ ]; # Default: ['XF86AudioRaiseVolume', '<Ctrl>XF86AudioRaiseVolume']
+      www-static = [ ]; # Default: ['XF86WWW']
     };
 
-    "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0" = lib.mkDefault {
+    "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0" = {
       binding = "<Super>t";
       command = "ghostty";
       name = "Terminal";
     };
 
-    "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1" = lib.mkDefault {
-      binding = "<Super>f";
-      command = "nautilus";
-      name = "Files";
-    };
-
-    "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2" = lib.mkDefault {
+    "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1" = {
       binding = "<Super>e";
       command = "code";
       name = "Code";
@@ -144,8 +299,8 @@ with lib.hm.gvariant;
       last-selected-power-profile = lib.mkDefault "performance";
     };
 
-    "org/gnome/shell/extensions/alphabetical-app-grid" = {
-      folder-order-position = lib.mkDefault "start";
+    "org/gnome/shell/extensions/alphabetical-app-grid" = lib.mkDefault {
+      folder-order-position = "start";
     };
 
     "org/gnome/shell/extensions/appindicator" = lib.mkDefault {
@@ -322,7 +477,7 @@ with lib.hm.gvariant;
       vertical-margin-bottom = 8;
       window-gap = 8;
       winprops = [
-                ''
+        ''
           {"wm_class":"Code","spaceIndex":0}
         ''
         ''
@@ -356,60 +511,101 @@ with lib.hm.gvariant;
           {"wm_class":".gamescope-wrapped","preferredWidth":"100%","spaceIndex":2}
         ''
       ];
+
+      # "workspaces" = lib.mkDefault {
+      #   list = [
+      #     "000ef222-dd9f-4487-bff9-5e1960e54ab7"
+      #     "b986bc1f-bbe1-454d-8aa8-a55614b330ec"
+      #     "437c83fc-b11d-48f9-bac4-3df6ca297939"
+      #     "8d4b2910-fe68-4192-b349-386c09ebf660"
+      #     "613a7a94-8355-4519-b7a4-b3f279a3e48a"
+      #   ];
+      # };
+
+      # "workspaces/000ef222-dd9f-4487-bff9-5e1960e54ab7" = lib.mkDefault {
+      #   background = "";
+      #   color = "rgb(255, 241, 39)";
+      #   index = 0;
+      # };
+
+      # "workspaces/b986bc1f-bbe1-454d-8aa8-a55614b330ec" = lib.mkDefault {
+      #   background = "";
+      #   color = "rgb(98,160,234)";
+      #   index = 1;
+      # };
+
+      # "workspaces/437c83fc-b11d-48f9-bac4-3df6ca297939" = lib.mkDefault {
+      #   background = "";
+      #   color = "rgb(219, 13, 13)";
+      #   index = 2;
+      # };
+
+      # "workspaces/8d4b2910-fe68-4192-b349-386c09ebf660" = lib.mkDefault {
+      #   background = "";
+      #   color = "rgb(249, 102, 252)";
+      #   index = 3;
+      # };
+
+      # "workspaces/613a7a94-8355-4519-b7a4-b3f279a3e48a" = lib.mkDefault {
+      #   background = "";
+      #   color = "rgb(202, 202, 202)";
+      #   index = 4;
+      # };
+
     };
 
     "org/gnome/shell/extensions/paperwm/keybindings" = lib.mkDefault {
       center = [ "<Super>c" ];
-      center-horizontally = [ "" ];
-      center-vertically = [ "" ];
+      center-horizontally = [ ];
+      center-vertically = [ ];
       close-window = [ "<Super>q" ];
       cycle-height = [ "<Alt><Super>Up" ];
       cycle-height-backwards = [ "<Alt><Super>Down" ];
       cycle-width = [ "<Alt><Super>Right" ];
       cycle-width-backwards = [ "<Alt><Super>Left" ];
       live-alt-tab = [ "<Alt>Tab" ];
-      live-alt-tab-backward = [ "" ];
-      live-alt-tab-scratch = [ "" ];
-      live-alt-tab-scratch-backward = [ "" ];
+      live-alt-tab-backward = [ ];
+      live-alt-tab-scratch = [ ];
+      live-alt-tab-scratch-backward = [ ];
       move-down = [ "<Shift><Super>Down" ];
       move-down-workspace = [ "<Control><Super>Down" ];
       move-left = [ "<Shift><Super>Left" ];
-      move-monitor-above = [ "" ];
-      move-monitor-below = [ "" ];
+      move-monitor-above = [ ];
+      move-monitor-below = [ ];
       move-monitor-left = [ "<Control><Super>Left" ];
       move-monitor-right = [ "<Control><Super>Right" ];
-      move-previous-workspace = [ "" ];
-      move-previous-workspace-backward = [ "" ];
+      move-previous-workspace = [ ];
+      move-previous-workspace-backward = [ ];
       move-right = [ "<Shift><Super>Right" ];
-      move-space-monitor-above = [ "" ];
-      move-space-monitor-below = [ "" ];
-      move-space-monitor-left = [ "" ];
-      move-space-monitor-right = [ "" ];
+      move-space-monitor-above = [ ];
+      move-space-monitor-below = [ ];
+      move-space-monitor-left = [ ];
+      move-space-monitor-right = [ ];
       move-up = [ "<Shift><Super>Up" ];
       move-up-workspace = [ "<Control><Super>Up" ];
       new-window = [ "<Super>n" ];
-      previous-workspace = [ "" ];
-      previous-workspace-backward = [ "" ];
-      swap-monitor-above = [ "" ];
-      swap-monitor-below = [ "" ];
-      swap-monitor-left = [ "" ];
-      swap-monitor-right = [ "" ];
+      previous-workspace = [ ];
+      previous-workspace-backward = [ ];
+      swap-monitor-above = [ ];
+      swap-monitor-below = [ ];
+      swap-monitor-left = [ ];
+      swap-monitor-right = [ ];
       switch-down-workspace = [ "<Super>Page_Down" ];
       switch-focus-mode = [ "<Alt><Super>a" ];
-      switch-monitor-above = [ "" ];
-      switch-monitor-below = [ "" ];
-      switch-monitor-left = [ "" ];
-      switch-monitor-right = [ "" ];
-      switch-next = [ "" ];
-      switch-open-window-position = [ "" ];
-      switch-previous = [ "" ];
+      switch-monitor-above = [ ];
+      switch-monitor-below = [ ];
+      switch-monitor-left = [ ];
+      switch-monitor-right = [ ];
+      switch-next = [ ];
+      switch-open-window-position = [ ];
+      switch-previous = [ ];
       switch-up-workspace = [ "<Super>Page_Up" ];
-      take-window = [ "" ];
-      toggle-maximize-width = [ "" ];
+      take-window = [ ];
+      toggle-maximize-width = [ ];
       toggle-scratch = [ "<Super>BackSpace" ];
       toggle-scratch-layer = [ "<Control><Super>BackSpace" ];
-      toggle-scratch-window = [ "" ];
-      toggle-top-and-position-bar = [ "" ];
+      toggle-scratch-window = [ ];
+      toggle-top-and-position-bar = [ ];
     };
 
     "org/gnome/shell/extensions/user-theme" = lib.mkDefault {
