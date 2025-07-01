@@ -43,7 +43,10 @@
 
     play = {
       url = "github:tophc7/play.nix";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
+      inputs = {
+        nixpkgs.follows = "nixpkgs-unstable";
+        chaotic.follows = "chaotic";
+      };
     };
 
     ## Misc Packages ##
