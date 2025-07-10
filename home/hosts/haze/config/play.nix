@@ -6,15 +6,24 @@
   inputs,
   ...
 }:
+let
+  # Get primary monitor and calculate resolution minus 20 pixels
+  primaryMonitor = lib.custom.getPrimaryMonitor config.monitors;
+  resX = toString (primaryMonitor.width - 10);
+  resY = toString (primaryMonitor.height - 10);
+  refresh = toString primaryMonitor.refreshRate;
+in
 {
   play = {
     wrappers = {
       alters = {
         enable = true;
-        command = "${lib.getExe osConfig.programs.steam.package} steam://rungameid/1601570 -windowed -tenfoot";
+        command = "${lib.getExe osConfig.programs.steam.package} steam://rungameid/1601570 -tenfoot -nochatui -nofriendsui -ResX=${resX} -ResY=${resY} -refresh=${refresh} -windowed -nomouse";
         extraOptions = {
-          "steam" = true;
           "disable-layers" = true;
+          "nested-height" = resY;
+          "nested-width" = resX;
+          "steam" = true;
         };
         environment = {
           __GL_SHADER_DISK_CACHE_SKIP_CLEANUP = 1;
@@ -43,7 +52,7 @@
       actions = {
         regular = {
           name = "The Alters (No Gamescope)";
-          exec = "${lib.getExe osConfig.programs.steam.package} steam://rungameid/1601570 -windowed -nochatui -nofriendsui -silent";
+          exec = "${lib.getExe osConfig.programs.steam.package} steam://rungameid/1601570 -nochatui -nofriendsui -silent -ResX=${resX} -ResY=${resY} -refresh=${refresh} -windowed -nomouse";
         };
       };
     };
