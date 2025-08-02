@@ -1,0 +1,45 @@
+<svg width="2304" height="1995" xmlns="http://www.w3.org/2000/svg" alt="Nixos Logo" class="h-12 w-auto">
+ <defs>
+  <linearGradient y2="0.77143" y1="-0.02857" x2="0.63636" x1="0" id="linear-gradient-44584babfef90c4cb32c8ee42b1193ba">
+   <stop style="--darkreader-inline-stopcolor: var(--darkreader-background-9e0000, #7b0908);" stop-color="#9e0000" offset="0%"/>
+   <stop style="--darkreader-inline-stopcolor: var(--darkreader-background-af0000, #870908);" stop-color="#af0000" offset="25%"/>
+   <stop style="--darkreader-inline-stopcolor: var(--darkreader-background-c10100, #940a08);" stop-color="#c10100" offset="100%"/>
+  </linearGradient>
+  <linearGradient y2="0.77143" y1="-0.02857" x2="0.63636" x1="0" id="linear-gradient-96af2d924a4fbf5b015c244addc578a8">
+   <stop style="--darkreader-inline-stopcolor: var(--darkreader-background-dc5500, #ab490a);" stop-color="#dc5500" offset="0%"/>
+   <stop style="--darkreader-inline-stopcolor: var(--darkreader-background-ee5e00, #b8500b);" stop-color="#ee5e00" offset="25%"/>
+   <stop style="--darkreader-inline-stopcolor: var(--darkreader-background-ff6705, #c3540b);" stop-color="#ff6705" offset="100%"/>
+  </linearGradient>
+  <linearGradient y2="0.77143" y1="-0.02857" x2="0.63636" x1="0" id="linear-gradient-33ff75d118a188d564af252422e7cc92">
+   <stop style="--darkreader-inline-stopcolor: var(--darkreader-background-db9917, #ac7c1c);" stop-color="#db9917" offset="0%"/>
+   <stop style="--darkreader-inline-stopcolor: var(--darkreader-background-eca412, #b98419);" stop-color="#eca412" offset="25%"/>
+   <stop style="--darkreader-inline-stopcolor: var(--darkreader-background-fdb00b, #93670c);" stop-color="#fdb00b" offset="100%"/>
+  </linearGradient>
+  <linearGradient y2="0.77143" y1="-0.02857" x2="0.63636" x1="0" id="linear-gradient-2a0b6b52f041088f95dc76196e6b4d88">
+   <stop style="--darkreader-inline-stopcolor: var(--darkreader-background-007f2d, #0b662a);" stop-color="#007f2d" offset="0%"/>
+   <stop style="--darkreader-inline-stopcolor: var(--darkreader-background-008d34, #0b702f);" stop-color="#008d34" offset="25%"/>
+   <stop style="--darkreader-inline-stopcolor: var(--darkreader-background-029b3b, #0d7b34);" stop-color="#029b3b" offset="100%"/>
+  </linearGradient>
+  <linearGradient y2="0.77143" y1="-0.02857" x2="0.63636" x1="0" id="linear-gradient-c6751d2115edfa2506ed6789e247b928">
+   <stop style="--darkreader-inline-stopcolor: var(--darkreader-background-0270a8, #0d5c82);" stop-color="#0270a8" offset="0%"/>
+   <stop style="--darkreader-inline-stopcolor: var(--darkreader-background-007cba, #0b6490);" stop-color="#007cba" offset="25%"/>
+   <stop style="--darkreader-inline-stopcolor: var(--darkreader-background-0088cc, #0c6e9d);" stop-color="#08c" offset="100%"/>
+  </linearGradient>
+  <linearGradient y2="0.77143" y1="-0.02857" x2="0.63636" x1="0" id="linear-gradient-6b2d1737e4a2ebfe17f3769056568c22">
+   <stop style="--darkreader-inline-stopcolor: var(--darkreader-background-452397, #3b2276);" stop-color="#452397" offset="0%"/>
+   <stop style="--darkreader-inline-stopcolor: var(--darkreader-background-4f2da8, #432a82);" stop-color="#4f2da8" offset="25%"/>
+   <stop style="--darkreader-inline-stopcolor: var(--darkreader-background-5a37bb, #4c3291);" stop-color="#5a37bb" offset="100%"/>
+  </linearGradient>
+ </defs>
+ <g>
+  <title>Layer 1</title>
+  <g id="svg_8">
+   <path id="svg_1" d="m527.99976,1247.07724l128,-221.703l560,969.948l-256,0l-128,-221.702l-128,221.702l-128,0l-64,-110.851l192,-332.554l-176,-304.84z" fill="url(#linear-gradient-44584babfef90c4cb32c8ee42b1193ba)"/>
+   <path id="svg_2" transform="rotate(60, 832, 443.405)" d="m847.99976,692.82125l128,-221.703l560,969.948l-256,0l-128,-221.702l-128,221.702l-128,0l-64,-110.851l192,-332.554l-176,-304.84z" fill="url(#linear-gradient-96af2d924a4fbf5b015c244addc578a8)"/>
+   <path id="svg_3" transform="rotate(120, 1152, 628.157)" d="m847.99976,692.82125l128,-221.703l560,969.948l-256,0l-128,-221.702l-128,221.702l-128,0l-64,-110.851l192,-332.554l-176,-304.84z" fill="url(#linear-gradient-33ff75d118a188d564af252422e7cc92)"/>
+   <path id="svg_4" transform="rotate(180, 1312, 720.533)" d="m847.99976,692.82125l128,-221.703l560,969.948l-256,0l-128,-221.702l-128,221.702l-128,0l-64,-110.851l192,-332.554l-176,-304.84z" fill="url(#linear-gradient-2a0b6b52f041088f95dc76196e6b4d88)"/>
+   <path id="svg_5" transform="rotate(-120, 1472, 812.909)" d="m847.99976,692.82125l128,-221.703l560,969.948l-256,0l-128,-221.702l-128,221.702l-128,0l-64,-110.851l192,-332.554l-176,-304.84z" fill="url(#linear-gradient-c6751d2115edfa2506ed6789e247b928)"/>
+   <path id="svg_6" transform="rotate(-60, 1792, 997.661)" d="m847.99976,692.82125l128,-221.703l560,969.948l-256,0l-128,-221.702l-128,221.702l-128,0l-64,-110.851l192,-332.554l-176,-304.84z" fill="url(#linear-gradient-6b2d1737e4a2ebfe17f3769056568c22)"/>
+  </g>
+ </g>
+</svg>

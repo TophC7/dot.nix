@@ -1,9 +1,9 @@
-# ❄️ dot.nix
-
-[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/TophC7/dot.nix)
+<h1><img src="lib/public/nix.svg" height=30 /> dot.nix</h1>
 
 > **My NixOS & Home Manager Multi User/Host Configuration**
 > A modular Nix flake managing multiple systems and users with a focus on reproducibility and ease of maintenance.
+> 
+> [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/TophC7/dot.nix)
 
 ![Screenshot with Invincible wallpaper](lib/public/inv.png)
 ![Screenshot with Invincible wallpaper](lib/public/inv1.png)
@@ -353,8 +353,6 @@ nix build .#server-iso-arm --system x86_64-linux --extra-platforms aarch64-linux
 | **Gaming**         | Steam, Proton, GameScope, GameMode, `lact`           |
 | **Monitoring**     | Apprise notifications, systemd timers                |
 | **CI/CD**          | GitHub Actions, Automated ISO builds                 |
-
----9;ulj]
 
 ## 📝 Quick Reference
 
