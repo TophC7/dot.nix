@@ -23,8 +23,8 @@
         logo = {
           type = "kitty";
           source = logoFile;
-          width = 21; # columns
-          height = 12; # rows
+          width = 26; # columns
+          height = 15; # rows
           padding = {
             top = 1;
             right = 2;
@@ -65,6 +65,13 @@
             keyColor = "1;31";
             showPeCoreCount = true;
             type = "cpu";
+          }
+          {
+            format = "{0} {2}";
+            key = "gpu     » {#keys}";
+            keyColor = "1;93";
+            type = "gpu";
+            hideType = "integrated";
           }
           {
             format = "{0} ({#3;32}{3}{#})";
@@ -108,10 +115,17 @@
             type = "localip";
           }
           {
-            format = "{artist} - {title} ({#3;32}{6}{#})";
+            format = "{2} ({#3;32}{4}{#})";
+            key = "kernel  » {#keys}";
+            keyColor = "1;94";
+            type = "kernel";
+          }
+          {
             key = "media   » {#keys}";
             keyColor = "5;92";
-            type = "media";
+            type = "command";
+            shell = "${lib.getExe pkgs.fish}";
+            text = "${lib.getExe pkgs.playerctl} metadata --format '{{ artist }} - {{ title }} ('(set_color green)'{{ playerName }}'(set_color normal)')' 2>/dev/null; or echo 'No media playing'";
           }
           "break"
           {
