@@ -16,17 +16,6 @@ let
   linuxModifications = final: prev: prev.lib.mkIf final.stdenv.isLinux { };
 
   modifications = final: prev: {
-    ## FIXME: Workaround, amd drivers are borked on current nixpkgs-unstable
-    linux-firmware = prev.linux-firmware.overrideAttrs (old: rec {
-      version = "20250630";
-      src = prev.fetchFromGitLab {
-        owner = "kernel-firmware";
-        repo = "linux-firmware";
-        rev = "e2dad11e8d4b169fdeac476d694d6ef8f2d3b5bf";
-        hash = "sha256-AvSsyfKP57Uhb3qMrf6PpNHKbXhD9IvFT1kcz5J7khM=";
-      };
-    });
-
     ghostty = prev.ghostty.overrideAttrs (_: {
       preBuild = ''
         shopt -s globstar
