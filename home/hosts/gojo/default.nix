@@ -42,11 +42,6 @@
       inspector
       solaar
 
-      ## Productivity ##
-      gimp
-      inkscape
-      eloquent
-
       ## Minecraft ##
       # modrinth-app
       # gdlauncher-carbon
