@@ -23,6 +23,7 @@ in
 
   # System-wide packages, root accessible
   environment.systemPackages = with pkgs; [
+    cachix
     curl
     git
     git-crypt
@@ -115,6 +116,17 @@ in
       experimental-features = [
         "nix-command"
         "flakes"
+      ];
+
+      # Binary cache substituters
+      substituters = [
+        "https://cache.nixos.org"
+        "https://chaotic-nyx.cachix.org"
+      ];
+
+      trusted-public-keys = [
+        "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
+        "chaotic-nyx.cachix.org-1:HfnXSw4pj95iI/n17rIDy40agHj12WfF+Gqk6SonIT8="
       ];
     };
   };
