@@ -33,9 +33,9 @@
         };
         display = {
           bar = {
-            borderLeft = "⦉";
-            borderRight = "⦊";
-            charElapsed = "⏹";
+            border.left = "⦉";
+            border.right = "⦊";
+            char.elapsed = "⏹";
             charTotal = "⬝";
             width = 10;
           };
