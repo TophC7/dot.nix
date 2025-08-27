@@ -68,6 +68,7 @@ with lib.hm.gvariant;
         "org.gnome.Extensions.desktop"
         "fish.desktop"
         "io.github.nokse22.inspector.desktop"
+        "re.sonny.Junction.desktop"
         "kvantummanager.desktop"
         "io.github.ilya_zlobintsev.LACT.desktop"
         "org.gnome.Logs.desktop"
@@ -77,6 +78,7 @@ with lib.hm.gvariant;
         "protontricks.desktop"
         "qt5ct.desktop"
         "qt6ct.desktop"
+        "net.nokyan.Resources.desktop"
         "solaar.desktop"
         "org.gnome.SystemMonitor.desktop"
         "org.gnome.tweaks.desktop"
@@ -88,25 +90,28 @@ with lib.hm.gvariant;
 
     "org/gnome/desktop/app-folders/folders/Utilities" = {
       apps = [
-        "org.gnome.Decibels.desktop"
+        "com.dec05eba.gpu_screen_recorder.desktop"
         "org.gnome.Calculator.desktop"
         "org.gnome.Calendar.desktop"
-        "org.gnome.Snapshot.desktop"
         "org.gnome.Characters.desktop"
         "org.gnome.clocks.desktop"
         "org.gnome.Connections.desktop"
+        "org.gnome.Decibels.desktop"
         "org.gnome.Evince.desktop"
         "org.gnome.FileRoller.desktop"
         "org.gnome.font-viewer.desktop"
-        "com.dec05eba.gpu_screen_recorder.desktop"
         "org.gnome.Loupe.desktop"
+        "org.gnome.Papers.desktop"
         "org.gnome.seahorse.Application.desktop"
-        "org.remmina.Remmina.desktop"
+        "org.gnome.Snapshot.desktop"
         "org.gnome.TextEditor.desktop"
-        "Vial.desktop"
         "org.gnome.Totem.desktop"
-        "virt-manager.desktop"
         "org.gnome.Weather.desktop"
+        "org.remmina.Remmina.desktop"
+        "page.kramo.Cartridges.desktop"
+        "re.sonny.Eloquent.desktop"
+        "Vial.desktop"
+        "virt-manager.desktop"
       ];
       name = "X-GNOME-Shell-Utilities.directory";
       translate = true;
@@ -159,7 +164,9 @@ with lib.hm.gvariant;
         "discord.desktop"
         "org.telegram.desktop.desktop"
         "steam.desktop"
+        "org.prismlauncher.PrismLauncher.desktop"
         "Ryujinx.desktop"
+        "lemon.desktop"
         "FANTASY LIFE i The Girl Who Steals Time.desktop"
         "Marvel Rivals.desktop"
       ];
@@ -219,6 +226,10 @@ with lib.hm.gvariant;
       output-names-map = [
         (lib.hm.gvariant.mkDictionaryEntry [
           "HDMI / DisplayPort 3 – HD-Audio Generic"
+          "ROG"
+        ])
+        (lib.hm.gvariant.mkDictionaryEntry [
+          "HDMI / DisplayPort 3 – HDA ATI HDMI"
           "ROG"
         ])
         (lib.hm.gvariant.mkDictionaryEntry [

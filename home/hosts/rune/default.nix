@@ -21,38 +21,29 @@
   ];
 
   ## Packages with no needed configs ##
-  home.packages = builtins.attrValues {
-    inherit (pkgs)
-      ## Media ##
-      ffmpeg
-      spotify
-      gpu-screen-recorder-gtk
+  home.packages = with pkgs; [
+    ## Media ##
+    ffmpeg
+    spotify
+    gpu-screen-recorder-gtk
 
-      ## Social ##
-      telegram-desktop
-      discord-krisp
-      betterdiscordctl
+    ## Social ##
+    telegram-desktop
+    discord-krisp
+    betterdiscordctl
+    journey
 
-      ## Tools ##
-      bitwarden-desktop
-      inspector
-      remmina
-      solaar
-      vial # KB setup
+    ## Tools ##
+    bitwarden-desktop
+    inspector
+    remmina
+    solaar
+    vial # KB setup
 
-      ## Productivity ##
-      gimp
-      inkscape
-      eloquent
+    ## Minecraft ##
+    modrinth-app
 
-      ## Minecraft ##
-      modrinth-app
-      gdlauncher-carbon
-      ;
-
-    inherit (pkgs.jetbrains)
-      ## Development ##
-      idea-ultimate
-      ;
-  };
+    ## Development ##
+    # jetbrains.idea-ultimate
+  ];
 }
