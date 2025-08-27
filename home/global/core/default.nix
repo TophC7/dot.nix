@@ -95,16 +95,24 @@ in
       nixConfig = pkgs.writeText "config.nix" ''
         {
           allowUnfree = true;
+          fallback = true;
+          connect-timeout = 10;
           permittedInsecurePackages = [
+            "minecraft"
             "ventoy-gtk3-1.1.05"
             "modrinth-app"
+            "claude-code"
           ];
         }
       '';
     in
     {
-      ".config/nixpkgs/config.nix" = {
+      ".config/nixpkgs/config_source" = {
         source = nixConfig;
+        onChange = ''
+          cp $HOME/.config/nixpkgs/config_source $HOME/.config/nixpkgs/config.nix
+          chmod 644 $HOME/.config/nixpkgs/config.nix
+        '';
       };
     };
 
