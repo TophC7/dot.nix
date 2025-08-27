@@ -11,6 +11,10 @@ let
   cfg = config.services.newt;
 in
 {
+  # TODO: Might want to change my newt.nix to not conflict with upstream module
+  # For now this disables the upstream module
+  disabledModules = [ "services/networking/newt.nix" ];
+
   options.services.newt = {
     enable = mkEnableOption "Newt container service";
 
