@@ -4,11 +4,11 @@
     inputs.nix-gaming.nixosModules.pipewireLowLatency
   ];
 
-  hardware.pulseaudio = {
+  services.pulseaudio = {
+    enable = false;
     package = pkgs.pulseaudioFull;
   };
 
-  services.pulseaudio.enable = false;
   security.rtkit.enable = true;
   services.pipewire = {
     enable = true;
@@ -19,4 +19,12 @@
     jack.enable = true;
     lowLatency.enable = true;
   };
+
+  # services.easyeffects = {
+  #   enable = true;
+  # };
+
+  # environment.systemPackages = with pkgs; [
+  #   gnomeExtensions.easyeffects-preset-selector
+  # ];
 }
