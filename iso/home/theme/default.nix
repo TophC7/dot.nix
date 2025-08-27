@@ -13,7 +13,6 @@
   stylix = {
     enable = true;
     autoEnable = true;
-    # base16Scheme = ./colors.yaml;
     image = ./wallpapers/wallpaper.jpg;
     polarity = "dark";
     fonts = {
