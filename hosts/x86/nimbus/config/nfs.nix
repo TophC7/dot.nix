@@ -4,8 +4,10 @@
     enable = true;
 
     exports = ''
-      # Pool export - seen as root '/' by the client
-      /pool *(rw,insecure,no_subtree_check,no_root_squash,fsid=0,anonuid=1000,anongid=1004,async,no_wdelay)
+      # Export ZFS tank dataset
+      /tank *(rw,insecure,no_subtree_check,no_root_squash,fsid=1,anonuid=1000,anongid=1004,async,no_wdelay)
+      # Export ZFS fast dataset
+      /fast *(rw,insecure,no_subtree_check,no_root_squash,fsid=2,anonuid=1000,anongid=1004,async,no_wdelay)
     '';
 
     extraNfsdConfig = "vers=4,4.1,4.2";

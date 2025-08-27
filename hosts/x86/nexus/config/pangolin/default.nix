@@ -132,6 +132,8 @@ let
             certResolver: "letsencrypt"
       tcp-222:
         address: ":222/tcp"
+      udp-25565:
+        address: ":25565/udp"
 
     serversTransport:
       insecureSkipVerify: true

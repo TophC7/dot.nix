@@ -6,8 +6,7 @@
   ...
 }:
 let
-  # Only available in the Komodo LXC
-  DockerStorage = "/mnt/DockerStorage/komodo";
+  Store = "/store/komodo";
   env = config.secretsSpec.docker.komodo;
 in
 {
@@ -16,7 +15,7 @@ in
     image = "ghcr.io/moghtech/komodo-core:latest";
     environment = env;
     volumes = [
-      "${DockerStorage}/cache:/repo-cache:rw"
+      "${Store}/cache:/repo-cache:rw"
     ];
     ports = [
       "9120:9120/tcp"
@@ -62,8 +61,8 @@ in
     image = "mongo";
     environment = env;
     volumes = [
-      "${DockerStorage}/mongo/config:/data/configdb:rw"
-      "${DockerStorage}/mongo/data:/data/db:rw"
+      "${Store}/mongo/config:/data/configdb:rw"
+      "${Store}/mongo/data:/data/db:rw"
     ];
     cmd = [
       "--quiet"
@@ -111,9 +110,9 @@ in
     volumes = [
       "/proc:/proc:rw"
       "/var/run/docker.sock:/var/run/docker.sock:rw"
-      "${DockerStorage}/repos:/etc/komodo/repos:rw"
-      "${DockerStorage}/ssl:/etc/komodo/ssl:rw"
-      "${DockerStorage}/stacks:${DockerStorage}/stacks:rw"
+      "${Store}/repos:/etc/komodo/repos:rw"
+      "${Store}/ssl:/etc/komodo/ssl:rw"
+      "${Store}/stacks:${Store}/stacks:rw"
     ];
     labels = {
       "komodo.skip" = "";

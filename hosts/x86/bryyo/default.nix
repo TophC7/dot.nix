@@ -1,9 +1,9 @@
 ###############################################################
 #
-#  Komo - LXC Container
-#  NixOS container, Ryzen 5 5600G (12 Cores), 30GB/2GB RAM/SWAP
+#  Bryyo - LXC Container
+#  NixOS container, Intel N150  (4 Cores), 8GB/2GB RAM/SWAP
 #
-#  Docker Environment, Managed by with Komodo
+#  Docker Environment, Komodo
 #
 ###############################################################
 
@@ -16,11 +16,10 @@
 let
   username = "toph";
   user = config.secretsSpec.users.${username};
-  firewall = config.secretsSpec.firewall.komo;
 in
 {
   imports = lib.flatten [
-    ## Komo Only ##
+    ## Bryyo Only ##
     ./config
 
     ## Hardware ##
@@ -31,14 +30,13 @@ in
       "hosts/global/core"
 
       ## Optional Configs ##
-      "hosts/global/common/acme"
       "hosts/global/common/docker.nix"
     ])
   ];
 
   ## Host Specifications ##
   hostSpec = {
-    hostName = "komo";
+    hostName = "bryyo";
     username = username;
     hashedPassword = user.hashedPassword;
     email = user.email;
@@ -50,11 +48,6 @@ in
 
   networking = {
     enableIPv6 = false;
-    firewall = {
-      allowedTCPPorts = firewall.allowedTCPPorts;
-      allowedTCPPortRanges = firewall.allowedTCPPortRanges;
-      allowedUDPPorts = firewall.allowedUDPPorts;
-    };
   };
 
   ## System-wide packages ##

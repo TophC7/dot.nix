@@ -7,7 +7,7 @@
 }:
 let
   # Only available in the Komo LXC
-  DockerStorage = "/mnt/DockerStorage/komodo/stacks/authentik";
+  Store = "/store/authentik";
   env = config.secretsSpec.docker.authentik;
 in
 {
@@ -16,7 +16,7 @@ in
     image = "docker.io/library/postgres:16-alpine";
     environment = env;
     volumes = [
-      "${DockerStorage}/database:/var/lib/postgresql/data:rw"
+      "${Store}/database:/var/lib/postgresql/data:rw"
     ];
     log-driver = "journald";
     extraOptions = [
@@ -53,7 +53,7 @@ in
     image = "docker.io/library/redis:alpine";
     environment = env;
     volumes = [
-      "${DockerStorage}/redis:/data:rw"
+      "${Store}/redis:/data:rw"
     ];
     cmd = [
       "--save"
@@ -97,8 +97,8 @@ in
     image = "ghcr.io/goauthentik/server:2025.6.1";
     environment = env;
     volumes = [
-      "${DockerStorage}/custom-templates:/templates:rw"
-      "${DockerStorage}/media:/media:rw"
+      "${Store}/custom-templates:/templates:rw"
+      "${Store}/media:/media:rw"
     ];
     ports = [
       "9000:9000/tcp"
@@ -139,9 +139,9 @@ in
     image = "ghcr.io/goauthentik/server:2025.6.1";
     environment = env;
     volumes = [
-      "${DockerStorage}/certs:/certs:rw"
-      "${DockerStorage}/media:/media:rw"
-      "${DockerStorage}/templates:/templates:rw"
+      "${Store}/certs:/certs:rw"
+      "${Store}/media:/media:rw"
+      "${Store}/templates:/templates:rw"
       "/var/run/docker.sock:/var/run/docker.sock:rw"
     ];
     cmd = [ "worker" ];

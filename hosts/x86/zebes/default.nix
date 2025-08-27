@@ -1,9 +1,10 @@
 ###############################################################
 #
-#  Cloud - LXC Container
-#  NixOS container, Ryzen 5 5600G (4 Cores), 4GB/4GB RAM/SWAP
+#  Zebes - Main Server
+#  NixOS running on Ryzen 5 5600G, RX 7900 GRE, 32GB RAM
 #
-#  Storage, NFS, Filerun, and Backups
+#  Docker environment, Komodo, Authentik, Game Servers, etc.
+#  Ai environment, Ollama, Oterm, Open WebUI, etc.
 #
 ###############################################################
 
@@ -16,11 +17,11 @@
 let
   username = "toph";
   user = config.secretsSpec.users.${username};
-  firewall = config.secretsSpec.firewall.cloud;
+  firewall = config.secretsSpec.firewall.zebes;
 in
 {
   imports = lib.flatten [
-    ## Cloud Only ##
+    ## Zebes Only ##
     ./config
 
     ## Hardware ##
@@ -31,13 +32,14 @@ in
       "hosts/global/core"
 
       ## Optional Configs ##
+      "hosts/global/common/acme"
       "hosts/global/common/docker.nix"
     ])
   ];
 
   ## Host Specifications ##
   hostSpec = {
-    hostName = "cloud";
+    hostName = "zebes";
     username = username;
     hashedPassword = user.hashedPassword;
     email = user.email;
@@ -51,6 +53,7 @@ in
     enableIPv6 = false;
     firewall = {
       allowedTCPPorts = firewall.allowedTCPPorts;
+      allowedTCPPortRanges = firewall.allowedTCPPortRanges;
       allowedUDPPorts = firewall.allowedUDPPorts;
     };
   };
@@ -58,9 +61,10 @@ in
   ## System-wide packages ##
   programs.nix-ld.enable = true;
   environment.systemPackages = with pkgs; [
-    mergerfs
+    lazydocker
+    compose2nix
   ];
 
   # https://wiki.nixos.org/wiki/FAQ/When_do_I_update_stateVersion
-  system.stateVersion = "25.05";
+  system.stateVersion = "25.11";
 }

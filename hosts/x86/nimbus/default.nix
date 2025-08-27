@@ -1,14 +1,13 @@
 ###############################################################
 #
-#  Proxy - LXC Container
-#  NixOS container, Ryzen 5 5600G (3 Cores), 2GB/2GB RAM/SWAP
+#  Nimbus - LXC Container
+#  NixOS container, Ryzen 5 5600G (4 Cores), 4GB/4GB RAM/SWAP
 #
-#  Cloudflare Tunnel Proxy, Zero Trust access
+#  Storage, NFS, Filerun, and Backups
 #
 ###############################################################
 
 {
-  inputs,
   lib,
   config,
   pkgs,
@@ -17,11 +16,11 @@
 let
   username = "toph";
   user = config.secretsSpec.users.${username};
-  firewall = config.secretsSpec.firewall.proxy;
+  firewall = config.secretsSpec.firewall.nimbus;
 in
 {
   imports = lib.flatten [
-    ## Proxy Only ##
+    ## Nimbus Only ##
     ./config
 
     ## Hardware ##
@@ -32,14 +31,13 @@ in
       "hosts/global/core"
 
       ## Optional Configs ##
-      "hosts/global/common/acme"
       "hosts/global/common/docker.nix"
     ])
   ];
 
   ## Host Specifications ##
   hostSpec = {
-    hostName = "proxy";
+    hostName = "nimbus";
     username = username;
     hashedPassword = user.hashedPassword;
     email = user.email;
@@ -51,21 +49,16 @@ in
 
   networking = {
     enableIPv6 = false;
-    firewall.allowedTCPPorts = firewall.allowedTCPPorts;
-    firewall.allowedUDPPorts = firewall.allowedUDPPorts;
+    firewall = {
+      allowedTCPPorts = firewall.allowedTCPPorts;
+      allowedUDPPorts = firewall.allowedUDPPorts;
+    };
   };
 
   ## System-wide packages ##
   programs.nix-ld.enable = true;
   environment.systemPackages = with pkgs; [
-    lazydocker
   ];
-
-  environment.etc = {
-    "cloudflared/.keep" = {
-      text = "This directory is used to store cloudflared configuration files.";
-    };
-  };
 
   # https://wiki.nixos.org/wiki/FAQ/When_do_I_update_stateVersion
   system.stateVersion = "25.05";

@@ -1,13 +1,14 @@
 ###############################################################
 #
-#  Sock - LXC Container
-#  NixOS container, Intel N150  (4 Cores), 8GB/2GB RAM/SWAP
+#  Nexus - LXC Container
+#  NixOS container, Ryzen 5 5600G (3 Cores), 2GB/2GB RAM/SWAP
 #
-#  Docker Environment, Managed by with Komodo
+#  Cloudflare Tunnel Proxy, Zero Trust access
 #
 ###############################################################
 
 {
+  inputs,
   lib,
   config,
   pkgs,
@@ -16,10 +17,11 @@
 let
   username = "toph";
   user = config.secretsSpec.users.${username};
+  firewall = config.secretsSpec.firewall.nexus;
 in
 {
   imports = lib.flatten [
-    ## Sock Only ##
+    ## Nexus Only ##
     ./config
 
     ## Hardware ##
@@ -30,13 +32,14 @@ in
       "hosts/global/core"
 
       ## Optional Configs ##
+      "hosts/global/common/acme"
       "hosts/global/common/docker.nix"
     ])
   ];
 
   ## Host Specifications ##
   hostSpec = {
-    hostName = "sock";
+    hostName = "nexus";
     username = username;
     hashedPassword = user.hashedPassword;
     email = user.email;
@@ -48,14 +51,21 @@ in
 
   networking = {
     enableIPv6 = false;
+    firewall.allowedTCPPorts = firewall.allowedTCPPorts;
+    firewall.allowedUDPPorts = firewall.allowedUDPPorts;
   };
 
   ## System-wide packages ##
   programs.nix-ld.enable = true;
   environment.systemPackages = with pkgs; [
     lazydocker
-    compose2nix
   ];
+
+  environment.etc = {
+    "cloudflared/.keep" = {
+      text = "This directory is used to store cloudflared configuration files.";
+    };
+  };
 
   # https://wiki.nixos.org/wiki/FAQ/When_do_I_update_stateVersion
   system.stateVersion = "25.05";
