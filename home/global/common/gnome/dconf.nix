@@ -76,7 +76,7 @@ with lib.hm.gvariant;
       ## Window management ##
       show-desktop = [ ];
       panel-main-menu = [ ]; # DEPRECATED
-      panel-run-dialog = [ ]; # Default: ['<Alt>F2']
+      panel-run-dialog = [ "<Alt>F2" ];
       set-spew-mark = [ ];
       activate-window-menu = [ ]; # Default: ['<Alt>space']
       toggle-fullscreen = [ ];
@@ -237,8 +237,8 @@ with lib.hm.gvariant;
       rfkill-static = [ ]; # Default: ['XF86WLAN', 'XF86UWB', 'XF86RFKill']
       rotate-video-lock-static = [ ]; # Default: ['<Super>o', 'XF86RotationLockToggle']
       screen-brightness-cycle-static = [ ]; # Default: ['XF86MonBrightnessCycle']
-      screen-brightness-down-static = [ ]; # Default: ['XF86MonBrightnessDown']
-      screen-brightness-up-static = [ ]; # Default: ['XF86MonBrightnessUp']
+      screen-brightness-down-static = [ "XF86MonBrightnessDown" ]; # Default: ['XF86MonBrightnessDown']
+      screen-brightness-up-static = [ "XF86MonBrightnessUp" ]; # Default: ['XF86MonBrightnessUp']
       screensaver-static = [ ]; # Default: ['XF86ScreenSaver']
       search-static = [ ]; # Default: ['XF86Search']
       stop-static = [ ]; # Default: ['XF86AudioStop']
@@ -278,7 +278,7 @@ with lib.hm.gvariant;
         "blur-my-shell@aunetx"
         "color-picker@tuberry"
         "dash-in-panel@fthx"
-        # "eepresetselector@ulville.github.io"
+        "flickernaut@imoize.github.io"
         "just-perfection-desktop@just-perfection"
         "monitor-brightness-volume@ailin.nemui"
         "pano@elhan.io"
@@ -289,6 +289,7 @@ with lib.hm.gvariant;
         "undecorate@sun.wxg@gmail.com"
         "user-theme@gnome-shell-extensions.gcampax.github.com"
         "Vitals@CoreCoding.com"
+        # "eepresetselector@ulville.github.io"
       ];
       favorite-apps = lib.mkDefault [
         "com.mitchellh.ghostty.desktop"
@@ -461,8 +462,9 @@ with lib.hm.gvariant;
       disable-topbar-styling = true;
       edge-preview-enable = true;
       edge-preview-timeout-enable = false;
-      gesture-enabled = false;
-      gesture-horizontal-fingers = 0;
+      gesture-enabled = true;
+      gesture-horizontal-fingers = 3;
+      gesture-workspace-fingers = 4;
       horizontal-margin = 8;
       last-used-display-server = "Wayland";
       restore-attach-modal-dialogs = "true";
@@ -617,6 +619,14 @@ with lib.hm.gvariant;
       fixed-widths = true;
       hide-icons = false;
       hide-zeros = true;
+      hot-sensors = [
+        "_processor_usage_"
+        "_memory_usage_"
+        "_gpu#1_usage_"
+        "__temperature_avg__"
+        "_network_lo_"
+        "_storage_free_"
+      ];
       icon-style = 1;
       include-static-gpu-info = true;
       include-static-info = true;

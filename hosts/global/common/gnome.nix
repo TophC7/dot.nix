@@ -18,6 +18,7 @@
 
     # hosts/global/core/ssh.nix handles this
     gnome.gcr-ssh-agent.enable = false;
+    gnome.core-utilities.enable = true;
 
     displayManager = {
       gdm = {
@@ -52,6 +53,11 @@
 
   environment.systemPackages = with pkgs; [
     gnome-tweaks
+    papers # evince replacement
+    eloquent # Spell checker
+    resources
+    cartridges
+    nautilus-python
     gnomeExtensions.alphabetical-app-grid
     gnomeExtensions.appindicator
     gnomeExtensions.auto-accent-colour
@@ -59,6 +65,7 @@
     gnomeExtensions.color-picker
     gnomeExtensions.control-monitor-brightness-and-volume-with-ddcutil
     gnomeExtensions.dash-in-panel
+    gnomeExtensions.flickernaut
     gnomeExtensions.just-perfection
     gnomeExtensions.pano
     gnomeExtensions.paperwm
@@ -75,7 +82,7 @@
       atomix
       baobab
       # epiphany
-      # evince
+      evince
       geary
       gedit
       gnome-console
@@ -96,6 +103,7 @@
       gnomeExtensions.windownavigator
       hitori
       iagno
+      monitor
       simple-scan
       tali
       yelp
