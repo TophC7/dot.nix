@@ -1,0 +1,59 @@
+version: '3.8'
+name: pangolin
+services:
+  pangolin:
+    image: fosrl/pangolin:latest
+    container_name: pangolin
+    restart: always
+    volumes:
+      - /etc/pangolin/config:/app/config
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/api/v1/"]
+      interval: 3s
+      timeout: 3s
+      retries: 15
+    networks:
+      - pangolin
+
+  gerbil:
+    image: fosrl/gerbil:latest
+    container_name: gerbil
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+      - "222:222/tcp"
+      - "51820:51820/udp"
+      - "25565:25565/udp"
+    volumes:
+      - /etc/pangolin/config:/var/config
+    cap_add:
+      - NET_ADMIN
+    command:
+      - --reachableAt=http://gerbil:3003
+      - --generateAndSaveKeyTo=/var/config/key
+      - --remoteConfig=http://pangolin:3001/api/v1/gerbil/get-config
+      - --reportBandwidthTo=http://pangolin:3001/api/v1/gerbil/receive-bandwidth
+    depends_on:
+      - pangolin
+    networks:
+      - pangolin
+
+  traefik:
+    image: traefik:v3.4.0
+    container_name: traefik
+    restart: always
+    environment:
+      - CLOUDFLARE_DNS_API_TOKEN=${CLOUDFLARE_DNS_API_TOKEN}
+    volumes:
+      - /etc/pangolin/config/traefik:/etc/traefik:ro
+      - /etc/pangolin/config/letsencrypt:/letsencrypt
+    command: --configFile=/etc/traefik/traefik_config.yml
+    network_mode: "container:gerbil"
+    depends_on:
+      - pangolin
+      - gerbil
+
+networks:
+  pangolin:
+    driver: bridge

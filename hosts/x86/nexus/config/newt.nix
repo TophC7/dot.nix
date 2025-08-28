@@ -1,6 +1,6 @@
 { config, ... }:
 let
-  cfg = config.secretsSpec.docker.newt-proxy;
+  cfg = config.secretsSpec.docker.newt-nexus;
 in
 {
   services.newt = {

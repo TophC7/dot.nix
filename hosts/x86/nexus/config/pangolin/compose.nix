@@ -5,20 +5,19 @@
   config,
   ...
 }:
-
 {
   # Containers
   virtualisation.oci-containers.containers."gerbil" = {
-    image = "fosrl/gerbil:1.0.0";
+    image = "fosrl/gerbil:latest";
     volumes = [
       "/etc/pangolin/config:/var/config:rw"
     ];
     ports = [
-      "51820:51820/udp"
-      "25565:25565/udp"
+      "80:80/tcp"
       "443:443/tcp"
       "222:222/tcp"
-      "80:80/tcp"
+      "51820:51820/udp"
+      "25565:25565/udp"
     ];
     cmd = [
       "--reachableAt=http://gerbil:3003"
@@ -58,7 +57,7 @@
     ];
   };
   virtualisation.oci-containers.containers."pangolin" = {
-    image = "fosrl/pangolin:1.5.1";
+    image = "fosrl/pangolin:latest";
     volumes = [
       "/etc/pangolin/config:/app/config:rw"
     ];
