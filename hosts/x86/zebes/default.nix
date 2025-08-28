@@ -9,6 +9,7 @@
 ###############################################################
 
 {
+  inputs,
   lib,
   config,
   pkgs,
@@ -26,6 +27,9 @@ in
 
     ## Hardware ##
     ./hardware.nix
+    inputs.hardware.nixosModules.common-cpu-amd
+    inputs.hardware.nixosModules.common-gpu-amd
+    inputs.hardware.nixosModules.common-pc-ssd
 
     (map lib.custom.relativeToRoot [
       ## Required Configs ##
@@ -34,6 +38,7 @@ in
       ## Optional Configs ##
       "hosts/global/common/acme"
       "hosts/global/common/docker.nix"
+      "hosts/global/common/nvtop.nix"
     ])
   ];
 
