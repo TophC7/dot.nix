@@ -10,7 +10,7 @@ services:
             MYSQL_DATABASE: ${DB_NAME}
         restart: unless-stopped
         volumes:
-            - /pool/filerun/db:/var/lib/mysql
+            - /fast/store/filerun/db:/var/lib/mysql
 
     web:
         image: filerun/filerun:8.1
@@ -21,9 +21,9 @@ services:
             FR_DB_NAME: ${DB_NAME}
             FR_DB_USER: ${DB_USER}
             FR_DB_PASS: ${DB_PASS}
-            APACHE_RUN_USER: 
+            APACHE_RUN_USER:
             APACHE_RUN_USER_ID: 1001
-            APACHE_RUN_GROUP: 
+            APACHE_RUN_GROUP:
             APACHE_RUN_GROUP_ID: 1004
         depends_on:
             - db
@@ -33,6 +33,6 @@ services:
             - "8181:80"
         restart: unless-stopped
         volumes:
-            - /pool/filerun/html:/var/www/html
-            - /pool/filerun/user-files:/user-files
-            - /pool/:/pool
+            - /fast/store/filerun/html:/var/www/html
+            - /tank/user-files:/user-files
+            - /tank/:/tank

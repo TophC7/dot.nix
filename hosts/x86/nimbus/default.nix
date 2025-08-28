@@ -1,9 +1,9 @@
 ###############################################################
 #
 #  Nimbus - LXC Container
-#  NixOS container, Ryzen 5 5600G (4 Cores), 4GB/4GB RAM/SWAP
+#  NixOS running on Ryzen 7 5700X, 32GB RAM
 #
-#  Storage, NFS, Filerun, and Backups
+#  Storage (ZFS), NFS, Filerun, and Backups
 #
 ###############################################################
 

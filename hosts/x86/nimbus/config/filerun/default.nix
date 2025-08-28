@@ -21,7 +21,7 @@ in
     image = "mariadb:10.11";
     environment = env;
     volumes = [
-      "/pool/filerun/db:/var/lib/mysql:rw"
+      "/fast/store/filerun/db:/var/lib/mysql:rw"
     ];
     user = "1001:1004";
     log-driver = "journald";
@@ -54,9 +54,9 @@ in
     image = "filerun/filerun:8.1";
     environment = env;
     volumes = [
-      "/pool/:/pool:rw"
-      "/pool/filerun/html:/var/www/html:rw"
-      "/pool/filerun/user-files:/user-files:rw"
+      "/tank/:/tank:rw"
+      "/fast/store/filerun/html:/var/www/html:rw"
+      "/tank/user-files:/user-files:rw"
     ];
     ports = [
       "8181:80/tcp"
