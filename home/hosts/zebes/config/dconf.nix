@@ -94,6 +94,23 @@ with lib.hm.gvariant;
       welcome-dialog-last-shown-version = "48.1";
     };
 
+    # Disable power saving and suspend for server
+    "org/gnome/settings-daemon/plugins/power" = {
+      idle-dim = false;
+      power-button-action = "nothing";
+      sleep-inactive-ac-type = "nothing";
+      sleep-inactive-battery-type = "nothing";
+    };
+
+    "org/gnome/desktop/session" = {
+      idle-delay = mkUint32 0;  # Never go idle
+    };
+
+    "org/gnome/desktop/screensaver" = {
+      idle-activation-enabled = false;
+      lock-enabled = false;
+    };
+
     # "org/gnome/shell/extensions/quicksettings-audio-devices-hider" = {
     #   available-input-names = [
     #     "Digital Input (S/PDIF) \8211 USB  Live camera"
