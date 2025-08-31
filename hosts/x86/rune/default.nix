@@ -62,6 +62,26 @@ in
     enableIPv6 = false;
   };
 
+  ## Nix configuration for private cache authentication ##
+  nix.settings = {
+    # Add private cache substituter only for norion
+    substituters = [
+      "https://psynk-private.cachix.org"
+    ];
+    trusted-public-keys = [
+      "psynk-private.cachix.org-1:Kv9E2th/8t6kItQHl3hJVgWaaJTcPhvC63XAie2aAz4="
+    ];
+    # Generate netrc file from secrets for authentication
+    netrc-file = pkgs.writeText "netrc" ''
+      machine psynk-private.cachix.org password ${config.secretsSpec.api.cachix}
+    '';
+  };
+
+  ## Environment variables for Cachix authentication ##
+  environment.sessionVariables = rec {
+    CACHIX_AUTH_TOKEN = config.secretsSpec.api.cachix;
+  };
+
   ## System-wide packages ##
   programs.nix-ld.enable = true;
   environment.systemPackages = with pkgs; [
