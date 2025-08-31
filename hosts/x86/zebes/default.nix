@@ -37,8 +37,13 @@ in
 
       ## Optional Configs ##
       "hosts/global/common/acme"
+      "hosts/global/common/bluetooth.nix"
+      "hosts/global/common/ddcutil.nix" # ddcutil for monitor controls
       "hosts/global/common/docker.nix"
-      "hosts/global/common/nvtop.nix"
+      "hosts/global/common/gnome.nix"
+      "hosts/global/common/nvtop.nix" # GPU monitor (not available in home-manager)
+      "hosts/global/common/plymouth.nix" # fancy boot screen
+      "hosts/global/common/solaar.nix" # Logitech Unifying Receiver support
     ])
   ];
 
@@ -50,8 +55,8 @@ in
     email = user.email;
     handle = user.handle;
     userFullName = user.fullName;
-    isServer = true;
-    isMinimal = true;
+    isServer = false;
+    isMinimal = false;
   };
 
   networking = {
@@ -65,10 +70,6 @@ in
 
   ## System-wide packages ##
   programs.nix-ld.enable = true;
-  environment.systemPackages = with pkgs; [
-    lazydocker
-    compose2nix
-  ];
 
   # https://wiki.nixos.org/wiki/FAQ/When_do_I_update_stateVersion
   system.stateVersion = "25.11";

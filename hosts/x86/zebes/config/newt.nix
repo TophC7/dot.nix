@@ -1,6 +1,6 @@
 { config, ... }:
 let
-  cfg = config.secretsSpec.docker.newt-komo;
+  cfg = config.secretsSpec.docker.newt-zebes;
 in
 {
   services.newt = {
