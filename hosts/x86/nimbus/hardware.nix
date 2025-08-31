@@ -7,7 +7,7 @@
   ...
 }:
 {
-  imports = [
+  imports = lib.flatten [
     (modulesPath + "/installer/scan/not-detected.nix")
   ];
 
@@ -22,8 +22,8 @@
       timeout = 3;
     };
 
-    # Use the cachyos kernel for better performance
-    kernelPackages = pkgs.linuxPackages_cachyos;
+    # Use ZFS-compatible kernel (automatically selects latest compatible version)
+    kernelPackages = config.boot.zfs.package.latestCompatibleLinuxPackages;
 
     initrd = {
       systemd.enable = true;
@@ -42,11 +42,13 @@
     kernelModules = [ "kvm-amd" ];
     extraModulePackages = [ ];
 
-    # Enable ZFS
-    supportedFilesystems = [ "zfs" ];
-    zfs.enableUnstable = false;
-    zfs.forceImportRoot = false;
-    zfs.forceImportAll = true;
+    # Enable ZFS and BTRFS
+    supportedFilesystems = [
+      "zfs"
+      "btrfs"
+    ];
+    zfs.forceImportRoot = true; # Required when forceImportAll is true
+    zfs.forceImportAll = true; # Import all pools at boot
   };
 
   # ZFS services
@@ -62,40 +64,138 @@
     };
   };
 
+  # BTRFS services
+  services.btrfs.autoScrub = {
+    enable = true;
+    interval = "monthly";
+    fileSystems = [ "/" ];
+  };
+
   fileSystems = {
-
-    "/tank" = {
-      device = "tank/tank"; # 4x HDD RAIDZ1 pool
-      fsType = "zfs";
-      options = [ "zfsutil" ];
-    };
-
-    "/fast" = {
-      device = "fast/fast"; # 2x SSD RAIDZ1 or mirror
-      fsType = "zfs";
-      options = [ "zfsutil" ];
-    };
-
-    # Note: The tank pool has a special vdev for metadata that's part of the pool structure
-
-    # TODO: update UUIDs once installed
+    # BTRFS root with subvolumes
     "/" = {
-      device = "/dev/disk/by-uuid/YOUR-ROOT-UUID";
-      fsType = "ext4";
+      device = "/dev/disk/by-uuid/66ad2f79-3d7c-459f-8ddb-ae02d68379f7";
+      fsType = "btrfs";
+      options = [
+        "subvol=@"
+        "compress=zstd:1"
+        "noatime"
+        "ssd"
+        "space_cache=v2"
+      ];
+    };
+
+    "/home" = {
+      device = "/dev/disk/by-uuid/66ad2f79-3d7c-459f-8ddb-ae02d68379f7";
+      fsType = "btrfs";
+      options = [
+        "subvol=@home"
+        "compress=zstd:1"
+        "noatime"
+        "ssd"
+        "space_cache=v2"
+      ];
+    };
+
+    "/nix" = {
+      device = "/dev/disk/by-uuid/66ad2f79-3d7c-459f-8ddb-ae02d68379f7";
+      fsType = "btrfs";
+      options = [
+        "subvol=@nix"
+        "compress=zstd:1"
+        "noatime"
+        "ssd"
+        "space_cache=v2"
+      ];
+    };
+
+    "/var/log" = {
+      device = "/dev/disk/by-uuid/66ad2f79-3d7c-459f-8ddb-ae02d68379f7";
+      fsType = "btrfs";
+      options = [
+        "subvol=@log"
+        "compress=zstd:1"
+        "noatime"
+        "ssd"
+        "space_cache=v2"
+      ];
+    };
+
+    "/.snapshots" = {
+      device = "/dev/disk/by-uuid/66ad2f79-3d7c-459f-8ddb-ae02d68379f7";
+      fsType = "btrfs";
+      options = [
+        "subvol=@snapshots"
+        "compress=zstd:1"
+        "noatime"
+        "ssd"
+        "space_cache=v2"
+      ];
+    };
+
+    "/swap" = {
+      device = "/dev/disk/by-uuid/66ad2f79-3d7c-459f-8ddb-ae02d68379f7";
+      fsType = "btrfs";
+      options = [
+        "subvol=@swap"
+        "noatime"
+        "ssd"
+      ];
     };
 
     "/boot" = {
-      device = "/dev/disk/by-uuid/YOUR-BOOT-UUID";
+      device = "/dev/disk/by-uuid/BA9A-E9A7";
       fsType = "vfat";
       options = [
         "fmask=0077"
         "dmask=0077"
       ];
     };
+
+    # ZFS storage pools
+    "/tank" = {
+      device = "tank/tank"; # 4x HDD RAIDZ1 pool with SSD metadata
+      fsType = "zfs";
+      options = [ "zfsutil" ];
+    };
+
+    "/fast" = {
+      device = "fast/fast"; # SSD mirror pool
+      fsType = "zfs";
+      options = [ "zfsutil" ];
+    };
+
+    "/repo" = {
+      device = "fast/repo"; # SSD mirror pool (dataset)
+      fsType = "zfs";
+      options = [ "zfsutil" ];
+    };
+
+    # Bind mounts for Docker/LXC to ZFS storage (disabled temporarily)
+    "/var/lib/docker" = {
+      device = "/fast/lib/docker";
+      fsType = "none";
+      options = [ "bind" ];
+      neededForBoot = true;
+    };
+
+    "/var/lib/lxc" = {
+      device = "/fast/lib/lxc";
+      fsType = "none";
+      options = [ "bind" ];
+      neededForBoot = true;
+    };
   };
 
-  swapDevices = [ ];
+  swapDevices = [
+    {
+      device = "/swap/swapfile";
+    }
+  ];
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
   hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableAllFirmware;
+
+  # Required for ZFS
+  networking.hostId = "3c65ffd4"; # Generate with: head -c 8 /etc/machine-id
 }

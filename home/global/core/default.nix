@@ -31,7 +31,7 @@ in
     sessionVariables = {
       EDITOR = lib.mkDefault "micro";
       VISUAL = lib.mkDefault "micro";
-      FLAKE = lib.mkDefault "${homeDir}/git/Nix/dot.nix";
+      FLAKE = lib.mkDefault "/repo/Nix/dot.nix";
       SHELL = lib.getExe shell;
     };
     preferXdgDirectories = true; # whether to make programs use XDG directories whenever supported

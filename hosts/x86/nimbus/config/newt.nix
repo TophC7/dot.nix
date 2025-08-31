@@ -1,6 +1,6 @@
 { config, ... }:
 let
-  cfg = config.secretsSpec.docker.newt-cloud;
+  cfg = config.secretsSpec.docker.newt-nimbus;
 in
 {
   services.newt = {

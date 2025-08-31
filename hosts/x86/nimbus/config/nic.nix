@@ -1,0 +1,45 @@
+{ ... }:
+{
+  # Bridge configuration with explicit network settings to prevent connectivity loss
+  networking = {
+    # Create the bridge
+    bridges.br0 = {
+      interfaces = [
+        "enp34s0" # Main NIC
+        "enp37s0" # 4-port NIC port 1
+        "enp38s0" # 4-port NIC port 2
+        "enp39s0" # 4-port NIC port 3
+        "enp40s0" # 4-port NIC port 4
+      ];
+    };
+
+    # Explicitly configure the bridge with nimbus's current network settings
+    interfaces.br0 = {
+      useDHCP = false; # Don't use DHCP
+      ipv4.addresses = [
+        {
+          address = "104.40.2.24"; # Nimbus's current IP
+          prefixLength = 24;
+        }
+      ];
+    };
+
+    # Disable DHCP on the physical interface
+    interfaces.enp34s0.useDHCP = false;
+
+    # Set the default gateway
+    defaultGateway = {
+      address = "104.40.2.1"; # Your router's IP
+      interface = "br0";
+    };
+
+    # Set DNS servers (adjust if needed)
+    nameservers = [
+      "104.40.2.1"
+      "1.1.1.1"
+    ];
+  };
+
+  # Ensure the bridge module is loaded
+  boot.kernelModules = [ "bridge" ];
+}
