@@ -26,7 +26,7 @@ in
     autoEnable = true;
     base16Scheme = ./norion.yaml;
     image = ./wallpapers/wallpaper.png;
-    polarity = "dark";
+    polarity = "light";
     fonts = {
       serif = {
         package = pkgs.google-fonts.override { fonts = [ "Laila" ]; };

@@ -23,6 +23,15 @@
 
   ## Packages with no needed configs ##
   home.packages = with pkgs; [
+    ## Media ##
+    ffmpeg
+    spotify
+
+    ## Social ##
+    telegram-desktop
+    discord-krisp
+    betterdiscordctl
+
     ## Tools ##
     bitwarden-desktop
     inspector

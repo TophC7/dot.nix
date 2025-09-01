@@ -11,71 +11,70 @@ with lib.hm.gvariant;
         "Utilities"
         "2e37c30a-0da6-400b-b4d1-172dd613cddc"
       ];
-      
-      };
 
-      "org/gnome/desktop/app-folders/folders/2e37c30a-0da6-400b-b4d1-172dd613cddc" = {
-        apps = [
-        ];
-        name = "Work";
-      };
+    };
 
-      "org/gnome/desktop/app-folders/folders/System" = {
-        apps = [
-          "btop.desktop"
-          "org.gnome.DiskUtility.desktop"
-          "org.gnome.Extensions.desktop"
-          "fish.desktop"
-          "io.github.nokse22.inspector.desktop"
-          "re.sonny.Junction.desktop"
-          "kvantummanager.desktop"
-          "io.github.ilya_zlobintsev.LACT.desktop"
-          "org.gnome.Logs.desktop"
-          "cups.desktop"
-          "micro.desktop"
-          "nvtop.desktop"
-          "protontricks.desktop"
-          "qt5ct.desktop"
-          "qt6ct.desktop"
-          "net.nokyan.Resources.desktop"
-          "solaar.desktop"
-          "org.gnome.SystemMonitor.desktop"
-          "org.gnome.tweaks.desktop"
-          "yazi.desktop"
-        ];
-        name = "X-GNOME-Shell-System.directory";
-        translate = true;
-      };
+    "org/gnome/desktop/app-folders/folders/2e37c30a-0da6-400b-b4d1-172dd613cddc" = {
+      apps = [
+      ];
+      name = "Work";
+    };
 
-      "org/gnome/desktop/app-folders/folders/Utilities" = {
-        apps = [
-          "com.dec05eba.gpu_screen_recorder.desktop"
-          "org.gnome.Calculator.desktop"
-          "org.gnome.Calendar.desktop"
-          "org.gnome.Characters.desktop"
-          "org.gnome.clocks.desktop"
-          "org.gnome.Connections.desktop"
-          "org.gnome.Decibels.desktop"
-          "org.gnome.Evince.desktop"
-          "org.gnome.FileRoller.desktop"
-          "org.gnome.font-viewer.desktop"
-          "org.gnome.Loupe.desktop"
-          "org.gnome.Papers.desktop"
-          "org.gnome.seahorse.Application.desktop"
-          "org.gnome.Snapshot.desktop"
-          "org.gnome.TextEditor.desktop"
-          "org.gnome.Totem.desktop"
-          "org.gnome.Weather.desktop"
-          "org.remmina.Remmina.desktop"
-          "page.kramo.Cartridges.desktop"
-          "re.sonny.Eloquent.desktop"
-          "Vial.desktop"
-          "virt-manager.desktop"
-        ];
-        name = "X-GNOME-Shell-Utilities.directory";
-        translate = true;
-      };
-    
+    "org/gnome/desktop/app-folders/folders/System" = {
+      apps = [
+        "btop.desktop"
+        "org.gnome.DiskUtility.desktop"
+        "org.gnome.Extensions.desktop"
+        "fish.desktop"
+        "io.github.nokse22.inspector.desktop"
+        "re.sonny.Junction.desktop"
+        "kvantummanager.desktop"
+        "io.github.ilya_zlobintsev.LACT.desktop"
+        "org.gnome.Logs.desktop"
+        "cups.desktop"
+        "micro.desktop"
+        "nvtop.desktop"
+        "protontricks.desktop"
+        "qt5ct.desktop"
+        "qt6ct.desktop"
+        "net.nokyan.Resources.desktop"
+        "solaar.desktop"
+        "org.gnome.SystemMonitor.desktop"
+        "org.gnome.tweaks.desktop"
+        "yazi.desktop"
+      ];
+      name = "X-GNOME-Shell-System.directory";
+      translate = true;
+    };
+
+    "org/gnome/desktop/app-folders/folders/Utilities" = {
+      apps = [
+        "com.dec05eba.gpu_screen_recorder.desktop"
+        "org.gnome.Calculator.desktop"
+        "org.gnome.Calendar.desktop"
+        "org.gnome.Characters.desktop"
+        "org.gnome.clocks.desktop"
+        "org.gnome.Connections.desktop"
+        "org.gnome.Decibels.desktop"
+        "org.gnome.Evince.desktop"
+        "org.gnome.FileRoller.desktop"
+        "org.gnome.font-viewer.desktop"
+        "org.gnome.Loupe.desktop"
+        "org.gnome.Papers.desktop"
+        "org.gnome.seahorse.Application.desktop"
+        "org.gnome.Snapshot.desktop"
+        "org.gnome.TextEditor.desktop"
+        "org.gnome.Totem.desktop"
+        "org.gnome.Weather.desktop"
+        "org.remmina.Remmina.desktop"
+        "page.kramo.Cartridges.desktop"
+        "re.sonny.Eloquent.desktop"
+        "Vial.desktop"
+        "virt-manager.desktop"
+      ];
+      name = "X-GNOME-Shell-Utilities.directory";
+      translate = true;
+    };
 
     "org/gnome/nautilus/preferences" = {
       default-folder-viewer = "icon-view";
@@ -89,6 +88,9 @@ with lib.hm.gvariant;
         "org.gnome.Nautilus.desktop"
         "zen.desktop"
         "code.desktop"
+        "spotify.desktop"
+        "discord.desktop"
+        "org.telegram.desktop.desktop"
       ];
       last-selected-power-profile = "performance";
       welcome-dialog-last-shown-version = "48.1";

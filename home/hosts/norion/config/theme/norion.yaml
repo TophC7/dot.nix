@@ -4,22 +4,22 @@ name: Norion
 author: tophc7
 variant: dark
 palette:
-  base00: "320c0c"
-  base01: "79312f"
-  base02: "c03b38"
-  base03: "fe7463"
-  base04: "F09E75"
-  base05: "F4B190"
-  base06: "fff0e6"
-  base07: "fff0e6"
-  base08: "EE2E00" # Red
-  base09: "F7A94E" # Orange
-  base0A: "FCEEA1" # Yellow
-  base0B: "8DE364" # Green
-  base0C: "59A3C0" # Cyan
-  base0D: "2B57B6" # Blue
-  base0E: "AC92BF" # Purple
-  base0F: "EA5E79" # Magenta
+  base00: "F4A983"
+  base01: "FE8C52"
+  base02: "CC6657"
+  base03: "704846"
+  base04: "612221"
+  base05: "320C0C"
+  base06: "260909"
+  base07: "1A0605"
+  base08: "C22A15" # Red
+  base09: "E1871D" # Orange
+  base0A: "F5D93D" # Yellow
+  base0B: "59A735" # Green
+  base0C: "4E9CBC" # Cyan
+  base0D: "3660BA" # Blue
+  base0E: "430D3D" # Purple
+  base0F: "9A4253" # Magenta
 
-# https://coolors.co/320c0c-79312f-c03b38-fe7463-f2a882-ffd7c3-fff0e6-fff0e6
-# https://coolors.co/ee2e00-f7a94e-2b57b6-8de364-59a3c0-fceea1-ac92bf-ea5e79
+# https://coolors.co/F4A983-FE8C52-CC6657-704846-612221-320C0C-260909-1A0605
+# https://coolors.co/C22A15-E1871D-F5D93D-59A735-4E9CBC-3660BA-430D3D-9A4253
