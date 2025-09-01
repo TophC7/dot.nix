@@ -18,7 +18,7 @@
 
     # hosts/global/core/ssh.nix handles this
     gnome.gcr-ssh-agent.enable = false;
-    gnome.core-utilities.enable = true;
+    gnome.core-apps.enable = true;
 
     displayManager = {
       gdm = {
