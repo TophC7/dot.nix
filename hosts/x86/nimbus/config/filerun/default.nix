@@ -21,7 +21,7 @@ in
     image = "mariadb:10.11";
     environment = env;
     volumes = [
-      "/fast/store/filerun/db:/var/lib/mysql:rw"
+      "/fast/filerun/db:/var/lib/mysql:rw"
     ];
     user = "1001:1004";
     log-driver = "journald";
@@ -55,11 +55,8 @@ in
     environment = env;
     volumes = [
       "/tank/:/tank:rw"
-      "/fast/store/filerun/html:/var/www/html:rw"
+      "/fast/filerun/html:/var/www/html:rw"
       "/tank/user-files:/user-files:rw"
-    ];
-    ports = [
-      "8181:80/tcp"
     ];
     dependsOn = [
       "filerun-db"
@@ -80,9 +77,11 @@ in
     };
     after = [
       "docker-network-filerun_default.service"
+      "docker-network-newt.service"
     ];
     requires = [
       "docker-network-filerun_default.service"
+      "docker-network-newt.service"
     ];
     partOf = [
       "docker-compose-filerun-root.target"
@@ -90,6 +89,10 @@ in
     wantedBy = [
       "docker-compose-filerun-root.target"
     ];
+    # Connect to newt network after container starts with filerun alias
+    postStart = ''
+      ${pkgs.docker}/bin/docker network connect --alias filerun newt filerun-web 2>/dev/null || true
+    '';
   };
 
   # Networks

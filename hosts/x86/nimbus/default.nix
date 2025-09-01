@@ -32,6 +32,7 @@ in
 
       ## Optional Configs ##
       "hosts/global/common/docker.nix"
+      "hosts/global/common/pangolin/newt.nix"
     ])
   ];
 
