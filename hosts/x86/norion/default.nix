@@ -31,11 +31,12 @@ in
       "hosts/global/core"
 
       ## Optional Configs ##
-      # "hosts/global/common/audio.nix" # pipewire and cli controls
+      "hosts/global/common/audio.nix" # pipewire and cli controls
       "hosts/global/common/bluetooth.nix"
       "hosts/global/common/ddcutil.nix" # ddcutil for monitor controls
       "hosts/global/common/gnome.nix"
-      # "hosts/global/common/nvtop.nix" # GPU monitor (not available in home-manager)
+      "hosts/global/common/nvtop.nix" # GPU monitor (not available in home-manager)
+      "hosts/global/common/pangolin/olm.nix"
       "hosts/global/common/plymouth.nix" # fancy boot screen
       "hosts/global/common/solaar.nix" # Logitech Unifying Receiver support
       "hosts/global/common/vial.nix" # KB setup
@@ -77,6 +78,7 @@ in
   };
 
   ## System-wide packages ##
+  services.olm.enableGnomeExtension = true;
   programs.nix-ld.enable = true;
   environment.systemPackages = with pkgs; [
     asdf-vm
