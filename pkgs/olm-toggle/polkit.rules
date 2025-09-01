@@ -1,0 +1,8 @@
+/* Allow users in the wheel group to manage OLM service without password */
+polkit.addRule(function(action, subject) {
+    if (action.id == "org.freedesktop.systemd1.manage-units" &&
+        action.lookup("unit") == "olm.service" &&
+        subject.isInGroup("wheel")) {
+        return polkit.Result.YES;
+    }
+});

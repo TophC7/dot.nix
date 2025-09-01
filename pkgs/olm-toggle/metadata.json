@@ -1,0 +1,13 @@
+{
+  "name": "OLM Toggle",
+  "description": "Toggle OLM tunneling service for Pangolin networks",
+  "uuid": "olm-toggle@toph",
+  "version": 1,
+  "shell-version": [
+    "45",
+    "46",
+    "47",
+    "48"
+  ],
+  "url": "https://github.com/TophC7/dot.nix/tree/main/pkgs/olm-toggle"
+}
