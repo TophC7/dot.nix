@@ -34,6 +34,7 @@ in
       ## Optional Configs ##
       "hosts/global/common/acme"
       "hosts/global/common/docker.nix"
+      "hosts/global/common/pangolin/newt.nix"
     ])
   ];
 
@@ -57,9 +58,6 @@ in
 
   ## System-wide packages ##
   programs.nix-ld.enable = true;
-  environment.systemPackages = with pkgs; [
-    lazydocker
-  ];
 
   environment.etc = {
     "cloudflared/.keep" = {
