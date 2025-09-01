@@ -24,7 +24,7 @@ in
   stylix = {
     enable = true;
     autoEnable = true;
-    base16Scheme = ./norion.yaml;
+    base16Scheme = ./zebes.yaml;
     image = ./wallpapers/wallpaper.png;
     polarity = "dark";
     fonts = {
@@ -80,9 +80,10 @@ in
       # package = qogir;
       # name = "Qogir";
       package = (
-        pkgs.papirus-icon-theme.override {
-          color = "red";
-        }
+        # pkgs.papirus-icon-theme.override {
+        #   color = "red";
+        # }
+        pkgs.papirus-icon-theme
       );
       name = "Papirus";
     };

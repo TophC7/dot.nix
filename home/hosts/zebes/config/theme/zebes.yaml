@@ -1,0 +1,25 @@
+system: base16
+slug: Zebes
+name: Zebes
+author: tophc7
+variant: light
+palette:
+  base00: "082028"
+  base01: "484840"
+  base02: "706850"
+  base03: "88a4b0"
+  base04: "b0bcb0"
+  base05: "d8e4d0"
+  base06: "e0f4e8"
+  base07: "e0f4e8"
+  base08: "E2451D" # Red
+  base09: "FF941A" # Orange
+  base0A: "E3D984" # Yellow
+  base0B: "2B6455" # Green
+  base0C: "97D8DB" # Cyan
+  base0D: "266099" # Blue
+  base0E: "45314D" # Purple
+  base0F: "8A2438" # Magenta
+
+# https://coolors.co/082028-484840-706850-88a4b0-b0bcb0-d8e4d0-e0f4e8-e0f4e8
+# https://coolors.co/ee2e00-f7a94e-2b57b6-8de364-59a3c0-fceea1-ac92bf-ea5e79
