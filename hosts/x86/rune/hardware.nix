@@ -14,6 +14,7 @@
       "hosts/global/common/system/fast.nix"
       "hosts/global/common/system/repo.nix"
       "hosts/global/common/system/tank.nix"
+      "hosts/global/common/system/store.nix"
     ])
   ];
 
