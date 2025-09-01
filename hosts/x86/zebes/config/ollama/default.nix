@@ -1,6 +1,13 @@
 # Auto-generated using compose2nix v0.3.1.
-{ pkgs, lib, ... }:
-
+{
+  pkgs,
+  config,
+  lib,
+  ...
+}:
+let
+  open-webui = config.secretsSpec.docker.open-webui;
+in
 {
   # Runtime
   virtualisation.docker = {
@@ -28,9 +35,6 @@
     volumes = [
       "/store/ollama/config:/root/.ollama:rw"
       "/store/ollama/models:/models:rw"
-    ];
-    ports = [
-      "11434:11434/tcp"
     ];
     log-driver = "journald";
     extraOptions = [
@@ -82,14 +86,11 @@
       "OLLAMA_BASE_URL" = "http://ollama:11434";
       "RAG_EMBEDDING_MODEL" = "nomic-embed-text:latest";
       "SCARF_NO_ANALYTICS" = "true";
-      "WEBUI_SECRET_KEY" = "";
+      "WEBUI_SECRET_KEY" = "${open-webui.SECRET}";
     };
     volumes = [
       "/store/ollama/models:/app/backend/models:ro"
       "/store/open-webui:/app/backend/data:rw"
-    ];
-    ports = [
-      "3000:8080/tcp"
     ];
     dependsOn = [
       "ollama"

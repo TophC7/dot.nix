@@ -30,9 +30,6 @@
       "/store/comfyui/custom_nodes:/workspace/ComfyUI/custom_nodes:rw"
       "/store/comfyui/user:/workspace/ComfyUI/user:rw"
     ];
-    ports = [
-      "8188:8188/tcp"
-    ];
     log-driver = "journald";
     extraOptions = [
       "--device=/dev/dri:/dev/dri:rwm"
