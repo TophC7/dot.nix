@@ -7,6 +7,8 @@
 #
 ###############################################################
 
+# TODO: the actual sock lxc has not yet migrated to bryyo
+
 {
   lib,
   config,
@@ -31,6 +33,7 @@ in
 
       ## Optional Configs ##
       "hosts/global/common/docker.nix"
+      "hosts/global/common/newt.nix"
     ])
   ];
 
@@ -52,10 +55,6 @@ in
 
   ## System-wide packages ##
   programs.nix-ld.enable = true;
-  environment.systemPackages = with pkgs; [
-    lazydocker
-    compose2nix
-  ];
 
   # https://wiki.nixos.org/wiki/FAQ/When_do_I_update_stateVersion
   system.stateVersion = "25.11";
