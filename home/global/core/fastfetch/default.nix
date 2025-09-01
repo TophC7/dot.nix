@@ -11,9 +11,9 @@
       hostname = hostSpec.hostName;
       logoFile =
         let
-          hostLogoPath = ./. + "/host/images/${hostname}.png";
+          hostLogoPath = ./. + "/host/${hostname}.png";
         in
-        if builtins.pathExists hostLogoPath then hostLogoPath else ./host/images/nix.png;
+        if builtins.pathExists hostLogoPath then hostLogoPath else ./host/nix.png;
       weather = import ./scripts/weather.nix { inherit pkgs lib; };
       title = import ./scripts/title.nix { inherit pkgs; };
     in
