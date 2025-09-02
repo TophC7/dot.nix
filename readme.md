@@ -20,6 +20,7 @@ This repository follows a **layered, modular approach** that separates system-le
 📁 dot.nix/
 ├── ❄️ flake.nix                    # Central entry point & dependency management
 ├── 🔐 secrets.nix                  # Encrypted secrets (git-crypt)
+├── 📝 CLAUDE.md                    # Claude Code integration & dev instructions
 ├── 🏠 hosts/                       # System-level configurations
 │   ├── x86/                        # Intel/AMD 64-bit systems
 │   └── arm/                        # ARM64 systems
@@ -73,8 +74,14 @@ hosts/global/
     ├── docker.nix                  # Docker setup with update-containers script
     ├── libvirt.nix                 # VM tools and management
     ├── warp.nix                    # Cloudflare WARP VPN support
+    ├── pangolin/                   # Pangolin network services
+    │   ├── newt.nix                # Newt tunneling service
+    │   └── olm.nix                 # OLM client for external access
     └── system/
-        ├── pool.nix                # NFS pool mounting & symlink management
+        ├── fast.nix                # Fast NFS storage mount from nimbus
+        ├── tank.nix                # General cold storage NFS mount from nimbus
+        ├── store.nix               # Service data NFS mount from zebes
+        ├── repo.nix                # Repository NFS mount for shared access
         └── lxc.nix                 # Central hardware configuration for LXC hosts
 ```
 
@@ -86,18 +93,19 @@ Each system in `hosts/nixos/<hostname>/` contains:
 
 #### 🖥️ **Current Hosts**
 
-| Host       | Type          | Purpose                | Hardware                    | Services                         |
-| ---------- | ------------- | ---------------------- | --------------------------- | -------------------------------- |
-| **rune**   | Desktop       | My workstation         | Ryzen 9 7900X3D, RX 9070 XT | Gaming, Development, VMs         |
-| **gojo**   | Desktop       | Giovanni's workstation | Ryzen 7 7800X3D, RX 7900 XT | Gaming, Development              |
-| **haze**   | Desktop       | Cesar's workstation    | Ryzen 5 7600x, RX 7600      | Gaming, Development              |
-| **caenus** | Server        | Oracle VPS             | ARM 4vCPU, 24GB RAM, 200GB  | FRP, Public IP                   |
-| **sock**   | Server        | Backup & Storage       | Intel N150                  | Komodo (Docker), Backups, Newt   |
-| **cloud**  | LXC Container | Storage & NFS          | 4C/4GB                      | File storage, NFS, Newt          |
-| **komodo** | LXC Container | Docker orchestration   | 12C/30GB                    | Authentik, Komodo (Docker), Newt |
-| **proxy**  | LXC Container | Network proxy          | 3C/2GB                      | Pangolin, AdGuard, Newt          |
-| **nix**    | LXC Container | Development server     | 10C/12GB                    | **Not Deployed ATM**             |
-| **vm**     | VM            | Testing environment    | Variable                    | System testing                   |
+| Host       | Type          | Purpose                  | Hardware                          | Services                                   |
+| ---------- | ------------- | ------------------------ | --------------------------------- | ------------------------------------------ |
+| **rune**   | Desktop       | My workstation           | Ryzen 9 7900X3D, RX 9070 XT       | Gaming, Development, VMs                   |
+| **gojo**   | Desktop       | Giovanni's workstation   | Ryzen 7 7800X3D, RX 7900 XT       | Gaming, Development                        |
+| **haze**   | Desktop       | Cesar's workstation      | Ryzen 5 7600x, RX 7600            | Gaming, Development                        |
+| **norion** | Laptop        | Work laptop (Psynk.ai)   | Ryzen AI 9 HX PRO 370             | Development, OLM client                    |
+| **zebes**  | Server        | Main server              | Ryzen 7 5700X, RX 7900 GRE        | Komodo (Docker), Authentik, AI (Ollama, ComfyUI)   |
+| **nimbus** | Server        | Storage server           | Ryzen 5 5600G                     | ZFS/BTRFS storage, NFS, FileRun, Backups  |
+| **nexus**  | LXC Container | Network proxy            | Intel N150 (2C), 2GB              | Pangolin, AdGuard, Cloudflare tunnels     |
+| **bryyo**  | LXC Container | Docker orchestration     | Intel N150 (4C), 8GB              | Komodo (Docker) - **Migration pending**   |
+| **caenus** | Server        | Oracle VPS               | ARM 4vCPU, 24GB RAM, 200GB        | FRP, Public IP, Netbird                   |
+| **lxc**    | LXC Container | Base LXC template        | Variable                          | Template configuration                     |
+| **vm**     | VM            | Testing environment      | Variable                          | System testing                             |
 
 ---
 
@@ -117,6 +125,7 @@ home/global/
     ├── gnome/                      # GNOME-specific programs & settings
     │   └── dconf.nix               # Enhanced PaperWM & extension configs
     ├── vscode/                     # VS Code with patched SSH
+    ├── claude.nix                  # Claude Code integration & permissions
     ├── xdg.nix                     # XDG directory & file associations
     └── zen.nix                     # Zen browser configuration
 ```
@@ -125,6 +134,7 @@ home/global/
 Each user in `home/users/<username>/` includes:
 - **Theme Configuration**: Stylix-based theming with custom color schemes
 - **Host Adaptations**: Per-host overrides in `home/hosts/<hostname>/`
+- **Host-Specific Themes**: Workstations (rune, norion, zebes) can have their own theme configurations
 
 #### 👥 **Current Users**
 
@@ -165,10 +175,14 @@ Each user in `home/users/<username>/` includes:
 - **Hardware Tuning**: Includes AMD GPU specific settings (e.g., `lact` for tuning) and Variable Refresh Rate (VRR) support.
 
 ### **🗄️ Robust Storage & Backups**
-- **Centralized Storage (Cloud Host)**: Utilizes a MergerFS pool for unified drive access, exported via NFS (mounted as `/pool` on other hosts).
-- **Data Integrity**: SnapRAID provides parity-based data protection for the storage pool.
-- **Comprehensive Backups**: Provides incremental backups of critical data, like Docker volumes and Forgejo instances, with Apprise notifications.
-- **Automated Backup Chain**: Systemd timers orchestrate SnapRAID syncs and Borg backups.
+- **Multi-Tier Storage Architecture**: 
+  - `/tank` - Cold storage for archival data (from nimbus)
+  - `/fast` - Performance storage for active projects (from nimbus)
+  - `/store` - Service data and Docker volumes (from zebes)
+  - `/repo` - Shared repository access across all hosts
+- **Data Integrity**: ZFS/BTRFS filesystems with snapshots and data protection
+- **Comprehensive Backups**: Incremental backups of critical data, Docker volumes, and Forgejo instances with Apprise notifications
+- **Automated Backup Chain**: Systemd timers orchestrate automated backups and data synchronization
 
 ### **🖥️ Streamlined Desktop & User Experience**
 - **Custom Fish Shell**: Enhanced with the Tide prompt, `grc` for colorized output, and some utility functions
@@ -183,10 +197,18 @@ Each user in `home/users/<username>/` includes:
 - **Declarative Stacks**: `compose2nix` is used to convert Docker Compose files into NixOS declarative modules for services like FileRun, Authentik, etc.
 
 ### **🔐 Integrated Security**
-- **Encrypted Secrets**: `git-crypt` for managing sensitive data in git.
-- **Secure Remote Access**: Cloudflare Tunnels for Zero Trust access to services.
-- **Automated Certificates**: ACME (Let's Encrypt) with DNS challenges for SSL/TLS.
-- **SSH Key Deployment**: Automated management and deployment of SSH keys.
+- **Encrypted Secrets**: `git-crypt` for managing sensitive data in git
+- **Secure Remote Access**: 
+  - Pangolin network with OLM for Zero Trust access (mostlly replacing Cloudflare)
+  - External devices can connect directly without VPN setup
+- **Automated Certificates**: ACME (Let's Encrypt) with DNS challenges for SSL/TLS
+- **SSH Key Deployment**: Automated management and deployment of SSH keys
+
+### **🤖 AI & Machine Learning**
+- **Ollama**: Local LLM inference for text generation and analysis
+- **ComfyUI**: Stable Diffusion workflows for AI image generation
+- **GPU Acceleration**: Optimized for AMD RX 7900 GRE on Zebes server
+- **Docker Integration**: Containerized deployment for easy management
 
 ---
 
@@ -344,9 +366,10 @@ nix build .#server-iso-arm --system x86_64-linux --extra-platforms aarch64-linux
 | **Shell**          | Fish Shell, Tide Prompt                              |
 | **Desktop**        | GNOME, PaperWM, Stylix, Ghostty, Yazi                |
 | **Virtualization** | libvirt, QEMU, LXC                                   |
-| **Storage**        | MergerFS, SnapRAID, BorgBackup, NFS, `inotify-tools` |
+| **Storage**        | ZFS, BTRFS, BorgBackup, NFS, `inotify-tools`         |
 | **Containers**     | Docker, Komodo, compose2nix                          |
-| **Networking**     | Newt, Pangolin, AdGuard Home, Cloudflare WARP        |
+| **Networking**     | Newt, Pangolin, OLM, AdGuard Home, Cloudflare WARP   |
+| **AI/ML**          | Ollama, ComfyUI, Stable Diffusion                    |
 | **Reverse Proxy**  | Traefik (via Pangolin)                               |
 | **Security**       | git-crypt, ACME, Zero Trust tunneling                |
 | **Development**    | VS Code (Patched SSH), `nixfmt`, `biome`             |
@@ -361,6 +384,8 @@ nix build .#server-iso-arm --system x86_64-linux --extra-platforms aarch64-linux
 - `modules/global/host-spec.nix` - Host attribute definitions
 - `modules/global/secret-spec.nix` - Secret structure definitions
 - `modules/nixos/newt.nix` - Newt tunneling service module
+- `modules/nixos/olm.nix` - OLM client module for Pangolin access
+- `CLAUDE.md` - Development instructions for Claude Code
 - `flake.nix` - Main dependency management & host discovery
 - `iso/flake.nix` - ISO generation configuration
 
