@@ -183,8 +183,8 @@ with lib.hm.gvariant;
       available-output-names = [
         "Analog Output \8211 HyperX Cloud Alpha S"
         "Digital Output (S/PDIF) \8211 HyperX Cloud Alpha S"
-        "HDMI / DisplayPort \8211 Rembrandt Radeon High Definition Audio Controller"
-        "HDMI / DisplayPort 3 \8211 HD-Audio Generic"
+        "HDMI / DisplayPort 4 \8211 Rembrandt Radeon High Definition Audio Controller"
+        "HDMI / DisplayPort 4 \8211 HD-Audio Generic"
       ];
       excluded-input-names = [
         "Digital Input (S/PDIF) – USB  Live camera"
@@ -203,6 +203,8 @@ with lib.hm.gvariant;
         # "Analog Output 8211 HyperX Cloud Alpha S"
         "HDMI / DisplayPort – Rembrandt Radeon High Definition Audio Controller"
         "HDMI / DisplayPort \8211 Rembrandt Radeon High Definition Audio Controller"
+        "HDMI / DisplayPort 4 – Rembrandt Radeon High Definition Audio Controller"
+        "HDMI / DisplayPort 4 \8211 Rembrandt Radeon High Definition Audio Controller"
         "HDMI / DisplayPort 8211 Rembrandt Radeon High Definition Audio Controller"
         "HDMI / DisplayPort 8211 Rembrandt Radeon High Definition Audio Controller"
       ];
@@ -225,11 +227,11 @@ with lib.hm.gvariant;
       ];
       output-names-map = [
         (lib.hm.gvariant.mkDictionaryEntry [
-          "HDMI / DisplayPort 3 – HD-Audio Generic"
+          "HDMI / DisplayPort 4 – HD-Audio Generic"
           "ROG"
         ])
         (lib.hm.gvariant.mkDictionaryEntry [
-          "HDMI / DisplayPort 3 – HDA ATI HDMI"
+          "HDMI / DisplayPort 4 – HDA ATI HDMI"
           "ROG"
         ])
         (lib.hm.gvariant.mkDictionaryEntry [

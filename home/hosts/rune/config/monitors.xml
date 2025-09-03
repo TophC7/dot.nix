@@ -8,7 +8,7 @@
       <primary>yes</primary>
       <monitor>
         <monitorspec>
-          <connector>DP-3</connector>
+          <connector>HDMI-1</connector>
           <vendor>AUS</vendor>
           <product>PG42UQ</product>
           <serial>R1LMTF056092</serial>
@@ -30,7 +30,7 @@
       </transform>
       <monitor>
         <monitorspec>
-          <connector>HDMI-2</connector>
+          <connector>DP-5</connector>
           <vendor>DEL</vendor>
           <product>DELL U2417H</product>
           <serial>XVNNT67I176L</serial>
