@@ -94,7 +94,7 @@ in
     ];
   };
   virtualisation.oci-containers.containers."authentik-server" = {
-    image = "ghcr.io/goauthentik/server:2025.6.1";
+    image = "ghcr.io/goauthentik/server:latest";
     environment = env;
     volumes = [
       "${Store}/custom-templates:/templates:rw"
@@ -136,7 +136,7 @@ in
     ];
   };
   virtualisation.oci-containers.containers."authentik-worker" = {
-    image = "ghcr.io/goauthentik/server:2025.6.1";
+    image = "ghcr.io/goauthentik/server:latest";
     environment = env;
     volumes = [
       "${Store}/certs:/certs:rw"

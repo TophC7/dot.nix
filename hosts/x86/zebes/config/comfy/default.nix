@@ -37,6 +37,9 @@
       "--memory=34359738368b"
       "--network-alias=comfy"
       "--network=ai-network"
+      "--ip=172.20.0.4"
+      "--dns=127.0.0.1"  # Block DNS resolution
+      "--cap-drop=NET_RAW"  # Prevent raw socket access
       "--security-opt=seccomp:unconfined"
       "--shm-size=8589934592"
     ];
@@ -68,10 +71,17 @@
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
-      ExecStop = "docker network rm -f ai-network";
+      ExecStop = lib.mkForce ''
+        ${pkgs.docker}/bin/docker network rm -f ai-network || true
+      '';
     };
-    script = ''
-      docker network inspect ai-network || docker network create ai-network
+    script = lib.mkForce ''
+      # Create regular network for containers
+      # This network already exists with subnet 172.20.0.0/16
+      docker network inspect ai-network || docker network create \
+        --driver bridge \
+        --subnet 172.20.0.0/16 \
+        ai-network
     '';
     partOf = [ "docker-compose-comfy-root.target" ];
     wantedBy = [ "docker-compose-comfy-root.target" ];
