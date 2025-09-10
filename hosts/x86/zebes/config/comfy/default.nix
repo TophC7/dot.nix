@@ -58,8 +58,8 @@ let
 
     # Install/upgrade PyTorch for ROCm if needed
     if ! python -c "import torch" 2>/dev/null || [ "''${FORCE_REINSTALL:-0}" = "1" ]; then
-        echo "Installing PyTorch for ROCm..."
-        pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm6.3
+        echo "Installing PyTorch nightly for ROCm 6.4..."
+        pip install --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/rocm6.4/
     fi
 
     # Clone/update ComfyUI if needed
@@ -86,23 +86,45 @@ let
         deepdiff \
         yt-dlp \
         gguf \
-        imageio-ffmpeg
+        imageio-ffmpeg \
+        simpleeval \
+        py-cpuinfo \
+        diffusers \
+        opencv-python \
+        opencv-contrib-python \
+        GitPython \
+        pynvml
 
     # Create necessary directories
     mkdir -p "$COMFYUI_HOME"/{input,output,models,custom_nodes,user,cache}
-    
-    # Fix UV cache permissions if it exists
+
+    # Handle UV cache directory - remove if problematic and let uv recreate it
     if [ -d "$COMFYUI_HOME/cache/uv" ]; then
-        chmod -R u+rw "$COMFYUI_HOME/cache/uv" || true
+        # Check if we can write to it
+        if ! touch "$COMFYUI_HOME/cache/uv/.test" 2>/dev/null; then
+            echo "UV cache has permission issues, removing and recreating..."
+            rm -rf "$COMFYUI_HOME/cache/uv" 2>/dev/null || {
+                echo "Cannot remove UV cache, moving to backup..."
+                mv "$COMFYUI_HOME/cache/uv" "$COMFYUI_HOME/cache/uv.backup.$(date +%s)" 2>/dev/null || true
+            }
+        else
+            rm -f "$COMFYUI_HOME/cache/uv/.test"
+        fi
     fi
+    
+    # Set UV cache environment variable to ensure it uses the right location
+    export UV_CACHE_DIR="$COMFYUI_HOME/cache/uv"
 
     # Set environment variables for ROCm
     export HSA_OVERRIDE_GFX_VERSION="''${HSA_OVERRIDE_GFX_VERSION:-11.0.0}"
     export HIP_VISIBLE_DEVICES="''${HIP_VISIBLE_DEVICES:-0}"
-    export PYTORCH_HIP_ALLOC_CONF="expandable_segments:True"
+    # Don't use expandable_segments - not supported and causes issues
+    export PYTORCH_HIP_ALLOC_CONF="garbage_collection_threshold:0.8,max_split_size_mb:512"
     export PYTORCH_TUNABLEOP_ENABLED="1"
     export TORCH_ROCM_AOTRITON_ENABLE_EXPERIMENTAL="1"
     export CUDA_VISIBLE_DEVICES=""  # Disable CUDA
+    export MIOPEN_DISABLE_CACHE="1"  # Helps with miopenStatusUnknownError
+    export MIOPEN_USER_DB_PATH="$COMFYUI_HOME/cache/miopen"  # Custom MIOpen cache location
 
     # Set ComfyUI paths
     export COMFYUI_MODEL_PATH="$COMFYUI_HOME/models"
@@ -115,8 +137,8 @@ let
     exec python main.py \
         --listen "''${COMFYUI_HOST:-0.0.0.0}" \
         --port "''${COMFYUI_PORT:-8188}" \
-        --use-pytorch-cross-attention \
         --highvram \
+        --use-pytorch-cross-attention \
         "$@"
   '';
 in
@@ -127,7 +149,7 @@ in
     python312Packages.pip
     python312Packages.virtualenv
     git
-    ffmpeg  # Required for video processing nodes
+    ffmpeg # Required for video processing nodes
 
     # ROCm tools
     rocmPackages.rocm-smi
@@ -155,6 +177,11 @@ in
     "d /store/comfyui/user 0755 1000 1004 -"
     "d /store/comfyui/cache 0755 1000 1004 -"
     "d /store/comfyui/temp 0755 1000 1004 -"
+    # Create directory structure for fonts that ComfyUI nodes expect
+    "d /usr/share/fonts 0755 root root -"
+    "d /usr/share/fonts/truetype 0755 root root -"
+    "L+ /usr/share/fonts/truetype/NotoSans-Regular.ttf - - - - ${pkgs.noto-fonts}/share/fonts/truetype/noto/NotoSans-Regular.ttf"
+    "L+ /usr/share/fonts/truetype/NotoSans-Bold.ttf - - - - ${pkgs.noto-fonts}/share/fonts/truetype/noto/NotoSans-Bold.ttf"
   ];
 
   # Simple systemd service
