@@ -1,8 +1,4 @@
 { pkgs, lib, ... }:
-/*
-  TODO: Eventually, when my proxy/DNS/VPN mess is working like I want.
-  This should be switched to service.adguard  not a container
-*/
 {
   # Containers
   virtualisation.oci-containers.containers."adguard" = {
@@ -13,10 +9,10 @@
       "/var/lib/acme:/opt/adguardhome/work/acme:ro"
     ];
     ports = [
-      "53:53/tcp"
-      "53:53/udp"
-      "853:853/tcp"
-      "3000:3000/tcp"
+      "5453:53/tcp" # Map to port 5453 to avoid conflict with dnsmasq
+      "5453:53/udp" # Map to port 5453 to avoid conflict with dnsmasq
+      "853:853/tcp" # DNS over TLS
+      "3000:3000/tcp" # Web UI
     ];
     log-driver = "journald";
     extraOptions = [

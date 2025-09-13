@@ -1,7 +1,9 @@
-{ ... }:
+{ lib, ... }:
 {
   # Bridge configuration with explicit network settings to prevent connectivity loss
   networking = {
+    # Disable NetworkManager (conflicts with manual bridge config)
+    networkmanager.enable = lib.mkForce false;
     # Create the bridge
     bridges.br0 = {
       interfaces = [

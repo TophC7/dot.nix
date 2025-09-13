@@ -1,8 +1,8 @@
 ###############################################################
 #
-#  Nexus - LXC Container
-#  NixOS container, Ryzen 5 5600G (3 Cores), 2GB/2GB RAM/SWAP
+#  Nexus - Router & Services Host
 #
+#  Router, Firewall, DHCP, DNS, Docker services
 #  Cloudflare Tunnel Proxy, Zero Trust access
 #
 ###############################################################
@@ -48,12 +48,6 @@ in
     userFullName = user.fullName;
     isServer = true;
     isMinimal = true;
-  };
-
-  networking = {
-    enableIPv6 = false;
-    firewall.allowedTCPPorts = firewall.allowedTCPPorts;
-    firewall.allowedUDPPorts = firewall.allowedUDPPorts;
   };
 
   ## System-wide packages ##
