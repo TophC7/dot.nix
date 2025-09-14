@@ -100,6 +100,10 @@
         "/gerbil.ryot.local/104.40.1.11"
         "/pangolin.ryot.local/104.40.1.10"
 
+        # Static host entries (for hosts not using DHCP)
+        "/nimbus/104.40.2.24" # Nimbus uses static IP
+        "/nimbus.ryot.local/104.40.2.24" # Alternative FQDN
+
         # Minecraft server (zebes)
         "/mc.goldenlemon.cc/104.40.3.3"
       ];
