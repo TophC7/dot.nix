@@ -17,8 +17,8 @@
     log-driver = "journald";
     extraOptions = [
       "--network-alias=adguard"
-      "--network=adguard"  # Use clean 'adguard' network name
-      "--network=newt"     # Keep newt connection for management
+      "--network=adguard" # Use clean 'adguard' network name
+      "--network=newt" # Keep newt connection for management
     ];
   };
 
@@ -43,7 +43,7 @@
     ];
   };
 
-  # Networks  
+  # Networks
   systemd.services."docker-network-adguard" = {
     path = [ pkgs.docker ];
     serviceConfig = {

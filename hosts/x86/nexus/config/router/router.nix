@@ -25,7 +25,7 @@
 
   # Firewall configuration using nftables
   networking.firewall = {
-    enable = false; # Temporarily disabled for testing
+    enable = true;
 
     # Allow ping
     allowPing = true;
@@ -78,7 +78,7 @@
         ];
       };
 
-      # NIMBUS interface
+      # NIMBUS interface - NAS and extra NIC
       enp4s0 = {
         allowedTCPPorts = [
           22 # SSH
@@ -184,7 +184,4 @@
       };
     };
   };
-
-  # Note: autoLoadConntrackHelpers removed in kernel 6.0+
-  # Use manual nftables rules instead if needed
 }

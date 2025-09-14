@@ -17,7 +17,8 @@
       "443:443/tcp"
       "222:222/tcp"
       "51820:51820/udp"
-      "21820:21820/udp" # Client tunnels (was 25565 - incorrect)
+      "21820:21820/udp" # Client tunnels
+      "25565:25565/tcp" # Minecraft port proxy
     ];
     cmd = [
       "--reachableAt=http://gerbil:3003"

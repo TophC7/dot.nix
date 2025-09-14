@@ -32,7 +32,7 @@
 
       # Listen on all internal interfaces + localhost
       interface = [
-        "lo" # Loopback for nexus itself
+        "lo" # Loopback
         "enp2s0" # RUNE
         "enp3s0" # ZEBES
         "enp4s0" # NIMBUS
@@ -73,35 +73,34 @@
       # Custom DNS entries
       address = [
         # Router/gateway accessible from each network with correct gateway IP
-        "/router.ryot.local/104.40.4.1" # RUNE network
-        "/router.ryot.local/104.40.3.1" # ZEBES network
-        "/router.ryot.local/104.40.2.1" # NIMBUS network
-        "/router.ryot.local/13.19.89.1" # HAZE network
-        "/router/104.40.4.1" # RUNE network (short form)
-        "/router/104.40.3.1" # ZEBES network (short form)
-        "/router/104.40.2.1" # NIMBUS network (short form)
-        "/router/13.19.89.1" # HAZE network (short form)
+        "/router.ryot.local/104.40.4.1" # RUNE
+        "/router.ryot.local/104.40.3.1" # ZEBES
+        "/router.ryot.local/104.40.2.1" # NIMBUS
+        "/router.ryot.local/13.19.89.1" # HAZE
 
-        # AdGuard web UI accessible from each network
-        "/adguard.ryot.foo/104.40.4.1" # RUNE network
-        "/adguard.ryot.foo/104.40.3.1" # ZEBES network
-        "/adguard.ryot.foo/104.40.2.1" # NIMBUS network
-        "/adguard.ryot.foo/13.19.89.1" # HAZE network
+        # AdGuard web UI
+        "/adguard.ryot.foo/104.40.4.1" # RUNE
+        "/adguard.ryot.foo/104.40.3.1" # ZEBES
+        "/adguard.ryot.foo/104.40.2.1" # NIMBUS
+        "/adguard.ryot.foo/13.19.89.1" # HAZE
 
-        # Pangolin services (all *.ryot.foo) route to gerbil reverse proxy via host IPs
-        "/pangolin.ryot.foo/104.40.4.1" # RUNE network - Pangolin web UI via gerbil
-        "/pangolin.ryot.foo/104.40.3.1" # ZEBES network - Pangolin web UI via gerbil  
-        "/pangolin.ryot.foo/104.40.2.1" # NIMBUS network - Pangolin web UI via gerbil
-        "/pangolin.ryot.foo/13.19.89.1" # HAZE network - Pangolin web UI via gerbil
-        "/.ryot.foo/104.40.4.1" # RUNE network - All *.ryot.foo domains via gerbil
-        "/.ryot.foo/104.40.3.1" # ZEBES network - All *.ryot.foo domains via gerbil
-        "/.ryot.foo/104.40.2.1" # NIMBUS network - All *.ryot.foo domains via gerbil
-        "/.ryot.foo/13.19.89.1" # HAZE network - All *.ryot.foo domains via gerbil
+        # Pangolin web UI
+        "/pangolin.ryot.foo/104.40.4.1" # RUNE
+        "/pangolin.ryot.foo/104.40.3.1" # ZEBES
+        "/pangolin.ryot.foo/104.40.2.1" # NIMBUS
+        "/pangolin.ryot.foo/13.19.89.1" # HAZE
 
-        # Direct service access (internal use)
-        "/gerbil.ryot.local/104.40.1.11" # Direct gerbil access
-        "/pangolin.ryot.local/104.40.1.10" # Direct pangolin access
+        # All *.ryot.foo domains via gerbil
+        "/.ryot.foo/104.40.4.1" # RUNE
+        "/.ryot.foo/104.40.3.1" # ZEBES
+        "/.ryot.foo/104.40.2.1" # NIMBUS
+        "/.ryot.foo/13.19.89.1" # HAZE
 
+        # Direct local host access
+        "/gerbil.ryot.local/104.40.1.11"
+        "/pangolin.ryot.local/104.40.1.10"
+
+        # Minecraft server (zebes)
         "/mc.goldenlemon.cc/104.40.3.3"
       ];
 
