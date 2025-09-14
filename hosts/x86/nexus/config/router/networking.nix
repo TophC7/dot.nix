@@ -111,17 +111,18 @@
   # Additional network tools
   environment.systemPackages = with pkgs; [
     bridge-utils
-    dig
+    dnslookup
+    dnsmasq
     dnsutils
     ethtool
+    inetutils
     iperf3
     mtr
     nmap
-    nslookup
-    ping
+    speedtest-go
     tcpdump
     traceroute
     wireguard-tools
-    dnsmasq
+    host
   ];
 }

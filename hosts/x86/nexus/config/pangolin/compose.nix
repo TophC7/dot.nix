@@ -17,7 +17,7 @@
       "443:443/tcp"
       "222:222/tcp"
       "51820:51820/udp"
-      "25565:25565/udp"
+      "21820:21820/udp" # Client tunnels (was 25565 - incorrect)
     ];
     cmd = [
       "--reachableAt=http://gerbil:3003"
@@ -34,6 +34,7 @@
       # "--cap-add=SYS_MODULE"
       "--network-alias=gerbil"
       "--network=pangolin"
+      "--ip=104.40.1.11"
     ];
   };
   systemd.services."docker-gerbil" = {
@@ -69,6 +70,8 @@
       "--health-timeout=3s"
       "--network-alias=pangolin"
       "--network=pangolin"
+      "--ip=104.40.1.10"
+      "--mac-address=02:42:68:28:01:10"
     ];
   };
 
@@ -138,7 +141,12 @@
       ExecStop = "docker network rm -f pangolin";
     };
     script = ''
-      docker network inspect pangolin || docker network create pangolin --driver=bridge
+      docker network inspect pangolin || docker network create pangolin \
+        --driver=bridge \
+        --opt com.docker.network.bridge.name=br-pangolin \
+        --subnet=104.40.1.0/24 \
+        --ip-range=104.40.1.0/24 \
+        --gateway=104.40.1.1
     '';
     partOf = [ "docker-compose-pangolin-root.target" ];
     wantedBy = [ "docker-compose-pangolin-root.target" ];

@@ -15,6 +15,7 @@
       "enp3s0" # ZEBES
       "enp4s0" # NIMBUS
       "enp0s13f0u1" # HAZE (USB NIC)
+      "br-pangolin" # Pangolin Docker network bridge
     ];
     forwardPorts = [
       # Example port forwards (uncomment and modify as needed)
@@ -24,7 +25,7 @@
 
   # Firewall configuration using nftables
   networking.firewall = {
-    enable = true;
+    enable = false; # Temporarily disabled for testing
 
     # Allow ping
     allowPing = true;
@@ -144,8 +145,40 @@
             iifname "enp3s0" oifname "enp2s0" ct state established,related accept
             iifname "enp4s0" oifname "enp2s0" ct state established,related accept
             
+            # PANGOLIN Docker network access control (FORWARD chain)
+            # Allow access to Gerbil reverse proxy from internal networks
+            ip saddr { 104.40.2.0/24, 104.40.3.0/24, 104.40.4.0/24, 13.19.89.0/24 } ip daddr 104.40.1.11 tcp dport { 80, 443 } accept
+            ip saddr { 104.40.2.0/24, 104.40.3.0/24, 104.40.4.0/24, 13.19.89.0/24 } ip daddr 104.40.1.11 tcp dport { 222 } accept  # SSH
+            ip saddr { 104.40.2.0/24, 104.40.3.0/24, 104.40.4.0/24, 13.19.89.0/24 } ip daddr 104.40.1.11 udp dport { 51820 } accept # WireGuard
+            
+            # Block direct access to other PANGOLIN services (pangolin, etc.)
+            ip saddr { 104.40.2.0/24, 104.40.3.0/24, 104.40.4.0/24, 13.19.89.0/24 } ip daddr 104.40.1.10 drop
+            ip saddr { 104.40.2.0/24, 104.40.3.0/24, 104.40.4.0/24, 13.19.89.0/24 } ip daddr 104.40.1.0/24 drop
+            
+            # Allow return traffic from gerbil
+            ip saddr 104.40.1.11 ip daddr { 104.40.2.0/24, 104.40.3.0/24, 104.40.4.0/24, 13.19.89.0/24 } accept
+            
             # MSS clamping for PPPoE/VPN compatibility
             tcp flags syn tcp option maxseg size set rt mtu
+          }
+
+          chain input {
+            type filter hook input priority 0; policy accept;
+            
+            # Allow access to Gerbil reverse proxy from internal networks
+            ip saddr { 104.40.2.0/24, 104.40.3.0/24, 104.40.4.0/24, 13.19.89.0/24 } ip daddr 104.40.1.11 tcp dport { 80, 443 } accept
+            ip saddr { 104.40.2.0/24, 104.40.3.0/24, 104.40.4.0/24, 13.19.89.0/24 } ip daddr 104.40.1.11 tcp dport { 222 } accept  # SSH
+            ip saddr { 104.40.2.0/24, 104.40.3.0/24, 104.40.4.0/24, 13.19.89.0/24 } ip daddr 104.40.1.11 udp dport { 51820 } accept # WireGuard
+            
+            # Block direct access to other PANGOLIN services (pangolin, etc.)
+            ip saddr { 104.40.2.0/24, 104.40.3.0/24, 104.40.4.0/24, 13.19.89.0/24 } ip daddr 104.40.1.10 drop
+            ip saddr { 104.40.2.0/24, 104.40.3.0/24, 104.40.4.0/24, 13.19.89.0/24 } ip daddr 104.40.1.0/24 drop
+            
+            # Allow return traffic from gerbil
+            ip saddr 104.40.1.11 ip daddr { 104.40.2.0/24, 104.40.3.0/24, 104.40.4.0/24, 13.19.89.0/24 } accept
+            
+            # RUNE (104.40.4.0/24) is fully trusted - no restrictions needed in input chain
+            # (RUNE access is already handled by forward chain and trusted interface)
           }
         '';
       };

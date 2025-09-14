@@ -57,7 +57,7 @@ let
       use_subdomain: false
       block_size: 24
       site_block_size: 30
-      subnet_group: 104.40.3.1/24
+      subnet_group: 104.40.5.1/24
 
     rate_limits:
       global:

@@ -57,6 +57,7 @@ in
       direnv # environment per directory
       dust # disk usage
       eza # ls replacement
+      lazyjournal # journalctl viewer
       nmap # network scanner
       trashy # trash cli
       unrar # rar extraction

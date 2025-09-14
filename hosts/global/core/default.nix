@@ -31,6 +31,7 @@ in
     micro
     openssh
     sshfs
+    superfile
     wget
     yay # my yay teehee
     yazi

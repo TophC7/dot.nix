@@ -17,8 +17,8 @@
     log-driver = "journald";
     extraOptions = [
       "--network-alias=adguard"
-      "--network=adguard_default"
-      "--network=newt"
+      "--network=adguard"  # Use clean 'adguard' network name
+      "--network=newt"     # Keep newt connection for management
     ];
   };
 
@@ -30,10 +30,10 @@
       RestartSteps = lib.mkOverride 90 9;
     };
     after = [
-      "docker-network-adguard_default.service"
+      "docker-network-adguard.service"
     ];
     requires = [
-      "docker-network-adguard_default.service"
+      "docker-network-adguard.service"
     ];
     partOf = [
       "docker-compose-adguard-root.target"
@@ -43,16 +43,16 @@
     ];
   };
 
-  # Networks
-  systemd.services."docker-network-adguard_default" = {
+  # Networks  
+  systemd.services."docker-network-adguard" = {
     path = [ pkgs.docker ];
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
-      ExecStop = "docker network rm -f adguard_default";
+      ExecStop = "docker network rm -f adguard";
     };
     script = ''
-      docker network inspect adguard_default || docker network create adguard_default
+      docker network inspect adguard || docker network create adguard
     '';
     partOf = [ "docker-compose-adguard-root.target" ];
     wantedBy = [ "docker-compose-adguard-root.target" ];
