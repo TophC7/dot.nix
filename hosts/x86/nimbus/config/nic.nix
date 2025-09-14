@@ -26,20 +26,19 @@
       ];
     };
 
-    # Disable DHCP on the physical interface
-    interfaces.enp34s0.useDHCP = false;
-
     # Set the default gateway
     defaultGateway = {
       address = "104.40.2.1"; # Your router's IP
       interface = "br0";
     };
 
-    # Set DNS servers (adjust if needed)
+    # Set DNS servers
     nameservers = [
       "104.40.2.1"
-      "1.1.1.1"
     ];
+
+    # Disable DHCP on the physical interface
+    interfaces.enp34s0.useDHCP = false;
   };
 
   # Ensure the bridge module is loaded
