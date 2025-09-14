@@ -17,7 +17,6 @@
 let
   username = "toph";
   user = config.secretsSpec.users.${username};
-  firewall = config.secretsSpec.firewall.nexus;
 in
 {
   imports = lib.flatten [
