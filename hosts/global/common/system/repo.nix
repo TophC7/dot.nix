@@ -8,22 +8,36 @@ in
     "d /repo 2775 ${username} ryot -"
   ];
 
-  # Mount the NFS share at /repo
-  fileSystems = {
-    "/repo" = {
-      device = "nimbus:/repo";
-      fsType = "nfs";
-      options = [
-        "_netdev"       # Network device
-        "nfsvers=4.2"   # Use NFSv4.2 for best features
-        "noatime"       # Don't update access times
-        "nofail"        # Don't fail boot if mount fails
-        "bg"            # Background mount if server unavailable
-        "hard"          # Retry indefinitely on failure
-        "intr"          # Allow interruption of operations
-      ];
-    };
-  };
+  # Mount the NFS share at /repo using systemd
+  systemd.mounts = [
+    {
+      enable = true;
+      what = "nimbus:/repo";
+      where = "/repo";
+      type = "nfs";
+      options = "nfsvers=4.2,noatime,hard,intr";
+      wantedBy = [ "multi-user.target" ];
+      after = [ "network-online.target" ];
+      wants = [ "network-online.target" ];
+      unitConfig = {
+        TimeoutSec = "30";
+      };
+      mountConfig = {
+        TimeoutSec = "30";
+      };
+    }
+  ];
+
+  systemd.automounts = [
+    {
+      enable = true;
+      where = "/repo";
+      wantedBy = [ "multi-user.target" ];
+      automountConfig = {
+        TimeoutIdleSec = "600";
+      };
+    }
+  ];
 
   # Ensure NFS client support is complete
   boot.supportedFilesystems = [ "nfs" ];
