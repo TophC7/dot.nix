@@ -8,6 +8,7 @@
       font-family = "monospace";
       font-size = "11";
       background-opacity = "0.85";
+      keybind = ''shift+enter=text:\x1b\r'';
       # async-backend = "epoll";
     };
   };
