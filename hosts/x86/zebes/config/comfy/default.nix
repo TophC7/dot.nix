@@ -82,18 +82,31 @@ let
     # Install missing dependencies for custom nodes
     echo "Installing custom node dependencies..."
     pip install --quiet \
-        piexif \
+        Cython \
         deepdiff \
-        yt-dlp \
-        gguf \
-        imageio-ffmpeg \
-        simpleeval \
-        py-cpuinfo \
         diffusers \
-        opencv-python \
-        opencv-contrib-python \
+        ftfy \
+        gguf \
         GitPython \
-        pynvml
+        imageio-ffmpeg \
+        numpy \
+        opencv-contrib-python \
+        opencv-python \
+        piexif \
+        py-cpuinfo \
+        pynvml \
+        simpleeval \
+        timm \
+        toml \
+        uv \
+        yt-dlp
+
+    # Install insightface with proper library path and compiler path for compilation
+    echo "Installing insightface..."
+    PATH="${pkgs.gcc}/bin:$PATH" \
+    LD_LIBRARY_PATH="${pkgs.stdenv.cc.cc.lib}/lib:$LD_LIBRARY_PATH" \
+        pip install --no-build-isolation insightface --quiet || \
+        echo "Warning: insightface installation failed, pulid node may not work"
 
     # Create necessary directories
     mkdir -p "$COMFYUI_HOME"/{input,output,models,custom_nodes,user,cache}
@@ -111,9 +124,12 @@ let
             rm -f "$COMFYUI_HOME/cache/uv/.test"
         fi
     fi
-    
+
     # Set UV cache environment variable to ensure it uses the right location
     export UV_CACHE_DIR="$COMFYUI_HOME/cache/uv"
+
+    # Set library path for compilation
+    export LD_LIBRARY_PATH="${pkgs.stdenv.cc.cc.lib}/lib:$LD_LIBRARY_PATH"
 
     # Set environment variables for ROCm
     export HSA_OVERRIDE_GFX_VERSION="''${HSA_OVERRIDE_GFX_VERSION:-11.0.0}"
@@ -150,10 +166,18 @@ in
     python312Packages.virtualenv
     git
     ffmpeg # Required for video processing nodes
+    gcc # Required for building some Python packages
 
     # ROCm tools
     rocmPackages.rocm-smi
     rocmPackages.rocminfo
+  ];
+
+  # Install fonts system-wide for ComfyUI nodes
+  fonts.packages = with pkgs; [
+    noto-fonts
+    liberation_ttf
+    dejavu_fonts
   ];
 
   # Enable AMD GPU support
@@ -177,11 +201,6 @@ in
     "d /store/comfyui/user 0755 1000 1004 -"
     "d /store/comfyui/cache 0755 1000 1004 -"
     "d /store/comfyui/temp 0755 1000 1004 -"
-    # Create directory structure for fonts that ComfyUI nodes expect
-    "d /usr/share/fonts 0755 root root -"
-    "d /usr/share/fonts/truetype 0755 root root -"
-    "L+ /usr/share/fonts/truetype/NotoSans-Regular.ttf - - - - ${pkgs.noto-fonts}/share/fonts/truetype/noto/NotoSans-Regular.ttf"
-    "L+ /usr/share/fonts/truetype/NotoSans-Bold.ttf - - - - ${pkgs.noto-fonts}/share/fonts/truetype/noto/NotoSans-Bold.ttf"
   ];
 
   # Simple systemd service
