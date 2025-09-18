@@ -27,7 +27,7 @@ in
     log-driver = "journald";
     extraOptions = [
       "--network-alias=db"
-      "--network=filerun_default"
+      "--network=filerun"
     ];
   };
   systemd.services."docker-filerun-db" = {
@@ -38,10 +38,10 @@ in
       RestartSteps = lib.mkOverride 90 9;
     };
     after = [
-      "docker-network-filerun_default.service"
+      "docker-network-filerun.service"
     ];
     requires = [
-      "docker-network-filerun_default.service"
+      "docker-network-filerun.service"
     ];
     partOf = [
       "docker-compose-filerun-root.target"
@@ -65,7 +65,8 @@ in
     log-driver = "journald";
     extraOptions = [
       "--network-alias=web"
-      "--network=filerun_default"
+      "--network=filerun"
+      "--network=newt" # Connect to newt network directly
     ];
   };
   systemd.services."docker-filerun-web" = {
@@ -76,12 +77,10 @@ in
       RestartSteps = lib.mkOverride 90 9;
     };
     after = [
-      "docker-network-filerun_default.service"
-      "docker-network-newt.service"
+      "docker-network-filerun.service"
     ];
     requires = [
-      "docker-network-filerun_default.service"
-      "docker-network-newt.service"
+      "docker-network-filerun.service"
     ];
     partOf = [
       "docker-compose-filerun-root.target"
@@ -89,22 +88,18 @@ in
     wantedBy = [
       "docker-compose-filerun-root.target"
     ];
-    # Connect to newt network after container starts with filerun alias
-    postStart = ''
-      ${pkgs.docker}/bin/docker network connect --alias filerun newt filerun-web 2>/dev/null || true
-    '';
   };
 
   # Networks
-  systemd.services."docker-network-filerun_default" = {
+  systemd.services."docker-network-filerun" = {
     path = [ pkgs.docker ];
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
-      ExecStop = "docker network rm -f filerun_default";
+      ExecStop = "docker network rm -f filerun";
     };
     script = ''
-      docker network inspect filerun_default || docker network create filerun_default
+      docker network inspect filerun || docker network create filerun
     '';
     partOf = [ "docker-compose-filerun-root.target" ];
     wantedBy = [ "docker-compose-filerun-root.target" ];
