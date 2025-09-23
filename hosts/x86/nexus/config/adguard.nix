@@ -1,11 +1,19 @@
-{ pkgs, lib, ... }:
+{
+  pkgs,
+  lib,
+  consts,
+  ...
+}:
+let
+  volumePath = "${consts.DATA_BASE_PATH}/adguard";
+in
 {
   # Containers
   virtualisation.oci-containers.containers."adguard" = {
     image = "adguard/adguardhome:latest";
     volumes = [
-      "/etc/adguard/confdir:/opt/adguardhome/conf:rw"
-      "/etc/adguard/workdir:/opt/adguardhome/work:rw"
+      "${volumePath}/confdir:/opt/adguardhome/conf:rw"
+      "${volumePath}/workdir:/opt/adguardhome/work:rw"
       "/var/lib/acme:/opt/adguardhome/work/acme:ro"
     ];
     ports = [

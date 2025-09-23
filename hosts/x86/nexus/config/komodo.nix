@@ -2,24 +2,24 @@
   config,
   lib,
   pkgs,
+  consts,
   ...
 }:
 let
-  # Updated path for bare metal installation
-  komodoStorage = "/var/lib/komodo";
-  env = config.secretsSpec.docker.komodo-sock;
+  komodoStorage = "${consts.DATA_BASE_PATH}/komodo";
+  env = config.secretsSpec.docker.komodo-nexus;
 in
 {
   # Create necessary directories
   systemd.tmpfiles.rules = [
-    "d ${komodoStorage} 0755 root root -"
-    "d ${komodoStorage}/cache 0755 root root -"
-    "d ${komodoStorage}/mongo 0755 root root -"
-    "d ${komodoStorage}/mongo/config 0755 root root -"
-    "d ${komodoStorage}/mongo/data 0755 root root -"
-    "d ${komodoStorage}/repos 0755 root root -"
-    "d ${komodoStorage}/ssl 0755 root root -"
-    "d ${komodoStorage}/stacks 0755 root root -"
+    "d ${komodoStorage} 0755 1000 1004 -"
+    "d ${komodoStorage}/cache 0755 1000 1004 -"
+    "d ${komodoStorage}/mongo 0755 1000 1004 -"
+    "d ${komodoStorage}/mongo/config 0755 1000 1004 -"
+    "d ${komodoStorage}/mongo/data 0755 1000 1004 -"
+    "d ${komodoStorage}/repos 0755 1000 1004 -"
+    "d ${komodoStorage}/ssl 0755 1000 1004 -"
+    "d ${komodoStorage}/stacks 0755 1000 1004 -"
   ];
 
   # Containers
@@ -41,7 +41,7 @@ in
     log-driver = "local";
     extraOptions = [
       "--network-alias=core"
-      "--network=komodo_default"
+      "--network=komodo"
       "--pull=always"
     ];
   };
@@ -54,10 +54,10 @@ in
       RestartSteps = lib.mkOverride 90 9;
     };
     after = [
-      "docker-network-komodo_default.service"
+      "docker-network-komodo.service"
     ];
     requires = [
-      "docker-network-komodo_default.service"
+      "docker-network-komodo.service"
     ];
     partOf = [
       "docker-compose-komodo-root.target"
@@ -85,7 +85,7 @@ in
     log-driver = "local";
     extraOptions = [
       "--network-alias=mongo"
-      "--network=komodo_default"
+      "--network=komodo"
     ];
   };
 
@@ -97,10 +97,10 @@ in
       RestartSteps = lib.mkOverride 90 9;
     };
     after = [
-      "docker-network-komodo_default.service"
+      "docker-network-komodo.service"
     ];
     requires = [
-      "docker-network-komodo_default.service"
+      "docker-network-komodo.service"
     ];
     partOf = [
       "docker-compose-komodo-root.target"
@@ -129,7 +129,7 @@ in
     log-driver = "local";
     extraOptions = [
       "--network-alias=periphery"
-      "--network=komodo_default"
+      "--network=komodo"
       "--pull=always"
     ];
   };
@@ -142,10 +142,10 @@ in
       RestartSteps = lib.mkOverride 90 9;
     };
     after = [
-      "docker-network-komodo_default.service"
+      "docker-network-komodo.service"
     ];
     requires = [
-      "docker-network-komodo_default.service"
+      "docker-network-komodo.service"
     ];
     partOf = [
       "docker-compose-komodo-root.target"
@@ -156,15 +156,15 @@ in
   };
 
   # Networks
-  systemd.services."docker-network-komodo_default" = {
+  systemd.services."docker-network-komodo" = {
     path = [ pkgs.docker ];
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
-      ExecStop = "docker network rm -f komodo_default";
+      ExecStop = "docker network rm -f komodo";
     };
     script = ''
-      docker network inspect komodo_default || docker network create komodo_default
+      docker network inspect komodo || docker network create komodo
     '';
     partOf = [ "docker-compose-komodo-root.target" ];
     wantedBy = [ "docker-compose-komodo-root.target" ];

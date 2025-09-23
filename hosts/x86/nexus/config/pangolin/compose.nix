@@ -3,14 +3,18 @@
   pkgs,
   lib,
   config,
+  consts,
   ...
 }:
+let
+  volumePath = "${consts.DATA_BASE_PATH}/pangolin";
+in
 {
   # Containers
   virtualisation.oci-containers.containers."gerbil" = {
     image = "fosrl/gerbil:latest";
     volumes = [
-      "/etc/pangolin/config:/var/config:rw"
+      "${volumePath}/config:/var/config:rw"
     ];
     ports = [
       "80:80/tcp"
@@ -61,7 +65,7 @@
   virtualisation.oci-containers.containers."pangolin" = {
     image = "fosrl/pangolin:latest";
     volumes = [
-      "/etc/pangolin/config:/app/config:rw"
+      "${volumePath}/config:/app/config:rw"
     ];
     log-driver = "journald";
     extraOptions = [
@@ -105,8 +109,8 @@
       "CLOUDFLARE_DNS_API_TOKEN" = config.secretsSpec.api.cloudflare;
     };
     volumes = [
-      "/etc/pangolin/config/letsencrypt:/letsencrypt:rw"
-      "/etc/pangolin/config/traefik:/etc/traefik:ro"
+      "${volumePath}/config/letsencrypt:/letsencrypt:rw"
+      "${volumePath}/config/traefik:/etc/traefik:ro"
     ];
     cmd = [ "--configFile=/etc/traefik/traefik_config.yml" ];
     dependsOn = [

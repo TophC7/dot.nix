@@ -1,4 +1,11 @@
-{ config, ... }:
+{
+  config,
+  consts,
+  ...
+}:
+let
+  volumePath = "${consts.DATA_BASE_PATH}/cloudflared";
+in
 {
   config.virtualisation.oci-containers.containers.cloudflared = {
     image = "docker.io/wisdomsky/cloudflared-web:latest";
@@ -9,7 +16,7 @@
     ];
     hostname = "cloudflared";
     volumes = [
-      "/etc/cloudflared:/config"
+      "${volumePath}:/config"
     ];
   };
 }
