@@ -11,59 +11,95 @@
   # Claude Code configuration
   home.file.".claude/settings_source" = {
     text = builtins.toJSON {
+      # Set model to claude-opus-4-1
+      model = "claude-opus-4-1";
+
       # Permissions configuration
-      allow = {
-        # Allow common bash commands
-        bash = [
-          "grep"
-          "ls"
-          "find"
-          "mv"
-          "mkdir"
-          "rm"
-          "cp"
-          "cat"
-          "head"
-          "tail"
-          "rg" # ripgrep
-          "fd" # fd-find
-          "tree"
-          "which"
-          "whereis"
+      permissions = {
+        allow = [
+          # Allow common bash commands
+          "Bash(awk:*)"
+          "Bash(cat:*)"
+          "Bash(cut:*)"
+          "Bash(df:*)"
+          "Bash(diff:*)"
+          "Bash(du:*)"
+          "Bash(eza:*)"
+          "Bash(fd:*)" # fd-find
+          "Bash(file:*)"
+          "Bash(find:*)"
+          "Bash(free:*)"
+          "Bash(grep:*)"
+          "Bash(head:*)"
+          "Bash(htop)"
+          "Bash(ls:*)"
+          "Bash(lscpu)"
+          "Bash(mkdir:*)"
+          "Bash(nslookup:*)"
+          "Bash(ps:*)"
+          "Bash(pwd)"
+          "Bash(rg:*)" # ripgrep
+          "Bash(sed:*)"
+          "Bash(sort:*)"
+          "Bash(ssh:*)"
+          "Bash(stat:*)"
+          "Bash(tail:*)"
+          "Bash(top)"
+          "Bash(tree:*)"
+          "Bash(true)"
+          "Bash(uname:*)"
+          "Bash(uniq:*)"
+          "Bash(wc:*)"
+          "Bash(whereis:*)"
+          "Bash(which:*)"
+          "Bash(whoami)"
+          "WebSearch"
+          # Allow web fetching from specific domains
+          "WebFetch(domain:docs.anthropic.com)"
+          "WebFetch(domain:docs.digpangolin.com)"
+          "WebFetch(domain:github.com)"
+          "WebFetch(domain:gitlab.com)"
+          "WebFetch(domain:nixos.org)"
+          "WebFetch(domain:raw.githubusercontent.com)"
+          "WebFetch(domain:search.nixos.org)"
+          # Allow reading all files in /repo
+          "Read(/repo/**)"
         ];
-
-        # Allow web fetching from specific domains
-        webFetch = [
-          "github.com"
-          "gitlab.com"
-          "docs.anthropic.com"
-          "nixos.org"
-          "search.nixos.org"
-        ];
-      };
-
-      # Deny access to sensitive files
-      deny = {
-        read = [
-          ".env"
-          ".envrc.local"
-          "secrets.nix"
-          ".git-crypt"
-          "*.key"
-          "*.pem"
+        deny = [
+          # Deny access to sensitive files
+          "Read(.env)"
+          "Read(.envrc.local)"
+          "Read(secrets.nix)"
+          "Read(.git-crypt)"
+          "Read(*.key)"
+          "Read(*.pem)"
         ];
       };
 
       # Configure notification sounds
       hooks = {
-        stop = {
-          type = "sound";
-          path = "${pkgs.sound-theme-freedesktop}/share/sounds/freedesktop/stereo/complete.oga";
-        };
-        notification = {
-          type = "sound";
-          path = "${pkgs.sound-theme-freedesktop}/share/sounds/freedesktop/stereo/message.oga";
-        };
+        Stop = [
+          {
+            matcher = "";
+            hooks = [
+              {
+                type = "command";
+                command = "${pkgs.pulseaudio}/bin/paplay ${pkgs.sound-theme-freedesktop}/share/sounds/freedesktop/stereo/complete.oga";
+              }
+            ];
+          }
+        ];
+        Notification = [
+          {
+            matcher = "";
+            hooks = [
+              {
+                type = "command";
+                command = "${pkgs.pulseaudio}/bin/paplay ${pkgs.sound-theme-freedesktop}/share/sounds/freedesktop/stereo/message.oga";
+              }
+            ];
+          }
+        ];
       };
     };
 
