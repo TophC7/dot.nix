@@ -48,8 +48,12 @@
       "amdgpu.dcdebugmask=0x10"
     ];
     kernelModules = [
-      "kvm-amd"
       "amdgpu"
+      "ip_tables"
+      "iptable_filter"
+      "iptable_mangle"
+      "iptable_nat"
+      "kvm-amd"
     ];
     extraModulePackages = [ ];
 

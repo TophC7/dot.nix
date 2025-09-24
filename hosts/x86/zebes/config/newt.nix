@@ -7,6 +7,9 @@ in
     enable = true;
     id = cfg.ID;
     secret = cfg.SECRET;
-    useHostNetwork = true;
+    extraNetworks = [
+      "ai-network"
+      "komodo"
+    ];
   };
 }
