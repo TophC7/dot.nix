@@ -13,9 +13,14 @@
 
   play = {
     monitors = config.monitors; # I use the same module as in play.nix
+
     gamescoperun = {
       enable = true;
       useGit = true;
+
+      defaultSystemd = false;
+      defaultWSI = true;
+      # defaultHDR = null; # Will fallback to monitor settings
 
       # Extra environment variables
       environment = {
@@ -29,7 +34,7 @@
         enable = true;
         command = "${lib.getExe osConfig.programs.steam.package} -bigpicture -tenfoot";
         extraOptions = {
-          "steam" = true; # equivalent to --steam flag
+          "steam" = true;
         };
         environment = {
           STEAM_FORCE_DESKTOPUI_SCALING = 1;
@@ -37,6 +42,21 @@
         };
       };
 
+      # Steam without HDR
+      steam-no-hdr = lib.mkDefault {
+        enable = true;
+        useHDR = false; # Override default/monitor
+        command = "${lib.getExe osConfig.programs.steam.package} -bigpicture -tenfoot";
+        extraOptions = {
+          "steam" = true;
+        };
+        environment = {
+          STEAM_FORCE_DESKTOPUI_SCALING = 1;
+          STEAM_GAMEPADUI = 1;
+        };
+      };
+
+      # Other game launchers
       heroic = lib.mkDefault {
         enable = true;
         package = pkgs.heroic; # No special package configured by play.nix
@@ -58,12 +78,18 @@
     };
   };
 
-  xdg.desktopEntries = {
+  # Simple wrapper package for native Steam client
+  home.packages = [
+    (pkgs.writeShellScriptBin "steam-client" ''
+      exec ${lib.getExe osConfig.programs.steam.package} "$@"
+    '')
+  ];
 
+  xdg.desktopEntries = {
     ## Steam and Games ##
     steam = lib.mkDefault {
       name = "Steam";
-      comment = "Steam Big Picture in Gamescope Session";
+      comment = "Steam Big Picture (Gamescope with defaults)";
       exec = "${lib.getExe config.play.wrappers.steam.wrappedPackage}";
       icon = "steam";
       type = "Application";
@@ -81,15 +107,35 @@
         Keywords = "gaming;";
       };
       actions = {
-        client = {
-          name = "Steam Client (No Gamescope)";
+        no-hdr = {
+          name = "Steam (No HDR)";
+          exec = "${lib.getExe config.play.wrappers.steam-no-hdr.wrappedPackage}";
+        };
+        native = {
+          name = "Steam (No Gamescope)";
           exec = "${lib.getExe osConfig.programs.steam.package}";
         };
-        steamdeck = {
-          name = "Steam Deck (Gamescope)";
-          exec = "${lib.getExe config.play.wrappers.steam.wrappedPackage} -steamdeck";
+        kill-processes = {
+          name = "Kill Steam/Gamescope Processes";
+          exec = "${pkgs.writeShellScript "kill-gaming-processes" ''
+            set -e
+            ${pkgs.procps}/bin/pkill -f "steam" || true
+            ${pkgs.procps}/bin/pkill -f "gamescope" || true  
+            ${pkgs.procps}/bin/pkill -f "gamescopereaper" || true
+            ${pkgs.libnotify}/bin/notify-send "Gaming Processes" "Killed steam, gamescope, and gamescopereaper processes"
+          ''}";
         };
       };
+    };
+
+    lemon = {
+      name = "Lemon Craft";
+      comment = "Minecraft via Steam";
+      exec = "${lib.getExe config.play.wrappers.steam.wrappedPackage} steam://rungameid/17657148064751681536";
+      icon = "/home/toph/.local/share/PrismLauncher/instances/Lemon Craft/icon.png";
+      type = "Application";
+      terminal = false;
+      categories = [ "Game" ];
     };
 
     ## Other Launchers ##
@@ -102,7 +148,7 @@
       terminal = false;
       categories = [ "Game" ];
       actions = {
-        regular = {
+        native = {
           name = "Heroic (No Gamescope)";
           exec = "${lib.getExe pkgs.heroic}";
         };
@@ -125,13 +171,12 @@
         X-GNOME-UsesNotifications = "true";
       };
       actions = {
-        broken = {
-          name = "Lutris (Gamescope BROKEN)";
+        gamescope = {
+          name = "Lutris (Gamescope)";
           exec = "${lib.getExe config.play.wrappers.lutris.wrappedPackage}";
         };
-
-        broken-exposed = {
-          name = "Lutris (Gamescope BROKEN; Exposed Wayland)";
+        gamescope-exposed = {
+          name = "Lutris (Gamescope + Exposed Wayland)";
           exec = ''${lib.getExe config.play.gamescoperun.package} -x "--force-windows-fullscreen --expose-wayland" ${lib.getExe osConfig.play.lutris.package}'';
         };
       };
