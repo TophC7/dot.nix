@@ -26,7 +26,6 @@ in
     extraOptions = [
       "--network-alias=adguard"
       "--network=adguard" # Use clean 'adguard' network name
-      "--network=newt" # Keep newt connection for management
     ];
   };
 

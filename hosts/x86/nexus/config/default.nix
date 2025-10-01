@@ -12,4 +12,13 @@ in
 
   # Make constants available to all imported modules
   _module.args.consts = consts;
+
+  # Newt Networks
+  services.newt = {
+    extraNetworks = [
+      "adguard"
+      "komodo"
+      "pangolin"
+    ];
+  };
 }
