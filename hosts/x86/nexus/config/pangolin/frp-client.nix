@@ -1,13 +1,14 @@
 { config, ... }:
 let
   frp-token = config.secretsSpec.api.frp;
+  caenus-ip = config.secretsSpec.network.caenus.ip;
 in
 {
   services.frp = {
     enable = true;
     role = "client";
     settings = {
-      serverAddr = "caenus"; # TODO: use ip
+      serverAddr = if caenus-ip != null then caenus-ip else "caenus";
       serverPort = 4040;
       auth = {
         method = "token";
