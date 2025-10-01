@@ -170,82 +170,96 @@ in
       default = { };
     };
 
-    ## Firewall configurations by host ##
-    firewall = lib.mkOption {
+    ## Network configurations by host ##
+    network = lib.mkOption {
       type = lib.types.attrsOf (
         lib.types.submodule {
           options = {
-            allowedTCPPorts = lib.mkOption {
-              type = lib.types.listOf lib.types.port;
-              description = "Allowed TCP ports for this host";
-              default = [ ];
-              # example = [
-              #   22
-              #   80
-              #   443
-              # ];
+            ip = lib.mkOption {
+              type = lib.types.nullOr lib.types.str;
+              description = "IP address for this host";
+              default = null;
+              # example = "192.168.1.100";
             };
-            allowedTCPPortRanges = lib.mkOption {
-              type = lib.types.listOf (
-                lib.types.submodule {
-                  options = {
-                    from = lib.mkOption {
-                      type = lib.types.port;
-                      description = "Starting port in range";
-                    };
-                    to = lib.mkOption {
-                      type = lib.types.port;
-                      description = "Ending port in range";
-                    };
+            firewall = lib.mkOption {
+              type = lib.types.submodule {
+                options = {
+                  allowedTCPPorts = lib.mkOption {
+                    type = lib.types.listOf lib.types.port;
+                    description = "Allowed TCP ports for this host";
+                    default = [ ];
+                    # example = [
+                    #   22
+                    #   80
+                    #   443
+                    # ];
                   };
-                }
-              );
-              description = "Allowed TCP port ranges for this host";
-              default = [ ];
-              # example = [
-              #   {
-              #     from = 25565;
-              #     to = 25570;
-              #   }
-              # ];
-            };
-            allowedUDPPorts = lib.mkOption {
-              type = lib.types.listOf lib.types.port;
-              description = "Allowed UDP ports for this host";
-              default = [ ];
-              # example = [
-              #   53
-              #   123
-              # ];
-            };
-            allowedUDPPortRanges = lib.mkOption {
-              type = lib.types.listOf (
-                lib.types.submodule {
-                  options = {
-                    from = lib.mkOption {
-                      type = lib.types.port;
-                      description = "Starting port in range";
-                    };
-                    to = lib.mkOption {
-                      type = lib.types.port;
-                      description = "Ending port in range";
-                    };
+                  allowedTCPPortRanges = lib.mkOption {
+                    type = lib.types.listOf (
+                      lib.types.submodule {
+                        options = {
+                          from = lib.mkOption {
+                            type = lib.types.port;
+                            description = "Starting port in range";
+                          };
+                          to = lib.mkOption {
+                            type = lib.types.port;
+                            description = "Ending port in range";
+                          };
+                        };
+                      }
+                    );
+                    description = "Allowed TCP port ranges for this host";
+                    default = [ ];
+                    # example = [
+                    #   {
+                    #     from = 25565;
+                    #     to = 25570;
+                    #   }
+                    # ];
                   };
-                }
-              );
-              description = "Allowed UDP port ranges for this host";
-              default = [ ];
-              # example = [
-              #   {
-              #     from = 25565;
-              #     to = 25570;
-              #   }
-              # ];
+                  allowedUDPPorts = lib.mkOption {
+                    type = lib.types.listOf lib.types.port;
+                    description = "Allowed UDP ports for this host";
+                    default = [ ];
+                    # example = [
+                    #   53
+                    #   123
+                    # ];
+                  };
+                  allowedUDPPortRanges = lib.mkOption {
+                    type = lib.types.listOf (
+                      lib.types.submodule {
+                        options = {
+                          from = lib.mkOption {
+                            type = lib.types.port;
+                            description = "Starting port in range";
+                          };
+                          to = lib.mkOption {
+                            type = lib.types.port;
+                            description = "Ending port in range";
+                          };
+                        };
+                      }
+                    );
+                    description = "Allowed UDP port ranges for this host";
+                    default = [ ];
+                    # example = [
+                    #   {
+                    #     from = 25565;
+                    #     to = 25570;
+                    #   }
+                    # ];
+                  };
+                };
+              };
+              description = "Firewall configuration for this host";
+              default = { };
             };
           };
         }
       );
-      description = "Firewall configuration by host";
+      description = "Network configuration by host";
       default = { };
     };
 

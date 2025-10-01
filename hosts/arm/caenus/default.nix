@@ -17,7 +17,7 @@
 let
   username = "toph";
   user = config.secretsSpec.users.${username};
-  firewall = config.secretsSpec.firewall.caenus;
+  network = config.secretsSpec.network.caenus;
 in
 {
   imports = lib.flatten [
@@ -50,8 +50,7 @@ in
 
   networking = {
     enableIPv6 = false;
-    firewall.allowedTCPPorts = firewall.allowedTCPPorts;
-    firewall.allowedUDPPorts = firewall.allowedUDPPorts;
+    firewall = network.firewall;
   };
 
   ## System-wide packages ##

@@ -16,7 +16,7 @@
 let
   username = "toph";
   user = config.secretsSpec.users.${username};
-  firewall = config.secretsSpec.firewall.nimbus;
+  network = config.secretsSpec.network.nimbus;
 in
 {
   imports = lib.flatten [
@@ -50,10 +50,7 @@ in
 
   networking = {
     enableIPv6 = false;
-    firewall = {
-      allowedTCPPorts = firewall.allowedTCPPorts;
-      allowedUDPPorts = firewall.allowedUDPPorts;
-    };
+    firewall = network.firewall;
   };
 
   ## System-wide packages ##

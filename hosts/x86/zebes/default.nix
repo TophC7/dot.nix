@@ -18,7 +18,7 @@
 let
   username = "toph";
   user = config.secretsSpec.users.${username};
-  firewall = config.secretsSpec.firewall.zebes;
+  network = config.secretsSpec.network.zebes;
 in
 {
   imports = lib.flatten [
@@ -62,11 +62,7 @@ in
 
   networking = {
     enableIPv6 = false;
-    firewall = {
-      allowedTCPPorts = firewall.allowedTCPPorts;
-      allowedTCPPortRanges = firewall.allowedTCPPortRanges;
-      allowedUDPPorts = firewall.allowedUDPPorts;
-    };
+    firewall = network.firewall;
   };
 
   ## System-wide packages ##
