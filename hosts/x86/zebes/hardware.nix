@@ -167,11 +167,16 @@
       ];
     };
 
-    # ZFS pool for docker and container storage (2x NVMe in mirror or RAIDZ1)
+    # ZFS pool for docker and container storage (2x NVMe in mirror)
+    # Dataset has canmount=noauto set, so systemd handles mounting
+    # This avoids conflicts with ZFS auto-mounting that cause emergency mode
     "/store" = {
       device = "store/store";
       fsType = "zfs";
-      options = [ "zfsutil" ];
+      options = [
+        "zfsutil"
+        "x-systemd.requires=zfs-import-store.service"
+      ];
     };
 
     # Bind-mount Docker and LXC data to /store for NVMe speed
