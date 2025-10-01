@@ -153,22 +153,33 @@
     };
 
     # ZFS storage pools
+    # These datasets have canmount=noauto set, so systemd handles mounting
+    # This avoids conflicts with ZFS auto-mounting that cause emergency mode
     "/tank" = {
       device = "tank/tank"; # 4x HDD RAIDZ1 pool with SSD metadata
       fsType = "zfs";
-      options = [ "zfsutil" ];
+      options = [
+        "zfsutil"
+        "x-systemd.requires=zfs-import-tank.service"
+      ];
     };
 
     "/fast" = {
       device = "fast/fast"; # SSD mirror pool
       fsType = "zfs";
-      options = [ "zfsutil" ];
+      options = [
+        "zfsutil"
+        "x-systemd.requires=zfs-import-fast.service"
+      ];
     };
 
     "/repo" = {
       device = "fast/repo"; # SSD mirror pool (dataset)
       fsType = "zfs";
-      options = [ "zfsutil" ];
+      options = [
+        "zfsutil"
+        "x-systemd.requires=zfs-import-fast.service"
+      ];
     };
 
     # Bind mounts for Docker/LXC to ZFS storage (disabled temporarily)
