@@ -41,6 +41,10 @@
     solaar
     vial # KB setup
 
+    # Web Dev
+    google-chrome
+    gh
+
     ## Minecraft ##
     modrinth-app
 
