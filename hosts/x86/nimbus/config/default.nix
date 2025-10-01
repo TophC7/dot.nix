@@ -6,6 +6,7 @@
   services.newt = {
     extraNetworks = [
       "filerun"
+      "explorer"
     ];
   };
 }

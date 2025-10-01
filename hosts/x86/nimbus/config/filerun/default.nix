@@ -23,7 +23,7 @@ in
     volumes = [
       "/fast/filerun/db:/var/lib/mysql:rw"
     ];
-    user = "1001:1004";
+    user = "1000:1004";
     log-driver = "journald";
     extraOptions = [
       "--network-alias=db"
