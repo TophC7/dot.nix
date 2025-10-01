@@ -6,7 +6,9 @@ in
   services.olm = {
     enable = true;
     id = cfg.ID;
+    autoStart = true;
+    dns = "adguard.ryot.foo";
+    logLevel = "DEBUG";
     secret = cfg.SECRET;
-    # autoStart disabled by default
   };
 }

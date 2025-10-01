@@ -73,6 +73,7 @@ in
         "NEWT_ID" = cfg.id;
         "NEWT_SECRET" = cfg.secret;
         "PANGOLIN_ENDPOINT" = cfg.pangolinEndpoint;
+        "ACCEPT_CLIENTS" = "true";
       };
       volumes = [
         "/var/run/docker.sock:/var/run/docker.sock:rw"

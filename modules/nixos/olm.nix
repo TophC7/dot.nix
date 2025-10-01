@@ -131,6 +131,16 @@ in
         User = "root";
         Group = "root";
 
+        # Environment variables (as alternative/supplement to CLI args)
+        # Environment = [
+        #   "PANGOLIN_ENDPOINT=${cfg.endpoint}"
+        #   "OLM_ID=${cfg.id}"
+        #   "OLM_SECRET=${cfg.secret}"
+        #   "OLM_MTU=${toString cfg.mtu}"
+        #   "OLM_DNS=${cfg.dns}"
+        #   "OLM_LOG_LEVEL=${cfg.logLevel}"
+        # ];
+
         # Capabilities for network interface management
         AmbientCapabilities = [
           "CAP_NET_ADMIN"
@@ -187,16 +197,17 @@ in
         else
           ''
             exec ${cfg.package}/bin/olm \
-              -id "${cfg.id}" \
-              -secret "${cfg.secret}" \
-              -endpoint "${cfg.endpoint}" \
-              -mtu "${toString cfg.mtu}" \
-              -dns "${cfg.dns}" \
-              -log-level "${cfg.logLevel}" \
-              -ping-interval "${cfg.pingInterval}" \
-              -ping-timeout "${cfg.pingTimeout}" \
-              -interface "${cfg.interfaceName}" \
-              ${optionalString cfg.holepunch "-holepunch"}
+              --id "${cfg.id}" \
+              --secret "${cfg.secret}" \
+              --endpoint "${cfg.endpoint}" \
+              --mtu "${toString cfg.mtu}" \
+              --dns "${cfg.dns}" \
+              --log-level "${cfg.logLevel}" \
+              --ping-interval "${cfg.pingInterval}" \
+              --ping-timeout "${cfg.pingTimeout}" \
+              --interface "${cfg.interfaceName}" \
+              ${optionalString cfg.holepunch "--holepunch"} \
+              ${optionalString (cfg.healthFile != null) "--health-file ${cfg.healthFile}"}
           '';
     };
 
