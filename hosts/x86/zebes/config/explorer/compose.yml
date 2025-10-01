@@ -1,0 +1,16 @@
+name: explorer
+services:
+    explorer:
+        image: nxzai/explorer:latest
+        container_name: explorer
+        restart: unless-stopped
+        expose:
+            - "3000"
+        environment:
+            - NODE_ENV=production
+            # Optional: match the container user/group to your host UID/GID
+            - UID=1000
+            - GID=1004
+        volumes:
+            - /store/explorer:/cache
+            - /store:/mnt/store

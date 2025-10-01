@@ -7,6 +7,7 @@
     extraNetworks = [
       "ai-network"
       "komodo"
+      "explorer"
     ];
   };
 }
