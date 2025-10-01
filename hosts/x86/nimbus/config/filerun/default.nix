@@ -50,6 +50,7 @@ in
       "docker-compose-filerun-root.target"
     ];
   };
+
   virtualisation.oci-containers.containers."filerun-web" = {
     image = "filerun/filerun:8.1";
     environment = env;
@@ -66,9 +67,10 @@ in
     extraOptions = [
       "--network-alias=web"
       "--network=filerun"
-      "--network=newt" # Connect to newt network directly
+      "--expose=80"
     ];
   };
+
   systemd.services."docker-filerun-web" = {
     serviceConfig = {
       Restart = lib.mkOverride 90 "always";
