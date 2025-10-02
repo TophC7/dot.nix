@@ -6,7 +6,7 @@
 }:
 let
   # VPN Configuration
-  vpnPort = 51821; # Standard WireGuard port (no conflict, OLM connects to caenus)
+  vpnPort = 51821; # Non-Standard WireGuard port To avoid conflicts with OLM
   vpnInterface = "wg-vpn";
 
   # Get WireGuard configs from secrets
@@ -22,7 +22,7 @@ in
     wireguard.interfaces.${vpnInterface} = {
       ips = [ wgServer.address ];
       listenPort = vpnPort;
-      privateKey = wgServer.privateKey; # Can use directly!
+      privateKey = wgServer.privateKey;
 
       peers = lib.mapAttrsToList (hostname: hostConfig: {
         # Use the public key from secrets
