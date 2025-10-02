@@ -256,6 +256,37 @@ in
               description = "Firewall configuration for this host";
               default = { };
             };
+            wg = lib.mkOption {
+              type = lib.types.nullOr (
+                lib.types.submodule {
+                  options = {
+                    privateKey = lib.mkOption {
+                      type = lib.types.str;
+                      description = "WireGuard private key for this host";
+                      # Generate with: wg genkey
+                    };
+                    publicKey = lib.mkOption {
+                      type = lib.types.str;
+                      description = "WireGuard public key for this host";
+                      # Generate with: echo "privateKey" | wg pubkey
+                    };
+                    address = lib.mkOption {
+                      type = lib.types.str;
+                      description = "IP address for WireGuard interface";
+                      # example = "10.100.0.2/32";
+                    };
+                    endpoint = lib.mkOption {
+                      type = lib.types.nullOr lib.types.str;
+                      description = "WireGuard server endpoint (for clients)";
+                      default = null;
+                      # example = "pangolin.ryot.foo:51821";
+                    };
+                  };
+                }
+              );
+              description = "WireGuard VPN configuration for this host";
+              default = null;
+            };
           };
         }
       );

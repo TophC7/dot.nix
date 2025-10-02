@@ -20,7 +20,7 @@ in
       "80:80/tcp"
       "443:443/tcp"
       "222:222/tcp"
-      "51820:51820/udp"
+      "51820:51820/udp" # WireGuard OLM
       "21820:21820/udp" # Client tunnels
       "25565:25565/tcp" # Minecraft port proxy
     ];

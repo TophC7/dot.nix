@@ -20,6 +20,38 @@ in
       description = "Whether to start OLM automatically at boot. Set to false for manual control via systemctl.";
     };
 
+    vpnClient = {
+      enable = mkOption {
+        type = types.bool;
+        default = false;
+        description = "Enable WireGuard VPN client through OLM tunnel";
+      };
+
+      privateKey = mkOption {
+        type = types.str;
+        default = "";
+        description = "WireGuard private key for VPN client";
+      };
+
+      address = mkOption {
+        type = types.str;
+        default = "10.100.0.2/32";
+        description = "IP address for WireGuard VPN client";
+      };
+
+      serverPublicKey = mkOption {
+        type = types.str;
+        default = "";
+        description = "Public key of the WireGuard VPN server (nexus)";
+      };
+
+      serverEndpoint = mkOption {
+        type = types.str;
+        default = "pangolin.ryot.foo:51821";
+        description = "WireGuard server endpoint (exposed through Pangolin resource)";
+      };
+    };
+
     id = mkOption {
       type = types.str;
       description = "OLM client identifier for authentication";
@@ -115,13 +147,14 @@ in
     boot.kernelModules = [ "wireguard" ];
 
     # Create systemd service
-    systemd.services.olm = {
-      description = "OLM tunneling client for Pangolin networks";
-      after = [ "network-online.target" ];
-      wants = [ "network-online.target" ];
-      wantedBy = mkIf cfg.autoStart [ "multi-user.target" ];
+    systemd.services.olm = mkMerge [
+      {
+        description = "OLM tunneling client for Pangolin networks";
+        after = [ "network-online.target" ];
+        wants = [ "network-online.target" ];
+        wantedBy = mkIf cfg.autoStart [ "multi-user.target" ];
 
-      serviceConfig = {
+        serviceConfig = {
         Type = "simple";
         Restart = "always";
         RestartSec = "10s";
@@ -209,11 +242,60 @@ in
               ${optionalString cfg.holepunch "--holepunch"} \
               ${optionalString (cfg.healthFile != null) "--health-file ${cfg.healthFile}"}
           '';
+      }
+      # Add VPN lifecycle hooks if enabled
+      (mkIf cfg.vpnClient.enable {
+        postStart = ''
+          ${pkgs.systemd}/bin/systemctl start wg-quick-wg-homelab.service
+        '';
+        preStop = ''
+          ${pkgs.systemd}/bin/systemctl stop wg-quick-wg-homelab.service || true
+        '';
+      })
+    ];
+
+    # Networking configuration
+    networking = {
+      # Open WireGuard port if needed
+      firewall = mkIf cfg.holepunch {
+        allowedUDPPorts = [ 51820 ];
+      };
+
+      # Configure WireGuard VPN client if enabled
+      wg-quick.interfaces = mkIf cfg.vpnClient.enable {
+        wg-homelab = {
+          address = [ cfg.vpnClient.address ];
+          dns = [ cfg.dns ]; # Use OLM's configured DNS
+          privateKey = cfg.vpnClient.privateKey;
+
+          peers = [
+            {
+              publicKey = cfg.vpnClient.serverPublicKey;
+              endpoint = cfg.vpnClient.serverEndpoint;
+              allowedIPs = [
+                "0.0.0.0/0"
+                "::/0"
+              ]; # Full tunnel
+              persistentKeepalive = 25;
+            }
+          ];
+
+          autostart = false; # Managed by systemd binding
+        };
+      };
     };
 
-    # Open WireGuard port if needed
-    networking.firewall = mkIf cfg.holepunch {
-      allowedUDPPorts = [ 51820 ];
+    # Bind WireGuard lifecycle to OLM service
+    systemd.services."wg-quick-wg-homelab" = mkIf cfg.vpnClient.enable {
+      after = [ "olm.service" ];
+      requires = [ "olm.service" ];
+      bindsTo = [ "olm.service" ]; # Stop when OLM stops
+      partOf = [ "olm.service" ]; # Start/stop as part of OLM
+
+      # Start after a small delay to ensure OLM is fully connected
+      serviceConfig = {
+        ExecStartPre = mkForce "${pkgs.coreutils}/bin/sleep 3";
+      };
     };
 
     # Add GNOME extension if enabled
