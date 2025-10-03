@@ -68,18 +68,33 @@ in
   config = mkIf cfg.enable {
     virtualisation.oci-containers.containers."newt" = {
       image = cfg.image;
-      environment = {
-        "DOCKER_SOCKET" = "/var/run/docker.sock";
-        "NEWT_ID" = cfg.id;
-        "NEWT_SECRET" = cfg.secret;
-        "PANGOLIN_ENDPOINT" = cfg.pangolinEndpoint;
-        "ACCEPT_CLIENTS" = "true";
-      };
+      # Using command-line arguments instead of environment variables
+      cmd = [
+        "--id"
+        cfg.id
+        "--secret"
+        cfg.secret
+        "--endpoint"
+        cfg.pangolinEndpoint
+        "--docker-socket"
+        "/var/run/docker.sock"
+        "--accept-clients"
+        "true"
+        "--native" # Use native WireGuard interface (was USE_NATIVE_INTERFACES)
+        "true"
+      ];
       volumes = [
         "/var/run/docker.sock:/var/run/docker.sock:rw"
       ];
       log-driver = "journald";
-      extraOptions =
+      # Run as root with privileges for native WireGuard interface
+      user = "root:root";
+      extraOptions = [
+        "--privileged" # Required for native WireGuard interface
+        "--cap-add=NET_ADMIN" # Network administration capability
+        "--cap-add=SYS_MODULE" # Load kernel modules if needed
+      ]
+      ++ (
         if cfg.useHostNetwork then
           [
             "--network=host"
@@ -89,7 +104,8 @@ in
             "--network-alias=${cfg.networkAlias}"
             "--network=${cfg.networkName}"
           ]
-          ++ (map (net: "--network=${net}") cfg.extraNetworks);
+          ++ (map (net: "--network=${net}") cfg.extraNetworks)
+      );
     };
 
     systemd.services."docker-newt" = {

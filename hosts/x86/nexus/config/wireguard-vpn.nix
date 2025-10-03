@@ -32,10 +32,15 @@ in
       }) wgClients;
     };
 
-    # Add wg-vpn to NAT internal interfaces
-    nat.internalInterfaces = lib.mkAfter [ vpnInterface ];
+    # Note: wg-vpn is added to NAT internal interfaces in router.nix
 
     # Allow WireGuard port (will be accessed through Pangolin)
     firewall.interfaces."lo".allowedUDPPorts = [ vpnPort ];
+
+    # Trust the VPN interface completely - allow all traffic
+    firewall.trustedInterfaces = [ vpnInterface ];
+
+    # Note: With trustedInterfaces, we don't need specific port allowances
+    # The interface is completely trusted for INPUT, OUTPUT, and FORWARD
   };
 }

@@ -9,6 +9,8 @@ with lib;
 
 let
   cfg = config.services.olm;
+  # Extract hostname from endpoint URL (remove protocol)
+  endpointHostname = lib.removePrefix "https://" (lib.removePrefix "http://" cfg.endpoint);
 in
 {
   options.services.olm = {
@@ -68,6 +70,13 @@ in
       description = "Pangolin endpoint URL for WebSocket connection";
     };
 
+    endpointIP = mkOption {
+      type = types.nullOr types.str;
+      default = null;
+      example = "1.12.123.123";
+      description = "Direct IP address for the endpoint to bypass DNS/proxy. When set, adds a hosts entry for the domain.";
+    };
+
     mtu = mkOption {
       type = types.int;
       default = 1280;
@@ -75,9 +84,10 @@ in
     };
 
     dns = mkOption {
-      type = types.str;
-      default = "8.8.8.8";
-      description = "DNS server to use";
+      type = types.nullOr types.str;
+      default = null;
+      example = "1.1.1.1";
+      description = "DNS server to use. If not set, uses system default DNS.";
     };
 
     logLevel = mkOption {
@@ -106,7 +116,7 @@ in
 
     holepunch = mkOption {
       type = types.bool;
-      default = false;
+      default = null;
       description = "Enable NAT traversal (experimental)";
     };
 
@@ -155,98 +165,99 @@ in
         wantedBy = mkIf cfg.autoStart [ "multi-user.target" ];
 
         serviceConfig = {
-        Type = "simple";
-        Restart = "always";
-        RestartSec = "10s";
+          Type = "simple";
+          Restart = "always";
+          RestartSec = "10s";
 
-        # Security hardening
-        DynamicUser = false; # Need root for WireGuard interface
-        User = "root";
-        Group = "root";
+          # Security hardening
+          DynamicUser = false; # Need root for WireGuard interface
+          User = "root";
+          Group = "root";
 
-        # Environment variables (as alternative/supplement to CLI args)
-        # Environment = [
-        #   "PANGOLIN_ENDPOINT=${cfg.endpoint}"
-        #   "OLM_ID=${cfg.id}"
-        #   "OLM_SECRET=${cfg.secret}"
-        #   "OLM_MTU=${toString cfg.mtu}"
-        #   "OLM_DNS=${cfg.dns}"
-        #   "OLM_LOG_LEVEL=${cfg.logLevel}"
-        # ];
+          # Environment variables (as alternative/supplement to CLI args)
+          # Environment = [
+          #   "PANGOLIN_ENDPOINT=${cfg.endpoint}"
+          #   "OLM_ID=${cfg.id}"
+          #   "OLM_SECRET=${cfg.secret}"
+          #   "OLM_MTU=${toString cfg.mtu}"
+          #   "OLM_DNS=${cfg.dns}"
+          #   "OLM_LOG_LEVEL=${cfg.logLevel}"
+          # ];
 
-        # Capabilities for network interface management
-        AmbientCapabilities = [
-          "CAP_NET_ADMIN"
-          "CAP_NET_BIND_SERVICE"
-          "CAP_NET_RAW"
-        ];
-        CapabilityBoundingSet = [
-          "CAP_NET_ADMIN"
-          "CAP_NET_BIND_SERVICE"
-          "CAP_NET_RAW"
-        ];
+          # Capabilities for network interface management
+          AmbientCapabilities = [
+            "CAP_NET_ADMIN"
+            "CAP_NET_BIND_SERVICE"
+            "CAP_NET_RAW"
+          ];
+          CapabilityBoundingSet = [
+            "CAP_NET_ADMIN"
+            "CAP_NET_BIND_SERVICE"
+            "CAP_NET_RAW"
+          ];
 
-        # Network isolation (but allow network access)
-        PrivateNetwork = false;
-        RestrictAddressFamilies = [
-          "AF_UNIX"
-          "AF_INET"
-          "AF_INET6"
-          "AF_NETLINK"
-        ];
+          # Network isolation (but allow network access)
+          PrivateNetwork = false;
+          RestrictAddressFamilies = [
+            "AF_UNIX"
+            "AF_INET"
+            "AF_INET6"
+            "AF_NETLINK"
+          ];
 
-        # Filesystem hardening
-        ProtectSystem = "strict";
-        ProtectHome = true;
-        PrivateTmp = true;
-        ReadWritePaths = optionals (cfg.healthFile != null) [ (dirOf cfg.healthFile) ];
+          # Filesystem hardening
+          ProtectSystem = "strict";
+          ProtectHome = true;
+          PrivateTmp = true;
+          ReadWritePaths = optionals (cfg.healthFile != null) [ (dirOf cfg.healthFile) ];
 
-        # Process hardening
-        NoNewPrivileges = true;
-        ProtectKernelTunables = false; # Need to modify network settings
-        ProtectKernelModules = true;
-        ProtectControlGroups = true;
-        RestrictNamespaces = true;
-        LockPersonality = true;
-        MemoryDenyWriteExecute = false; # Go binaries may need this
-        RestrictRealtime = true;
-        RestrictSUIDSGID = true;
+          # Process hardening
+          NoNewPrivileges = true;
+          ProtectKernelTunables = false; # Need to modify network settings
+          ProtectKernelModules = true;
+          ProtectControlGroups = true;
+          RestrictNamespaces = true;
+          LockPersonality = true;
+          MemoryDenyWriteExecute = false; # Go binaries may need this
+          RestrictRealtime = true;
+          RestrictSUIDSGID = true;
 
-        # System call filtering
-        SystemCallFilter = [
-          "@system-service"
-          "@network-io"
-          "~@privileged"
-          "~@resources"
-        ];
-        SystemCallArchitectures = "native";
-      };
+          # System call filtering
+          SystemCallFilter = [
+            "@system-service"
+            "@network-io"
+            "~@privileged"
+            "~@resources"
+          ];
+          SystemCallArchitectures = "native";
+        };
 
-      script =
-        if cfg.configFile != null then
-          ''
-            exec ${cfg.package}/bin/olm --config ${cfg.configFile}
-          ''
-        else
-          ''
-            exec ${cfg.package}/bin/olm \
-              --id "${cfg.id}" \
-              --secret "${cfg.secret}" \
-              --endpoint "${cfg.endpoint}" \
-              --mtu "${toString cfg.mtu}" \
-              --dns "${cfg.dns}" \
-              --log-level "${cfg.logLevel}" \
-              --ping-interval "${cfg.pingInterval}" \
-              --ping-timeout "${cfg.pingTimeout}" \
-              --interface "${cfg.interfaceName}" \
-              ${optionalString cfg.holepunch "--holepunch"} \
-              ${optionalString (cfg.healthFile != null) "--health-file ${cfg.healthFile}"}
-          '';
+        script =
+          if cfg.configFile != null then
+            ''
+              exec ${cfg.package}/bin/olm --config ${cfg.configFile}
+            ''
+          else
+            ''
+              exec ${cfg.package}/bin/olm \
+                --id "${cfg.id}" \
+                --secret "${cfg.secret}" \
+                --endpoint "${cfg.endpoint}" \
+                --mtu "${toString cfg.mtu}" \
+                ${optionalString (cfg.dns != null) "--dns \"${cfg.dns}\""} \
+                --log-level "${cfg.logLevel}" \
+                --ping-interval "${cfg.pingInterval}" \
+                --ping-timeout "${cfg.pingTimeout}" \
+                --interface "${cfg.interfaceName}" \
+                ${optionalString cfg.holepunch "--holepunch true"} \
+                ${optionalString (cfg.healthFile != null) "--health-file ${cfg.healthFile}"}
+            '';
       }
       # Add VPN lifecycle hooks if enabled
       (mkIf cfg.vpnClient.enable {
         postStart = ''
-          ${pkgs.systemd}/bin/systemctl start wg-quick-wg-homelab.service
+          # Start VPN without blocking (let systemd handle the dependency chain)
+          ${pkgs.systemd}/bin/systemctl start --no-block wg-quick-wg-homelab.service || true
         '';
         preStop = ''
           ${pkgs.systemd}/bin/systemctl stop wg-quick-wg-homelab.service || true
@@ -256,6 +267,11 @@ in
 
     # Networking configuration
     networking = {
+      # Add hosts entry for direct IP connection if specified
+      hosts = mkIf (cfg.endpointIP != null) {
+        "${cfg.endpointIP}" = [ endpointHostname ];
+      };
+
       # Open WireGuard port if needed
       firewall = mkIf cfg.holepunch {
         allowedUDPPorts = [ 51820 ];
@@ -265,7 +281,9 @@ in
       wg-quick.interfaces = mkIf cfg.vpnClient.enable {
         wg-homelab = {
           address = [ cfg.vpnClient.address ];
-          dns = [ cfg.dns ]; # Use OLM's configured DNS
+          dns = [
+            "10.100.0.1" # VPN server IP (where dnsmasq will listen)
+          ];
           privateKey = cfg.vpnClient.privateKey;
 
           peers = [
@@ -273,9 +291,12 @@ in
               publicKey = cfg.vpnClient.serverPublicKey;
               endpoint = cfg.vpnClient.serverEndpoint;
               allowedIPs = [
-                "0.0.0.0/0"
-                "::/0"
-              ]; # Full tunnel
+                "10.100.0.0/24" # VPN subnet
+                "104.40.1.0/24" # Pangolin network
+                "104.40.2.0/24" # Local network
+                "104.40.3.0/24" # Other local subnets
+                "104.40.4.0/24"
+              ]; # Split tunnel - only route internal networks
               persistentKeepalive = 25;
             }
           ];
