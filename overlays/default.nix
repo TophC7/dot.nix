@@ -13,7 +13,7 @@ let
     in
     packages;
 
-  linuxModifications = final: prev: prev.lib.mkIf final.stdenv.isLinux { };
+  linuxModifications = final: prev: prev.lib.optionalAttrs prev.stdenv.isLinux { };
 
   modifications = final: prev: {
   };
