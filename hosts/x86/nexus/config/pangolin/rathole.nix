@@ -47,14 +47,14 @@ let
     type = "udp"
     local_addr = "104.40.1.11:51820"
 
-    [client.services.pangolin-wireguard-vpn]
+    [client.services.wireguard-vpn]
     type = "udp"
-    local_addr = "104.40.1.11:51821"
+    local_addr = "104.40.1.1:51821"
   '';
 in
 {
-  # Rathole client container - runs in Pangolin's network namespace
-  virtualisation.oci-containers.containers."pangolin-rathole" = {
+  # Rathole client container - has its own network + optional pangolin network
+  virtualisation.oci-containers.containers."rathole" = {
     image = "rapiz1/rathole:v0.5.0"; # Official Rathole Docker image
 
     # Rathole expects the config at /app/config.toml by default
@@ -68,32 +68,49 @@ in
       "${ratholeConfig}:/etc/rathole/client.toml:ro"
     ];
 
-    # Use Pangolin's network for access to gerbil
+    # Primary network: rathole's own network for core functionality
+    # Secondary network: pangolin (optional, for pangolin-specific services)
     extraOptions = [
+      "--network=rathole"
       "--network=pangolin"
     ];
 
     log-driver = "journald";
   };
 
-  # Ensure Rathole starts after network and gerbil
-  systemd.services."docker-pangolin-rathole" = {
-    after = [
-      "docker-network-pangolin.service"
-      "docker-gerbil.service" # Ensure gerbil is running first
-    ];
-    requires = [
-      "docker-network-pangolin.service"
-    ];
-    partOf = [
-      "docker-compose-pangolin-root.target"
-    ];
-    wantedBy = [
-      "docker-compose-pangolin-root.target"
-    ];
-    serviceConfig = {
-      Restart = lib.mkOverride 90 "always";
-      RestartSec = lib.mkOverride 90 "10s";
+  systemd.services = {
+    # Rathole client service - independent with its own network
+    "docker-rathole" = {
+      after = [ "docker-network-rathole.service" ];
+      requires = [ "docker-network-rathole.service" ];
+
+      # Optionally start after pangolin (for pangolin-specific tunnels)
+      wants = [
+        "docker-network-pangolin.service"
+        "docker-gerbil.service"
+      ];
+
+      wantedBy = [ "multi-user.target" ];
+
+      serviceConfig = {
+        Restart = lib.mkOverride 90 "always";
+        RestartSec = lib.mkOverride 90 "10s";
+      };
+    };
+
+    # Rathole Docker network
+    "docker-network-rathole" = {
+      path = [ pkgs.docker ];
+      serviceConfig = {
+        Type = "oneshot";
+        RemainAfterExit = true;
+        ExecStop = "docker network rm -f rathole";
+      };
+      script = ''
+        docker network inspect rathole || docker network create --driver bridge rathole
+      '';
+      partOf = [ "docker-rathole.service" ]; # Stop when rathole container stops
+      wantedBy = [ "docker-rathole.service" ];
     };
   };
 }

@@ -52,7 +52,7 @@ in
           type = "udp";
         };
 
-        "pangolin-wireguard-vpn" = {
+        "wireguard-vpn" = {
           bind_addr = "0.0.0.0:51821";
           type = "udp";
         };
