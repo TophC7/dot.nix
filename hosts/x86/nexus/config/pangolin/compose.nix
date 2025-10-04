@@ -40,8 +40,6 @@ in
       "--network-alias=gerbil"
       "--network=pangolin"
       "--ip=104.40.1.11"
-      "--expose=51820/udp"
-      "--expose=51821/udp"
     ];
   };
   systemd.services."docker-gerbil" = {
