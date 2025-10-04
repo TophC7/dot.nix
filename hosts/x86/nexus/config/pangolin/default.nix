@@ -204,8 +204,6 @@ in
 {
   imports = lib.custom.scanPaths ./.;
 
-  boot.kernelModules = [ "wireguard" ];
-
   ## Tmp files and Service to Avoid symlinks
   systemd.tmpfiles.rules = [
     "d /etc/pangolin/config 0755 root root -"

@@ -34,13 +34,11 @@ in
 
     # Note: wg-vpn is added to NAT internal interfaces in router.nix
 
-    # Allow WireGuard port (will be accessed through Pangolin)
-    firewall.interfaces."lo".allowedUDPPorts = [ vpnPort ];
-
-    # Trust the VPN interface completely - allow all traffic
-    firewall.trustedInterfaces = [ vpnInterface ];
-
-    # Note: With trustedInterfaces, we don't need specific port allowances
-    # The interface is completely trusted for INPUT, OUTPUT, and FORWARD
+    firewall = {
+      # Allow WireGuard port on all interfaces (accessed through Cloudflare tunnel)
+      allowedUDPPorts = [ vpnPort ];
+      # FIXME: For now Trust the VPN interface completely - allow all traffic
+      trustedInterfaces = [ vpnInterface ];
+    };
   };
 }

@@ -122,7 +122,6 @@
     speedtest-go
     tcpdump
     traceroute
-    wireguard-tools
     host
   ];
 }

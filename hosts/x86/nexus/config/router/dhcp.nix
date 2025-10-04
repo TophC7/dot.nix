@@ -42,11 +42,11 @@
 
       # Bind to interfaces only (security)
       bind-interfaces = true;
-      
+
       # Also listen on VPN subnet
       listen-address = [
-        "127.0.0.1"    # Loopback
-        "10.100.0.1"   # VPN interface IP
+        "127.0.0.1" # Loopback
+        "10.100.0.1" # VPN interface IP
       ];
 
       # DHCP ranges for each network
