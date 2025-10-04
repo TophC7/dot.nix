@@ -36,10 +36,11 @@ in
       "hosts/global/common/ddcutil.nix" # ddcutil for monitor controls
       "hosts/global/common/gnome.nix"
       "hosts/global/common/nvtop.nix" # GPU monitor (not available in home-manager)
-      "hosts/global/common/pangolin/olm.nix"
+      # "hosts/global/common/pangolin/olm.nix" # OLM tunnel client
       "hosts/global/common/plymouth.nix" # fancy boot screen
       "hosts/global/common/solaar.nix" # Logitech Unifying Receiver support
       "hosts/global/common/vial.nix" # KB setup
+      "hosts/global/common/vpn.nix" # Homelab VPN access
     ])
   ];
 
@@ -80,9 +81,6 @@ in
   ## System-wide packages ##
   services.olm.enableGnomeExtension = true;
   programs.nix-ld.enable = true;
-  environment.systemPackages = with pkgs; [
-    asdf-vm
-  ];
 
   # https://wiki.nixos.org/wiki/FAQ/When_do_I_update_stateVersion
   system.stateVersion = "25.11";
