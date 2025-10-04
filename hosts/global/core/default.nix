@@ -28,6 +28,7 @@ in
     git
     git-crypt
     gpg-tui
+    jq
     micro
     openssh
     sshfs
