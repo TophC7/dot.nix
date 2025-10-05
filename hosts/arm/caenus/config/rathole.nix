@@ -60,14 +60,7 @@ in
     };
   };
 
-  # Open firewall ports for Rathole (these should already be open from network.firewall in secrets)
-  networking.firewall = {
-    allowedTCPPorts = [
-      2333 # Rathole control port
-      # TCP services are already allowed via secretsSpec.network.firewall
-    ];
-    allowedUDPPorts = [
-      # UDP services are already allowed via secretsSpec.network.firewall
-    ];
-  };
+  networking.firewall.allowedTCPPorts = [
+    2333 # Rathole control port
+  ];
 }
