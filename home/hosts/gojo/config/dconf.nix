@@ -36,7 +36,6 @@ with lib.hm.gvariant;
         "user-theme@gnome-shell-extensions.gcampax.github.com"
         "solaar-extension@sidevesh"
         "Vitals@CoreCoding.com"
-        "cloudflare-warp-toggle@khaled.is-a.dev"
       ];
     };
   };

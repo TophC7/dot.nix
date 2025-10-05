@@ -3,7 +3,7 @@
 #  Nexus - Router & Services Host
 #
 #  Router, Firewall, DHCP, DNS, Docker services
-#  Cloudflare Tunnel Proxy, Zero Trust access
+#  Pangolin Proxy, Zero Trust access, Wireguard VPN, Rathole tunnels
 #
 ###############################################################
 
@@ -51,12 +51,6 @@ in
 
   ## System-wide packages ##
   programs.nix-ld.enable = true;
-
-  environment.etc = {
-    "cloudflared/.keep" = {
-      text = "This directory is used to store cloudflared configuration files.";
-    };
-  };
 
   # https://wiki.nixos.org/wiki/FAQ/When_do_I_update_stateVersion
   system.stateVersion = "25.11";

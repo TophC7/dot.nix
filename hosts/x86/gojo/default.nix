@@ -41,7 +41,6 @@ in
       "hosts/global/common/nvtop.nix" # GPU monitor (not available in home-manager)
       "hosts/global/common/plymouth.nix" # fancy boot screen
       "hosts/global/common/solaar.nix" # Logitech Unifying Receiver support
-      "hosts/global/common/warp.nix" # Cloudflare WARP VPN
     ])
   ];
 
