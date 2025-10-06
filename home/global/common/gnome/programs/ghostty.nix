@@ -9,6 +9,9 @@
       font-size = "11";
       background-opacity = "0.85";
       keybind = ''shift+enter=text:\x1b\r'';
+      window-height = 45;
+      window-width = 14;
+      window-inherit-working-directory = true;
       # async-backend = "epoll";
     };
   };
