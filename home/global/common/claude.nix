@@ -12,8 +12,8 @@
     # Claude Code configuration
     ".claude/settings_source" = {
       text = builtins.toJSON {
-        # Set model to claude-opus-4-1
-        model = "claude-opus-4-1";
+        # Set model to claude-opus
+        model = "opus";
 
         # Set output style
         outputStyle = "informative-learning";
