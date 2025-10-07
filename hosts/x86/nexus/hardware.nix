@@ -8,9 +8,8 @@
 {
   imports = lib.flatten [
     (modulesPath + "/installer/scan/not-detected.nix")
-    (map lib.custom.relativeToRoot [
-      "hosts/global/common/system/repo.nix"
-    ])
+    # (map lib.custom.relativeToRoot [
+    # ])
   ];
 
   boot = {

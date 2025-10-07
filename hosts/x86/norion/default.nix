@@ -6,16 +6,13 @@
 ###############################################################
 
 {
+  config,
   inputs,
   lib,
-  config,
   pkgs,
+  secrets,
   ...
 }:
-let
-  username = "toph";
-  user = config.secretsSpec.users.${username};
-in
 {
   imports = lib.flatten [
     ## Norion Only ##
@@ -44,16 +41,6 @@ in
     ])
   ];
 
-  ## Host Specifications ##
-  hostSpec = {
-    hostName = "norion";
-    username = username;
-    hashedPassword = user.hashedPassword;
-    email = user.email;
-    handle = user.handle;
-    userFullName = user.fullName;
-  };
-
   networking = {
     enableIPv6 = false;
   };
@@ -69,13 +56,13 @@ in
     ];
     # Generate netrc file from secrets for authentication
     netrc-file = pkgs.writeText "netrc" ''
-      machine psynk-private.cachix.org password ${config.secretsSpec.api.cachix}
+      machine psynk-private.cachix.org password ${secrets.service.cachix.token}
     '';
   };
 
   ## Environment variables for Cachix authentication ##
   environment.sessionVariables = rec {
-    CACHIX_AUTH_TOKEN = config.secretsSpec.api.cachix;
+    CACHIX_AUTH_TOKEN = secrets.service.cachix.token;
   };
 
   ## System-wide packages ##

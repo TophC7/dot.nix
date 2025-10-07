@@ -13,11 +13,6 @@
   pkgs,
   ...
 }:
-let
-  username = "toph";
-  user = config.secretsSpec.users.${username};
-  network = config.secretsSpec.network.nimbus;
-in
 {
   imports = lib.flatten [
     ## Nimbus Only ##
@@ -36,27 +31,13 @@ in
     ])
   ];
 
-  ## Host Specifications ##
-  hostSpec = {
-    hostName = "nimbus";
-    username = username;
-    hashedPassword = user.hashedPassword;
-    email = user.email;
-    handle = user.handle;
-    userFullName = user.fullName;
-    isServer = true;
-    isMinimal = true;
-  };
-
   networking = {
     enableIPv6 = false;
-    firewall = network.firewall;
+    firewall = host.network.firewall;
   };
 
   ## System-wide packages ##
   programs.nix-ld.enable = true;
-  environment.systemPackages = with pkgs; [
-  ];
 
   # https://wiki.nixos.org/wiki/FAQ/When_do_I_update_stateVersion
   system.stateVersion = "25.11";

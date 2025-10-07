@@ -1,38 +1,38 @@
 # User config applicable only to nixos
 {
-  inputs,
   config,
+  host,
+  inputs,
   lib,
   pkgs,
+  secrets,
   ...
 }:
 let
-  hostSpec = config.hostSpec;
-  username = hostSpec.username;
+  user = host.user;
   # Get user-specific secrets if they exist
-  user = config.secretsSpec.users.${username} or { };
+  userSecrets = secrets.users.${user.name} or { };
   ifTheyExist = groups: builtins.filter (group: builtins.hasAttr group config.users.groups) groups;
-  isMinimal = hostSpec.isMinimal or false;
+  isMinimal = host.isMinimal;
 in
 {
   users.groups = {
     ryot = {
       gid = 1004;
-      members = [ username ];
+      members = [ user.name ];
     };
   };
 
   users.mutableUsers = false;
-  users.users.${username} = {
-    home = hostSpec.home;
+  users.users.${user.name} = {
     isNormalUser = true;
     createHome = true;
     description = "Admin";
     homeMode = "750";
-    hashedPassword = user.hashedPassword or hostSpec.hashedPassword;
+    hashedPassword = userSecrets.hashedPassword;
     uid = 1000;
     group = "ryot";
-    shell = hostSpec.shell or pkgs.fish;
+    shell = user.shell or pkgs.fish;
     extraGroups = lib.flatten [
       "wheel"
       (ifTheyExist [
@@ -46,13 +46,13 @@ in
         "video"
       ])
     ];
-    openssh.authorizedKeys.keys = user.ssh.publicKeys or [ ];
+    openssh.authorizedKeys.keys = userSecrets.ssh.publicKeys or [ ];
   };
 
   # Special sudo config for user
   security.sudo.extraRules = [
     {
-      users = [ username ];
+      users = [ user.name ];
       commands = [
         {
           command = "ALL";
@@ -66,20 +66,25 @@ in
 
   users.users.root = {
     shell = pkgs.bash;
-    hashedPassword = lib.mkForce hostSpec.hashedPassword;
-    openssh.authorizedKeys.keys = user.ssh.publicKeys or [ ];
+    hashedPassword = lib.mkForce userSecrets.hashedPassword;
+    openssh.authorizedKeys.keys = userSecrets.ssh.publicKeys or [ ];
   };
 }
 // lib.optionalAttrs (inputs ? "home-manager") {
   # Set up home-manager for the configured user
   home-manager = {
     extraSpecialArgs = {
-      inherit pkgs inputs;
-      inherit (config) secretsSpec hostSpec;
+      inherit
+        pkgs
+        inputs
+        host
+        secrets
+        ;
+      # Don't pass lib - let home-manager use its own extended lib with hm namespace
     };
     users = {
       root.home.stateVersion = "24.05"; # Avoid error
-      ${username} = {
+      ${user.name} = {
         imports = [
           (
             { config, ... }:
@@ -88,15 +93,16 @@ in
                 if isMinimal then
                   lib.custom.relativeToRoot "home/global/core"
                 else
-                  lib.custom.relativeToRoot "home/users/${username}"
+                  lib.custom.relativeToRoot "home/users/${user.name}"
               )
               {
                 inherit
                   config
-                  hostSpec
+                  host
                   inputs
                   lib
                   pkgs
+                  secrets
                   ;
               }
           )

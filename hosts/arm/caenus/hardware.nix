@@ -5,9 +5,6 @@
   modulesPath,
   ...
 }:
-let
-  username = config.hostSpec.username;
-in
 {
   imports = lib.flatten [
     (modulesPath + "/profiles/qemu-guest.nix")

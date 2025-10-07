@@ -1,12 +1,13 @@
 {
-  lib,
   config,
+  lib,
   pkgs,
+  secrets,
   ...
 }:
 let
-  smtp = config.secretsSpec.users.admin.smtp;
-  pangolin = config.secretsSpec.docker.pangolin;
+  smtp = secrets.users.admin.smtp;
+  pangolin = secrets.service.pangolin;
 
   # Create the configuration files as derivations
   pangolinConfigFile = pkgs.writeText "pangolin-config.yml" ''

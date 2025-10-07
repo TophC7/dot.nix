@@ -12,10 +12,6 @@
   pkgs,
   ...
 }:
-let
-  username = "toph";
-  user = config.secretsSpec.users.${username};
-in
 {
   imports = lib.flatten [
     ## Hardware ##
@@ -33,17 +29,6 @@ in
     ])
   ];
 
-  ## Host Specifications ##
-  hostSpec = {
-    hostName = "vm";
-    username = username;
-    hashedPassword = user.hashedPassword;
-    email = user.email;
-    handle = user.handle;
-    userFullName = user.fullName;
-    isServer = true;
-  };
-
   networking = {
     enableIPv6 = false;
   };
@@ -57,14 +42,6 @@ in
   # The VirtualBox guest additions rely on an out-of-tree kernel module
   # which lags behind kernel releases, potentially causing broken builds.
   virtualisation.virtualbox.guest.enable = false;
-
-  ## System-wide packages ##
-  environment.systemPackages = with pkgs; [
-    openssh
-    sshfs
-    wget
-    yazi
-  ];
 
   # https://wiki.nixos.org/wiki/FAQ/When_do_I_update_stateVersion
   system.stateVersion = "25.11";

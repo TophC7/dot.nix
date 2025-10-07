@@ -1,8 +1,9 @@
 {
+  config,
+  host,
   inputs,
   lib,
   pkgs,
-  config,
   ...
 }:
 let
@@ -93,7 +94,7 @@ in
     win-virtio
   ];
 
-  users.users.${config.hostSpec.username} = {
+  users.users.${host.user.name} = {
     extraGroups = [ "libvirtd" ];
   };
 }

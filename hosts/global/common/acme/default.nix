@@ -1,11 +1,12 @@
 {
   pkgs,
   config,
+  secrets,
   ...
 }:
 let
   cloudflareEnvFile = pkgs.writeText "cloudflare.env" ''
-    CLOUDFLARE_DNS_API_TOKEN=${config.secretsSpec.api.cloudflare}
+    CLOUDFLARE_DNS_API_TOKEN=${secrets.service.cloudflare.token}
   '';
 in
 {

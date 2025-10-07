@@ -1,7 +1,6 @@
 {
   lib,
   pkgs,
-  hostSpec,
   ...
 }:
 {
@@ -18,10 +17,6 @@
     ## Gojo Specific ##
     ./config
   ];
-
-  home.sessionVariables = {
-    FLAKE = "${hostSpec.home}/git/dot.nix";
-  };
 
   ## Packages with no needed configs ##
   home.packages = builtins.attrValues {

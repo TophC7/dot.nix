@@ -4,20 +4,21 @@
   lib,
   config,
   inputs,
-  hostSpec,
+  host,
+  secrets,
   ...
 }:
 let
-  fullName = hostSpec.userFullName;
-  email = hostSpec.email;
+  user = host.user;
+  userSecrets = secrets.users.${user.name};
 in
 {
   programs.git = {
     enable = true;
     package = pkgs.gitAndTools.gitFull;
 
-    userName = fullName;
-    userEmail = email;
+    userName = userSecrets.fullName;
+    userEmail = userSecrets.email;
 
     ignores = [
       ".csvignore"
@@ -48,7 +49,7 @@ in
         ];
       };
 
-      url = lib.optionalAttrs (!hostSpec.isMinimal) {
+      url = lib.optionalAttrs (!host.isMinimal) {
         # Only force ssh if it's not minimal
         "ssh://git@github.com" = {
           pushInsteadOf = "https://github.com";

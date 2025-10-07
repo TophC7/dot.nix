@@ -4,6 +4,7 @@
   lib,
   config,
   consts,
+  secrets,
   ...
 }:
 let
@@ -106,7 +107,7 @@ in
   virtualisation.oci-containers.containers."traefik" = {
     image = "traefik:v3.4.0";
     environment = {
-      "CLOUDFLARE_DNS_API_TOKEN" = config.secretsSpec.api.cloudflare;
+      "CLOUDFLARE_DNS_API_TOKEN" = secrets.service.cloudflare.token;
     };
     volumes = [
       "${volumePath}/config/letsencrypt:/letsencrypt:rw"

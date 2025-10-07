@@ -8,16 +8,12 @@
 ###############################################################
 
 {
+  config,
   inputs,
   lib,
-  config,
   pkgs,
   ...
 }:
-let
-  username = "toph";
-  user = config.secretsSpec.users.${username};
-in
 {
   imports = lib.flatten [
     ## Nexus Only ##
@@ -36,18 +32,6 @@ in
       "hosts/global/common/pangolin/newt.nix"
     ])
   ];
-
-  ## Host Specifications ##
-  hostSpec = {
-    hostName = "nexus";
-    username = username;
-    hashedPassword = user.hashedPassword;
-    email = user.email;
-    handle = user.handle;
-    userFullName = user.fullName;
-    isServer = true;
-    isMinimal = true;
-  };
 
   ## System-wide packages ##
   programs.nix-ld.enable = true;

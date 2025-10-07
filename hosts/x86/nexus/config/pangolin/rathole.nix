@@ -3,19 +3,17 @@
   pkgs,
   lib,
   consts,
+  secrets,
   ...
 }:
 let
-  ratholeToken = config.secretsSpec.api.rathole;
-  caenusIp = config.secretsSpec.network.caenus.ip;
-
   # Rathole client configuration
   ratholeConfig = pkgs.writeText "rathole-client.toml" ''
     [client]
-    remote_addr = "${caenusIp}:2333"  # Rathole server control port
+    remote_addr = "${secrets.service.caenus.ip}:2333"  # Rathole server control port
 
     # Default token for all services
-    default_token = "${ratholeToken}"
+    default_token = "${secrets.service.rathole.token}"
 
     # Retry and heartbeat settings
     retry_interval = 1

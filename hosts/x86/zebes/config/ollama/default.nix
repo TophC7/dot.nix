@@ -1,12 +1,13 @@
 # Auto-generated using compose2nix v0.3.1.
 {
-  pkgs,
   config,
   lib,
+  pkgs,
+  secrets,
   ...
 }:
 let
-  open-webui = config.secretsSpec.docker.open-webui;
+  open-webui = secrets.service.open-webui;
 in
 {
   # Runtime
@@ -50,6 +51,7 @@ in
       "--network=ai-network"
       "--security-opt=seccomp:unconfined"
       "--shm-size=17179869184"
+      "--expose=11434"
     ];
   };
   systemd.services."docker-ollama" = {

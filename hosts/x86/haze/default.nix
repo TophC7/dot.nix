@@ -12,10 +12,6 @@
   pkgs,
   ...
 }:
-let
-  username = "cesar";
-  user = config.secretsSpec.users.${username};
-in
 {
   imports = lib.flatten [
     ## Haze Only ##
@@ -44,25 +40,12 @@ in
     ])
   ];
 
-  ## Host Specifications ##
-  hostSpec = {
-    hostName = "haze";
-    username = username;
-    hashedPassword = user.hashedPassword;
-    email = user.email;
-    handle = user.handle;
-    userFullName = user.fullName;
-  };
-
   networking = {
     enableIPv6 = false;
   };
 
   ## System-wide packages ##
   programs.nix-ld.enable = true;
-  environment.systemPackages = with pkgs; [
-    asdf-vm
-  ];
 
   # https://wiki.nixos.org/wiki/FAQ/When_do_I_update_stateVersion
   system.stateVersion = "25.11";

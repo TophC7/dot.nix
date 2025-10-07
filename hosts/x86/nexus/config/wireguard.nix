@@ -2,6 +2,8 @@
   config,
   pkgs,
   lib,
+  host,
+  secrets,
   ...
 }:
 let
@@ -9,11 +11,21 @@ let
   vpnPort = 51821; # Non-Standard WireGuard port To avoid conflicts with OLM
   vpnInterface = "wg-vpn";
 
-  # Get WireGuard configs from secrets
-  wgServer = config.secretsSpec.network.nexus.wg;
+  # Get WireGuard configs
+  wgServer = host.network.wg;
+  # Get the actual private key from secrets
+  wgPrivateKey = secrets.service."wg-nexus".privateKey or "";
+
+  # Get all host configs to find VPN clients
+  allHosts = lib.custom.getAllHostConfigs pkgs;
+
+  # Filter hosts that have VPN enabled (have wg config with endpoint)
   wgClients = lib.filterAttrs (
-    name: host: host.wg or null != null && name != "nexus"
-  ) config.secretsSpec.network;
+    name: hostConfig:
+    name != "nexus"
+    && hostConfig.network.wg or null != null
+    && hostConfig.network.wg.endpoint or null != null
+  ) allHosts;
 in
 {
   # Networking configuration
@@ -22,13 +34,13 @@ in
     wireguard.interfaces.${vpnInterface} = {
       ips = [ wgServer.address ];
       listenPort = vpnPort;
-      privateKey = wgServer.privateKey;
+      privateKey = wgPrivateKey;
 
       peers = lib.mapAttrsToList (hostname: hostConfig: {
-        # Use the public key from secrets
-        publicKey = hostConfig.wg.publicKey;
-        allowedIPs = [ hostConfig.wg.address ];
-        persistentKeepalive = 25;
+        # Get the actual public key from secrets
+        publicKey = secrets.service."wg-${hostname}".publicKey or "INVALID";
+        allowedIPs = [ hostConfig.network.wg.address ];
+        persistentKeepalive = hostConfig.network.wg.persistentKeepalive or 25;
       }) wgClients;
     };
 

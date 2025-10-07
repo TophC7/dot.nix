@@ -1,8 +1,4 @@
-{ config, ... }:
-let
-  # Generate a secret token for rathole authentication
-  rathole-token = config.secretsSpec.api.rathole;
-in
+{ config, secrets, ... }:
 {
   services.rathole = {
     enable = true;
@@ -12,7 +8,7 @@ in
         bind_addr = "0.0.0.0:2333"; # Rathole control port
 
         # Default token for all services (can be overridden per service)
-        default_token = rathole-token;
+        default_token = secrets.service.rathole.token;
 
         # Heartbeat configuration (server only supports heartbeat_interval)
         heartbeat_interval = 10;

@@ -32,7 +32,7 @@ let
   # Default SSH config for main user
   sshConfig = pkgs.writeText "ssh-config" ''
     Host git.example.com
-      IdentityFile "${config.hostSpec.home}/.ssh/git"
+      IdentityFile "~/.ssh/git"
 
     Host *
       ForwardAgent no
@@ -46,14 +46,14 @@ let
       ControlPath ~/.ssh/master-%r@%n:%p
       ControlPersist no
 
-      IdentityFile "${config.hostSpec.home}/.ssh/server"
+      IdentityFile "~/.ssh/server"
       UpdateHostKeys ask
   '';
 
   # Alternative SSH config for secondary user
   sshConfig-alt = pkgs.writeText "ssh-config" ''
     Host git.example.com
-      IdentityFile "${config.hostSpec.home}/.ssh/git"
+      IdentityFile "~/.ssh/git"
 
     Host *
       ForwardAgent no

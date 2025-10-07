@@ -3,23 +3,19 @@
 #  Zebes - Main Server
 #  NixOS running on Ryzen 5 5600G, RX 7900 GRE, 32GB RAM
 #
-#  Docker environment, Komodo, Authentik, Game Servers, etc.
+#  Docker environment, Komodo, Game Servers, etc.
 #  Ai environment, Ollama, Oterm, Open WebUI, etc.
 #
 ###############################################################
 
 {
+  config,
+  host,
   inputs,
   lib,
-  config,
   pkgs,
   ...
 }:
-let
-  username = "toph";
-  user = config.secretsSpec.users.${username};
-  network = config.secretsSpec.network.zebes;
-in
 {
   imports = lib.flatten [
     ## Zebes Only ##
@@ -48,21 +44,9 @@ in
     ])
   ];
 
-  ## Host Specifications ##
-  hostSpec = {
-    hostName = "zebes";
-    username = username;
-    hashedPassword = user.hashedPassword;
-    email = user.email;
-    handle = user.handle;
-    userFullName = user.fullName;
-    isServer = false;
-    isMinimal = false;
-  };
-
   networking = {
     enableIPv6 = false;
-    firewall = network.firewall;
+    firewall = host.network.firewall;
   };
 
   ## System-wide packages ##

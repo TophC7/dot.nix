@@ -1,5 +1,6 @@
 {
   config,
+  host,
   lib,
   pkgs,
   ...
@@ -31,7 +32,7 @@
 
       autoLogin = {
         enable = true;
-        user = config.hostSpec.username;
+        user = host.user.name;
       };
     };
 

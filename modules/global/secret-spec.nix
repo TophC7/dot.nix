@@ -5,31 +5,6 @@
   lib,
   ...
 }:
-let
-  ## SSH key creation function ##
-  mkSshKeyFile =
-    name: content:
-    pkgs.writeTextFile {
-      name = "ssh-key-${name}";
-      text = content;
-      executable = false;
-      checkPhase = ''
-        grep -q "BEGIN OPENSSH PRIVATE KEY" "$out" || (echo "Invalid SSH key format"; exit 1)
-      '';
-    };
-
-  ## GPG key creation function ##
-  mkGpgKeyFile =
-    name: content:
-    pkgs.writeTextFile {
-      name = "gpg-key-${name}";
-      text = content;
-      executable = false;
-      checkPhase = ''
-        grep -q "BEGIN PGP PRIVATE KEY BLOCK" "$out" || (echo "Invalid GPG key format"; exit 1)
-      '';
-    };
-in
 {
   options.secretsSpec = {
     users = lib.mkOption {
@@ -67,19 +42,6 @@ in
                     description = "SSH private key contents keyed by name";
                     default = { };
                   };
-                  privateKeys = lib.mkOption {
-                    type = lib.types.attrsOf lib.types.path;
-                    description = "SSH private key file paths keyed by name";
-                    default = { };
-                    apply =
-                      _:
-                      let
-                        userName = config.hostSpec.username;
-                        userConfig = config.secretsSpec.users.${userName} or { };
-                        privateKeyContents = userConfig.ssh.privateKeyContents or { };
-                      in
-                      lib.mapAttrs (name: content: mkSshKeyFile "${userName}-${name}" content) privateKeyContents;
-                  };
                   config = lib.mkOption {
                     type = lib.types.path;
                     description = "SSH config file path";
@@ -108,19 +70,6 @@ in
                     type = lib.types.str;
                     description = "GPG private key content";
                     default = "";
-                  };
-                  privateKey = lib.mkOption {
-                    type = lib.types.path;
-                    description = "GPG private key file path";
-                    default = null;
-                    apply =
-                      _:
-                      let
-                        userName = config.hostSpec.username;
-                        userConfig = config.secretsSpec.users.${userName} or { };
-                        privateKeyContent = userConfig.gpg.privateKeyContents or "";
-                      in
-                      if privateKeyContent != "" then mkGpgKeyFile userName privateKeyContent else null;
                   };
                   trust = lib.mkOption {
                     type = lib.types.str;
@@ -170,142 +119,25 @@ in
       default = { };
     };
 
-    ## Network configurations by host ##
-    network = lib.mkOption {
-      type = lib.types.attrsOf (
-        lib.types.submodule {
-          options = {
-            ip = lib.mkOption {
-              type = lib.types.nullOr lib.types.str;
-              description = "IP address for this host";
-              default = null;
-              # example = "192.168.1.100";
-            };
-            firewall = lib.mkOption {
-              type = lib.types.submodule {
-                options = {
-                  allowedTCPPorts = lib.mkOption {
-                    type = lib.types.listOf lib.types.port;
-                    description = "Allowed TCP ports for this host";
-                    default = [ ];
-                    # example = [
-                    #   22
-                    #   80
-                    #   443
-                    # ];
-                  };
-                  allowedTCPPortRanges = lib.mkOption {
-                    type = lib.types.listOf (
-                      lib.types.submodule {
-                        options = {
-                          from = lib.mkOption {
-                            type = lib.types.port;
-                            description = "Starting port in range";
-                          };
-                          to = lib.mkOption {
-                            type = lib.types.port;
-                            description = "Ending port in range";
-                          };
-                        };
-                      }
-                    );
-                    description = "Allowed TCP port ranges for this host";
-                    default = [ ];
-                    # example = [
-                    #   {
-                    #     from = 25565;
-                    #     to = 25570;
-                    #   }
-                    # ];
-                  };
-                  allowedUDPPorts = lib.mkOption {
-                    type = lib.types.listOf lib.types.port;
-                    description = "Allowed UDP ports for this host";
-                    default = [ ];
-                    # example = [
-                    #   53
-                    #   123
-                    # ];
-                  };
-                  allowedUDPPortRanges = lib.mkOption {
-                    type = lib.types.listOf (
-                      lib.types.submodule {
-                        options = {
-                          from = lib.mkOption {
-                            type = lib.types.port;
-                            description = "Starting port in range";
-                          };
-                          to = lib.mkOption {
-                            type = lib.types.port;
-                            description = "Ending port in range";
-                          };
-                        };
-                      }
-                    );
-                    description = "Allowed UDP port ranges for this host";
-                    default = [ ];
-                    # example = [
-                    #   {
-                    #     from = 25565;
-                    #     to = 25570;
-                    #   }
-                    # ];
-                  };
-                };
-              };
-              description = "Firewall configuration for this host";
-              default = { };
-            };
-            wg = lib.mkOption {
-              type = lib.types.nullOr (
-                lib.types.submodule {
-                  options = {
-                    privateKey = lib.mkOption {
-                      type = lib.types.str;
-                      description = "WireGuard private key for this host";
-                      # Generate with: wg genkey
-                    };
-                    publicKey = lib.mkOption {
-                      type = lib.types.str;
-                      description = "WireGuard public key for this host";
-                      # Generate with: echo "privateKey" | wg pubkey
-                    };
-                    address = lib.mkOption {
-                      type = lib.types.str;
-                      description = "IP address for WireGuard interface";
-                      # example = "10.100.0.2/32";
-                    };
-                    endpoint = lib.mkOption {
-                      type = lib.types.nullOr lib.types.str;
-                      description = "WireGuard server endpoint (for clients)";
-                      default = null;
-                      # example = "pangolin.ryot.foo:51821";
-                    };
-                  };
-                }
-              );
-              description = "WireGuard VPN configuration for this host";
-              default = null;
-            };
-          };
-        }
-      );
-      description = "Network configuration by host";
-      default = { };
-    };
-
-    ## API keys ##
-    api = lib.mkOption {
-      type = lib.types.attrsOf lib.types.str;
-      description = "API keys keyed by service name";
-      default = { };
-    };
-
-    ## Docker environment variables ##
-    docker = lib.mkOption {
+    ## Service configurations ##
+    service = lib.mkOption {
       type = lib.types.attrsOf (lib.types.attrsOf lib.types.str);
-      description = "Docker environment variables keyed by container name";
+      description = "Service-specific secrets and configuration keyed by service name";
       default = { };
+      example = {
+        "wg-nexus" = {
+          privateKey = "...";
+          presharedKey = "...";
+        };
+        filerun = {
+          DB_PASSWORD = "...";
+          SECRET_KEY = "...";
+        };
+        cloudflare = {
+          api_token = "...";
+          zone_id = "...";
+        };
+      };
     };
   };
 }

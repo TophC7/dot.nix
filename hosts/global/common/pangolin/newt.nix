@@ -1,6 +1,11 @@
-{ config, ... }:
+{
+  config,
+  host,
+  secrets,
+  ...
+}:
 let
-  cfg = config.secretsSpec.docker."newt-${config.hostSpec.hostName}";
+  cfg = secrets.service."newt-${host.network.hostName}";
 in
 {
   services.newt = {

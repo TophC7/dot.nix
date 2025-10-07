@@ -3,11 +3,12 @@
   config,
   lib,
   pkgs,
+  secrets,
   ...
 }:
 let
   Store = "/store/komodo";
-  env = config.secretsSpec.docker.komodo;
+  env = secrets.service.komodo;
 in
 {
   # Containers
@@ -16,9 +17,6 @@ in
     environment = env;
     volumes = [
       "${Store}/cache:/repo-cache:rw"
-    ];
-    ports = [
-      "9120:9120/tcp"
     ];
     labels = {
       "komodo.skip" = "";
@@ -31,6 +29,7 @@ in
       "--network-alias=core"
       "--network=komodo"
       "--pull=always"
+      "--expose=9120"
     ];
   };
 

@@ -1,11 +1,11 @@
 {
   lib,
-  hostSpec,
+  host,
   ...
 }:
 {
   imports = [
     (lib.custom.relativeToRoot "home/global/core")
-    (lib.custom.relativeToRoot "home/hosts/${hostSpec.hostName}")
+    (lib.custom.relativeToRoot "home/hosts/${host.network.hostName}")
   ];
 }

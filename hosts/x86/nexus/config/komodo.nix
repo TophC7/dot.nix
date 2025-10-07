@@ -3,11 +3,12 @@
   lib,
   pkgs,
   consts,
+  secrets,
   ...
 }:
 let
   komodoStorage = "${consts.DATA_BASE_PATH}/komodo";
-  env = config.secretsSpec.docker.komodo-nexus;
+  env = secrets.service.komodo-nexus;
 in
 {
   # Create necessary directories

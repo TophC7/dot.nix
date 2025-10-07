@@ -2,13 +2,11 @@
   config,
   lib,
   pkgs,
-  hostSpec,
+  host,
   ...
 }:
 let
-  username = hostSpec.username;
-  homeDir = hostSpec.home;
-  shell = hostSpec.shell or pkgs.fish;
+  user = host.user;
 in
 {
   imports = lib.flatten [
@@ -22,17 +20,16 @@ in
   services.ssh-agent.enable = true;
 
   home = {
-    username = lib.mkDefault username;
-    homeDirectory = lib.mkDefault homeDir;
+    username = lib.mkDefault user.name;
     stateVersion = lib.mkDefault "24.05";
     sessionPath = [
-      "${homeDir}/.local/bin"
+      "~/.local/bin"
     ];
     sessionVariables = {
       EDITOR = lib.mkDefault "micro";
       VISUAL = lib.mkDefault "micro";
       FLAKE = lib.mkDefault "/repo/Nix/dot.nix";
-      SHELL = lib.getExe shell;
+      SHELL = lib.getExe user.shell;
     };
     preferXdgDirectories = true; # whether to make programs use XDG directories whenever supported
   };

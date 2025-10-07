@@ -3,10 +3,11 @@
   config,
   lib,
   pkgs,
+  secrets,
   ...
 }:
 let
-  env = config.secretsSpec.docker.filerun;
+  env = secrets.service.filerun;
 in
 {
   # Runtime

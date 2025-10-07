@@ -3,13 +3,10 @@
   pkgs,
   config,
   lib,
-  hostSpec,
   ...
 }:
 
 let
-  homeDir = hostSpec.home;
-
   borg-wrapper = pkgs.writeScript "borg-wrapper" ''
     #!${lib.getExe pkgs.fish}
 
@@ -160,7 +157,6 @@ in
   home.packages = with pkgs; [
     ryubing
     borgbackup
-    borgtui
     inotify-tools
   ];
 
@@ -169,7 +165,7 @@ in
       name = "Ryujinx w/ Borg Backups";
       comment = "Ryujinx Emulator with Borg Backups";
       exec = mkLaunchCommand {
-        savePath = "${homeDir}/.config/Ryujinx/bis/user/save";
+        savePath = "~/.config/Ryujinx/bis/user/save";
         backupPath = "/pool/Backups/Switch/RyubingSaves";
         maxBackups = 30;
         command = "ryujinx";

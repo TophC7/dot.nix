@@ -6,21 +6,18 @@
 ###############################################################
 
 {
+  config,
   inputs,
   lib,
-  config,
   pkgs,
+  secrets,
   ...
 }:
-let
-  username = "toph";
-  user = config.secretsSpec.users.${username};
-in
 {
   imports = lib.flatten [
     ## Rune Only ##
     inputs.chaotic.nixosModules.default
-    # ./config
+    ./config
 
     ## Hardware ##
     ./hardware.nix
@@ -48,16 +45,6 @@ in
     ])
   ];
 
-  ## Host Specifications ##
-  hostSpec = {
-    hostName = "rune";
-    username = username;
-    hashedPassword = user.hashedPassword;
-    email = user.email;
-    handle = user.handle;
-    userFullName = user.fullName;
-  };
-
   networking = {
     enableIPv6 = false;
   };
@@ -73,20 +60,17 @@ in
     ];
     # Generate netrc file from secrets for authentication
     netrc-file = pkgs.writeText "netrc" ''
-      machine psynk-private.cachix.org password ${config.secretsSpec.api.cachix}
+      machine psynk-private.cachix.org password ${secrets.service.cachix.token}
     '';
   };
 
   ## Environment variables for Cachix authentication ##
   environment.sessionVariables = rec {
-    CACHIX_AUTH_TOKEN = config.secretsSpec.api.cachix;
+    CACHIX_AUTH_TOKEN = secrets.service.cachix.token;
   };
 
   ## System-wide packages ##
   programs.nix-ld.enable = true;
-  environment.systemPackages = with pkgs; [
-    asdf-vm
-  ];
 
   # https://wiki.nixos.org/wiki/FAQ/When_do_I_update_stateVersion
   system.stateVersion = "24.11";

@@ -18,17 +18,45 @@ let
 
   # build one host, choosing folder + system by isARM flag
   mkHost =
-    host: isARM:
+    hostName: isARM:
     let
       folder = if isARM then "arm" else "x86";
       system = if isARM then ARM else X86;
+
+      # Import and evaluate the data modules to extract configuration
+      pkgs = import inputs.nixpkgs { inherit system; };
+
+      # Evaluate all data modules together (specs + implementations)
+      dataEval = lib.evalModules {
+        modules = [
+          # Provide assertions option that evalModules expects
+          { options.assertions = lib.mkOption { type = lib.types.listOf lib.types.unspecified; default = []; }; }
+
+          # Import host spec and implementation
+          (customLib.relativeToRoot "modules/global/host-spec.nix")
+          (customLib.relativeToRoot "lib/hosts.nix")
+
+          # Import secret spec and implementation
+          (customLib.relativeToRoot "modules/global/secret-spec.nix")
+          (customLib.relativeToRoot "lib/secrets.nix")
+        ];
+        specialArgs = {
+          inherit pkgs lib;
+        };
+      };
+
+      # Extract both host and secrets from the single evaluation
+      host = dataEval.config.hostSpec.${hostName} or {};
+      secrets = dataEval.config.secretsSpec;
     in
     {
-      "${host}" = lib.nixosSystem {
+      "${hostName}" = lib.nixosSystem {
         specialArgs = {
           inherit
+            host
             inputs
             isARM
+            secrets
             system
             ;
           outputs = self;
@@ -42,19 +70,16 @@ let
         modules = [
           { nixpkgs.overlays = [ self.overlays.default ]; }
 
-          # Import secrets
-          (customLib.relativeToRoot "modules/global/secret-spec.nix")
-          (customLib.relativeToRoot "secrets.nix")
-
           # Host-specific configuration
-          (customLib.relativeToRoot "hosts/${folder}/${host}")
+          (customLib.relativeToRoot "hosts/${folder}/${hostName}")
         ];
       };
     };
 
   # Invoke mkHost for each host config that is declared for either X86 or ARM
   mkHostConfigs =
-    hosts: isARM: lib.foldl (acc: set: acc // set) { } (lib.map (host: mkHost host isARM) hosts);
+    hosts: isARM:
+    lib.foldl (acc: set: acc // set) { } (lib.map (hostName: mkHost hostName isARM) hosts);
 in
 {
   flake.nixosConfigurations =

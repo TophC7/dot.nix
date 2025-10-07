@@ -1,5 +1,6 @@
 {
   config,
+  host,
   lib,
   pkgs,
   ...
@@ -12,7 +13,7 @@
     useDHCP = false;
 
     # Set hostname
-    hostName = config.hostSpec.hostName;
+    hostName = host.network.hostName;
 
     # Enable IPv6
     enableIPv6 = true;
@@ -122,6 +123,5 @@
     speedtest-go
     tcpdump
     traceroute
-    host
   ];
 }

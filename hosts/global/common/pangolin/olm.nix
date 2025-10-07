@@ -1,6 +1,11 @@
-{ config, ... }:
+{
+  config,
+  host,
+  secrets,
+  ...
+}:
 let
-  cfg = config.secretsSpec.docker."olm-${config.hostSpec.hostName}";
+  cfg = secrets.service."olm-${host.network.hostName}";
 in
 {
   services.olm = {

@@ -1,6 +1,11 @@
-{ pkgs, config, ... }:
+{
+  pkgs,
+  config,
+  host,
+  ...
+}:
 {
   ## Android Debug Bridge ##
   programs.adb.enable = true;
-  users.users.${config.hostSpec.username}.extraGroups = [ "adbusers" ];
+  users.users.${host.user.name}.extraGroups = [ "adbusers" ];
 }

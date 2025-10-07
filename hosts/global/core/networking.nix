@@ -1,12 +1,14 @@
 {
-  pkgs,
-  lib,
   config,
+  host,
+  lib,
+  pkgs,
+  secrets,
   ...
 }:
 let
   # Get caenus IP for direct connection (bypasses DNS/Cloudflare)
-  caenusIp = config.secretsSpec.network.caenus.ip or null;
+  caenusIp = secrets.service.caenus.ip or null;
 
   # Check if any WireGuard service is enabled
   wireguardEnabled =
@@ -21,7 +23,7 @@ in
     {
       networking = {
         dhcpcd.enable = false;
-        hostName = config.hostSpec.hostName;
+        hostName = host.network.hostName;
         networkmanager.enable = true;
         useDHCP = lib.mkDefault true;
         useHostResolvConf = false;
@@ -47,7 +49,7 @@ in
 
       # Enable IP forwarding if this is a server/router
       # (only for hosts that route traffic between interfaces)
-      boot.kernel.sysctl = lib.mkIf (config.hostSpec.isServer or false) {
+      boot.kernel.sysctl = lib.mkIf (config.currentHost.isServer or false) {
         "net.ipv4.ip_forward" = 1;
         "net.ipv6.conf.all.forwarding" = 1;
       };

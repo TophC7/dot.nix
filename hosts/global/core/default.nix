@@ -66,7 +66,7 @@ in
     enable = true;
     clean.enable = true;
     clean.extraArgs = "--keep-since 20d --keep 20";
-    flake = "${config.hostSpec.home}/git/Nix/dot.nix/";
+    flake = "/repo/Nix/dot.nix/";
   };
 
   ## SUDO and Terminal ##

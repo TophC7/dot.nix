@@ -6,16 +6,12 @@
 ###############################################################
 
 {
+  config,
   inputs,
   lib,
-  config,
   pkgs,
   ...
 }:
-let
-  username = "gio";
-  user = config.secretsSpec.users.${username};
-in
 {
   imports = lib.flatten [
     ## Gojo Only ##
@@ -43,16 +39,6 @@ in
       "hosts/global/common/solaar.nix" # Logitech Unifying Receiver support
     ])
   ];
-
-  ## Host Specifications ##
-  hostSpec = {
-    hostName = "gojo";
-    username = username;
-    hashedPassword = user.hashedPassword;
-    email = user.email;
-    handle = user.handle;
-    userFullName = user.fullName;
-  };
 
   networking = {
     enableIPv6 = false;

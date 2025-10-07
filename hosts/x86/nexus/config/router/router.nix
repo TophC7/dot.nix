@@ -1,12 +1,10 @@
 {
   config,
   lib,
+  host,
   pkgs,
   ...
 }:
-let
-  network = config.secretsSpec.network.nexus;
-in
 {
   networking = {
     nat = {
@@ -36,8 +34,8 @@ in
       };
 
       # Apply nexus port restrictions from secrets.nix
-      allowedTCPPorts = network.firewall.allowedTCPPorts;
-      allowedUDPPorts = network.firewall.allowedUDPPorts;
+      allowedTCPPorts = host.network.firewall.allowedTCPPorts;
+      allowedUDPPorts = host.network.firewall.allowedUDPPorts;
     };
   };
 }

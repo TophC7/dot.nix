@@ -2,16 +2,15 @@
   lib,
   pkgs,
   config,
-  hostSpec,
+  host,
   ...
 }:
 {
   programs.fastfetch =
     let
-      hostname = hostSpec.hostName;
       logoFile =
         let
-          hostLogoPath = ./. + "/host/${hostname}.png";
+          hostLogoPath = ./. + "/host/${host.network.hostName}.png";
         in
         if builtins.pathExists hostLogoPath then hostLogoPath else ./host/nix.png;
       weather = import ./scripts/weather.nix { inherit pkgs lib; };

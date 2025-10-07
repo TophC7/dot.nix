@@ -1,7 +1,41 @@
 { lib, ... }:
-{
+rec {
   # use path relative to the root of the project
   relativeToRoot = lib.path.append ../.;
+
+  # Get hosts data without secrets (hosts are loaded first, have no dependencies)
+  # Usage: lib.custom.getHostsData pkgs
+  getHostsData =
+    pkgs:
+    let
+      # Evaluate exactly like NixOS would (spec + implementation)
+      evaluated = lib.evalModules {
+        modules = [
+          # Provide assertions option that evalModules expects
+          { options.assertions = lib.mkOption { type = lib.types.listOf lib.types.unspecified; default = []; }; }
+          # Import spec first, then implementation
+          (relativeToRoot "modules/global/host-spec.nix")
+          (relativeToRoot "lib/hosts.nix")
+        ];
+        specialArgs = {
+          inherit pkgs lib;
+        };
+      };
+    in
+    evaluated.config.hostSpec;
+
+  # Get configuration for a specific host by name
+  # Usage: lib.custom.getHostConfig pkgs "nexus"
+  getHostConfig =
+    pkgs: hostName:
+    let
+      hostsData = getHostsData pkgs;
+    in
+    hostsData.${hostName} or null;
+
+  # Get all host configurations
+  # Usage: lib.custom.getAllHostConfigs pkgs
+  getAllHostConfigs = pkgs: getHostsData pkgs;
 
   # Scans the given directory for NixOS modules and imports them.
   scanPaths =

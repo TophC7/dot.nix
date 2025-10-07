@@ -2,14 +2,25 @@
   config,
   lib,
   pkgs,
+  host,
+  secrets,
   ...
 }:
 let
-  cfgWg = config.secretsSpec.network.${config.hostSpec.hostName}.wg or null;
-  nexusPublicKey = config.secretsSpec.network.nexus.wg.publicKey;
+  cfgWg = host.network.wg or null;
+  # Get the actual nexus public key from secrets
+  nexusPublicKey = secrets.service."wg-nexus".publicKey or null;
+  # Get private key for this host from secrets
+  hostPrivateKey = secrets.service."wg-${host.network.hostName}".privateKey or "";
 in
 {
-  config = lib.mkIf (cfgWg != null) {
+  config = lib.mkIf (cfgWg != null && cfgWg.endpoint != null) {
+    assertions = [
+      {
+        assertion = nexusPublicKey != null;
+        message = "VPN configuration requires nexus host to have a WireGuard public key defined";
+      }
+    ];
     # WireGuard VPN for homelab network access
     networking.wg-quick.interfaces.wg-homelab = {
       autostart = true;
@@ -33,7 +44,7 @@ in
           /run/current-system/sw/bin/resolvconf -d wg-homelab.dns 2>/dev/null || true
         fi
       '';
-      privateKey = cfgWg.privateKey;
+      privateKey = hostPrivateKey;
       peers = [
         {
           publicKey = nexusPublicKey;
