@@ -25,6 +25,7 @@
     extraOptions = [
       "--network-alias=explorer"
       "--network=explorer"
+      "--expose=3000"
     ];
   };
 
