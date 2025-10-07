@@ -9,6 +9,7 @@
   imports = lib.flatten [
     ## Common Imports ##
     (map lib.custom.relativeToRoot [
+      "home/global/common/chromium.nix"
       "home/global/common/claude.nix"
       "home/global/common/gaming"
       "home/global/common/gnome"
@@ -42,7 +43,6 @@
     vial # KB setup
 
     # Web Dev
-    google-chrome
     gh
 
     ## Minecraft ##
