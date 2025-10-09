@@ -12,7 +12,6 @@
       "home/global/common/chromium.nix"
       "home/global/common/claude.nix"
       "home/global/common/gaming"
-      "home/global/common/gnome"
       "home/global/common/vscode"
       "home/global/common/xdg.nix"
       "home/global/common/zen.nix"

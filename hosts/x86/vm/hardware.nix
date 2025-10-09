@@ -8,9 +8,6 @@
 {
   imports = lib.flatten [
     (modulesPath + "/profiles/qemu-guest.nix")
-    (map lib.custom.relativeToRoot [
-      "hosts/global/common/system/fast.nix"
-    ])
   ];
 
   ## Boot ##

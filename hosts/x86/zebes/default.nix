@@ -36,7 +36,6 @@
       "hosts/global/common/bluetooth.nix"
       "hosts/global/common/ddcutil.nix" # ddcutil for monitor controls
       "hosts/global/common/docker.nix"
-      "hosts/global/common/gnome.nix"
       "hosts/global/common/nvtop.nix" # GPU monitor (not available in home-manager)
       "hosts/global/common/pangolin/newt.nix"
       "hosts/global/common/plymouth.nix" # fancy boot screen

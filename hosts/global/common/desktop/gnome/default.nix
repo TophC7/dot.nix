@@ -1,3 +1,4 @@
+# GNOME Desktop Environment Configuration
 {
   config,
   host,
@@ -6,7 +7,7 @@
   ...
 }:
 {
-  ## DE ##
+  ## GNOME Desktop Environment ##
   services = {
     desktopManager.gnome = {
       enable = true;
@@ -21,36 +22,14 @@
     gnome.gcr-ssh-agent.enable = false;
     gnome.core-apps.enable = true;
 
-    displayManager = {
-      gdm = {
-        enable = true;
-        wayland = true;
-      };
+    # Set GNOME as default session
+    displayManager.defaultSession = lib.mkForce "gnome";
 
-      # Set the custom session as default
-      defaultSession = lib.mkForce "gnome";
-
-      autoLogin = {
-        enable = true;
-        user = host.user.name;
-      };
-    };
-
-    # Configure keyboard layout for Wayland
-    xserver = {
-      enable = false;
-      xkb = {
-        layout = "us";
-        variant = "";
-      };
-    };
+    # Disable xserver (pure Wayland)
+    xserver.enable = false;
 
     udev.packages = with pkgs; [ gnome-settings-daemon ];
   };
-
-  #INFO: Fix for autoLogin
-  systemd.services."getty@tty1".enable = false;
-  systemd.services."autovt@tty1".enable = false;
 
   environment.systemPackages = with pkgs; [
     gnome-tweaks

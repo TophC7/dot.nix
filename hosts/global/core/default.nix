@@ -3,6 +3,7 @@
   inputs,
   outputs,
   config,
+  host,
   lib,
   pkgs,
   ...
@@ -19,6 +20,9 @@ in
       "modules/global"
       "modules/nixos"
     ])
+
+    # Desktop environment (if enabled)
+    (lib.optional (host.gnome or false || host.niri or false) (lib.custom.relativeToRoot "hosts/global/common/desktop"))
   ];
 
   # System-wide packages, root accessible

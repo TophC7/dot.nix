@@ -9,9 +9,6 @@
 {
   imports = lib.flatten [
     (modulesPath + "/installer/scan/not-detected.nix")
-    (map lib.custom.relativeToRoot [
-      "hosts/global/common/system/tank.nix"
-    ])
   ];
 
   ## Boot ##

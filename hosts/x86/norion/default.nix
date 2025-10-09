@@ -31,7 +31,6 @@
       "hosts/global/common/audio.nix" # pipewire and cli controls
       "hosts/global/common/bluetooth.nix"
       "hosts/global/common/ddcutil.nix" # ddcutil for monitor controls
-      "hosts/global/common/gnome.nix"
       "hosts/global/common/nvtop.nix" # GPU monitor (not available in home-manager)
       # "hosts/global/common/pangolin/olm.nix" # OLM tunnel client
       "hosts/global/common/plymouth.nix" # fancy boot screen

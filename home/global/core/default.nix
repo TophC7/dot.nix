@@ -15,6 +15,9 @@ in
       "modules/home"
     ])
     (lib.custom.scanPaths ./.)
+
+    # Desktop environment (if enabled)
+    (lib.optional (host.gnome or false || host.niri or false) (lib.custom.relativeToRoot "home/global/common/desktop"))
   ];
 
   services.ssh-agent.enable = true;

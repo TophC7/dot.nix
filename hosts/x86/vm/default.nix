@@ -22,7 +22,6 @@
       "hosts/global/core"
 
       ## Optional Configs ##
-      "hosts/global/common/gnome.nix" # desktop
       "hosts/global/common/plymouth.nix" # fancy boot screen
 
       ## Misc Inputs ##

@@ -277,6 +277,12 @@
             description = "Enable Niri WM";
             default = false;
           };
+
+          autoLogin = lib.mkOption {
+            type = lib.types.bool;
+            description = "Enable automatic login for the primary user";
+            default = true;
+          };
         };
       }
     );
