@@ -90,6 +90,7 @@ with lib.hm.gvariant;
         "code.desktop"
         "spotify.desktop"
         "discord.desktop"
+        "steam.desktop"
         "org.telegram.desktop.desktop"
       ];
       enabled-extensions = lib.mkDefault [
