@@ -10,8 +10,10 @@
   imports = lib.flatten [
     ## Common Imports ##
     (map lib.custom.relativeToRoot [
+      "home/global/common/chromium.nix"
       "home/global/common/claude.nix"
-      "home/global/common/vscode"
+      "home/global/common/gaming"
+      "home/global/common/vscode.nix"
       "home/global/common/xdg.nix"
       "home/global/common/zen.nix"
     ])
@@ -36,5 +38,8 @@
     inspector
     solaar
     vial # KB setup
+
+    ## Development ##
+    gh
   ];
 }

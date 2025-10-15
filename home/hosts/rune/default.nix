@@ -12,7 +12,7 @@
       "home/global/common/chromium.nix"
       "home/global/common/claude.nix"
       "home/global/common/gaming"
-      "home/global/common/vscode"
+      "home/global/common/vscode.nix"
       "home/global/common/xdg.nix"
       "home/global/common/zen.nix"
     ])

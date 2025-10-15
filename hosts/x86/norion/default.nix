@@ -31,6 +31,7 @@
       "hosts/global/common/audio.nix" # pipewire and cli controls
       "hosts/global/common/bluetooth.nix"
       "hosts/global/common/ddcutil.nix" # ddcutil for monitor controls
+      "hosts/global/common/gaming.nix" # steam, gamescope, gamemode, and related hardware
       "hosts/global/common/nvtop.nix" # GPU monitor (not available in home-manager)
       # "hosts/global/common/pangolin/olm.nix" # OLM tunnel client
       "hosts/global/common/plymouth.nix" # fancy boot screen
@@ -71,3 +72,7 @@
   # https://wiki.nixos.org/wiki/FAQ/When_do_I_update_stateVersion
   system.stateVersion = "25.11";
 }
+
+# mangohud gamemoderun PROTON_NO_ESYNC=1 PROTON_NO_FSYNC=1 %command% --nologo --waitforpreload
+# alters
+# gamemoderun mangohud %command% -windowed

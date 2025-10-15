@@ -8,7 +8,7 @@
     ## Common Imports ##
     (map lib.custom.relativeToRoot [
       "home/global/common/gaming"
-      "home/global/common/vscode"
+      "home/global/common/vscode.nix"
       "home/global/common/xdg.nix"
       "home/global/common/zen.nix"
     ])
