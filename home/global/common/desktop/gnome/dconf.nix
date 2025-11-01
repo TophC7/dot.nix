@@ -337,6 +337,7 @@ with lib.hm.gvariant;
         "Conky"
         ".gamescope-wrapped"
         "steam_app_*"
+        "Ryubing"
       ];
       blur = true;
       dynamic-opacity = false;
@@ -446,17 +447,19 @@ with lib.hm.gvariant;
     "org/gnome/shell/extensions/paperwm" = lib.mkDefault {
       cycle-height-steps = [
         0.25
-        0.3
+        0.35
         0.5
-        0.7
+        0.65
         0.95
+        1.0
       ];
       cycle-width-steps = [
         0.25
-        0.3
+        0.35
         0.5
-        0.7
+        0.65
         0.95
+        1.0
       ];
       default-focus-mode = 1;
       disable-topbar-styling = true;
