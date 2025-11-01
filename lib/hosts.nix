@@ -254,9 +254,8 @@ in
       user = {
         name = "toph";
       };
-      isServer = false; # Has desktop despite being main server
-      isMinimal = false;
-      gnome = true; # Has GNOME
+      isServer = true;
+      isMinimal = true;
     };
   };
 }
