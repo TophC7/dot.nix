@@ -15,7 +15,7 @@ with lib.hm.gvariant;
         "discord.desktop"
         "org.telegram.desktop.desktop"
         "steam.desktop"
-        "Ryujinx.desktop"
+        "ryubing.desktop"
         "Marvel Rivals.desktop"
       ];
 

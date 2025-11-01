@@ -165,7 +165,7 @@ with lib.hm.gvariant;
         "org.telegram.desktop.desktop"
         "steam.desktop"
         "org.prismlauncher.PrismLauncher.desktop"
-        "Ryujinx.desktop"
+        "ryubing.desktop"
         "lemon.desktop"
         "FANTASY LIFE i The Girl Who Steals Time.desktop"
         "Marvel Rivals.desktop"
