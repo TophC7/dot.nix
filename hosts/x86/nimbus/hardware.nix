@@ -22,8 +22,8 @@
       timeout = 3;
     };
 
-    # Use ZFS-compatible kernel (automatically selects latest compatible version)
-    kernelPackages = config.boot.zfs.package.latestCompatibleLinuxPackages;
+    # Use kernel 6.16 with ZFS support
+    kernelPackages = pkgs.linuxPackages_6_16;
 
     initrd = {
       systemd.enable = true;
