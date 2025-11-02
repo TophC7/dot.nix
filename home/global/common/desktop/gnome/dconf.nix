@@ -337,6 +337,7 @@ with lib.hm.gvariant;
         "Conky"
         ".gamescope-wrapped"
         "steam_app_*"
+        "steam_app_2694490"
         "Ryubing"
       ];
       blur = true;
