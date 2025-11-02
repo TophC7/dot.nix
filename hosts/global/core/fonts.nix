@@ -8,7 +8,7 @@
       # Sans(Serif) fonts
       lexend
       noto-fonts
-      noto-fonts-emoji
+      noto-fonts-color-emoji
       roboto
       (google-fonts.override {
         fonts = [
