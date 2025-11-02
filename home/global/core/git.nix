@@ -15,7 +15,7 @@ in
 {
   programs.git = {
     enable = true;
-    package = pkgs.gitAndTools.gitFull;
+    package = pkgs.gitFull;
 
     userName = userSecrets.fullName;
     userEmail = userSecrets.email;
