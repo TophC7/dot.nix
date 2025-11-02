@@ -17,7 +17,9 @@ in
     (lib.custom.scanPaths ./.)
 
     # Desktop environment (if enabled)
-    (lib.optional (host.gnome or false || host.niri or false) (lib.custom.relativeToRoot "home/global/common/desktop"))
+    (lib.optional (host.gnome or false || host.niri or false) (
+      lib.custom.relativeToRoot "home/global/common/desktop"
+    ))
   ];
 
   services.ssh-agent.enable = true;
@@ -102,6 +104,7 @@ in
             "ventoy-gtk3-1.1.05"
             "modrinth-app"
             "claude-code"
+            "mbedtls-2.28.10"
           ];
         }
       '';

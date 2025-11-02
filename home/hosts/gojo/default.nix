@@ -21,7 +21,7 @@
   home.packages = builtins.attrValues {
     inherit (pkgs)
       ## Media ##
-      ffmpeg
+      ffmpeg_8-full
       gpu-screen-recorder-gtk
       spotify
       youtube-music

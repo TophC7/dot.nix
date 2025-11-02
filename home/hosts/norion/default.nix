@@ -25,7 +25,7 @@
   ## Packages with no needed configs ##
   home.packages = with pkgs; [
     ## Media ##
-    ffmpeg
+    ffmpeg_8-full
     spotify
 
     ## Social ##
