@@ -1,5 +1,5 @@
+# DDC/CI Brightness Control for External Monitors
 { pkgs, lib, ... }:
-
 let
   # Script to detect and save bus numbers
   detectBusesScript = pkgs.writeScript "detect-buses" ''
@@ -71,31 +71,9 @@ let
       ${pkgs.ddcutil}/bin/ddcutil setvcp 10 $op $value --bus $bus
     end
   '';
-
 in
 {
   home.packages = [ brightnessScript ];
-
-  dconf.settings = {
-    "org/gnome/settings-daemon/plugins/media-keys" = {
-      custom-keybindings = [
-        "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/brightness-up/"
-        "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/brightness-down/"
-      ];
-    };
-
-    "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/brightness-up" = {
-      binding = "MonBrightnessUp";
-      command = "${lib.getExe brightnessScript} + 10";
-      name = "Brightness up";
-    };
-
-    "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/brightness-down" = {
-      binding = "MonBrightnessDown";
-      command = "${lib.getExe brightnessScript} - 10";
-      name = "Brightness down";
-    };
-  };
 
   # Systemd user service to detect buses at startup
   systemd.user.services.ddcutil-detect = {
@@ -116,7 +94,7 @@ in
     };
   };
 
-  # Timer to periodically refresh the bus cache (optional)
+  # Timer to periodically refresh the bus cache
   systemd.user.timers.ddcutil-detect = {
     Unit = {
       Description = "Refresh DDC/CI bus detection";

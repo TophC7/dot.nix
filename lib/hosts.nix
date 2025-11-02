@@ -191,6 +191,7 @@ in
         tank = true;
       };
       gnome = true; # Laptop with desktop
+      # niri = true;
     };
 
     rune = {
@@ -209,6 +210,7 @@ in
         tank = true;
       };
       gnome = true; # Desktop system
+      niri = true;
     };
 
     vm = {
@@ -219,7 +221,8 @@ in
       user = {
         name = "toph";
       };
-      gnome = true; # But has GNOME installed
+      gnome = false; # Testing niri instead
+      # niri = true; # Test niri configuration
     };
 
     zebes = {

@@ -23,7 +23,7 @@
     gnome.core-apps.enable = true;
 
     # Set GNOME as default session
-    displayManager.defaultSession = lib.mkForce "gnome";
+    # displayManager.defaultSession = lib.mkForce "gnome";
 
     # Disable xserver (pure Wayland)
     xserver.enable = false;
