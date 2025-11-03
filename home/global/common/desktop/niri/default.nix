@@ -50,7 +50,7 @@
       # Keybindings
       binds = {
         # Application launchers
-        "Mod+T".action.spawn = lib.getExe pkgs.ghostty;
+        "Mod+G".action.spawn = lib.getExe pkgs.ghostty;
         "Mod+E".action.spawn = lib.getExe pkgs.vscode;
         "Mod+W".action.spawn = lib.getExe inputs.zen-browser.packages.${pkgs.system}.default;
         "Mod+F".action.spawn = lib.getExe pkgs.nautilus;
@@ -64,68 +64,39 @@
           "$USER"
         ];
         "Mod+L".action.spawn = lib.getExe pkgs.swaylock;
+        "Mod+Alt+A".action.toggle-overview = { };
+        "Mod+F1".action.show-hotkey-overlay = { };
 
-        # Window management
+        # Window/Column management
         "Mod+Q".action.close-window = { };
-        "Mod+C".action.center-column = { };
+        "Mod+D".action.center-column = { };
+        "Mod+P".action.toggle-window-floating = { };
+        "Mod+S".action.toggle-column-tabbed-display = { };
 
         # Window focus
-        "Mod+Left".action.focus-column-left = { };
-        "Mod+Down".action.focus-window-down = { };
-        "Mod+Up".action.focus-window-up = { };
-        "Mod+Right".action.focus-column-right = { };
+        "Mod+C".action.focus-column-or-monitor-left = { };
+        "Mod+B".action.focus-column-or-monitor-right = { };
+        "Mod+T".action.focus-window-or-workspace-up = { };
+        "Mod+V".action.focus-window-or-workspace-down = { };
 
         # Window movement
-        "Mod+Shift+Left".action.move-column-left = { };
-        "Mod+Shift+Down".action.move-window-down = { };
-        "Mod+Shift+Up".action.move-window-up = { };
-        "Mod+Shift+Right".action.move-column-right = { };
+        "Mod+Shift+C".action.consume-or-expel-window-left = { };
+        "Mod+Shift+B".action.consume-or-expel-window-right = { };
+        "Mod+Shift+T".action.move-window-up = { };
+        "Mod+Shift+V".action.move-window-down = { };
 
-        # Monitor movement
-        "Mod+Ctrl+Left".action.move-column-to-monitor-left = { };
-        "Mod+Ctrl+Right".action.move-column-to-monitor-right = { };
-        "Mod+Ctrl+Up".action.move-column-to-monitor-up = { };
-        "Mod+Ctrl+Down".action.move-column-to-monitor-down = { };
+        # Monitor/Workspace movement
+        "Mod+Ctrl+C".action.move-column-to-monitor-left = { };
+        "Mod+Ctrl+B".action.move-column-to-monitor-right = { };
+        "Mod+Ctrl+T".action.move-column-to-workspace-up = { };
+        "Mod+Ctrl+V".action.move-column-to-workspace-down = { };
 
         # Window sizing
-        "Mod+Alt+Right".action.set-column-width = "+10%";
-        "Mod+Alt+Left".action.set-column-width = "-10%";
-        "Mod+Alt+Up".action.set-window-height = "+10%";
-        "Mod+Alt+Down".action.set-window-height = "-10%";
-
-        # Workspace navigation
-        "Mod+Page_Up".action.focus-workspace-up = { };
-        "Mod+Page_Down".action.focus-workspace-down = { };
-
-        # Workspace switching by number
-        "Mod+1".action.focus-workspace = 1;
-        "Mod+2".action.focus-workspace = 2;
-        "Mod+3".action.focus-workspace = 3;
-        "Mod+4".action.focus-workspace = 4;
-        "Mod+5".action.focus-workspace = 5;
-        "Mod+6".action.focus-workspace = 6;
-        "Mod+7".action.focus-workspace = 7;
-        "Mod+8".action.focus-workspace = 8;
-        "Mod+9".action.focus-workspace = 9;
-
-        # Move window to workspace
-        "Mod+Shift+1".action.move-column-to-workspace = 1;
-        "Mod+Shift+2".action.move-column-to-workspace = 2;
-        "Mod+Shift+3".action.move-column-to-workspace = 3;
-        "Mod+Shift+4".action.move-column-to-workspace = 4;
-        "Mod+Shift+5".action.move-column-to-workspace = 5;
-        "Mod+Shift+6".action.move-column-to-workspace = 6;
-        "Mod+Shift+7".action.move-column-to-workspace = 7;
-        "Mod+Shift+8".action.move-column-to-workspace = 8;
-        "Mod+Shift+9".action.move-column-to-workspace = 9;
-
-        # Move window to adjacent workspace
-        "Mod+Ctrl+Page_Up".action.move-column-to-workspace-up = { };
-        "Mod+Ctrl+Page_Down".action.move-column-to-workspace-down = { };
-
-        # Layout controls
-        "Mod+Shift+F".action.fullscreen-window = { };
-        "Mod+M".action.maximize-column = { };
+        "Mod+Alt+C".action.switch-preset-column-width-back = { };
+        "Mod+Alt+B".action.switch-preset-column-width = { };
+        "Mod+Alt+T".action.set-window-height = "+10%";
+        "Mod+Alt+V".action.set-window-height = "-10%";
+        "Mod+Alt+F".action.fullscreen-window = { };
 
         # Screenshots
         "Print".action.screenshot = { };
@@ -185,38 +156,27 @@
         ];
 
         # Clipboard manager
-        "Mod+V".action.spawn = [
-          "sh"
-          "-c"
-          "${lib.getExe pkgs.cliphist} list | ${lib.getExe pkgs.fuzzel} --dmenu | ${lib.getExe pkgs.cliphist} decode | ${lib.getExe pkgs.wl-clipboard}/bin/wl-copy"
-        ];
+        # "Mod+Ctrl+V".action.spawn = [
+        #   "sh"
+        #   "-c"
+        #   "${lib.getExe pkgs.cliphist} list | ${lib.getExe pkgs.fuzzel} --dmenu | ${lib.getExe pkgs.cliphist} decode | ${lib.getExe pkgs.wl-clipboard}/bin/wl-copy"
+        # ];
 
         # Color picker
-        "Mod+Ctrl+C".action.spawn = "${lib.getExe pkgs.wl-color-picker}";
+        # "Mod+Ctrl+C".action.spawn = "${lib.getExe pkgs.wl-color-picker}";
 
         # Notification center
-        "Mod+S".action.spawn = [
-          "${pkgs.mako}/bin/makoctl"
-          "invoke"
-        ];
+        # "Mod+S".action.spawn = [
+        #   "${pkgs.mako}/bin/makoctl"
+        #   "invoke"
+        # ];
 
         # Screen recording
-        "Mod+Shift+R".action.spawn = [
-          "sh"
-          "-c"
-          "${pkgs.wf-recorder}/bin/wf-recorder -g \"$(${pkgs.slurp}/bin/slurp)\""
-        ];
-
-        # Floating toggle
-        "Mod+Backspace".action.toggle-window-floating = { };
-
-        # Alt-tab
-        "Alt+Tab".action.focus-window-down-or-column-right = { };
-        "Alt+Shift+Tab".action.focus-window-up-or-column-left = { };
-
-        # Column management
-        "Mod+Comma".action.consume-window-into-column = { };
-        "Mod+Period".action.expel-window-from-column = { };
+        # "Mod+Shift+R".action.spawn = [
+        #   "sh"
+        #   "-c"
+        #   "${pkgs.wf-recorder}/bin/wf-recorder -g \"$(${pkgs.slurp}/bin/slurp)\""
+        # ];
       };
 
       # Window rules
@@ -260,7 +220,7 @@
         {
           matches = [ { app-id = "^org.gnome.Nautilus$"; } ];
           default-column-width = {
-            proportion = 0.65;
+            proportion = 0.35;
           };
         }
 
@@ -271,7 +231,7 @@
             { title = "^ghostty$"; }
           ];
           default-column-width = {
-            proportion = 0.5;
+            proportion = 0.35;
           };
         }
 
@@ -295,20 +255,20 @@
 
         preset-column-widths = [
           { proportion = 0.25; }
-          { proportion = 0.33333; }
+          { proportion = 0.35; }
           { proportion = 0.5; }
-          { proportion = 0.66666; }
-          { proportion = 0.75; }
+          { proportion = 0.65; }
+          { proportion = 0.90; }
         ];
 
         default-column-width = {
           proportion = 0.5;
         };
 
-        focus-ring = {
-          enable = true;
-          width = 4;
-        };
+        # focus-ring = {
+        #   enable = true;
+        #   width = 4;
+        # };
 
         border = {
           enable = true;
