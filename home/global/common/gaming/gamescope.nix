@@ -20,7 +20,11 @@
 
       defaultSystemd = false;
       defaultWSI = true;
-      # defaultHDR = null; # Will fallback to monitor settings
+      defaultHDR = !host.niri;
+
+      baseOptions = lib.mkIf host.niri {
+        "backend" = "wayland";
+      };
 
       # Extra environment variables
       environment = {
@@ -56,23 +60,26 @@
         };
       };
 
+      # Steam without WSI
+      steam-no-wsi = lib.mkDefault {
+        enable = true;
+        useWSI = false; # Override default
+        command = "${lib.getExe osConfig.programs.steam.package} -bigpicture -tenfoot";
+        extraOptions = {
+          "steam" = true;
+        };
+        environment = {
+          STEAM_FORCE_DESKTOPUI_SCALING = 1;
+          STEAM_GAMEPADUI = 1;
+          ENABLE_GAMESCOPE_WSI = 0;
+        };
+      };
       # Other game launchers
       heroic = lib.mkDefault {
         enable = true;
         package = pkgs.heroic; # No special package configured by play.nix
         extraOptions = {
           "force-windows-fullscreen" = true;
-        };
-      };
-
-      lutris = lib.mkDefault {
-        enable = true;
-        package = osConfig.play.lutris.package;
-        extraOptions = {
-          "force-windows-fullscreen" = true;
-        };
-        environment = {
-          LUTRIS_SKIP_INIT = 1;
         };
       };
     };
@@ -151,33 +158,6 @@
         native = {
           name = "Heroic (No Gamescope)";
           exec = "${lib.getExe pkgs.heroic}";
-        };
-      };
-    };
-
-    "net.lutris.Lutris" = lib.mkDefault {
-      name = "Lutris";
-      comment = "Video Game Preservation Platform";
-      exec = "${lib.getExe osConfig.play.lutris.package} %U";
-      icon = "net.lutris.Lutris";
-      type = "Application";
-      terminal = false;
-      categories = [ "Game" ];
-      mimeType = [ "x-scheme-handler/lutris" ];
-      settings = {
-        StartupNotify = "true";
-        StartupWMClass = "Lutris";
-        Keywords = "gaming;wine;emulator;";
-        X-GNOME-UsesNotifications = "true";
-      };
-      actions = {
-        gamescope = {
-          name = "Lutris (Gamescope)";
-          exec = "${lib.getExe config.play.wrappers.lutris.wrappedPackage}";
-        };
-        gamescope-exposed = {
-          name = "Lutris (Gamescope + Exposed Wayland)";
-          exec = ''${lib.getExe config.play.gamescoperun.package} -x "--force-windows-fullscreen --expose-wayland" ${lib.getExe osConfig.play.lutris.package}'';
         };
       };
     };

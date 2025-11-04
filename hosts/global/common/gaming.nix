@@ -21,8 +21,6 @@
         proton-ge-bin
       ];
     };
-
-    lutris.enable = true;
   };
 
   # Additional packages not covered by play.nix
