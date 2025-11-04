@@ -54,7 +54,63 @@
         "Mod+E".action.spawn = lib.getExe pkgs.vscode;
         "Mod+W".action.spawn = lib.getExe inputs.zen-browser.packages.${pkgs.system}.default;
         "Mod+F".action.spawn = lib.getExe pkgs.nautilus;
-        "Mod+A".action.spawn = lib.getExe pkgs.fuzzel;
+
+        # DankMaterialShell keybinds
+        "Mod+A".action.spawn = [
+          "dms"
+          "ipc"
+          "spotlight"
+          "toggle"
+        ]; # Application launcher
+
+        "Mod+N".action.spawn = [
+          "dms"
+          "ipc"
+          "notifications"
+          "toggle"
+        ]; # Notification center
+
+        "Mod+Comma".action.spawn = [
+          "dms"
+          "ipc"
+          "settings"
+          "toggle"
+        ]; # Settings
+
+        "Mod+M".action.spawn = [
+          "dms"
+          "ipc"
+          "processlist"
+          "toggle"
+        ]; # Process list (system monitor)
+
+        "Mod+X".action.spawn = [
+          "dms"
+          "ipc"
+          "clipboard"
+          "toggle"
+        ]; # Clipboard manager (your custom keybind!)
+
+        "Mod+Shift+X".action.spawn = [
+          "dms"
+          "ipc"
+          "powermenu"
+          "toggle"
+        ]; # Power menu
+
+        "Mod+Shift+P".action.spawn = [
+          "dms"
+          "ipc"
+          "notepad"
+          "toggle"
+        ]; # Notepad
+
+        "Mod+Alt+N".action.spawn = [
+          "dms"
+          "ipc"
+          "night"
+          "toggle"
+        ]; # Night mode
 
         # System controls
         "Mod+Alt+Escape".action.quit = { }; # Exit Niri
@@ -63,15 +119,20 @@
           "terminate-user"
           "$USER"
         ];
-        "Mod+L".action.spawn = lib.getExe pkgs.swaylock;
+        "Super+Alt+L".action.spawn = [
+          "dms"
+          "ipc"
+          "lock"
+          "lock"
+        ]; # DMS lock screen (replaces swaylock)
         "Mod+Alt+A".action.toggle-overview = { };
         "Mod+F1".action.show-hotkey-overlay = { };
 
         # Window/Column management
         "Mod+Q".action.close-window = { };
         "Mod+D".action.center-column = { };
-        "Mod+P".action.toggle-window-floating = { };
-        "Mod+S".action.toggle-column-tabbed-display = { };
+        "Mod+P".action.toggle-window-floating = { }; # Kept (DMS notepad moved to Mod+Shift+P)
+        "Mod+S".action.toggle-column-tabbed-display = { }; # Kept (DMS settings moved to Mod+Comma)
 
         # Window focus
         "Mod+C".action.focus-column-or-monitor-left = { };
@@ -103,30 +164,35 @@
         "Shift+Print".action.screenshot-screen = { };
         "Alt+Print".action.screenshot-window = { };
 
-        # Media controls
+        # Media controls (DMS)
         "XF86AudioRaiseVolume".action.spawn = [
-          "wpctl"
-          "set-volume"
-          "@DEFAULT_AUDIO_SINK@"
-          "5%+"
+          "dms"
+          "ipc"
+          "audio"
+          "increment"
+          "3"
         ];
+
         "XF86AudioLowerVolume".action.spawn = [
-          "wpctl"
-          "set-volume"
-          "@DEFAULT_AUDIO_SINK@"
-          "5%-"
+          "dms"
+          "ipc"
+          "audio"
+          "decrement"
+          "3"
         ];
+
         "XF86AudioMute".action.spawn = [
-          "wpctl"
-          "set-mute"
-          "@DEFAULT_AUDIO_SINK@"
-          "toggle"
+          "dms"
+          "ipc"
+          "audio"
+          "mute"
         ];
+
         "XF86AudioMicMute".action.spawn = [
-          "wpctl"
-          "set-mute"
-          "@DEFAULT_AUDIO_SOURCE@"
-          "toggle"
+          "dms"
+          "ipc"
+          "audio"
+          "micmute"
         ];
 
         # Media player controls
@@ -143,40 +209,24 @@
           "previous"
         ];
 
-        # Brightness controls (handled by brightness.nix)
+        # Brightness controls (DMS)
         "XF86MonBrightnessUp".action.spawn = [
+          "dms"
+          "ipc"
           "brightness"
-          "+"
-          "10"
+          "increment"
+          "5"
+          ""
         ];
+
         "XF86MonBrightnessDown".action.spawn = [
+          "dms"
+          "ipc"
           "brightness"
-          "-"
-          "10"
+          "decrement"
+          "5"
+          ""
         ];
-
-        # Clipboard manager
-        # "Mod+Ctrl+V".action.spawn = [
-        #   "sh"
-        #   "-c"
-        #   "${lib.getExe pkgs.cliphist} list | ${lib.getExe pkgs.fuzzel} --dmenu | ${lib.getExe pkgs.cliphist} decode | ${lib.getExe pkgs.wl-clipboard}/bin/wl-copy"
-        # ];
-
-        # Color picker
-        # "Mod+Ctrl+C".action.spawn = "${lib.getExe pkgs.wl-color-picker}";
-
-        # Notification center
-        # "Mod+S".action.spawn = [
-        #   "${pkgs.mako}/bin/makoctl"
-        #   "invoke"
-        # ];
-
-        # Screen recording
-        # "Mod+Shift+R".action.spawn = [
-        #   "sh"
-        #   "-c"
-        #   "${pkgs.wf-recorder}/bin/wf-recorder -g \"$(${pkgs.slurp}/bin/slurp)\""
-        # ];
       };
 
       # Window rules
@@ -265,15 +315,33 @@
           proportion = 0.5;
         };
 
-        # focus-ring = {
-        #   enable = true;
-        #   width = 4;
-        # };
-
-        border = {
+        focus-ring = {
           enable = true;
-          width = 2;
+          width = 4;
         };
+
+        # Tab indicator configuration
+        tab-indicator = {
+          enable = true;
+          position = "left"; # Show on left edge of windows
+          width = 4;
+          gap = 8;
+          hide-when-single-tab = true;
+          place-within-column = true;
+
+          # Active window (has keyboard focus) - Bright blue
+          active.color = "rgb(94 196 255)";
+
+          # Inactive windows (no keyboard focus) - Gray, semi-transparent
+          inactive.color = "rgba(128 128 128 / 0.6)";
+
+          # Urgent windows (requesting attention) - Bright red
+          urgent.color = "rgb(255 94 94)";
+        };
+      };
+
+      overview = {
+        backdrop-color = "#000000"; # Semi-transparent black
       };
 
       # Animations
@@ -330,6 +398,7 @@
         QT_QPA_PLATFORM = "wayland";
         SDL_VIDEODRIVER = "wayland";
         NIXOS_OZONE_WL = "1";
+        ELECTRON_OZONE_PLATFORM_HINT = "auto";
       };
 
       # Screenshot configuration
