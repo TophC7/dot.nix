@@ -27,8 +27,7 @@
 
       ## Social ##
       telegram-desktop
-      discord-krisp
-      betterdiscordctl
+      vesktop
 
       ## Tools ##
       bitwarden-desktop

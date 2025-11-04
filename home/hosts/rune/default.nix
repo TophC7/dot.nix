@@ -30,8 +30,8 @@
 
     ## Social ##
     telegram-desktop
-    discord-krisp
-    betterdiscordctl
+    vesktop
+
     journey
 
     ## Tools ##

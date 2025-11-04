@@ -27,8 +27,7 @@
       youtube-music
 
       ## Social ##
-      betterdiscordctl
-      discord-krisp
+      vesktop
       telegram-desktop
 
       ## Tools ##
