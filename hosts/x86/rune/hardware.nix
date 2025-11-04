@@ -29,6 +29,12 @@
     # Use the cachyos kernel for better performance
     kernelPackages = pkgs.linuxPackages_cachyos;
 
+    # Kernel sysctl parameters
+    kernel.sysctl = {
+      # Make swap only activate when absolutely necessary (0-200, default is 60)
+      "vm.swappiness" = 1;
+    };
+
     initrd = {
       systemd.enable = true;
       verbose = false;
