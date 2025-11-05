@@ -44,6 +44,7 @@ in
         "libvirtd"
         "networkmanager"
         "video"
+        "i2c"
       ])
     ];
     openssh.authorizedKeys.keys = userSecrets.ssh.publicKeys or [ ];
