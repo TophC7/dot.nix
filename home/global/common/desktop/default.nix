@@ -11,6 +11,7 @@
     (lib.optional (host.gnome or false) ./gnome)
     (lib.optional (host.niri or false) ./niri)
     ./ghostty.nix
+    ./theme.nix
   ];
 
   # Shared desktop configs can go here

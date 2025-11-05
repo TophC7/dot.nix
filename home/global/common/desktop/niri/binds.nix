@@ -8,9 +8,7 @@
   # Niri keybindings
   programs.niri = {
     settings = {
-
-      # Keybindings
-      binds = {
+      binds = lib.mkDefault {
         # Application launchers
         "Mod+G".action.spawn = lib.getExe pkgs.ghostty;
         "Mod+E".action.spawn = lib.getExe pkgs.vscode;
