@@ -7,6 +7,8 @@
   ...
 }:
 {
+  imports = lib.custom.scanPaths ./.;
+
   ## GNOME Desktop Environment ##
   services = {
     desktopManager.gnome = {
@@ -18,8 +20,6 @@
       '';
     };
 
-    # hosts/global/core/ssh.nix handles this
-    gnome.gcr-ssh-agent.enable = false;
     gnome.core-apps.enable = true;
 
     # Set GNOME as default session

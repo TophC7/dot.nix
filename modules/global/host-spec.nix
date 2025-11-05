@@ -25,6 +25,13 @@
             Minimal hosts cannot have gnome or niri enabled.
           '';
         }
+        {
+          assertion = !(hostCfg.gnome or false && hostCfg.niri or false);
+          message = ''
+            Host '${hostname}' has both GNOME and Niri enabled.
+            Desktop environments are mutually exclusive - please enable only one.
+          '';
+        }
       ]) config.hostSpec
     );
   };

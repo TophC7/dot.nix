@@ -1,5 +1,5 @@
 # Shared desktop configuration for all desktop environments
-# Handles GDM, auto-login, keyboard layout, and loads DE-specific configs
+# Loads DE-specific configs which handle their own display managers
 {
   config,
   host,
@@ -11,18 +11,6 @@
     (lib.optional (host.gnome or false) ./gnome)
     (lib.optional (host.niri or false) ./niri)
   ];
-
-  services.displayManager = {
-    gdm = {
-      enable = true;
-      wayland = true;
-    };
-
-    autoLogin = lib.mkIf host.autoLogin {
-      enable = true;
-      user = host.user.name;
-    };
-  };
 
   # Configure keyboard layout
   services.xserver.xkb = {

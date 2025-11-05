@@ -209,7 +209,6 @@ in
         store = true;
         tank = true;
       };
-      gnome = true; # Desktop system
       niri = true;
     };
 

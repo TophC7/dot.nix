@@ -8,8 +8,8 @@
   ...
 }:
 {
-  # Import niri nixos module (includes home-manager integration)
-  imports = [ inputs.niri.nixosModules.niri ];
+  # Import niri nixos module (includes home-manager integration) and greeter
+  imports = [ inputs.niri.nixosModules.niri ] ++ (lib.custom.scanPaths ./.);
 
   # Add niri overlay for packages
   nixpkgs.overlays = [ inputs.niri.overlays.niri ];
@@ -30,31 +30,12 @@
     wl-clipboard
     wev # Wayland event viewer for debugging keybindings
 
-    # Application launcher
-    fuzzel
-
-    # Notifications
-    mako
-    libnotify # For notify-send
-
-    # Status bar
-    waybar
-
     # Screenshot utilities
-    grim
-    slurp
     wf-recorder # Screen recording
     wl-color-picker # Color picker
 
-    # Screen locking
-    swaylock
-    swayidle
-
     # Media control
     playerctl
-
-    # Clipboard manager
-    cliphist
 
     # Network manager applet
     networkmanagerapplet
@@ -62,6 +43,9 @@
     # Audio control
     pavucontrol
     wireplumber
+
+    papers # Document viewer
+    eloquent # Spell checker
   ];
 
   # Enable pipewire for audio
