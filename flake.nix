@@ -34,7 +34,14 @@
       url = "github:ndom91/rose-pine-hyprcursor";
     };
 
-    stylix.url = "github:danth/stylix";
+    stylix = {
+      url = "github:danth/stylix";
+    };
+
+    matugen = {
+      url = "github:/InioX/Matugen";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+    };
 
     ## Gaming Packages ##
 
