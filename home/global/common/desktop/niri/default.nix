@@ -10,20 +10,8 @@
 {
   imports = lib.custom.scanPaths ./.;
 
-  # Essential packages for Niri
-  home.packages = with pkgs; [
-    wl-clipboard # Clipboard utilities for Wayland
-    grim # Screenshot utility
-    slurp # Screen area selection tool
-    wl-color-picker # Color picker for Wayland
-    wf-recorder # Screen recording
-    playerctl # Media player control
-  ];
-
-  # Niri window manager configuration
   programs.niri = {
     settings = {
-      # Input configuration
       input = {
         keyboard = {
           xkb = {
@@ -46,7 +34,6 @@
       # Prefer no server-side decorations
       prefer-no-csd = true;
 
-      # Layout configuration
       layout = {
         gaps = 8;
         center-focused-column = "never";
@@ -68,7 +55,6 @@
           width = 4;
         };
 
-        # Tab indicator configuration
         tab-indicator = {
           enable = true;
           position = "left"; # Show on left edge of windows
@@ -79,7 +65,6 @@
         };
       };
 
-      # Animations
       animations = {
         enable = true;
         slowdown = 1.0;
@@ -127,7 +112,6 @@
         };
       };
 
-      # Environment variables
       environment = {
         MOZ_ENABLE_WAYLAND = "1";
         QT_QPA_PLATFORM = "wayland";

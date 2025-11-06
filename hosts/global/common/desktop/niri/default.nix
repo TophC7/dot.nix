@@ -29,21 +29,24 @@
     # Wayland utilities
     wl-clipboard
     wev # Wayland event viewer for debugging keybindings
-
-    # Screenshot utilities
+    grim # Screenshot utility
+    slurp # Screen area selection tool
     wf-recorder # Screen recording
-    wl-color-picker # Color picker
+    wl-color-picker # Color picker for Wayland
+    libnotify
+    cliphist
 
     # Media control
     playerctl
-
-    # Network manager applet
-    networkmanagerapplet
 
     # Audio control
     pavucontrol
     wireplumber
 
+    # Network manager
+    networkmanagerapplet
+
+    # Applications
     papers # Document viewer
     eloquent # Spell checker
   ];
