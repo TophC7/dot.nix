@@ -76,20 +76,7 @@
           gap = 8;
           hide-when-single-tab = true;
           place-within-column = true;
-
-          # Active window (has keyboard focus) - Bright blue
-          active.color = "rgb(94 196 255)";
-
-          # Inactive windows (no keyboard focus) - Gray, semi-transparent
-          inactive.color = "rgba(128 128 128 / 0.6)";
-
-          # Urgent windows (requesting attention) - Bright red
-          urgent.color = "rgb(255 94 94)";
         };
-      };
-
-      overview = {
-        backdrop-color = "#000000"; # Semi-transparent black
       };
 
       # Animations
@@ -193,4 +180,27 @@
         );
     };
   };
+
+  # Post-process the generated config to add dms includes we cant add otherwise
+  # This runs after Home Manager generates the config file
+  home.activation.niriConfigPostProcess = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    config_file="$HOME/.config/niri/config.kdl"
+
+    if [ -f "$config_file" ]; then
+      # Create a temporary file with the include statement
+      tmpfile=$(mktemp)
+
+      # Add the include at the top, then append the original config
+      {
+        echo 'include "dms/colors.kdl"'
+        echo ""
+        cat "$config_file"
+      } > "$tmpfile"
+
+      # Replace the original config with our modified version
+      mv "$tmpfile" "$config_file"
+
+      $DRY_RUN_CMD echo "Added colors.kdl include to Niri config"
+    fi
+  '';
 }
