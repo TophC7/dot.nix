@@ -101,7 +101,7 @@ in
           ]
         );
         default = null;
-        description = "Material You scheme type (for matugen/dms only)";
+        description = "Material You scheme type (for matugen only)";
         example = "scheme-expressive";
       };
 
@@ -109,14 +109,12 @@ in
         type = lib.types.enum [
           "matugen"
           "stylix"
-          "dms"
         ];
         default = "stylix";
         description = ''
           Color scheme generator to use:
           - matugen: Material You colors from wallpaper
           - stylix: Built-in stylix color extraction
-          - dms: Dynamic Material Scheme (uses matugen then additional processing)
         '';
       };
     };
@@ -136,16 +134,13 @@ in
       }
       {
         assertion = cfg.enable -> !(cfg.base16.generator == "stylix" && cfg.base16.scheme != null);
-        message = "For stylix generator, use base16.pkg or base16.file, not base16.scheme (scheme is for matugen/dms only)";
+        message = "For stylix generator, use base16.pkg or base16.file, not base16.scheme (scheme is for matugen only)";
       }
       {
         assertion =
           cfg.enable
-          -> !(
-            (cfg.base16.generator == "matugen" || cfg.base16.generator == "dms")
-            && (cfg.base16.file != null || cfg.base16.pkg != null)
-          );
-        message = "For matugen/dms generators, base16.file and base16.pkg cannot be set (colors are generated from wallpaper)";
+          -> !(cfg.base16.generator == "matugen" && (cfg.base16.file != null || cfg.base16.pkg != null));
+        message = "For matugen generator, base16.file and base16.pkg cannot be set (colors are generated from wallpaper)";
       }
     ];
   };
