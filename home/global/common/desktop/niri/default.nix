@@ -165,26 +165,15 @@
     };
   };
 
-  # Post-process the generated config to add dms includes we cant add otherwise
-  # This runs after Home Manager generates the config file
-  home.activation.niriConfigPostProcess = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-    config_file="$HOME/.config/niri/config.kdl"
+  # Override the config file creation with our custom version that includes dms colors
+  # Using programs.niri's generated file with the prepended include
+  xdg.configFile.niri-config = lib.mkForce {
+    enable = true;
+    target = "niri/config.kdl";
+    text = ''
+      include "dms/colors.kdl"
 
-    if [ -f "$config_file" ]; then
-      # Create a temporary file with the include statement
-      tmpfile=$(mktemp)
-
-      # Add the include at the top, then append the original config
-      {
-        echo 'include "dms/colors.kdl"'
-        echo ""
-        cat "$config_file"
-      } > "$tmpfile"
-
-      # Replace the original config with our modified version
-      mv "$tmpfile" "$config_file"
-
-      $DRY_RUN_CMD echo "Added colors.kdl include to Niri config"
-    fi
-  '';
+      ${config.programs.niri.finalConfig}
+    '';
+  };
 }
