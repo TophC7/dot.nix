@@ -43,15 +43,14 @@ let
       what = "${cfg.server}:${cfg.path}";
       where = cfg.path;
       type = "nfs";
-      options = "nfsvers=4.2,noatime,hard,intr";
-      wantedBy = [ "multi-user.target" ];
+      options = "nfsvers=4.2,noatime,soft,intr";
       after = [ "network-online.target" ];
       wants = [ "network-online.target" ];
       unitConfig = {
-        TimeoutSec = "30";
+        TimeoutSec = "10";
       };
       mountConfig = {
-        TimeoutSec = "30";
+        TimeoutSec = "10";
       };
     };
 
