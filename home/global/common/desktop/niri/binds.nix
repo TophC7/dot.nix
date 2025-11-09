@@ -9,22 +9,22 @@
   programs.niri = {
     settings = {
       input = {
-        mod-key = "Alt";
-        mod-key-nested = "Super";
+        mod-key = "Super";
+        mod-key-nested = "Alt";
       };
-      binds = {
+      binds = lib.mkDefault {
         # Application launchers
-        "Mod+G".action.spawn = lib.getExe pkgs.ghostty;
+        "Mod+T".action.spawn = lib.getExe pkgs.ghostty;
         "Mod+E".action.spawn = lib.getExe pkgs.vscode;
         "Mod+W".action.spawn = lib.getExe inputs.zen-browser.packages.${pkgs.system}.default;
         "Mod+F".action.spawn = lib.getExe pkgs.nautilus;
 
-        "Mod+A".action.spawn = [
+        "Mod+Space".action.spawn = [
           "vicinae"
           "toggle"
         ]; # Application launcher
 
-        "Mod+N".action.spawn = [
+        "Mod+A".action.spawn = [
           "dms"
           "ipc"
           "notifications"
@@ -45,7 +45,7 @@
           "toggle"
         ]; # Process list (system monitor)
 
-        "Mod+X".action.spawn = [
+        "Mod+V".action.spawn = [
           "vicinae"
           "vicinae://extensions/vicinae/clipboard/history"
         ]; # Clipboard manager
@@ -55,21 +55,21 @@
           "vicinae://extensions/vicinae/wm/switch-windows"
         ]; # Window switcher
 
-        "Mod+Shift+X".action.spawn = [
+        "Mod+X".action.spawn = [
           "dms"
           "ipc"
           "powermenu"
           "toggle"
         ]; # Power menu
 
-        "Mod+Shift+P".action.spawn = [
+        "Mod+P".action.spawn = [
           "dms"
           "ipc"
           "notepad"
           "toggle"
         ]; # Notepad
 
-        "Mod+Super+N".action.spawn = [
+        "Mod+N".action.spawn = [
           "dms"
           "ipc"
           "night"
@@ -78,51 +78,51 @@
 
         # System controls
         "Ctrl+Alt+Delete".action.quit = { }; # Exit Niri
-        "Ctrl+Super+Delete".action.spawn = [
+        "Ctrl+Alt+Escape".action.spawn = [
           "loginctl"
           "terminate-user"
           "$USER"
         ];
 
-        "Mod+Super+L".action.spawn = [
+        "Mod+L".action.spawn = [
           "dms"
           "ipc"
           "lock"
         ]; # DMS lock screen (replaces swaylock)
 
-        "Mod+Super+A".action.toggle-overview = { };
+        "Mod+Shift+A".action.toggle-overview = { };
         "Mod+F1".action.show-hotkey-overlay = { };
 
         # Window/Column management
         "Mod+Q".action.close-window = { };
-        "Mod+D".action.center-column = { };
-        "Mod+P".action.toggle-window-floating = { }; # Kept (DMS notepad moved to Mod+Shift+P)
+        "Mod+C".action.center-column = { };
+        "Mod+D".action.toggle-window-floating = { }; # Kept (DMS notepad moved to Mod+Shift+P)
         "Mod+S".action.toggle-column-tabbed-display = { }; # Kept (DMS settings moved to Mod+Comma)
 
-        # Window focus
-        "Mod+C".action.focus-column-or-monitor-left = { };
-        "Mod+B".action.focus-column-or-monitor-right = { };
-        "Mod+T".action.focus-window-or-workspace-up = { };
-        "Mod+V".action.focus-window-or-workspace-down = { };
+        # Window focus (Arrow keys)
+        "Mod+Left".action.focus-column-or-monitor-left = { };
+        "Mod+Right".action.focus-column-or-monitor-right = { };
+        "Mod+Up".action.focus-window-or-workspace-up = { };
+        "Mod+Down".action.focus-window-or-workspace-down = { };
 
         # Window movement
-        "Mod+Shift+C".action.consume-or-expel-window-left = { };
-        "Mod+Shift+B".action.consume-or-expel-window-right = { };
-        "Mod+Shift+T".action.move-window-up = { };
-        "Mod+Shift+V".action.move-window-down = { };
+        "Mod+Shift+Left".action.consume-or-expel-window-left = { };
+        "Mod+Shift+Right".action.consume-or-expel-window-right = { };
+        "Mod+Shift+Up".action.move-window-up = { };
+        "Mod+Shift+Down".action.move-window-down = { };
 
         # Monitor/Workspace movement
-        "Mod+Ctrl+C".action.move-column-to-monitor-left = { };
-        "Mod+Ctrl+B".action.move-column-to-monitor-right = { };
-        "Mod+Ctrl+T".action.move-column-to-workspace-up = { };
-        "Mod+Ctrl+V".action.move-column-to-workspace-down = { };
+        "Mod+Ctrl+Left".action.move-column-to-monitor-left = { };
+        "Mod+Ctrl+Right".action.move-column-to-monitor-right = { };
+        "Mod+Ctrl+Up".action.move-column-to-workspace-up = { };
+        "Mod+Ctrl+Down".action.move-column-to-workspace-down = { };
 
         # Window sizing
-        "Mod+Super+C".action.switch-preset-column-width-back = { };
-        "Mod+Super+B".action.switch-preset-column-width = { };
-        "Mod+Super+T".action.set-window-height = "+10%";
-        "Mod+Super+V".action.set-window-height = "-10%";
-        "Mod+Super+F".action.fullscreen-window = { };
+        "Mod+Alt+Left".action.switch-preset-column-width-back = { };
+        "Mod+Alt+Right".action.switch-preset-column-width = { };
+        "Mod+Alt+Up".action.set-window-height = "+10%";
+        "Mod+Alt+Down".action.set-window-height = "-10%";
+        "Mod+Alt+F".action.fullscreen-window = { };
 
         # Screenshots
         "Print".action.screenshot = { };
