@@ -8,6 +8,10 @@
   # Niri keybindings
   programs.niri = {
     settings = {
+      input = {
+        mod-key = "Alt";
+        mod-key-nested = "Super";
+      };
       binds = lib.mkDefault {
         # Application launchers
         "Mod+G".action.spawn = lib.getExe pkgs.ghostty;
@@ -15,11 +19,8 @@
         "Mod+W".action.spawn = lib.getExe inputs.zen-browser.packages.${pkgs.system}.default;
         "Mod+F".action.spawn = lib.getExe pkgs.nautilus;
 
-        # DankMaterialShell keybinds
         "Mod+A".action.spawn = [
-          "dms"
-          "ipc"
-          "spotlight"
+          "vicinae"
           "toggle"
         ]; # Application launcher
 
@@ -45,11 +46,14 @@
         ]; # Process list (system monitor)
 
         "Mod+X".action.spawn = [
-          "dms"
-          "ipc"
-          "clipboard"
-          "toggle"
-        ]; # Clipboard manager (your custom keybind!)
+          "vicinae"
+          "vicinae://extensions/vicinae/clipboard/history"
+        ]; # Clipboard manager
+
+        "Mod+Tab".action.spawn = [
+          "vicinae"
+          "vicinae://extensions/vicinae/wm/switch-windows"
+        ]; # Window switcher
 
         "Mod+Shift+X".action.spawn = [
           "dms"
@@ -65,7 +69,7 @@
           "toggle"
         ]; # Notepad
 
-        "Mod+Alt+N".action.spawn = [
+        "Mod+Super+N".action.spawn = [
           "dms"
           "ipc"
           "night"
@@ -73,21 +77,20 @@
         ]; # Night mode
 
         # System controls
-        "Mod+Alt+Escape".action.quit = { }; # Exit Niri
-        "Ctrl+Alt+Delete".action.spawn = [
+        "Ctrl+Alt+Delete".action.quit = { }; # Exit Niri
+        "Ctrl+Super+Delete".action.spawn = [
           "loginctl"
           "terminate-user"
           "$USER"
         ];
 
-        "Super+Alt+L".action.spawn = [
+        "Mod+Super+L".action.spawn = [
           "dms"
           "ipc"
           "lock"
-          "lock"
         ]; # DMS lock screen (replaces swaylock)
 
-        "Mod+Alt+A".action.toggle-overview = { };
+        "Mod+Super+A".action.toggle-overview = { };
         "Mod+F1".action.show-hotkey-overlay = { };
 
         # Window/Column management
@@ -115,16 +118,16 @@
         "Mod+Ctrl+V".action.move-column-to-workspace-down = { };
 
         # Window sizing
-        "Mod+Alt+C".action.switch-preset-column-width-back = { };
-        "Mod+Alt+B".action.switch-preset-column-width = { };
-        "Mod+Alt+T".action.set-window-height = "+10%";
-        "Mod+Alt+V".action.set-window-height = "-10%";
-        "Mod+Alt+F".action.fullscreen-window = { };
+        "Mod+Super+C".action.switch-preset-column-width-back = { };
+        "Mod+Super+B".action.switch-preset-column-width = { };
+        "Mod+Super+T".action.set-window-height = "+10%";
+        "Mod+Super+V".action.set-window-height = "-10%";
+        "Mod+Super+F".action.fullscreen-window = { };
 
         # Screenshots
         "Print".action.screenshot = { };
         "Shift+Print".action.screenshot-screen = { };
-        "Alt+Print".action.screenshot-window = { };
+        "Super+Print".action.screenshot-window = { };
 
         # Media controls (DMS)
         "XF86AudioRaiseVolume".action.spawn = [

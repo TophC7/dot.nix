@@ -8,7 +8,7 @@
   # Niri window rules
   programs.niri = {
     settings = {
-      window-rules = lib.mkDefault [
+      window-rules = [
         {
           geometry-corner-radius = {
             top-left = 8.0;
@@ -23,10 +23,10 @@
         {
           matches = [
             { app-id = "^code-url-handler$"; }
-            { app-id = "^Code$"; }
+            { app-id = "^code$"; }
           ];
           default-column-width = {
-            proportion = 1.0;
+            proportion = 0.75;
           };
         }
 
@@ -53,25 +53,24 @@
           default-column-width = {
             proportion = 1.0;
           };
+          open-on-output = "DP-5";
         }
 
         # File manager
-        {
-          matches = [ { app-id = "^org.gnome.Nautilus$"; } ];
-          default-column-width = {
-            proportion = 0.35;
-          };
-        }
-
         # Terminal
         {
           matches = [
+            { app-id = "^org.gnome.Nautilus$"; }
             { app-id = "^com.mitchellh.ghostty$"; }
             { title = "^ghostty$"; }
           ];
           default-column-width = {
-            proportion = 0.35;
+            proportion = 0.40;
           };
+          default-window-height = {
+            proportion = 0.40;
+          };
+          open-floating = true;
         }
 
         # Gaming
