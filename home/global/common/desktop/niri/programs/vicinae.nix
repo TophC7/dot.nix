@@ -9,60 +9,34 @@
 let
   cfg = config.theme;
 
-  # Generate Vicinae theme from matugen Material You colors
-  generateVicinaeTheme =
-    wallpaper: scheme: polarity:
-    let
-      templateFile = pkgs.writeText "vicinae-theme-template.toml" ''
-        [meta]
-        version = 1
-        name = "Matugen Material"
-        description = "Material You theme generated from wallpaper"
-        variant = "${polarity}"
-        inherits = "vicinae-${polarity}"
+  # Vicinae theme template - uses matugen Material You colors
+  vicinaeTemplate = pkgs.writeText "vicinae-theme-template.toml" ''
+    [meta]
+    version = 1
+    name = "Matugen Material"
+    description = "Material You theme generated from wallpaper"
+    variant = "${cfg.polarity}"
+    inherits = "vicinae-${cfg.polarity}"
 
-        [colors.core]
-        background = "{{colors.background.default.hex}}"
-        foreground = "{{colors.on_background.default.hex}}"
-        secondary_background = "{{colors.surface_container_lowest.default.hex}}"
-        border = "{{colors.outline_variant.default.hex}}"
-        accent = "{{colors.primary.default.hex}}"
+    [colors.core]
+    background = "{{colors.background.default.hex}}"
+    foreground = "{{colors.on_background.default.hex}}"
+    secondary_background = "{{colors.surface_container_lowest.default.hex}}"
+    border = "{{colors.outline_variant.default.hex}}"
+    accent = "{{colors.primary.default.hex}}"
 
-        [colors.accents]
-        blue = "{{colors.primary.default.hex}}"
-        green = "{{colors.tertiary.default.hex}}"
-        magenta = "{{colors.secondary.default.hex}}"
-        orange = "{{colors.tertiary_container.default.hex}}"
-        purple = "{{colors.primary_container.default.hex}}"
-        red = "{{colors.error.default.hex}}"
-        yellow = "{{colors.secondary_container.default.hex}}"
-        cyan = "{{colors.tertiary_fixed.default.hex}}"
-      '';
-    in
-    pkgs.runCommand "vicinae-theme.toml"
-      {
-        nativeBuildInputs = [ inputs.matugen.packages.${pkgs.system}.default ];
-      }
-      ''
-        cat > config.toml << EOF
-        [config]
-
-        [templates.vicinae]
-        input_path = "${templateFile}"
-        output_path = "$out"
-        EOF
-
-        matugen image ${wallpaper} \
-          --type ${if scheme != null then scheme else "scheme-expressive"} \
-          --mode ${polarity} \
-          --config config.toml
-      '';
-
-  # Generate theme if theme module is enabled
-  vicinaeTheme = lib.mkIf cfg.enable (generateVicinaeTheme cfg.image cfg.base16.scheme cfg.polarity);
+    [colors.accents]
+    blue = "{{colors.primary.default.hex}}"
+    green = "{{colors.tertiary.default.hex}}"
+    magenta = "{{colors.secondary.default.hex}}"
+    orange = "{{colors.tertiary_container.default.hex}}"
+    purple = "{{colors.primary_container.default.hex}}"
+    red = "{{colors.error.default.hex}}"
+    yellow = "{{colors.secondary_container.default.hex}}"
+    cyan = "{{colors.tertiary_fixed.default.hex}}"
+  '';
 in
 {
-
   imports = [ inputs.vicinae.homeManagerModules.default ];
 
   services.vicinae = lib.mkIf cfg.enable {
@@ -80,5 +54,9 @@ in
     };
   };
 
-  home.file.".local/share/vicinae/themes/matugen-material.toml".source = vicinaeTheme;
+  # Automatically add vicinae template to theme-spec matugen generation
+  theme.matugen.templates.vicinae = lib.mkIf cfg.enable {
+    template = vicinaeTemplate;
+    path = ".local/share/vicinae/themes/matugen-material.toml";
+  };
 }

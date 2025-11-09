@@ -10,6 +10,41 @@
 {
   imports = lib.custom.scanPaths ./.;
 
+  theme.matugen.templates.niri-colors = {
+    template = pkgs.writeText "niri-colors-template.kdl" ''
+      layout {
+          background-color "transparent"
+
+          focus-ring {
+              active-color   "{{colors.primary.default.hex}}"
+              inactive-color "{{colors.outline.default.hex}}"
+              urgent-color   "{{colors.error.default.hex}}"
+          }
+
+          border {
+              active-color   "{{colors.primary.default.hex}}"
+              inactive-color "{{colors.outline.default.hex}}"
+              urgent-color   "{{colors.error.default.hex}}"
+          }
+
+          shadow {
+              color "{{colors.shadow.default.hex}}70"
+          }
+
+          tab-indicator {
+              active-color   "{{colors.primary.default.hex}}"
+              inactive-color "{{colors.outline.default.hex}}"
+              urgent-color   "{{colors.error.default.hex}}"
+          }
+
+          insert-hint {
+              color "{{colors.primary.default.hex}}80"
+          }
+      }
+    '';
+    path = ".config/niri/colors.kdl";
+  };
+
   programs.niri = {
     settings = {
       input = {
@@ -165,15 +200,18 @@
     };
   };
 
-  # Override the config file creation with our custom version that includes dms colors
-  # Using programs.niri's generated file with the prepended include
-  xdg.configFile.niri-config = lib.mkForce {
-    enable = true;
-    target = "niri/config.kdl";
-    text = ''
-      include "dms/colors.kdl"
+  xdg.configFile = {
+    # colors.kdl is automatically installed by theme-spec at .config/niri/colors.kdl
+    # Override the config file creation with our custom version that includes colors
+    # Using programs.niri's generated file with the prepended include
+    niri-config = lib.mkForce {
+      enable = true;
+      target = "niri/config.kdl";
+      text = ''
+        include "colors.kdl"
 
-      ${config.programs.niri.finalConfig}
-    '';
+        ${config.programs.niri.finalConfig}
+      '';
+    };
   };
 }
