@@ -12,10 +12,15 @@
     (lib.optional (host.niri or false) ./niri)
   ];
 
-  # Configure keyboard layout
-  services.xserver.xkb = {
-    layout = "us";
-    variant = "";
+  services = {
+    # Enable user file access
+    gvfs.enable = true;
+    udisks2.enable = true;
+    # Configure keyboard layout
+    xserver.xkb = {
+      layout = "us";
+      variant = "";
+    };
   };
 
   # Fix for autoLogin - prevents getty from interfering
