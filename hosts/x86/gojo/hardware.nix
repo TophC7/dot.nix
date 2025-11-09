@@ -19,6 +19,11 @@
         enable = true;
         # When using plymouth, initrd can expand by a lot each time, so limit how many we keep around
         configurationLimit = lib.mkDefault 10;
+        # Configure loader.conf to remember last booted entry
+        extraInstallCommands = ''
+          ${pkgs.gnused}/bin/sed -i '/^default /d' /boot/loader/loader.conf
+          echo "default @saved" >> /boot/loader/loader.conf
+        '';
       };
       efi.canTouchEfiVariables = true;
       timeout = 3;
@@ -26,6 +31,12 @@
 
     # Use the cachyos kernel for better performance
     kernelPackages = pkgs.linuxPackages_cachyos;
+
+    # Kernel sysctl parameters
+    kernel.sysctl = {
+      # Make swap only activate when absolutely necessary (0-200, default is 60)
+      "vm.swappiness" = 1;
+    };
 
     initrd = {
       systemd.enable = true;
