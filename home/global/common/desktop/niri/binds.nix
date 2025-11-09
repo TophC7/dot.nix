@@ -8,7 +8,7 @@
   # Niri keybindings
   programs.niri = {
     settings = {
-      input = {
+      input = lib.mkDefault {
         mod-key = "Super";
         mod-key-nested = "Alt";
       };
