@@ -24,8 +24,11 @@
     };
 
     base16 = {
-      scheme = ./soraka.yaml;
-      generator = "matugen";
+      generate = true;
+    };
+
+    matugen = {
+      scheme = "scheme-expressive";
     };
   };
 
