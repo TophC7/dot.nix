@@ -46,6 +46,11 @@
   networking = {
     enableIPv6 = false;
     firewall = host.network.firewall;
+    networkmanager.settings.connection = {
+      # Don't randomize MAC address
+      "wifi.mac-address-randomization" = 1;
+      "ethernet.cloned-mac-address" = "preserve";
+    };
   };
 
   ## System-wide packages ##

@@ -45,6 +45,7 @@
     # AMD GPU support
     kernelParams = [
       "amdgpu.dcdebugmask=0x10"
+      "pcie_aspm=off"
     ];
     kernelModules = [
       "amdgpu"
@@ -55,6 +56,11 @@
       "kvm-amd"
     ];
     extraModulePackages = [ ];
+    extraModprobeConfig = ''
+      # Disable Energy-Efficient Ethernet (EEE)driver
+      # EEE can cause link flapping with certain switches routers 
+      options igc EEE=0
+    '';
 
     # Enable ZFS and BTRFS
     supportedFilesystems = [

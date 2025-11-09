@@ -31,12 +31,14 @@ in
   environment.systemPackages = with pkgs; [
     cachix
     curl
+    ethtool
     git
     git-crypt
     gpg-tui
     jq
     micro
     openssh
+    pciutils
     sshfs
     superfile
     wget
