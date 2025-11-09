@@ -6,30 +6,30 @@
   ...
 }:
 let
-  # Declaratively fetch the emoji launcher plugin
-  # emojiLauncherPlugin = pkgs.stdenv.mkDerivation {
-  #   pname = "dms-emoji-launcher";
-  #   version = "unstable-2025-10-27";
+  # Declaratively fetch the DankActions plugin
+  dankActionsPlugin = pkgs.stdenv.mkDerivation {
+    pname = "dms-dank-actions";
+    version = "unstable";
 
-  #   src = pkgs.fetchFromGitHub {
-  #     owner = "devnullvoid";
-  #     repo = "dms-emoji-launcher";
-  #     rev = "79bdec809481a2d65d18b02004a5d0195167d22c";
-  #     hash = "sha256-Jpz/s6ol257xn0ERNsitEJB4lPhy+lJ0mf3InInP6i8=";
-  #   };
+    src = pkgs.fetchFromGitHub {
+      owner = "AvengeMedia";
+      repo = "dms-plugins";
+      rev = "master";
+      hash = "sha256-zZigP1wet5mwZiXcAuzbWo4gPhPOOYLvG0DOOaWAJgQ=";
+    };
 
-  #   # Plugin files are at root, copy everything
-  #   installPhase = ''
-  #     mkdir -p $out
-  #     cp -r * $out/
-  #   '';
+    # Plugin files are in DankActions subdirectory
+    installPhase = ''
+      mkdir -p $out
+      cp -r DankActions/* $out/
+    '';
 
-  #   meta = {
-  #     description = "DankMaterialShell emoji launcher widget with 919+ emojis";
-  #     homepage = "https://github.com/devnullvoid/dms-emoji-launcher";
-  #     license = lib.licenses.mit;
-  #   };
-  # };
+    meta = {
+      description = "DankMaterialShell DankActions plugin";
+      homepage = "https://github.com/AvengeMedia/dms-plugins";
+      license = lib.licenses.mit;
+    };
+  };
 in
 {
   # Import DankMaterialShell modules
@@ -58,11 +58,11 @@ in
     };
 
     # Plugins
-    # plugins = {
-    #   emojiLauncher = {
-    #     enable = true;
-    #     src = emojiLauncherPlugin;
-    #   };
-    # };
+    plugins = {
+      dankActions = {
+        enable = true;
+        src = dankActionsPlugin;
+      };
+    };
   };
 }
