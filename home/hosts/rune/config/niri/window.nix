@@ -19,6 +19,23 @@
           clip-to-geometry = true;
           draw-border-with-background = false;
         }
+
+        # Vicinae Launcher
+        {
+          matches = [
+            {
+              title = "^Vicinae.*";
+              app-id = "";
+            }
+          ];
+          border = {
+            enable = true;
+            width = 1;
+          };
+          focus-ring.enable = false;
+          clip-to-geometry = true;
+        }
+
         # Code editor
         {
           matches = [

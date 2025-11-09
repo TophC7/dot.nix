@@ -9,7 +9,6 @@
 let
   cfg = config.theme;
 
-  # Vicinae theme template - uses matugen Material You colors
   vicinaeTemplate = pkgs.writeText "vicinae-theme-template.toml" ''
     [meta]
     version = 1
@@ -54,7 +53,7 @@ in
     };
   };
 
-  # Automatically add vicinae template to theme-spec matugen generation
+  # Matugen generation
   theme.matugen.templates.vicinae = lib.mkIf cfg.enable {
     template = vicinaeTemplate;
     path = ".local/share/vicinae/themes/matugen-material.toml";
