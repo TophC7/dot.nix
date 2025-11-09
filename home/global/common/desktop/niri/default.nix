@@ -1,5 +1,3 @@
-# Niri Window Manager Configuration
-# Core Niri settings only - programs split into programs/ folder
 {
   config,
   inputs,
