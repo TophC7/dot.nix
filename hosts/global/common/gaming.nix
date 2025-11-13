@@ -15,6 +15,9 @@
     ananicy.enable = true;
     gamemode.enable = true;
 
+    # Nintendo Pro Controller 2 USB support
+    procon2.enable = true;
+
     steam = {
       enable = true;
       extraCompatPackages = with pkgs; [
