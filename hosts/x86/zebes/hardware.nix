@@ -42,11 +42,13 @@
       kernelModules = [ ];
     };
 
-    # AMD GPU support
     kernelParams = [
-      "amdgpu.dcdebugmask=0x10"
+      "amdgpu.dcdebugmask=0x10" # AMD GPU support
       "pcie_aspm=off"
+      "pci=noaer" # Disable PCIe Advanced Error Reporting
+      "igc.IntMode=1" # Use MSI mode instead of MSI-X
     ];
+
     kernelModules = [
       "amdgpu"
       "ip_tables"
@@ -57,9 +59,11 @@
     ];
     extraModulePackages = [ ];
     extraModprobeConfig = ''
-      # Disable Energy-Efficient Ethernet (EEE)driver
-      # EEE can cause link flapping with certain switches routers 
+      # Intel I225-V stability fixes
+      # Disable Energy-Efficient Ethernet - causes link flapping
       options igc EEE=0
+      # Disable interrupt throttling to improve stability
+      options igc InterruptThrottleRate=0,0,0,0
     '';
 
     # Enable ZFS and BTRFS
@@ -69,6 +73,17 @@
     ];
     zfs.forceImportRoot = true; # Required when forceImportAll is true
     zfs.forceImportAll = true; # Import all pools at boot
+  };
+
+  # Force ethernet to 2.5Gbps without auto-negotiation
+  # This prevents I225-V link flapping issues
+  systemd.network.links."10-enp5s0" = {
+    matchConfig.MACAddress = "a8:a1:59:e1:31:79";
+    linkConfig = {
+      BitsPerSecond = "2500M";
+      Duplex = "full";
+      AutoNegotiation = false;
+    };
   };
 
   # ZFS services for pool health and snapshots
