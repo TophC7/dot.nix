@@ -11,6 +11,7 @@
   lib,
   config,
   pkgs,
+  host,
   ...
 }:
 {
