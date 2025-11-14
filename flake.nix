@@ -87,7 +87,7 @@
     };
 
     zen-browser = {
-      url = "github:youwen5/zen-browser-flake";
+      url = "git+https://git.ryot.foo/toph/zen-browser-flake.git";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
