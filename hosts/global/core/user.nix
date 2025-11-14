@@ -45,6 +45,7 @@ in
         "networkmanager"
         "video"
         "i2c"
+        "input"
       ])
     ];
     openssh.authorizedKeys.keys = userSecrets.ssh.publicKeys or [ ];
