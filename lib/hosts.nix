@@ -76,7 +76,7 @@ in
       user = {
         name = "gio";
       };
-      gnome = true;
+      niri = true;
       isExternal = true;
     };
 
@@ -92,7 +92,7 @@ in
         repo = true;
         tank = true;
       };
-      gnome = true;
+      niri = true;
     };
 
     lxc = {
