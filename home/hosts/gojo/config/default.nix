@@ -8,8 +8,8 @@
       primary = true;
       width = 2560;
       height = 1440;
-      refreshRate = 359.979;
-      x = 2560; # Left-most monitor
+      refreshRate = 360;
+      x = 2560;
       y = 0;
       scale = 1.0;
       transform = 0;
@@ -19,9 +19,9 @@
     }
     {
       name = "DP-3";
-      width = 2560;
+      width = 2560; # Left-most monitor
       height = 1440;
-      refreshRate = 359.979;
+      refreshRate = 360;
       x = 1080;
       y = 0;
       scale = 1.0;
