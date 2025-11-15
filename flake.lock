@@ -1402,11 +1402,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1750969106,
-        "narHash": "sha256-RRryqilYizTb0+NF4sZVMWpoJxoXNppdfDUmoziSl5o=",
+        "lastModified": 1763183188,
+        "narHash": "sha256-1O41HoUQo+S1+Bedjp1+MubN+gqlrmagg1HkrhzKAlw=",
         "owner": "tophc7",
         "repo": "yay.nix",
-        "rev": "b1b6463a7045b1ac121ce241d6b147e71f5d953f",
+        "rev": "5c3c0b6d6481b1c62cb984b0d68c052748038632",
         "type": "github"
       },
       "original": {
