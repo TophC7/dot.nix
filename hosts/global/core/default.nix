@@ -136,7 +136,7 @@ in
       substituters = [
         "https://cache.nixos.org"
         "https://chaotic-nyx.cachix.org"
-        "https://cache.ryot.foo"
+        "https://cache.ryot.foo?priority=1"
       ];
 
       trusted-public-keys = [
