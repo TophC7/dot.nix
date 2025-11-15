@@ -36,6 +36,7 @@
       "hosts/global/common/nvtop.nix" # GPU monitor (not available in home-manager)
       "hosts/global/common/plymouth.nix" # fancy boot screen
       "hosts/global/common/solaar.nix" # Logitech Unifying Receiver support
+      "hosts/global/common/vpn.nix"
     ])
   ];
 
@@ -45,20 +46,6 @@
 
   ## System-wide packages ##
   programs.nix-ld.enable = true;
-  environment.systemPackages = with pkgs; [
-    asdf-vm
-  ];
-
-  # FIXME: Remove once out of VM
-  # VM guest additions to improve host-guest interaction
-  services.spice-vdagentd.enable = true;
-  services.qemuGuest.enable = true;
-  virtualisation.vmware.guest.enable = pkgs.stdenv.hostPlatform.isx86;
-  virtualisation.hypervGuest.enable = true;
-  services.xe-guest-utilities.enable = pkgs.stdenv.hostPlatform.isx86;
-  # The VirtualBox guest additions rely on an out-of-tree kernel module
-  # which lags behind kernel releases, potentially causing broken builds.
-  virtualisation.virtualbox.guest.enable = false;
 
   # https://wiki.nixos.org/wiki/FAQ/When_do_I_update_stateVersion
   system.stateVersion = "25.11";

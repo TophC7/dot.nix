@@ -19,11 +19,6 @@
         enable = true;
         # When using plymouth, initrd can expand by a lot each time, so limit how many we keep around
         configurationLimit = lib.mkDefault 10;
-        # Configure loader.conf to remember last booted entry
-        extraInstallCommands = ''
-          ${pkgs.gnused}/bin/sed -i '/^default /d' /boot/loader/loader.conf
-          echo "default @saved" >> /boot/loader/loader.conf
-        '';
       };
       efi.canTouchEfiVariables = true;
       timeout = 3;
@@ -51,6 +46,11 @@
       ];
       kernelModules = [ ];
     };
+
+    # Workaround for boot issues
+    kernelParams = [
+      "amdgpu.dcdebugmask=0x10"
+    ];
     kernelModules = [
       "kvm-amd"
       "amdgpu"
@@ -61,41 +61,26 @@
   # For less permission issues with SSHFS
   programs.fuse.userAllowOther = true;
 
-  fileSystems."/" = {
-    device = "/dev/disk/by-uuid/a19362ba-329b-4688-be05-c180f4212d97";
-    fsType = "ext4";
+  fileSystems = {
+    "/" = {
+      device = "/dev/disk/by-uuid/72ca0d77-e355-41b5-9002-667e509cf550";
+      fsType = "ext4";
+    };
+
+    "/boot" = {
+      device = "/dev/disk/by-uuid/657A-7C49";
+      fsType = "vfat";
+      options = [
+        "fmask=0077"
+        "dmask=0077"
+      ];
+    };
   };
 
-  fileSystems."/boot" = {
-    device = "/dev/disk/by-uuid/8E6A-D6AE";
-    fsType = "vfat";
-    options = [
-      "fmask=0077"
-      "dmask=0077"
-    ];
-  };
-
-  swapDevices = [
-    { device = "/dev/disk/by-uuid/2c3c3142-93c9-4be7-b9c1-5e9bc45d9fff"; }
-  ];
+  swapDevices = [ { device = "/dev/disk/by-uuid/f338f03e-07ee-4dcf-be1c-583a276e9172"; } ];
 
   time.hardwareClockInLocalTime = true; # Fixes windows dual-boot time issues
-
-  # Enables DHCP on each ethernet and wireless interface. In case of scripted networking
-  # (the default) this is the recommended approach. When using systemd-networkd it's
-  # still possible to use this option, but it's recommended to use it in conjunction
-  # with explicit per-interface declarations with `networking.interfaces.<interface>.useDHCP`.
-  # networking.useDHCP = lib.mkDefault true;
-  # networking.interfaces.enp5s0.useDHCP = lib.mkDefault true;
-
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
   hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableAllFirmware;
 
 }
-
-# STUFF ABOUT CHAOTIC NIX CACHE
-# nix eval 'github:chaotic-cx/nyx/nyxpkgs-unstable#linuxPackages_cachyos.kernel.outPath'
-# nix eval 'chaotic#linuxPackages_cachyos.kernel.outPath'
-# nix eval '<HOME>/git/Nix/dot.nix#nixosConfigurations.rune.config.boot.kernelPackages.kernel.outPath'
-# curl -L 'https://chaotic-nyx.cachix.org/{{HASH}}.narinfo'
-# sudo nixos-rebuild switch --flake ./git/Nix/dot.nix/. --option 'extra-substituters' 'https://chaotic-nyx.cachix.org/' --option extra-trusted-public-keys "chaotic-nyx.cachix.org-1:HfnXSw4pj95iI/n17rIDy40agHj12WfF+Gqk6SonIT8="
