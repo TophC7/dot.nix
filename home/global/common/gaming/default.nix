@@ -8,6 +8,6 @@
 
   home.packages = with pkgs; [
     prismlauncher
-    # modrinth-app
+    stable.dolphin-emu-primehack
   ];
 }
