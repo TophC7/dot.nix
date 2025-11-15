@@ -58,4 +58,10 @@ in
     template = vicinaeTemplate;
     path = ".local/share/vicinae/themes/matugen-material.toml";
   };
+
+  # FIXME: remove once https://github.com/vicinaehq/vicinae/pull/723 merges
+  xdg.configFile."vicinae/vicinae.json" = {
+    enable = false;
+  };
+
 }
