@@ -36,7 +36,7 @@
       # "hosts/global/common/pangolin/olm.nix" # OLM tunnel client
       "hosts/global/common/plymouth.nix" # fancy boot screen
       "hosts/global/common/solaar.nix" # Logitech Unifying Receiver support
-      "hosts/global/common/vial.nix" # KB setup
+      "hosts/global/common/kb.nix" # Keyboard setup
       "hosts/global/common/vpn.nix" # Homelab VPN access
     ])
   ];
