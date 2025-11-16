@@ -2,6 +2,7 @@
   inputs,
   lib,
   pkgs,
+
   ...
 }:
 {
@@ -13,14 +14,15 @@
         mod-key-nested = "Super";
       };
       binds =
+
         let
-          zen = inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}.default;
+          zen-browser = inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}.beta;
         in
         {
           # Application launchers
           "Mod+G".action.spawn = lib.getExe pkgs.ghostty;
           "Mod+E".action.spawn = lib.getExe pkgs.vscode;
-          "Mod+W".action.spawn = lib.getExe zen;
+          "Mod+W".action.spawn = lib.getExe zen-browser;
           "Mod+F".action.spawn = lib.getExe pkgs.nautilus;
 
           "Mod+A".action.spawn = [

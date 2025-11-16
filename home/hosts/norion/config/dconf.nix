@@ -1,5 +1,10 @@
 # Generated via dconf2nix: https://github.com/gvolpe/dconf2nix
-{ lib, ... }:
+{
+  lib,
+  pkgs,
+  inputs,
+  ...
+}:
 
 with lib.hm.gvariant;
 
@@ -82,40 +87,45 @@ with lib.hm.gvariant;
       search-filter-time-type = "last_modified";
     };
 
-    "org/gnome/shell" = {
-      favorite-apps = [
-        "com.mitchellh.ghostty.desktop"
-        "org.gnome.Nautilus.desktop"
-        "zen.desktop"
-        "code.desktop"
-        "spotify.desktop"
-        "discord.desktop"
-        "steam.desktop"
-        "org.telegram.desktop.desktop"
-      ];
-      enabled-extensions = lib.mkDefault [
-        "AlphabeticalAppGrid@stuarthayhurst"
-        "appindicatorsupport@rgcjonas.gmail.com"
-        "auto-accent-colour@Wartybix"
-        "blur-my-shell@aunetx"
-        "color-picker@tuberry"
-        "dash-in-panel@fthx"
-        "flickernaut@imoize.github.io"
-        "just-perfection-desktop@just-perfection"
-        "monitor-brightness-volume@ailin.nemui"
-        "olm-toggle@toph"
-        "pano@elhan.io"
-        "paperwm@paperwm.github.com"
-        "quicksettings-audio-devices-hider@marcinjahn.com"
-        "quicksettings-audio-devices-renamer@marcinjahn.com"
-        "solaar-extension@sidevesh"
-        "undecorate@sun.wxg@gmail.com"
-        "user-theme@gnome-shell-extensions.gcampax.github.com"
-        "Vitals@CoreCoding.com"
-      ];
-      last-selected-power-profile = "performance";
-      welcome-dialog-last-shown-version = "48.1";
-    };
+    "org/gnome/shell" =
+      let
+        zen-browser =
+          inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}.beta.meta.desktopFileName;
+      in
+      {
+        favorite-apps = [
+          "com.mitchellh.ghostty.desktop"
+          "org.gnome.Nautilus.desktop"
+          zen-browser
+          "code.desktop"
+          "spotify.desktop"
+          "discord.desktop"
+          "steam.desktop"
+          "org.telegram.desktop.desktop"
+        ];
+        enabled-extensions = lib.mkDefault [
+          "AlphabeticalAppGrid@stuarthayhurst"
+          "appindicatorsupport@rgcjonas.gmail.com"
+          "auto-accent-colour@Wartybix"
+          "blur-my-shell@aunetx"
+          "color-picker@tuberry"
+          "dash-in-panel@fthx"
+          "flickernaut@imoize.github.io"
+          "just-perfection-desktop@just-perfection"
+          "monitor-brightness-volume@ailin.nemui"
+          "olm-toggle@toph"
+          "pano@elhan.io"
+          "paperwm@paperwm.github.com"
+          "quicksettings-audio-devices-hider@marcinjahn.com"
+          "quicksettings-audio-devices-renamer@marcinjahn.com"
+          "solaar-extension@sidevesh"
+          "undecorate@sun.wxg@gmail.com"
+          "user-theme@gnome-shell-extensions.gcampax.github.com"
+          "Vitals@CoreCoding.com"
+        ];
+        last-selected-power-profile = "performance";
+        welcome-dialog-last-shown-version = "48.1";
+      };
 
     # "org/gnome/shell/extensions/quicksettings-audio-devices-hider" = {
     #   available-input-names = [

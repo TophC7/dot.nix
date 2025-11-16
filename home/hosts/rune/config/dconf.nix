@@ -1,5 +1,10 @@
 # Generated via dconf2nix: https://github.com/gvolpe/dconf2nix
-{ lib, ... }:
+{
+  lib,
+  pkgs,
+  inputs,
+  ...
+}:
 
 with lib.hm.gvariant;
 
@@ -153,26 +158,32 @@ with lib.hm.gvariant;
       search-filter-time-type = "last_modified";
     };
 
-    "org/gnome/shell" = {
-      favorite-apps = [
-        "com.mitchellh.ghostty.desktop"
-        "org.gnome.Nautilus.desktop"
-        "win11.desktop"
-        "zen.desktop"
-        "code.desktop"
-        "spotify.desktop"
-        "discord.desktop"
-        "org.telegram.desktop.desktop"
-        "steam.desktop"
-        "org.prismlauncher.PrismLauncher.desktop"
-        "ryubing.desktop"
-        "lemon.desktop"
-        "FANTASY LIFE i The Girl Who Steals Time.desktop"
-        "Marvel Rivals.desktop"
-      ];
-      last-selected-power-profile = "performance";
-      welcome-dialog-last-shown-version = "48.1";
-    };
+    "org/gnome/shell" =
+
+      let
+        zen-browser =
+          inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}.beta.meta.desktopFileName;
+      in
+      {
+        favorite-apps = [
+          "com.mitchellh.ghostty.desktop"
+          "org.gnome.Nautilus.desktop"
+          "win11.desktop"
+          zen-browser
+          "code.desktop"
+          "spotify.desktop"
+          "discord.desktop"
+          "org.telegram.desktop.desktop"
+          "steam.desktop"
+          "org.prismlauncher.PrismLauncher.desktop"
+          "ryubing.desktop"
+          "lemon.desktop"
+          "FANTASY LIFE i The Girl Who Steals Time.desktop"
+          "Marvel Rivals.desktop"
+        ];
+        last-selected-power-profile = "performance";
+        welcome-dialog-last-shown-version = "48.1";
+      };
 
     "org/gnome/shell/extensions/quicksettings-audio-devices-hider" = {
       available-input-names = [

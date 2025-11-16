@@ -1,5 +1,10 @@
 # Generated via dconf2nix: https://github.com/gvolpe/dconf2nix
-{ lib, ... }:
+{
+  lib,
+  pkgs,
+  inputs,
+  ...
+}:
 
 with lib.hm.gvariant;
 
@@ -291,12 +296,17 @@ with lib.hm.gvariant;
         "Vitals@CoreCoding.com"
         # "eepresetselector@ulville.github.io"
       ];
-      favorite-apps = lib.mkDefault [
-        "com.mitchellh.ghostty.desktop"
-        "org.gnome.Nautilus.desktop"
-        "zen.desktop"
-        "code.desktop"
-      ];
+      favorite-apps =
+        let
+          zen-browser =
+            inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}.beta.meta.desktopFileName;
+        in
+        lib.mkDefault [
+          "com.mitchellh.ghostty.desktop"
+          "org.gnome.Nautilus.desktop"
+          zen-browser
+          "code.desktop"
+        ];
       last-selected-power-profile = lib.mkDefault "performance";
     };
 

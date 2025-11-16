@@ -2,6 +2,7 @@
   inputs,
   lib,
   pkgs,
+
   ...
 }:
 {
@@ -14,13 +15,13 @@
       };
       binds =
         let
-          zen = inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}.default;
+          zen-browser = inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}.beta;
         in
         lib.mkDefault {
           # Application launchers
           "Mod+T".action.spawn = lib.getExe pkgs.ghostty;
           "Mod+E".action.spawn = lib.getExe pkgs.vscode;
-          "Mod+W".action.spawn = lib.getExe zen;
+          "Mod+W".action.spawn = lib.getExe zen-browser;
           "Mod+F".action.spawn = lib.getExe pkgs.nautilus;
 
           "Mod+Space".action.spawn = [
