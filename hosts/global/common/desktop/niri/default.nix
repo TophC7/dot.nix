@@ -35,8 +35,6 @@
     networkmanagerapplet
 
     # Applications
-    nautilus # File manager
-    papers # Document viewer
     eloquent # Spell checker
   ];
 
