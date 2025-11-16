@@ -70,10 +70,6 @@ let
         Restart = "on-failure";
         RestartSec = "5s";
       };
-
-      Install = {
-        WantedBy = [ "default.target" ];
-      };
     };
   };
 
