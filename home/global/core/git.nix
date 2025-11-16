@@ -17,9 +17,6 @@ in
     enable = true;
     package = pkgs.gitFull;
 
-    userName = userSecrets.fullName;
-    userEmail = userSecrets.email;
-
     ignores = [
       ".csvignore"
       # nix
@@ -36,8 +33,40 @@ in
     # Anytime I use auth, I want to use my yubikey. But I don't want to always be having to touch it
     # for things that don't need it. So I have to hardcode repos that require auth, and default to ssh for
     # actions that require auth.
-    extraConfig = {
-      core.pager = "delta";
+    settings = {
+      user = {
+        name = userSecrets.fullName;
+        email = userSecrets.email;
+      };
+
+      core = {
+        pager = "delta";
+        # pre-emptively ignore mac crap
+        excludeFiles = builtins.toFile "global-gitignore" ''
+          .DS_Store
+          .DS_Store?
+          ._*
+          .Spotlight-V100
+          .Trashes
+          ehthumbs.db
+          Thumbs.db
+          node_modules
+        '';
+        attributesfile = builtins.toFile "global-gitattributes" ''
+          Cargo.lock -diff
+          flake.lock -diff
+          *.drawio -diff
+          *.svg -diff
+          *.json diff=json
+          *.bin diff=hex difftool=hex
+          *.dat diff=hex difftool=hex
+          *aarch64.bin diff=objdump-aarch64 difftool=objdump-aarch64
+          *arm.bin diff=objdump-arm difftool=objdump-arm
+          *x64.bin diff=objdump-x86_64 difftool=objdump-x64
+          *x86.bin diff=objdump-x86 difftool=objdump-x86
+        '';
+      };
+
       delta = {
         enable = true;
         features = [
@@ -59,35 +88,8 @@ in
         };
       };
 
-      # pre-emptively ignore mac crap
-      core.excludeFiles = builtins.toFile "global-gitignore" ''
-        .DS_Store
-        .DS_Store?
-        ._*
-        .Spotlight-V100
-        .Trashes
-        ehthumbs.db
-        Thumbs.db
-        node_modules
-      '';
-      core.attributesfile = builtins.toFile "global-gitattributes" ''
-        Cargo.lock -diff
-        flake.lock -diff
-        *.drawio -diff
-        *.svg -diff
-        *.json diff=json
-        *.bin diff=hex difftool=hex
-        *.dat diff=hex difftool=hex
-        *aarch64.bin diff=objdump-aarch64 difftool=objdump-aarch64
-        *arm.bin diff=objdump-arm difftool=objdump-arm
-        *x64.bin diff=objdump-x86_64 difftool=objdump-x64
-        *x86.bin diff=objdump-x86 difftool=objdump-x86
-      '';
-
-      extraConfig = {
-        init = {
-          defaultBranch = "main";
-        };
+      init = {
+        defaultBranch = "main";
       };
     };
   };

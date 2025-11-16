@@ -61,7 +61,7 @@ let
   matugenGenerated =
     pkgs.runCommand "matugen-generated"
       {
-        nativeBuildInputs = [ inputs.matugen.packages.${pkgs.system}.default ];
+        nativeBuildInputs = [ inputs.matugen.packages.${pkgs.stdenv.hostPlatform.system}.default ];
       }
       ''
         mkdir -p $out

@@ -10,7 +10,7 @@
   ...
 }:
 let
-  yay = inputs.yay.packages.${pkgs.system}.default;
+  yay = inputs.yay.packages.${pkgs.stdenv.hostPlatform.system}.default;
 in
 {
   imports = lib.flatten [
@@ -51,6 +51,8 @@ in
   services.printing.enable = true;
   # Force home-manager to use global packages
   home-manager.useGlobalPkgs = true;
+  # Install user packages to /etc/profiles per user
+  home-manager.useUserPackages = true;
   # If there is a conflict file that is backed up, use this extension
   home-manager.backupFileExtension = "homeManagerBackupFileExtension";
 

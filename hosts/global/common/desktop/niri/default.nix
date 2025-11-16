@@ -75,6 +75,13 @@
         "org.freedesktop.impl.portal.Screenshot" = [ "gnome" ];
         "org.freedesktop.impl.portal.Screencast" = [ "gnome" ];
       };
+      # Fallback configuration for applications not running under niri
+      common = {
+        default = [
+          "gnome"
+          "gtk"
+        ];
+      };
     };
   };
 
@@ -99,9 +106,9 @@
   services.geoclue2.enable = true;
 
   # Allow Niri to manage power
-  services.logind = {
-    lidSwitch = "suspend";
-    lidSwitchExternalPower = "lock";
+  services.logind.settings.Login = {
+    HandleLidSwitch = "suspend";
+    HandleLidSwitchExternalPower = "lock";
   };
 
   # Font configuration for better rendering
