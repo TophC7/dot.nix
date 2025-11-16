@@ -70,6 +70,13 @@ in
         };
       };
 
+      icons = {
+        enable = true;
+        package = cfg.icon.package;
+        dark = cfg.icon.name;
+        light = cfg.icon.name;
+      };
+
       targets = {
         gnome = {
           enable = true;
@@ -77,6 +84,10 @@ in
         };
         vscode = {
           enable = false;
+        };
+        qt = {
+          enable = true;
+          platform = "qtct";
         };
       };
     }
@@ -96,10 +107,5 @@ in
 
   gtk = lib.mkIf cfg.enable {
     enable = true;
-
-    iconTheme = {
-      package = cfg.icon.package;
-      name = cfg.icon.name;
-    };
   };
 }
