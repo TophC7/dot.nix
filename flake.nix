@@ -60,20 +60,9 @@
 
     ## Misc Packages ##
 
-    # nixcord.url = "github:kaylorben/nixcord";
-    # spicetify-nix = {
-    #   url = "github:Gerg-L/spicetify-nix";
-    #   inputs.nixpkgs.follows = "nixpkgs";
-    # };
-
     solaar = {
       url = "github:Svenum/Solaar-Flake";
       inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    snapraid-aio = {
-      url = "github:tophc7/snapraid-aio.nix";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
     vscode-server = {
@@ -91,8 +80,15 @@
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
+    ## NIRI ##
+
     niri = {
       url = "github:sodiboo/niri-flake";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+    };
+
+    quickshell = {
+      url = "git+https://git.outfoxxed.me/outfoxxed/quickshell";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
@@ -110,7 +106,6 @@
       url = "github:AvengeMedia/DankMaterialShell";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
       inputs.dgop.follows = "dgop";
-      inputs.dms-cli.follows = "dms-cli";
     };
 
     vicinae = {

@@ -1,4 +1,3 @@
-# Niri Window Manager Configuration (System Level)
 {
   config,
   inputs,
@@ -8,23 +7,14 @@
   ...
 }:
 {
-  # Import niri nixos module (includes home-manager integration) and greeter
   imports = [ inputs.niri.nixosModules.niri ] ++ (lib.custom.scanPaths ./.);
-
-  # Add niri overlay for packages
   nixpkgs.overlays = [ inputs.niri.overlays.niri ];
 
-  # Enable niri at system level
   programs.niri = {
     enable = true;
-    # Use unstable version which has latest fixes including libdisplay-info
     package = pkgs.niri-unstable;
   };
 
-  # Set niri as default session (optional - uncomment to make it default)
-  # services.displayManager.defaultSession = "niri";
-
-  # Essential packages for niri
   environment.systemPackages = with pkgs; [
     # Wayland utilities
     wl-clipboard
@@ -38,8 +28,6 @@
 
     # Media control
     playerctl
-
-    # Audio control
     pavucontrol
     wireplumber
 
@@ -94,21 +82,11 @@
 
   # Enable polkit for authentication
   security.polkit.enable = true;
-
-  # Polkit agent (required for system operations like reboot/shutdown)
-  systemd.user.services.polkit-gnome-authentication-agent = {
-    description = "polkit-gnome-authentication-agent";
-    wantedBy = [ "graphical-session.target" ];
-    wants = [ "graphical-session.target" ];
-    after = [ "graphical-session.target" ];
-    serviceConfig = {
-      Type = "simple";
-      ExecStart = "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1";
-      Restart = "on-failure";
-      RestartSec = 1;
-      TimeoutStopSec = 10;
-    };
-  };
+  # DMS Handles the polkit agent, @home/global/common/desktop/niri/programs/dms.nix no config necessary
+  # Disables the niri polkit agent to avoid conflicts
+  systemd.user.services.niri-flake-polkit.enable = false;
+  # Enable gnome-keyring for credential storage
+  services.gnome.gnome-keyring.enable = true;
 
   # Environment variables for Wayland
   environment.sessionVariables = {
@@ -118,9 +96,6 @@
     SDL_VIDEODRIVER = "wayland"; # SDL apps
     _JAVA_AWT_WM_NONREPARENTING = "1"; # Java apps
   };
-
-  # Enable gnome-keyring for credential storage
-  services.gnome.gnome-keyring.enable = true;
 
   # Enable location services for night light
   services.geoclue2.enable = true;

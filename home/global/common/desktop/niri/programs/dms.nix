@@ -41,6 +41,7 @@ in
   # DankMaterialShell configuration
   programs.dankMaterialShell = {
     enable = true;
+    quickshell.package = inputs.quickshell.packages.${pkgs.system}.default;
 
     # Core features
     enableSystemMonitoring = true; # System monitoring widgets (dgop)
