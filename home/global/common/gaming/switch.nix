@@ -1,4 +1,3 @@
-# switch.nix - Systemd-based backup service for Switch emulators
 {
   pkgs,
   config,
@@ -38,48 +37,43 @@ let
     ${pkgs.borgbackup}/bin/borg prune --keep-last 50 "$BACKUP_PATH" 2>/dev/null
   '';
 
-  # Main emulator service
-  mkEmulatorService = name: emulatorCmd: savePath: backupPath: {
-    "emulator-${lib.toLower name}" = {
-      Unit = {
-        Description = "${name} emulator with automatic save backups";
-        After = [ "graphical-session.target" ];
-        # Ensure timer starts/stops with service
-        Wants = [ "emulator-${lib.toLower name}-backup.timer" ];
-      };
+  # Wrapper script that launches emulator directly with backup management
+  mkEmulatorWrapper =
+    name: emulatorCmd: savePath: backupPath:
+    pkgs.writeShellScript "launch-${lib.toLower name}" ''
+      set -euo pipefail
 
-      Service = {
-        Type = "simple";
+      # Cleanup function to stop services on exit
+      cleanup() {
+        echo "[${name}] Stopping backup timer..."
+        ${pkgs.systemd}/bin/systemctl --user stop emulator-${lib.toLower name}-backup.timer 2>/dev/null || true
 
-        # Backup on start
-        ExecStartPre = "${backupScript} start '${savePath}' '${backupPath}'";
+        # Final backup on exit
+        echo "[${name}] Creating final backup..."
+        ${backupScript} stop '${savePath}' '${backupPath}'
+      }
 
-        # Run emulator
-        ExecStart = emulatorCmd;
+      # Register cleanup on exit
+      trap cleanup EXIT INT TERM
 
-        # Start timer for periodic backups
-        ExecStartPost = "${pkgs.systemd}/bin/systemctl --user start emulator-${lib.toLower name}-backup.timer";
+      # Initial backup before starting
+      echo "[${name}] Creating initial backup..."
+      ${backupScript} start '${savePath}' '${backupPath}'
 
-        # Stop timer and backup on stop
-        ExecStopPost = [
-          "${pkgs.systemd}/bin/systemctl --user stop emulator-${lib.toLower name}-backup.timer"
-          "${pkgs.bash}/bin/bash -c 'sleep 3; ${backupScript} stop \"${savePath}\" \"${backupPath}\"'"
-        ];
+      # Start the backup timer
+      echo "[${name}] Starting backup timer..."
+      ${pkgs.systemd}/bin/systemctl --user start emulator-${lib.toLower name}-backup.timer
 
-        # Restart policy
-        Restart = "on-failure";
-        RestartSec = "5s";
-      };
-    };
-  };
+      # Run the emulator in the foreground
+      echo "[${name}] Launching emulator..."
+      exec ${emulatorCmd}
+    '';
 
   # One-shot service for timer-triggered backups
   mkBackupService = name: savePath: backupPath: {
     "emulator-${lib.toLower name}-backup" = {
       Unit = {
         Description = "Backup ${name} saves";
-        # Only run when emulator service is active
-        Requisite = [ "emulator-${lib.toLower name}.service" ];
       };
 
       Service = {
@@ -94,8 +88,6 @@ let
     "emulator-${lib.toLower name}-backup" = {
       Unit = {
         Description = "Periodic backup timer for ${name} saves";
-        # Timer is controlled by the emulator service
-        PartOf = [ "emulator-${lib.toLower name}.service" ];
       };
 
       Timer = {
@@ -103,15 +95,14 @@ let
         OnUnitActiveSec = "5min";
         Unit = "emulator-${lib.toLower name}-backup.service";
       };
-
-      # No Install section - timer is started/stopped by the emulator service
     };
   };
 
-  # Desktop entry that starts the systemd service
+  # Desktop entry that launches wrapper script directly
   mkEmulatorDesktopEntry =
     {
       name,
+      wrapperScript,
       icon ? "applications-games",
       wmClass ? name,
       ...
@@ -119,7 +110,7 @@ let
     {
       name = "${name} (Protected)";
       comment = "${name} with automatic save backups";
-      exec = "systemctl --user start emulator-${lib.toLower name}.service";
+      exec = "${wrapperScript}";
       icon = icon;
       type = "Application";
       terminal = false;
@@ -153,37 +144,49 @@ let
     icon = "Ryujinx";
     wmClass = "Ryubing";
   };
+
+  # Configuration for Eden emulator
+  edenConfig = {
+    name = "Eden";
+    emulatorCmd = "${lib.getExe pkgs.eden}";
+    savePath = "~/.local/share/eden/nand/user/save";
+    backupPath = "~/.switch/EdenBackups";
+    icon = "Eden";
+    wmClass = "Eden";
+  };
+
+  # Create wrapper scripts for each emulator
+  ryubingWrapper =
+    mkEmulatorWrapper ryubingConfig.name ryubingConfig.emulatorCmd ryubingConfig.savePath
+      ryubingConfig.backupPath;
+
+  edenWrapper =
+    mkEmulatorWrapper edenConfig.name edenConfig.emulatorCmd edenConfig.savePath
+      edenConfig.backupPath;
 in
 {
   home.packages = with pkgs; [
     borgbackup
     nsz
     ryubing
+    eden
   ];
 
-  # Systemd user services
+  # Systemd user services (only backup services, not main emulator services)
   systemd.user.services = lib.mkMerge [
-    (mkEmulatorService ryubingConfig.name ryubingConfig.emulatorCmd ryubingConfig.savePath
-      ryubingConfig.backupPath
-    )
     (mkBackupService ryubingConfig.name ryubingConfig.savePath ryubingConfig.backupPath)
+    (mkBackupService edenConfig.name edenConfig.savePath edenConfig.backupPath)
   ];
 
   # Systemd user timers
-  systemd.user.timers = mkBackupTimer ryubingConfig.name;
+  systemd.user.timers = lib.mkMerge [
+    (mkBackupTimer ryubingConfig.name)
+    (mkBackupTimer edenConfig.name)
+  ];
 
   # Desktop entries
   xdg.desktopEntries = {
-    ryubing = mkEmulatorDesktopEntry ryubingConfig;
-  };
-
-  # Service management aliases
-  home.shellAliases = {
-    # Start/stop emulator
-    start-ryubing = "systemctl --user start emulator-ryubing.service";
-    stop-ryubing = "systemctl --user stop emulator-ryubing.service";
-    status-ryubing = "systemctl --user status emulator-ryubing.service emulator-ryubing-backup.timer";
-    # View logs
-    ryubing-logs = "journalctl --user -u emulator-ryubing.service -u emulator-ryubing-backup.service -n 50";
+    ryubing = mkEmulatorDesktopEntry (ryubingConfig // { wrapperScript = ryubingWrapper; });
+    eden = mkEmulatorDesktopEntry (edenConfig // { wrapperScript = edenWrapper; });
   };
 }
