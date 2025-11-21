@@ -67,6 +67,11 @@
       # Prefer no server-side decorations
       prefer-no-csd = true;
 
+      xwayland-satellite = {
+        enable = true;
+        path = lib.getExe pkgs.xwayland-satellite;
+      };
+
       layout = {
         gaps = 8;
         center-focused-column = "never";
