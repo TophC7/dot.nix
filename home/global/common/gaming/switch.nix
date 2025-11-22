@@ -39,22 +39,35 @@ let
 
   # Wrapper script that launches emulator directly with backup management
   mkEmulatorWrapper =
-    name: emulatorCmd: savePath: backupPath:
-    pkgs.writeShellScript "launch-${lib.toLower name}" ''
-      set -euo pipefail
+    {
+      name,
+      emulatorCmd,
+      savePath,
+      backupPath,
+      env ? { }, # Optional environment variables
+      ...
+    }:
+    let
+      # Convert env attrset to Fish export statements
+      envExports = lib.concatStringsSep "\n" (
+        lib.mapAttrsToList (key: value: "  set -gx ${key} '${toString value}'") env
+      );
+    in
+    pkgs.writeScript "launch-${lib.toLower name}" ''
+      #!${lib.getExe pkgs.fish}
+
+      # Set environment variables
+      ${envExports}
 
       # Cleanup function to stop services on exit
-      cleanup() {
+      function cleanup --on-event fish_exit
         echo "[${name}] Stopping backup timer..."
-        ${pkgs.systemd}/bin/systemctl --user stop emulator-${lib.toLower name}-backup.timer 2>/dev/null || true
+        ${pkgs.systemd}/bin/systemctl --user stop emulator-${lib.toLower name}-backup.timer 2>/dev/null; or true
 
         # Final backup on exit
         echo "[${name}] Creating final backup..."
         ${backupScript} stop '${savePath}' '${backupPath}'
-      }
-
-      # Register cleanup on exit
-      trap cleanup EXIT INT TERM
+      end
 
       # Initial backup before starting
       echo "[${name}] Creating initial backup..."
@@ -143,6 +156,9 @@ let
     backupPath = "~/.switch/RyubingBackups";
     icon = "Ryujinx";
     wmClass = "Ryubing";
+    env = {
+      DXVK_FRAME_RATE = "60";
+    };
   };
 
   # Configuration for Eden emulator
@@ -153,16 +169,15 @@ let
     backupPath = "~/.switch/EdenBackups";
     icon = "Eden";
     wmClass = "Eden";
+    env = {
+      DXVK_FRAME_RATE = "60";
+    };
   };
 
   # Create wrapper scripts for each emulator
-  ryubingWrapper =
-    mkEmulatorWrapper ryubingConfig.name ryubingConfig.emulatorCmd ryubingConfig.savePath
-      ryubingConfig.backupPath;
+  ryubingWrapper = mkEmulatorWrapper ryubingConfig;
 
-  edenWrapper =
-    mkEmulatorWrapper edenConfig.name edenConfig.emulatorCmd edenConfig.savePath
-      edenConfig.backupPath;
+  edenWrapper = mkEmulatorWrapper edenConfig;
 in
 {
   home.packages = with pkgs; [
