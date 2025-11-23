@@ -4,9 +4,9 @@
   config,
   lib,
   modulesPath,
+  host,
   ...
 }:
-
 {
   imports = lib.flatten [
     (modulesPath + "/installer/scan/not-detected.nix")
@@ -52,6 +52,10 @@
     # Workaround for boot issues
     kernelParams = [
       "amdgpu.dcdebugmask=0x10"
+      # Fix for Samsung NVMe 980 power management issues
+      "nvme_core.default_ps_max_latency_us=0"
+      "pcie_aspm=off"
+      "pcie_port_pm=off"
     ];
     kernelModules = [
       "kvm-amd"
@@ -59,12 +63,29 @@
     ];
     extraModulePackages = [ ];
 
+    # Enable BTRFS
+    supportedFilesystems = [
+      "btrfs"
+    ];
+
     # Allow running ARM binaries on x86_64; for Cross Compilation
     binfmt.emulatedSystems = [ "aarch64-linux" ];
   };
 
   # For less permission issues with SSHFS
   programs.fuse.userAllowOther = true;
+
+  # BTRFS services
+  services.btrfs.autoScrub = {
+    enable = true;
+    interval = "monthly";
+    fileSystems = [ "/steam" ];
+  };
+
+  # Ensure /steam directory exists
+  systemd.tmpfiles.rules = [
+    "d /steam 0755 ${host.user.name} ryot - -"
+  ];
 
   fileSystems = {
     "/" = {
@@ -78,6 +99,17 @@
       options = [
         "fmask=0077"
         "dmask=0077"
+      ];
+    };
+
+    "/steam" = {
+      device = "/dev/disk/by-uuid/5e0e7a36-eef9-489f-b2d3-8791cdd75ad4";
+      fsType = "btrfs";
+      options = [
+        "compress=zstd:3"
+        "noatime"
+        "space_cache=v2"
+        "nofail"
       ];
     };
   };
