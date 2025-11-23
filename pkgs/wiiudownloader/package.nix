@@ -62,6 +62,22 @@ buildGoModule rec {
   # The main package is in cmd/WiiUDownloader
   subPackages = [ "cmd/WiiUDownloader" ];
 
+  # Install desktop file
+  postInstall = ''
+    mkdir -p $out/share/applications
+    cat > $out/share/applications/wiiudownloader.desktop << EOF
+    [Desktop Entry]
+    Name=WiiU Downloader
+    Comment=Download Wii U games, updates, DLC, and demos from Nintendo's servers
+    Exec=${pname}
+    Icon=folder-download
+    Terminal=false
+    Type=Application
+    Categories=Game;Utility;
+    Keywords=wii;wiiu;nintendo;download;game;
+    EOF
+  '';
+
   meta = with lib; {
     description = "GUI application to download Wii U games, updates, DLC, and demos directly from Nintendo's servers";
     homepage = "https://github.com/Xpl0itU/WiiUDownloader";
