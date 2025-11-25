@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 name: pangolin
 services:
   pangolin:
@@ -24,7 +24,7 @@ services:
       - "443:443"
       - "222:222/tcp"
       - "51820:51820/udp"
-      - "25565:25565/udp"
+      - "25565:25565/tcp"
     volumes:
       - /etc/pangolin/config:/var/config
     cap_add:
