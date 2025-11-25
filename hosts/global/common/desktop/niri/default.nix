@@ -26,12 +26,16 @@
     libnotify
     cliphist
 
+    # Utility
+    gnome-disk-utility
+    qdirstat
+
     # Media control
     playerctl
     pavucontrol
     wireplumber
 
-    # Network manager
+    # Network/Bluetooth manager
     networkmanagerapplet
 
     # Applications
