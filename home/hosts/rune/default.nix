@@ -43,11 +43,5 @@
 
     # Web Dev
     gh
-
-    ## Minecraft ##
-    modrinth-app
-
-    ## Development ##
-    # jetbrains.idea-ultimate
   ];
 }
