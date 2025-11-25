@@ -479,11 +479,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1751336185,
-        "narHash": "sha256-ptnVr2x+sl7cZcTuGx/0BOE2qCAIYHTcgfA+/h60ml0=",
+        "lastModified": 1764075860,
+        "narHash": "sha256-KYEIHCBBw+/lwKsJNRNoUxBB4ZY2LK0G0T8f+0i65q0=",
         "owner": "nix-community",
         "repo": "home-manager",
-        "rev": "96354906f58464605ff81d2f6c2ea23211cbf051",
+        "rev": "295d90e22d557ccc3049dc92460b82f372cd3892",
         "type": "github"
       },
       "original": {
@@ -878,14 +878,17 @@
         ]
       },
       "locked": {
-        "lastModified": 1763140002,
-        "narHash": "sha256-f9S2Qr079UYNCWVleSr9Be5DQGHT1bq5WNmVrfsZFoI=",
-        "path": "/repo/Nix/play.nix",
-        "type": "path"
+        "lastModified": 1763052470,
+        "narHash": "sha256-deYVnUZ7SOyDI3aAM9NxSFnZuSuCRMQrwfCu2YhNjKk=",
+        "owner": "tophc7",
+        "repo": "play.nix",
+        "rev": "034de59808387ffa9e5d677860c96cceffa570f9",
+        "type": "github"
       },
       "original": {
-        "path": "/repo/Nix/play.nix",
-        "type": "path"
+        "owner": "tophc7",
+        "repo": "play.nix",
+        "type": "github"
       }
     },
     "quickshell": {
