@@ -21,16 +21,6 @@ in
       package = pkgs.stable.qemu_kvm;
       runAsRoot = true;
       swtpm.enable = true;
-      ovmf = {
-        enable = true;
-        packages = with pkgs.stable; [
-          (OVMFFull.override {
-            secureBoot = true;
-            tpmSupport = true;
-            httpSupport = true;
-          }).fd
-        ];
-      };
     };
   };
 
