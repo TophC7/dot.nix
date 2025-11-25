@@ -31,4 +31,15 @@
       options bluetooth enable_ecred=1
     '';
   };
+
+  # Automatically unblock Bluetooth on boot to prevent rfkill soft-blocking
+  systemd.services.unblock-bluetooth = {
+    description = "Unblock Bluetooth rfkill on boot";
+    wantedBy = [ "bluetooth.service" ];
+    before = [ "bluetooth.service" ];
+    serviceConfig = {
+      Type = "oneshot";
+      ExecStart = "${pkgs.util-linux}/bin/rfkill unblock bluetooth";
+    };
+  };
 }
