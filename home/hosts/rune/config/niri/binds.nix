@@ -56,6 +56,11 @@
             "vicinae://extensions/vicinae/clipboard/history"
           ]; # Clipboard manager
 
+          "Mod+Period".action.spawn = [
+            "vicinae"
+            "vicinae://extensions/vicinae/vicinae/search-emojis"
+          ]; # Clipboard manager
+
           "Mod+Tab".action.spawn = [
             "vicinae"
             "vicinae://extensions/vicinae/wm/switch-windows"
