@@ -15,7 +15,7 @@ let
       owner = "AvengeMedia";
       repo = "dms-plugins";
       rev = "3bc66f186a8184cb8eca5fdfc0699cb4a828cd90";
-      hash = "sha256-zZigP1wet5mwZiXcAuzbWo4gPhPOOYLvG0DOOaWAJgQ=";
+      hash = "sha256-KtOu12NVLdyho9T4EXJaReNhFO98nAXpemkb6yeOvwE=";
     };
 
     # Plugin files are in DankActions subdirectory
