@@ -2,10 +2,10 @@
 {
   # GTK Bookmarks for Nautilus sidebar
   xdg.configFile."gtk-3.0/bookmarks".text = ''
-    file:///repo 🪑 Repo
     file:///fast ⚡ Fast
-    file:///tank 🫙 Tank
+    file:///repo 🪑 Repo
     file:///store 🐳 Store
+    file:///tank 🫙 Tank
     file:///home/toph/Documents
     file:///home/toph/Downloads
     file:///home/toph/Games Games
@@ -13,7 +13,6 @@
   '';
 
   # Custom folder icons using theme-aware icon names
-  # These will follow your GTK icon theme automatically
   home.activation.setNautilusFolderIcons = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     # Only set icons if directories exist to avoid errors
     [[ -d /steam ]] && ${pkgs.glib}/bin/gio set /steam metadata::custom-icon-name "folder-steam" || true
