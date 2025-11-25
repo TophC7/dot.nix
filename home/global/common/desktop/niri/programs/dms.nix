@@ -7,29 +7,29 @@
 }:
 let
   # Declaratively fetch the DankActions plugin
-  # dankActionsPlugin = pkgs.stdenv.mkDerivation {
-  #   pname = "dms-dank-actions";
-  #   version = "unstable";
+  dankActionsPlugin = pkgs.stdenv.mkDerivation {
+    pname = "dms-dank-actions";
+    version = "unstable";
 
-  #   src = pkgs.fetchFromGitHub {
-  #     owner = "AvengeMedia";
-  #     repo = "dms-plugins";
-  #     rev = "master";
-  #     hash = "sha256-zZigP1wet5mwZiXcAuzbWo4gPhPOOYLvG0DOOaWAJgQ=";
-  #   };
+    src = pkgs.fetchFromGitHub {
+      owner = "AvengeMedia";
+      repo = "dms-plugins";
+      rev = "3bc66f186a8184cb8eca5fdfc0699cb4a828cd90";
+      hash = "sha256-zZigP1wet5mwZiXcAuzbWo4gPhPOOYLvG0DOOaWAJgQ=";
+    };
 
-  #   # Plugin files are in DankActions subdirectory
-  #   installPhase = ''
-  #     mkdir -p $out
-  #     cp -r DankActions/* $out/
-  #   '';
+    # Plugin files are in DankActions subdirectory
+    installPhase = ''
+      mkdir -p $out
+      cp -r DankActions/* $out/
+    '';
 
-  #   meta = {
-  #     description = "DankMaterialShell DankActions plugin";
-  #     homepage = "https://github.com/AvengeMedia/dms-plugins";
-  #     license = lib.licenses.mit;
-  #   };
-  # };
+    meta = {
+      description = "DankMaterialShell DankActions plugin";
+      homepage = "https://github.com/AvengeMedia/dms-plugins";
+      license = lib.licenses.mit;
+    };
+  };
 in
 {
   # Import DankMaterialShell modules
@@ -59,11 +59,11 @@ in
     };
 
     # Plugins
-    # plugins = {
-    #   dankActions = {
-    #     enable = true;
-    #     src = dankActionsPlugin;
-    #   };
-    # };
+    plugins = {
+      dankActions = {
+        enable = true;
+        src = dankActionsPlugin;
+      };
+    };
   };
 }
