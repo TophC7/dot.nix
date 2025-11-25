@@ -8,7 +8,6 @@
 	"files.exclude": {
 		".git-crypt": true
 	},
-	"terminal.integrated.defaultProfile.linux": "fish-fhs",
 	"terminal.integrated.profiles.linux": {
 		"fish-fhs": {
 			"args": [
