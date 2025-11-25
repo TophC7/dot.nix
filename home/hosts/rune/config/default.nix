@@ -54,8 +54,6 @@
       scale = 1.0;
       transform = 0;
       enabled = true;
-      hdr = true;
-      vrr = true;
     }
   ];
 
