@@ -10,21 +10,13 @@
   wrapGAppsHook3,
 }:
 let
-  # Fetch the db.go file that would normally be downloaded by grabTitles.py
+  # db.go file that would normally be downloaded by grabTitles.py
   # This is required for the build and contains title database definitions
-  db-go = fetchurl {
-    url = "https://napi.v10lator.de/db?t=go";
-    hash = "sha256-srCjg2dZwALOVhyOL6C++3nJpK9BropCCmcY0DhUxrU=";
-    # Server has HTTP/2 issues, force HTTP/1.1 and use custom user agent
-    curlOptsList = [
-      "--http1.1"
-      "-H"
-      "User-Agent: NUSspliBuilder/2.1"
-    ];
-  };
+  # Run ./update-db.fish to update this file, if ever needed
+  db-go = ./db.go;
 in
 buildGoModule rec {
-  pname = "wiiudownloader";
+  pname = "wiiu-downloader";
   version = "2.68";
 
   src = fetchFromGitHub {
