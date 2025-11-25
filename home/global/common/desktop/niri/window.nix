@@ -6,6 +6,7 @@
 }:
 {
   # Niri window rules
+  # https://github.com/sodiboo/niri-flake/blob/main/docs.md
   programs.niri = {
     settings = {
       window-rules = lib.mkDefault [
@@ -40,19 +41,23 @@
         {
           matches = [
             { app-id = "^code-url-handler$"; }
-            { app-id = "^Code$"; }
+            { app-id = "^code$"; }
           ];
-          default-column-width = {
-            proportion = 1.0;
-          };
+          default-column-width.proportion = 0.65;
         }
 
         # Browsers
         {
           matches = [
             { app-id = "^firefox$"; }
-            { app-id = "^zen-alpha$"; }
-            { app-id = "^zen$"; }
+            { app-id = "zen-alpha"; }
+            { app-id = "zen-beta"; }
+            { app-id = "zen"; }
+          ];
+          excludes = [
+            {
+              title = "^Extension$";
+            }
           ];
           default-column-width = {
             proportion = 0.75;
@@ -67,28 +72,21 @@
             { app-id = "^org.telegram.desktop$"; }
             { app-id = "^TelegramDesktop$"; }
           ];
-          default-column-width = {
-            proportion = 1.0;
-          };
+          default-column-width.proportion = 1.0;
+          open-on-output = "DP-5";
         }
 
         # File manager
-        {
-          matches = [ { app-id = "^org.gnome.Nautilus$"; } ];
-          default-column-width = {
-            proportion = 0.35;
-          };
-        }
-
         # Terminal
         {
           matches = [
+            { app-id = "^org.gnome.Nautilus$"; }
             { app-id = "^com.mitchellh.ghostty$"; }
             { title = "^ghostty$"; }
           ];
-          default-column-width = {
-            proportion = 0.35;
-          };
+          default-column-width.proportion = 0.40;
+          default-window-height.proportion = 0.40;
+          open-floating = true;
         }
 
         # Gaming
@@ -97,9 +95,7 @@
             { app-id = "^.gamescope-wrapped$"; }
             { app-id = "^steam_app_.*$"; }
           ];
-          default-column-width = {
-            proportion = 1.0;
-          };
+          default-column-width.proportion = 1.0;
           open-fullscreen = true;
         }
       ];
