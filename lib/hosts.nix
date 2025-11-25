@@ -150,6 +150,7 @@ in
             111 # rpcbind
             2049 # NFSv4
             10048 # mountd
+            4488 # nix-serve
           ];
           allowedUDPPorts = [
             111 # rpcbind
