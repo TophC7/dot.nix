@@ -63,12 +63,12 @@
 
   fileSystems = {
     "/" = {
-      device = "/dev/disk/by-uuid/72ca0d77-e355-41b5-9002-667e509cf550";
+      device = "/dev/disk/by-uuid/b68db330-60b8-422b-a75c-6e92d0eb6095";
       fsType = "ext4";
     };
 
     "/boot" = {
-      device = "/dev/disk/by-uuid/657A-7C49";
+      device = "/dev/disk/by-uuid/52FE-E21B";
       fsType = "vfat";
       options = [
         "fmask=0077"
@@ -77,7 +77,7 @@
     };
   };
 
-  swapDevices = [ { device = "/dev/disk/by-uuid/f338f03e-07ee-4dcf-be1c-583a276e9172"; } ];
+  swapDevices = [ { device = "/dev/disk/by-uuid/a04d4d68-e167-4409-bfb0-7226f2c74b4a"; } ];
 
   time.hardwareClockInLocalTime = true; # Fixes windows dual-boot time issues
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
