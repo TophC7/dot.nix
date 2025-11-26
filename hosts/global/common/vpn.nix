@@ -23,7 +23,7 @@ in
     ];
     # WireGuard VPN for homelab network access
     networking.wg-quick.interfaces.wg-homelab = {
-      autostart = true;
+      autostart = false;
       address = [ cfgWg.address ];
       dns = [
         "10.100.0.1"
