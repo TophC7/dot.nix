@@ -14,8 +14,8 @@
       scale = 1.0;
       transform = 0;
       enabled = true;
-      hdr = true;
-      vrr = true;
+      # hdr = true;
+      # vrr = true;
     }
     {
       name = "DP-3";
@@ -27,8 +27,8 @@
       scale = 1.0;
       transform = 0;
       enabled = true;
-      hdr = true;
-      vrr = true;
+      # hdr = true;
+      # vrr = true;
     }
   ];
 
