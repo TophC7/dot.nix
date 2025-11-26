@@ -15,20 +15,20 @@
       transform = 0;
       enabled = true;
       # hdr = true;
-      # vrr = true;
+      vrr = true;
     }
     {
-      name = "DP-3";
+      name = "DP-2";
       width = 2560; # Left-most monitor
       height = 1440;
       refreshRate = 360;
-      x = 1080;
+      x = 0;
       y = 0;
       scale = 1.0;
       transform = 0;
       enabled = true;
       # hdr = true;
-      # vrr = true;
+      vrr = true;
     }
   ];
 

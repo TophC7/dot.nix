@@ -72,6 +72,12 @@ in
       network = {
         hostName = "gojo";
         ip = "104.40.5.5"; # Update with actual IP if needed
+        vpn = true; # VPN client to nexus
+        wg = {
+          publicKey = "PLACEHOLDER"; # Defined in secrets
+          address = "10.100.0.2/32"; # Client address
+          endpoint = wgEndpoint;
+        };
       };
       user = {
         name = "gio";
@@ -127,7 +133,7 @@ in
         };
         wg = {
           publicKey = "PLACEHOLDER"; # Defined in secrets
-          address = "10.100.0.1/24"; # Server address
+          address = "10.100.0.4/24"; # Server address
           endpoint = null; # Server doesn't need endpoint
         };
       };
