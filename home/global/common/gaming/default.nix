@@ -8,8 +8,9 @@
 
   home.packages = with pkgs; [
     prismlauncher
-    stable.dolphin-emu-primehack
+    # stable.dolphin-emu-primehack
     cemu
-    wiiudownloader
+    wiiu-downloader
+    ukmm
   ];
 }
