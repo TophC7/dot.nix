@@ -50,8 +50,8 @@
             default = false;
           };
           vrr = lib.mkOption {
-            type = lib.types.bool;
-            description = "Variable Refresh Rate aka Adaptive Sync aka AMD FreeSync.";
+            type = lib.types.either lib.types.bool (lib.types.enum [ "on-demand" ]);
+            description = "Variable Refresh Rate aka Adaptive Sync aka AMD FreeSync. Can be a boolean or 'on-demand' for niri.";
             default = false;
           };
         };
