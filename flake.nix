@@ -16,7 +16,7 @@
     };
 
     home-manager = {
-      url = "github:nix-community/home-manager";
+      url = "github:nix-community/home-manager/release-25.11";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
@@ -32,10 +32,12 @@
 
     rose-pine-hyprcursor = {
       url = "github:ndom91/rose-pine-hyprcursor";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
     stylix = {
-      url = "github:danth/stylix";
+      url = "github:danth/stylix/release-25.11";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
     matugen = {
