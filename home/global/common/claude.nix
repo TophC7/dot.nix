@@ -2,11 +2,12 @@
   config,
   lib,
   pkgs,
+  inputs,
   ...
 }:
 {
   # Install claude-code package
-  home.packages = [ pkgs.claude-code ];
+  home.packages = [ inputs.nix-ai.packages.${pkgs.stdenv.hostPlatform.system}.claude-code ];
 
   home.file = {
     # Claude Code configuration

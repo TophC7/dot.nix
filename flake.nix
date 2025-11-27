@@ -80,6 +80,11 @@
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
+    nix-ai = {
+      url = "github:numtide/nix-ai-tools";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+    };
+
     ## NIRI ##
 
     niri = {
