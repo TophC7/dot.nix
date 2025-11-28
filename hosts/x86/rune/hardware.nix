@@ -52,10 +52,6 @@
     # Workaround for boot issues
     kernelParams = [
       "amdgpu.dcdebugmask=0x10"
-      # Fix for Samsung NVMe 980 power management issues
-      "nvme_core.default_ps_max_latency_us=0"
-      "pcie_aspm=off"
-      "pcie_port_pm=off"
     ];
     kernelModules = [
       "kvm-amd"
@@ -79,7 +75,10 @@
   services.btrfs.autoScrub = {
     enable = true;
     interval = "monthly";
-    fileSystems = [ "/steam" ];
+    fileSystems = [
+      "/"
+      "/steam"
+    ];
   };
 
   # Ensure /steam directory exists
@@ -88,13 +87,79 @@
   ];
 
   fileSystems = {
+    # BTRFS root with subvolumes
     "/" = {
-      device = "/dev/disk/by-uuid/d38c182c-6f05-4bf3-8a45-5532c10fd342";
-      fsType = "ext4";
+      device = "/dev/disk/by-uuid/28d649f5-d3fd-4f60-9a03-efc3680395d0";
+      fsType = "btrfs";
+      options = [
+        "subvol=@"
+        "compress=zstd:3"
+        "noatime"
+        "ssd"
+        "space_cache=v2"
+      ];
+    };
+
+    "/home" = {
+      device = "/dev/disk/by-uuid/28d649f5-d3fd-4f60-9a03-efc3680395d0";
+      fsType = "btrfs";
+      options = [
+        "subvol=@home"
+        "compress=zstd:3"
+        "noatime"
+        "ssd"
+        "space_cache=v2"
+      ];
+    };
+
+    "/nix" = {
+      device = "/dev/disk/by-uuid/28d649f5-d3fd-4f60-9a03-efc3680395d0";
+      fsType = "btrfs";
+      options = [
+        "subvol=@nix"
+        "compress=zstd:3"
+        "noatime"
+        "ssd"
+        "space_cache=v2"
+      ];
+    };
+
+    "/var/log" = {
+      device = "/dev/disk/by-uuid/28d649f5-d3fd-4f60-9a03-efc3680395d0";
+      fsType = "btrfs";
+      options = [
+        "subvol=@log"
+        "compress=zstd:3"
+        "noatime"
+        "ssd"
+        "space_cache=v2"
+      ];
+    };
+
+    "/.snapshots" = {
+      device = "/dev/disk/by-uuid/28d649f5-d3fd-4f60-9a03-efc3680395d0";
+      fsType = "btrfs";
+      options = [
+        "subvol=@snapshots"
+        "compress=zstd:3"
+        "noatime"
+        "ssd"
+        "space_cache=v2"
+      ];
+    };
+
+    "/swap" = {
+      device = "/dev/disk/by-uuid/28d649f5-d3fd-4f60-9a03-efc3680395d0";
+      fsType = "btrfs";
+      options = [
+        "subvol=@swap"
+        "noatime"
+        "ssd"
+      ];
     };
 
     "/boot" = {
-      device = "/dev/disk/by-uuid/5B39-A7CB";
+      device = "/dev/disk/by-uuid/0606-264A";
       fsType = "vfat";
       options = [
         "fmask=0077"
@@ -102,19 +167,27 @@
       ];
     };
 
+    # Steam drive (old NixOS SSD repurposed)
     "/steam" = {
-      device = "/dev/disk/by-uuid/5e0e7a36-eef9-489f-b2d3-8791cdd75ad4";
+      device = "/dev/disk/by-uuid/3786b62a-66db-4637-a6d1-a29ca1cc8501";
       fsType = "btrfs";
       options = [
         "compress=zstd:3"
         "noatime"
+        "ssd"
         "space_cache=v2"
         "nofail"
       ];
     };
   };
 
-  swapDevices = [ { device = "/dev/disk/by-uuid/6586847d-eba9-4317-9077-98ae9b2812c9"; } ];
+  # Swapfile on BTRFS subvolume
+  swapDevices = [
+    {
+      device = "/swap/swapfile";
+      size = 32 * 1024;
+    }
+  ];
 
   time.hardwareClockInLocalTime = true; # Fixes windows dual-boot time issues
 
