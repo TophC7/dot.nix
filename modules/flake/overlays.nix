@@ -24,8 +24,19 @@ let
 
   # General modifications to existing packages
   modifications = final: prev: {
+    # Update Spotify to latest version (upstream is outdated)
+    # Check for updates: curl -s -H 'X-Ubuntu-Series: 16' "https://api.snapcraft.io/api/v1/snaps/details/spotify?channel=stable" | jq '.revision,.download_sha512,.version'
+    spotify = prev.spotify.overrideAttrs (old: rec {
+      version = "1.2.74.477.g3be53afe";
+      rev = "89";
+      src = prev.fetchurl {
+        url = "https://api.snapcraft.io/api/v1/snaps/download/pOBIoZ2LrCB3rDohMxoYGnbN14EHOgD7_${rev}.snap";
+        hash = "sha512-mn1w/Ylt9weFgV67tB435CoF2/4V+F6gu1LUXY07J6m5nxi1PCewHNFm8/11qBRO/i7mpMwhcRXaiv0HkFAjYA==";
+      };
+    });
     # Fix dolphin-emu-primehack CMake compatibility issues (stable version only)
     # Unstable has mbedtls library conflicts, so we use stable
+    # FIXME: I need this in unstable, stable has broken old pkgs I dont want
     dolphin-emu-primehack = final.stable.dolphin-emu-primehack.overrideAttrs (oldAttrs: {
       postPatch = (oldAttrs.postPatch or "") + ''
         # Fix CMake minimum version in all vendored dependencies
@@ -59,7 +70,7 @@ let
   # Stable channel packages
   stable-packages = final: _prev: {
     stable = import inputs.nixpkgs-stable {
-      inherit (final) system;
+      system = final.stdenv.hostPlatform.system;
       config.allowUnfree = true;
     };
   };
@@ -67,7 +78,7 @@ let
   # Unstable channel packages
   unstable-packages = final: _prev: {
     unstable = import inputs.nixpkgs-unstable {
-      inherit (final) system;
+      system = final.stdenv.hostPlatform.system;
       config.allowUnfree = true;
     };
   };
