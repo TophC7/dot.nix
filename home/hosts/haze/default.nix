@@ -1,20 +1,21 @@
 {
+  flakeRoot,
   lib,
   pkgs,
   ...
 }:
 {
   imports = lib.flatten [
-    ## Common Imports ##
-    (map lib.custom.relativeToRoot [
-      "home/global/common/gaming"
-      "home/global/common/vscode.nix"
-      "home/global/common/xdg.nix"
-      "home/global/common/zen.nix"
-    ])
+    ## Rune Specific Imports ##
+    (lib.fs.scanPaths ./.)
 
-    ## Haze Specific ##
-    ./config
+    ## Additional Imports ##
+    (map (lib.fs.relativeTo flakeRoot) [
+      "modules/home/common/gaming"
+      "modules/home/common/vscode.nix"
+      "modules/home/common/xdg.nix"
+      "modules/home/common/zen.nix"
+    ])
   ];
 
   ## Packages with no needed configs ##

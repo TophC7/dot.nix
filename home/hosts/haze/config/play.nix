@@ -8,7 +8,7 @@
 }:
 let
   # Get primary monitor and calculate resolution minus 20 pixels
-  primaryMonitor = lib.custom.getPrimaryMonitor config.monitors;
+  primaryMonitor = lib.desktop.monitors.findPrimary config.monitors;
   resX = toString (primaryMonitor.width - 10);
   resY = toString (primaryMonitor.height - 10);
   refresh = toString primaryMonitor.refreshRate;

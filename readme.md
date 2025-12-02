@@ -14,13 +14,14 @@
 
 ## 🏗️ Architecture Overview
 
-This repository follows a **layered, modular approach** that separates system-level configurations from user environments, while promoting code reuse across different hosts and users.
+This repository follows a **layered, modular approach** that separates system-level configurations from user environments, while promoting code reuse across different hosts and users. Built with **flake.parts** for enhanced modularity and maintainability.
 
 ```
 📁 dot.nix/
-├── ❄️ flake.nix                    # Central entry point & dependency management
+├── ❄️ flake.nix                    # Central entry using flake.parts
 ├── 🔐 secrets.nix                  # Encrypted secrets (git-crypt)
 ├── 📝 CLAUDE.md                    # Claude Code integration & dev instructions
+├── 🌐 .mcp.json                    # Model Context Protocol server config
 ├── 🏠 hosts/                       # System-level configurations
 │   ├── x86/                        # Intel/AMD 64-bit systems
 │   └── arm/                        # ARM64 systems
@@ -38,11 +39,12 @@ This repository follows a **layered, modular approach** that separates system-le
 ## 🎯 Core Components
 
 ### **Flake Management (`flake.nix`)**
-The heart of the configuration, managing:
-- **External Dependencies**: `nixpkgs`, `home-manager`, `stylix`, `hardware modules`, `solaar`, `snapraid-aio`, `chaotic`
+The heart of the configuration, now powered by **flake.parts** for better organization:
+- **External Dependencies**: `nixpkgs`, `home-manager`, `stylix`, `hardware modules`, `solaar`, `chaotic`
 - **System Outputs**: Complete NixOS configurations for each host
 - **Custom Packages**: Exposed packages from `pkgs/`
 - **Overlays**: Package modifications and additions
+- **Modular Structure**: Enhanced with flake.parts for cleaner, more maintainable code
 
 ### **Secret Management**
 - **Encryption**: `git-crypt` secures sensitive data in `secrets.nix`
@@ -73,15 +75,16 @@ hosts/global/
     ├── gnome.nix                   # GNOME desktop environment
     ├── docker.nix                  # Docker setup with update-containers script
     ├── libvirt.nix                 # VM tools and management
+    ├── vpn.nix                     # WireGuard VPN for homelab access
     ├── warp.nix                    # Cloudflare WARP VPN support
     ├── pangolin/                   # Pangolin network services
     │   ├── newt.nix                # Newt tunneling service
     │   └── olm.nix                 # OLM client for external access
     └── system/
-        ├── fast.nix                # Fast NFS storage mount from nimbus
-        ├── tank.nix                # General cold storage NFS mount from nimbus
-        ├── store.nix               # Service data NFS mount from zebes
-        ├── repo.nix                # Repository NFS mount for shared access
+        ├── fast.nix                # Fast NFS storage (systemd mount with automount)
+        ├── tank.nix                # Cold storage NFS (systemd mount with automount)
+        ├── store.nix               # Service data NFS (systemd mount with automount)
+        ├── repo.nix                # Repository NFS (systemd mount with automount)
         └── lxc.nix                 # Central hardware configuration for LXC hosts
 ```
 
@@ -93,19 +96,18 @@ Each system in `hosts/nixos/<hostname>/` contains:
 
 #### 🖥️ **Current Hosts**
 
-| Host       | Type          | Purpose                  | Hardware                          | Services                                   |
-| ---------- | ------------- | ------------------------ | --------------------------------- | ------------------------------------------ |
-| **rune**   | Desktop       | My workstation           | Ryzen 9 7900X3D, RX 9070 XT       | Gaming, Development, VMs                   |
-| **gojo**   | Desktop       | Giovanni's workstation   | Ryzen 7 7800X3D, RX 7900 XT       | Gaming, Development                        |
-| **haze**   | Desktop       | Cesar's workstation      | Ryzen 5 7600x, RX 7600            | Gaming, Development                        |
-| **norion** | Laptop        | Work laptop (Psynk.ai)   | Ryzen AI 9 HX PRO 370             | Development, OLM client                    |
-| **zebes**  | Server        | Main server              | Ryzen 7 5700X, RX 7900 GRE        | Komodo (Docker), Authentik, AI (Ollama, ComfyUI)   |
-| **nimbus** | Server        | Storage server           | Ryzen 5 5600G                     | ZFS/BTRFS storage, NFS, FileRun, Backups  |
-| **nexus**  | LXC Container | Network proxy            | Intel N150 (2C), 2GB              | Pangolin, AdGuard, Cloudflare tunnels     |
-| **bryyo**  | LXC Container | Docker orchestration     | Intel N150 (4C), 8GB              | Komodo (Docker) - **Migration pending**   |
-| **caenus** | Server        | Oracle VPS               | ARM 4vCPU, 24GB RAM, 200GB        | FRP, Public IP, Netbird                   |
-| **lxc**    | LXC Container | Base LXC template        | Variable                          | Template configuration                     |
-| **vm**     | VM            | Testing environment      | Variable                          | System testing                             |
+| Host       | Type          | Purpose                  | Hardware                          | Services                                           |
+| ---------- | ------------- | ------------------------ | --------------------------------- | -------------------------------------------------- |
+| **rune**   | Desktop       | My workstation           | Ryzen 9 7900X3D, RX 9070 XT       | Gaming, Development, VMs                           |
+| **gojo**   | Desktop       | Giovanni's workstation   | Ryzen 7 7800X3D, RX 7900 XT       | Gaming, Development                                |
+| **haze**   | Desktop       | Cesar's workstation      | Ryzen 5 7600x, RX 7600            | Gaming, Development                                |
+| **norion** | Laptop        | Work laptop (Psynk.ai)   | Ryzen AI 9 HX PRO 370             | Development, OLM client                            |
+| **zebes**  | Server        | Main server              | Ryzen 7 5700X, RX 7900 GRE        | Komodo (Docker), AI (Ollama, Native ComfyUI), Explorer |
+| **nimbus** | Server        | Storage server           | Ryzen 5 5600G                     | ZFS/BTRFS storage, NFS, FileRun, Backups, Explorer, Newt |
+| **nexus**  | Server        | Router & services host   | Intel N150 (2C), 2GB              | Full Router, DHCP, DNS, AdGuard, Rathole, WireGuard VPN |
+| **caenus** | Server        | Oracle VPS               | ARM 4vCPU, 24GB RAM, 200GB        | Rathole server, Public IP endpoint                |
+| **lxc**    | LXC Container | Base LXC template        | Variable                          | Template configuration                             |
+| **vm**     | VM            | Testing environment      | Variable                          | System testing                                     |
 
 ---
 
@@ -180,6 +182,7 @@ Each user in `home/users/<username>/` includes:
   - `/fast` - Performance storage for active projects (from nimbus)
   - `/store` - Service data and Docker volumes (from zebes)
   - `/repo` - Shared repository access across all hosts
+- **Reliable NFS Mounts**: Systemd-based mounting with automount for improved reliability
 - **Data Integrity**: ZFS/BTRFS filesystems with snapshots and data protection
 - **Comprehensive Backups**: Incremental backups of critical data, Docker volumes, and Forgejo instances with Apprise notifications
 - **Automated Backup Chain**: Systemd timers orchestrate automated backups and data synchronization
@@ -190,25 +193,38 @@ Each user in `home/users/<username>/` includes:
 - **Efficient File Management**: `yazi` configured as the terminal file manager.
 - **Curated Applications**: Includes configurations for applications like the Zen browser and VS Code.
 - **XDG & Mime Associations**: Sensible default applications configured via `xdg.mimeApps`, using `handlr-regex` for flexibility.
+- **Claude Code Integration**: Enhanced with custom output styles and MCP (Model Context Protocol) server for NixOS-aware assistance.
 
 ### **🐳 Advanced Container Management**
-- **Docker Orchestration**: Komodo provides a web UI for managing Docker stacks.
-- **Key Services**: Pre-defined declarative configurations for services like Authentik (SSO) and Pangolin (reverse proxy).
-- **Declarative Stacks**: `compose2nix` is used to convert Docker Compose files into NixOS declarative modules for services like FileRun, Authentik, etc.
+- **Docker Orchestration**: Komodo provides a web UI for managing Docker stacks
+- **Explorer Service**: Modern file browser deployed on nimbus and zebes for easy file access
+- **Key Services**: Pre-defined declarative configurations for services like Pangolin (reverse proxy), FileRun, and Explorer
+- **Declarative Stacks**: `compose2nix` converts Docker Compose files into NixOS declarative modules
 
 ### **🔐 Integrated Security**
 - **Encrypted Secrets**: `git-crypt` for managing sensitive data in git
-- **Secure Remote Access**: 
-  - Pangolin network with OLM for Zero Trust access (mostlly replacing Cloudflare)
-  - External devices can connect directly without VPN setup
+- **Secure Remote Access**:
+  - Pangolin network with OLM for Zero Trust access
+  - WireGuard VPN for direct homelab connectivity
+  - Rathole tunneling for reliable external access
+  - Cloudflare tunnels for additional connectivity options
 - **Automated Certificates**: ACME (Let's Encrypt) with DNS challenges for SSL/TLS
 - **SSH Key Deployment**: Automated management and deployment of SSH keys
 
 ### **🤖 AI & Machine Learning**
 - **Ollama**: Local LLM inference for text generation and analysis
-- **ComfyUI**: Stable Diffusion workflows for AI image generation
-- **GPU Acceleration**: Optimized for AMD RX 7900 GRE on Zebes server
-- **Docker Integration**: Containerized deployment for easy management
+- **Native ComfyUI**: Migrated from Docker to flexible NixOS service with Python venv
+- **GPU Acceleration**: Optimized for AMD RX 7900 GRE with ROCm 6.4 support
+- **Flexible Deployment**: Self-managed Python environments with automatic dependency handling
+
+### **🌐 Advanced Networking**
+- **Full Router Capabilities**: Nexus serves as a complete router with NAT, firewall rules, and packet forwarding
+- **DHCP Server**: Dynamic IP allocation with static reservations for known hosts
+- **DNS Management**: AdGuard Home for ad-blocking and DNS filtering with search domains
+- **WireGuard VPN**: Direct homelab access with automatic DNS configuration
+- **Rathole Tunneling**: High-performance tunneling replacing FRP for improved reliability
+- **Service Discovery**: Automatic routing between internal networks and services
+- **Zero Trust Access**: Pangolin network with secure tunneling via Newt
 
 ---
 
@@ -368,7 +384,7 @@ nix build .#server-iso-arm --system x86_64-linux --extra-platforms aarch64-linux
 | **Virtualization** | libvirt, QEMU, LXC                                   |
 | **Storage**        | ZFS, BTRFS, BorgBackup, NFS, `inotify-tools`         |
 | **Containers**     | Docker, Komodo, compose2nix                          |
-| **Networking**     | Newt, Pangolin, OLM, AdGuard Home, Cloudflare WARP   |
+| **Networking**     | Router, DHCP, DNS, WireGuard VPN, Rathole, Newt, Pangolin, OLM, AdGuard Home, Cloudflare WARP   |
 | **AI/ML**          | Ollama, ComfyUI, Stable Diffusion                    |
 | **Reverse Proxy**  | Traefik (via Pangolin)                               |
 | **Security**       | git-crypt, ACME, Zero Trust tunneling                |
@@ -385,8 +401,10 @@ nix build .#server-iso-arm --system x86_64-linux --extra-platforms aarch64-linux
 - `modules/global/secret-spec.nix` - Secret structure definitions
 - `modules/nixos/newt.nix` - Newt tunneling service module
 - `modules/nixos/olm.nix` - OLM client module for Pangolin access
+- `hosts/global/common/vpn.nix` - WireGuard VPN configuration
 - `CLAUDE.md` - Development instructions for Claude Code
-- `flake.nix` - Main dependency management & host discovery
+- `.mcp.json` - Model Context Protocol server configuration
+- `flake.nix` - Main dependency management & host discovery (using flake.parts)
 - `iso/flake.nix` - ISO generation configuration
 
 ### **Frequently Modified Directories**

@@ -113,8 +113,7 @@ hosts/
 ### Container Management
 - **Docker**: Primary container runtime
 - **Komodo**: Web UI for Docker stack management
-- **compose2nix**: Convert Docker Compose files to NixOS services
-- **Authentik**: SSO authentication system
+- **compose2nix**: Convert Docker Compose files to NixOS service
 - **Pangolin**: Reverse proxy management
 
 ### Gaming Configuration

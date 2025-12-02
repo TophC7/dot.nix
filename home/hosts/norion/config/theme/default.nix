@@ -1,47 +1,39 @@
 {
   pkgs,
-  inputs,
-  lib,
   ...
 }:
-let
-  qogir = pkgs.qogir-icon-theme.override {
-    colorVariants = [
-      "dark"
-      "standard"
-    ];
-    themeVariants = [
-      "ubuntu"
-    ];
-  };
-in
 {
-  imports = [
-    inputs.stylix.homeModules.stylix
-  ];
-
-  stylix = {
+  theme = {
     enable = true;
-    autoEnable = true;
-    base16Scheme = ./norion.yaml;
     image = ./wallpapers/wallpaper.png;
-    polarity = "light";
+    polarity = "dark";
+
+    icon = {
+      package = pkgs.papirus-icon-theme.override {
+        color = "red";
+      };
+      name = "Papirus";
+    };
+
+    pointer = {
+      package = pkgs.bibata-cursors;
+      name = "Bibata-Modern-Classic";
+      size = 16;
+    };
+
     fonts = {
       serif = {
         package = pkgs.google-fonts.override { fonts = [ "Laila" ]; };
         name = "Laila";
       };
-
       sansSerif = {
         package = pkgs.lexend;
         name = "Lexend";
       };
-
       monospace = {
         package = pkgs.monocraft-nerd-fonts;
         name = "Monocraft";
       };
-
       emoji = {
         package = pkgs.noto-fonts-color-emoji;
         name = "Noto Color Emoji";
@@ -53,44 +45,19 @@ in
         terminal = 12;
       };
     };
-    targets = {
-      gnome = {
-        enable = true;
-        useWallpaper = true;
-      };
-      vscode = {
-        enable = false;
-        # profileNames = [ "Stylix" ];
-      };
+
+    base16 = {
+      generate = true;
+    };
+
+    matugen = {
+      scheme = "scheme-expressive";
     };
   };
 
-  home.pointerCursor = {
-    gtk.enable = true;
-    package = pkgs.bibata-cursors;
-    name = "Bibata-Modern-Classic";
-    size = 16;
-  };
-
-  gtk = {
-    enable = true;
-
-    iconTheme = {
-      # package = qogir;
-      # name = "Qogir";
-      package = (
-        pkgs.papirus-icon-theme.override {
-          color = "red";
-        }
-      );
-      name = "Papirus";
-    };
-  };
-
-  home.file = {
-    "Pictures/Wallpapers" = {
-      source = ./wallpapers;
-      recursive = true;
-    };
+  # Copy the wallpapers directory to Pictures
+  home.file."Pictures/Wallpapers" = {
+    source = ./wallpapers;
+    recursive = true;
   };
 }

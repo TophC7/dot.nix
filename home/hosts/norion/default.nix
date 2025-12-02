@@ -4,12 +4,13 @@
   inputs,
   config,
   secretsSpec,
+  flakeRoot,
   ...
 }:
 {
   imports = lib.flatten [
     ## Common Imports ##
-    (map lib.custom.relativeToRoot [
+    (map (lib.fs.relativeTo flakeRoot) [
       "home/global/common/chromium.nix"
       "home/global/common/claude.nix"
       "home/global/common/gaming"

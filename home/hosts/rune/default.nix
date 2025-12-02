@@ -1,24 +1,23 @@
 {
-  pkgs,
+  flakeRoot,
   lib,
-  inputs,
-  config,
+  pkgs,
   ...
 }:
 {
   imports = lib.flatten [
-    ## Common Imports ##
-    (map lib.custom.relativeToRoot [
-      "home/global/common/chromium.nix"
-      "home/global/common/claude.nix"
-      "home/global/common/gaming"
-      "home/global/common/vscode.nix"
-      "home/global/common/xdg.nix"
-      "home/global/common/zen.nix"
-    ])
+    ## Rune Specific Imports ##
+    (lib.fs.scanPaths ./.)
 
-    ## Rune Specific ##
-    ./config
+    ## Additional Imports ##
+    (map (lib.fs.relativeTo flakeRoot) [
+      "modules/home/common/chromium.nix"
+      "modules/home/common/claude.nix"
+      "modules/home/common/gaming"
+      "modules/home/common/vscode.nix"
+      "modules/home/common/xdg.nix"
+      "modules/home/common/zen.nix"
+    ])
   ];
 
   ## Packages with no needed configs ##

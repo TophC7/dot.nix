@@ -20,6 +20,16 @@
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
+    mix-nix = {
+      # url = "github:tophc7/mix.nix";
+      url = "path:/repo/Nix/mix.nix";
+      inputs = {
+        flake-parts.follows = "flake-parts";
+        home-manager.follows = "home-manager";
+        nixpkgs.follows = "nixpkgs-unstable";
+      };
+    };
+
     ## VM tools ##
 
     # nixtheplanet.url = "github:matthewcroughan/nixtheplanet";
@@ -53,10 +63,13 @@
     };
 
     play = {
-      url = "github:tophc7/play.nix";
+      # url = "github:tophc7/play.nix";
+      url = "path:/repo/Nix/play.nix";
       inputs = {
-        nixpkgs.follows = "nixpkgs-unstable";
         chaotic.follows = "chaotic";
+        home-manager.follows = "home-manager";
+        mix-nix.follows = "mix-nix";
+        nixpkgs.follows = "nixpkgs-unstable";
       };
     };
 
@@ -118,17 +131,26 @@
 
   outputs =
     inputs@{ flake-parts, ... }:
-    flake-parts.lib.mkFlake { inherit inputs; } {
-      systems = [
-        "aarch64-linux"
-        "x86_64-linux"
-      ];
+    let
+      # Extend nixpkgs lib with mix.nix utilities BEFORE entering flake-parts
+      # This gives us lib.fs.*, lib.hosts.*, lib.desktop.*, etc.
+      lib = inputs.mix-nix.lib;
+    in
+    flake-parts.lib.mkFlake
+      {
+        inherit inputs;
+        specialArgs = { inherit lib; };
+      }
+      {
+        imports = [
+          inputs.mix-nix.flakeModules.default
+          ./mix
+          ./devshell.nix
+        ];
 
-      imports = [
-        ./modules/flake/overlays.nix
-        ./modules/flake/nixos.nix
-        ./modules/flake/packages.nix
-        ./modules/flake/devshell.nix
-      ];
-    };
+        systems = [
+          "x86_64-linux"
+          "aarch64-linux"
+        ];
+      };
 }

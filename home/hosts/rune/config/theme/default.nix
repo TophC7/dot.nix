@@ -23,6 +23,31 @@
       size = 16;
     };
 
+    fonts = {
+      serif = {
+        package = pkgs.google-fonts.override { fonts = [ "Laila" ]; };
+        name = "Laila";
+      };
+      sansSerif = {
+        package = pkgs.lexend;
+        name = "Lexend";
+      };
+      monospace = {
+        package = pkgs.monocraft-nerd-fonts;
+        name = "Monocraft";
+      };
+      emoji = {
+        package = pkgs.noto-fonts-color-emoji;
+        name = "Noto Color Emoji";
+      };
+      sizes = {
+        applications = 12;
+        desktop = 11;
+        popups = 11;
+        terminal = 12;
+      };
+    };
+
     base16 = {
       generate = true;
     };

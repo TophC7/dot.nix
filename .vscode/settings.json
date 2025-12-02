@@ -6,7 +6,8 @@
 		"flake.nix": "flake.lock, *.nix"
 	},
 	"files.exclude": {
-		".git-crypt": true
+		".git-crypt": true,
+		".direnv": true
 	},
 	"terminal.integrated.profiles.linux": {
 		"fish-fhs": {
