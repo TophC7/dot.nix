@@ -35,12 +35,16 @@
     pavucontrol
     wireplumber
 
-    # Network/Bluetooth manager
-    networkmanagerapplet
-
     # Applications
     eloquent # Spell checker
   ];
+
+  # NetworkManager applet for system tray
+  # Provides GUI control for network connections including WireGuard VPN
+  programs.nm-applet = {
+    enable = true;
+    indicator = true; # Use AppIndicator mode (better for Wayland/niri)
+  };
 
   # Enable pipewire for audio
   services.pipewire = {

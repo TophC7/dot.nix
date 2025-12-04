@@ -44,6 +44,10 @@
               title = "^Settings$";
               app-id = "^org.quickshell$";
             }
+            {
+              title = "^System Monitor$";
+              app-id = "^org.quickshell$";
+            }
           ];
           open-floating = true;
           default-column-width.proportion = 0.40;
