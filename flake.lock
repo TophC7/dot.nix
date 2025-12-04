@@ -563,8 +563,8 @@
         "nixpkgs-stable": "nixpkgs-stable"
       },
       "locked": {
-        "lastModified": 1764696200,
-        "narHash": "sha256-i+z/GSP8wl11rWUJ8HglGJfydjVc6JQCN5i8K1/FH5U=",
+        "lastModified": 1764831293,
+        "narHash": "sha256-LcHNAMUstxch240PKND15yCfZpAMrZGaM6jaW8M8AM4=",
         "path": "/repo/Nix/mix.nix",
         "type": "path"
       },
