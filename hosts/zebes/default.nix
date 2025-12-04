@@ -27,7 +27,7 @@
 
     ## Additional Configs ##
     (map (lib.fs.relativeTo flakeRoot) [
-      "modules/hosts/common/acme"
+      "modules/hosts/common/acme.nix"
       "modules/hosts/common/bluetooth.nix"
       "modules/hosts/common/ddcutil.nix"
       "modules/hosts/common/docker.nix"

@@ -19,7 +19,7 @@
 
     ## Additional Configs ##
     (map (lib.fs.relativeTo flakeRoot) [
-      "modules/hosts/common/acme"
+      "modules/hosts/common/acme.nix"
       "modules/hosts/common/docker.nix"
       "modules/hosts/common/pangolin/newt.nix"
     ])
