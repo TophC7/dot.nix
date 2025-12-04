@@ -17,7 +17,8 @@ let
   username = host.user.name;
 
   # Mount configuration from extended hostSpec
-  hostMounts = host.mounts;
+  # Use empty set as default if mounts not specified
+  hostMounts = host.mounts or { };
 
   # Define mount sources
   mountConfigs = {
