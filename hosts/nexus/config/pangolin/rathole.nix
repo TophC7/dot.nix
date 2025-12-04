@@ -1,6 +1,6 @@
 {
-  pkgs,
   lib,
+  pkgs,
   secrets,
   ...
 }:
@@ -49,47 +49,40 @@ let
     type = "udp"
     local_addr = "${routerIp}:51821"
   '';
-
-  inherit (lib.infra.containers) mkNetworkOptions;
 in
 {
-  # ── Container ──
-  virtualisation.oci-containers.containers.${name} = {
-    image = "rapiz1/rathole:v0.5.0";
-    cmd = [
-      "--client"
-      "/etc/rathole/client.toml"
-    ];
-    volumes = [ "${configFile}:/etc/rathole/client.toml:ro" ];
-    log-driver = "journald";
-    extraOptions = mkNetworkOptions {
-      networkName = name;
-      networkAlias = name;
-      extraNetworks = [ "pangolin" ];
+  # ── Container Stack ──
+  virtualisation.oci-stacks.${name} = {
+    containers.${name} = {
+      image = "rapiz1/rathole:v0.5.0";
+      cmd = [
+        "--client"
+        "/etc/rathole/client.toml"
+      ];
+      volumes = [ "${configFile}:/etc/rathole/client.toml:ro" ];
+      log-driver = "journald";
+      extraOptions = [
+        "--network=${name}"
+        "--network-alias=${name}"
+        "--network=pangolin" # Also join pangolin network
+      ];
     };
+
+    network = {
+      name = name;
+      external = [ "pangolin" ]; # Soft dependency on pangolin network
+    };
+
+    description = "Rathole tunnel client";
   };
 
-  # ── Service Config ──
-  systemd.services = {
-    "docker-${name}" = {
-      after = [ "docker-network-${name}.service" ];
-      requires = [ "docker-network-${name}.service" ];
-      wants = [
-        "docker-network-pangolin.service"
-        "docker-gerbil.service"
-      ];
-      wantedBy = [ "multi-user.target" ];
-      serviceConfig = {
-        Restart = lib.mkOverride 90 "always";
-        RestartSec = lib.mkOverride 90 "10s";
-      };
+  # ── Extra Service Dependencies ──
+  systemd.services."docker-${name}" = {
+    # Also want gerbil to be running
+    wants = [ "docker-gerbil.service" ];
+    # Custom restart timing for tunnel reconnection
+    serviceConfig = {
+      RestartSec = lib.mkOverride 90 "10s";
     };
-  }
-  // lib.infra.containers.mkDockerNetwork { inherit pkgs name; };
-
-  # Bind network lifecycle to container
-  systemd.services."docker-network-${name}" = {
-    partOf = [ "docker-${name}.service" ];
-    wantedBy = [ "docker-${name}.service" ];
   };
 }
