@@ -10,7 +10,7 @@
     prismlauncher
     # stable.dolphin-emu-primehack
     cemu
-    wiiu-downloader
+    WiiUDownloader
     ukmm
   ];
 }

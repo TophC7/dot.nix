@@ -11,12 +11,12 @@
   imports = lib.flatten [
     ## Common Imports ##
     (map (lib.fs.relativeTo flakeRoot) [
-      "home/global/common/chromium.nix"
-      "home/global/common/claude.nix"
-      "home/global/common/gaming"
-      "home/global/common/vscode.nix"
-      "home/global/common/xdg.nix"
-      "home/global/common/zen.nix"
+      "modules/home/common/chromium.nix"
+      "modules/home/common/claude.nix"
+      "modules/home/common/gaming"
+      "modules/home/common/vscode.nix"
+      "modules/home/common/xdg.nix"
+      "modules/home/common/zen.nix"
     ])
 
     ## Rune Specific ##
