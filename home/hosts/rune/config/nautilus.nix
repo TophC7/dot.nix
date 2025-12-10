@@ -10,6 +10,10 @@
         name = "⚡ Fast";
       }
       {
+        path = "/repo/Nix";
+        name = "❄️ Nix";
+      }
+      {
         path = "/repo";
         name = "🪑 Repo";
       }
@@ -33,6 +37,7 @@
     folderIcons = {
       "/fast" = "folder-development";
       "/repo" = "folder-git";
+      "/repo/Nix" = "folder-linux";
       "/steam" = "folder-steam";
       "/store" = "folder-docker";
       "/tank" = "folder-cd";
