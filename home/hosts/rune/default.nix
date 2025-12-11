@@ -20,6 +20,10 @@
     ])
   ];
 
+  services.easyeffects = {
+    enable = true;
+  };
+
   ## Packages with no needed configs ##
   home.packages = with pkgs; [
     ## Media ##

@@ -5,6 +5,31 @@
   ...
 }:
 let
+  # Declaratively fetch the EasyEffects plugin
+  easyEffectsPlugin = pkgs.stdenv.mkDerivation {
+    pname = "dms-easyeffects";
+    version = "1.0.2";
+
+    src = pkgs.fetchFromGitHub {
+      owner = "jonkristian";
+      repo = "dms-easyeffects";
+      rev = "ac2726063d308ef28c1704956564f013951e3a0a";
+      hash = "sha256-KgdACxkP4bAeg+xF1k1qspfzRwAitLMhFncydHJPfAU=";
+    };
+
+    # Plugin files are at root level
+    installPhase = ''
+      mkdir -p $out
+      cp -r *.qml plugin.json $out/
+    '';
+
+    meta = {
+      description = "DankMaterialShell EasyEffects plugin for audio profile switching";
+      homepage = "https://github.com/jonkristian/dms-easyeffects";
+      license = lib.licenses.gpl3Only;
+    };
+  };
+
   # Declaratively fetch the DankActions plugin
   dankActionsPlugin = pkgs.stdenv.mkDerivation {
     pname = "dms-dank-actions";
@@ -62,6 +87,10 @@ in
       dankActions = {
         enable = true;
         src = dankActionsPlugin;
+      };
+      easyEffects = {
+        enable = true;
+        src = easyEffectsPlugin;
       };
     };
   };
