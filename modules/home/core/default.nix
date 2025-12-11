@@ -14,6 +14,7 @@
   pkgs,
   host,
   inputs,
+  flakeRoot,
   ...
 }:
 let
@@ -32,6 +33,7 @@ in
   mix.fastfetch = {
     enable = true;
     weather.location = "Richmond";
+    logo.directory = lib.fs.relativeTo flakeRoot "hosts/${host.hostName}";
   };
 
   services.ssh-agent.enable = true;
