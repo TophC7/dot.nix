@@ -48,6 +48,10 @@
               title = "^System Monitor$";
               app-id = "^org.quickshell$";
             }
+            {
+              title = "^Add Widget$";
+              app-id = "^org.quickshell$";
+            }
           ];
           open-floating = true;
           default-column-width.proportion = 0.40;
