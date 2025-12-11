@@ -1,9 +1,11 @@
-{ pkgs, inputs, ... }:
+{ pkgs, ... }:
+let
+  # Low-latency settings
+  quantum = 128;
+  rate = 48000;
+  qr = "${toString quantum}/${toString rate}";
+in
 {
-  imports = [
-    inputs.nix-gaming.nixosModules.pipewireLowLatency
-  ];
-
   services.pulseaudio = {
     enable = false;
     package = pkgs.pulseaudioFull;
@@ -17,72 +19,53 @@
     pulse.enable = true;
     wireplumber.enable = true;
     jack.enable = true;
-    lowLatency.enable = true;
 
-    # Fix for HyperX Cloud Alpha; only support 48kHz/S16LE
-    # The lowLatency module requests 96kHz which it does not support
-    wireplumber.extraConfig = {
-      "51-hyperx-fix" = {
-        "monitor.alsa.rules" = [
-          # Device-level rule
-          {
-            matches = [
-              { "device.name" = "~alsa_card.usb-Kingston_HyperX_Cloud_Alpha_S.*"; }
-            ];
-            actions = {
-              update-props = {
-                "api.alsa.use-acp" = true;
-                "audio.rate" = 48000;
-                "audio.allowed-rates" = [ 48000 ];
-              };
-            };
-          }
-          # Node-level rule for sink/source
-          {
-            matches = [
-              { "node.name" = "~alsa_output.usb-Kingston_HyperX_Cloud_Alpha_S.*"; }
-            ];
-            actions = {
-              update-props = {
-                "audio.rate" = 48000;
-                "audio.allowed-rates" = [ 48000 ];
-                "audio.format" = "S16LE";
-                "api.alsa.period-size" = 1024;
-                "api.alsa.headroom" = 8192;
-              };
-            };
-          }
-        ];
-      };
-    };
+    extraConfig = {
+      # Low-latency PipeWire configuration
+      pipewire."99-lowlatency" = {
+        "context.properties"."default.clock.min-quantum" = quantum;
 
-    # Also add PipeWire ALSA config as fallback
-    extraConfig.pipewire = {
-      "92-hyperx-alsa" = {
-        "context.objects" = [
+        "context.modules" = [
           {
-            factory = "adapter";
+            name = "libpipewire-module-rt";
+            flags = [
+              "ifexists"
+              "nofail"
+            ];
             args = {
-              "factory.name" = "api.alsa.pcm.sink";
-              "node.name" = "alsa_output.hyperx";
-              "node.description" = "HyperX Cloud Alpha S";
-              "media.class" = "Audio/Sink";
-              "api.alsa.path" = "hw:0,0";
-              "audio.rate" = 48000;
-              "audio.channels" = 2;
-              "audio.position" = "FL,FR";
+              "nice.level" = -15;
+              "rt.prio" = 88;
+              "rt.time.soft" = 200000;
+              "rt.time.hard" = 200000;
             };
           }
         ];
       };
+
+      # Low-latency PulseAudio compatibility
+      pipewire-pulse."99-lowlatency"."pulse.properties" = {
+        "server.address" = [ "unix:native" ];
+        "pulse.min.req" = qr;
+        "pulse.min.quantum" = qr;
+        "pulse.min.frag" = qr;
+      };
+
+      # Client stream properties for low latency
+      client."99-lowlatency"."stream.properties" = {
+        "node.latency" = qr;
+        "resample.quality" = 1;
+      };
     };
+
+    wireplumber.extraConfig."99-alsa-lowlatency"."monitor.alsa.rules" = [
+      {
+        matches = [ { "node.name" = "~alsa_output.*"; } ];
+        actions.update-props = {
+          "audio.format" = "S32LE";
+          "audio.rate" = rate * 2; # 96kHz for ALSA outputs
+          "api.alsa.period-size" = 2;
+        };
+      }
+    ];
   };
-
-  # services.easyeffects = {
-  #   enable = true;
-  # };
-
-  # environment.systemPackages = with pkgs; [
-  #   gnomeExtensions.easyeffects-preset-selector
-  # ];
 }

@@ -56,12 +56,6 @@
     };
 
     ## Gaming Packages ##
-
-    nix-gaming = {
-      url = "github:fufexan/nix-gaming";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
-    };
-
     play = {
       # url = "github:tophc7/play.nix";
       url = "path:/repo/Nix/play.nix";
