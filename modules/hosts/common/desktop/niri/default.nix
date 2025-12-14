@@ -37,6 +37,8 @@
 
     # Applications
     eloquent # Spell checker
+    loupe # Image viewer
+    clapper # Media player
   ];
 
   # NetworkManager applet for system tray
