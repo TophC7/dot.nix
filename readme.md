@@ -5,9 +5,9 @@
 >
 > [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/TophC7/dot.nix)
 
+![Screenshot with of Rune Host, Blue sands wallpaper](public/rune.png)
+![Screenshot with of Rune Host, Blue sands wallpaper and some open windows](public/rune1.png)
 ![Screenshot with Invincible wallpaper](public/inv.png)
-![Screenshot with Invincible wallpaper](public/inv1.png)
-![Screenshot with Gojo wallpaper](public/gojo.png)
 ![Screenshot with Gojo wallpaper](public/gojo1.png)
 ![Screenshot with Soraka wallpaper](public/soraka.png)
 ---
