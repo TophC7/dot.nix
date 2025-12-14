@@ -176,6 +176,15 @@
             endpoint = wgEndpoint;
           };
         };
+
+        husky = {
+          enable = false; # Do not build host, only VPN config
+          vpn = {
+            publicKey = "n9EbRKf4syovfi3lnTJ7NCuywLh1IuHL7XX+wK3drUg=";
+            address = "10.10.0.10/32";
+            endpoint = wgEndpoint;
+          };
+        };
       };
     };
 }
