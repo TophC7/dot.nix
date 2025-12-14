@@ -214,6 +214,20 @@
       text = ''
         include "colors.kdl"
 
+        recent-windows {
+            debounce-ms 0
+            open-delay-ms 0
+
+            highlight {
+                    corner-radius 8
+            }
+
+            binds {
+                Mod+Z         { next-window; }
+                Mod+Super+Z   { previous-window; }
+            }
+        }
+
         ${config.programs.niri.finalConfig}
       '';
     };

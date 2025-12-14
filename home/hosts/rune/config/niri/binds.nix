@@ -37,7 +37,7 @@
             "toggle"
           ]; # Notification center
 
-          "Mod+Comma".action.spawn = [
+          "Mod+Semicolon".action.spawn = [
             "dms"
             "ipc"
             "settings"
@@ -61,10 +61,10 @@
             "vicinae://extensions/vicinae/vicinae/search-emojis"
           ]; # Clipboard manager
 
-          "Mod+Tab".action.spawn = [
-            "vicinae"
-            "vicinae://extensions/vicinae/wm/switch-windows"
-          ]; # Window switcher
+          # "Mod+Tab".action.spawn = [
+          #   "vicinae"
+          #   "vicinae://extensions/vicinae/wm/switch-windows"
+          # ]; # Window switcher
 
           "Mod+Shift+X".action.spawn = [
             "dms"
@@ -73,19 +73,12 @@
             "toggle"
           ]; # Power menu
 
-          "Mod+Shift+P".action.spawn = [
+          "Mod+Super+N".action.spawn = [
             "dms"
             "ipc"
             "notepad"
             "toggle"
           ]; # Notepad
-
-          "Mod+Super+N".action.spawn = [
-            "dms"
-            "ipc"
-            "night"
-            "toggle"
-          ]; # Night mode
 
           # System controls
           "Ctrl+Alt+Delete".action.quit = { }; # Exit Niri
@@ -142,19 +135,15 @@
 
           # Media controls (DMS)
           "XF86AudioRaiseVolume".action.spawn = [
-            "dms"
-            "ipc"
-            "audio"
-            "increment"
-            "3"
+            "${pkgs.pamixer}/bin/pamixer"
+            "-i"
+            "5"
           ];
 
           "XF86AudioLowerVolume".action.spawn = [
-            "dms"
-            "ipc"
-            "audio"
-            "decrement"
-            "3"
+            "${pkgs.pamixer}/bin/pamixer"
+            "-d"
+            "5"
           ];
 
           "XF86AudioMute".action.spawn = [
@@ -194,7 +183,6 @@
             "brightness"
             "increment"
             "5"
-            ""
           ];
 
           "XF86MonBrightnessDown".action.spawn = [
@@ -203,7 +191,6 @@
             "brightness"
             "decrement"
             "5"
-            ""
           ];
         };
     };
