@@ -82,6 +82,7 @@
           { proportion = 0.5; }
           { proportion = 0.65; }
           { proportion = 0.90; }
+          { proportion = 1.0; }
         ];
 
         default-column-width = {

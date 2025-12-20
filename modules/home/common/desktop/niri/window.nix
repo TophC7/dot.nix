@@ -9,6 +9,21 @@
   # https://github.com/sodiboo/niri-flake/blob/main/docs.md
   programs.niri = {
     settings = {
+      layer-rules = lib.mkDefault [
+        # Vicinae search layer (layer-shell surface)
+        {
+          matches = [
+            {
+              namespace = "^vicinae$";
+            }
+          ];
+          shadow = {
+            enable = true;
+            draw-behind-window = true;
+          };
+        }
+      ];
+
       window-rules = lib.mkDefault [
         {
           geometry-corner-radius = {

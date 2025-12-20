@@ -17,14 +17,11 @@
 
   environment.systemPackages = with pkgs; [
     # Wayland utilities
-    wl-clipboard
+    wl-clipboard-rs
     wev # Wayland event viewer for debugging keybindings
-    grim # Screenshot utility
-    slurp # Screen area selection tool
     wf-recorder # Screen recording
-    wl-color-picker # Color picker for Wayland
+    kooha
     libnotify
-    cliphist
 
     # Utility
     gnome-disk-utility
@@ -105,7 +102,7 @@
 
   # Environment variables for Wayland
   environment.sessionVariables = {
-    NIXOS_OZONE_WL = "1"; # For Electron apps
+    # NIXOS_OZONE_WL = "1"; # For Electron apps
     MOZ_ENABLE_WAYLAND = "1"; # Firefox Wayland
     QT_QPA_PLATFORM = "wayland"; # QT apps
     SDL_VIDEODRIVER = "wayland"; # SDL apps

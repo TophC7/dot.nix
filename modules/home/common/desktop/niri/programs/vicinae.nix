@@ -63,5 +63,4 @@ in
   xdg.configFile."vicinae/vicinae.json" = {
     enable = false;
   };
-
 }
