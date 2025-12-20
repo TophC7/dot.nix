@@ -21,7 +21,10 @@
         {
           # Application launchers
           "Mod+G".action.spawn = lib.getExe pkgs.ghostty;
-          "Mod+E".action.spawn = lib.getExe pkgs.vscode;
+          "Mod+E".action.spawn = [
+            (lib.getExe pkgs.vscode)
+            "--ozone-platform=x11"
+          ];
           "Mod+W".action.spawn = lib.getExe zen-browser;
           "Mod+F".action.spawn = lib.getExe pkgs.nautilus;
 
@@ -129,9 +132,22 @@
           "Mod+Super+F".action.fullscreen-window = { };
 
           # Screenshots
-          "Print".action.screenshot = { };
-          "Shift+Print".action.screenshot-screen = { };
-          "Super+Print".action.screenshot-window = { };
+          "Print".action.spawn = [
+            "dms"
+            "screenshot"
+          ];
+
+          "Shift+Print".action.spawn = [
+            "dms"
+            "screenshot"
+            "window"
+          ];
+
+          "Mod+Print".action.spawn = [
+            "dms"
+            "screenshot"
+            "full"
+          ];
 
           # Media controls (DMS)
           "XF86AudioRaiseVolume".action.spawn = [

@@ -25,5 +25,38 @@ _: {
         "Application"
       ];
     };
+
+    code = {
+      name = "Visual Studio Code";
+      comment = "Code Editing. Redefined.";
+      exec = "code %F";
+      icon = "vscode";
+      type = "Application";
+      terminal = false;
+      startupNotify = true;
+      genericName = "Text Editor";
+      categories = [
+        "Utility"
+        "TextEditor"
+        "Development"
+        "IDE"
+      ];
+      mimeType = [
+        "text/plain"
+        "inode/directory"
+      ];
+      actions = {
+        new-empty-window = {
+          name = "New Empty Window";
+          exec = "code --new-window %F";
+          icon = "vscode";
+        };
+        code-x11 = {
+          name = "Code - X11";
+          exec = "code --ozone-platform=x11 %F";
+          icon = "vscode";
+        };
+      };
+    };
   };
 }
