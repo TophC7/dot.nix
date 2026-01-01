@@ -81,7 +81,7 @@ in
     spice-protocol
     virtiofsd
     win-spice
-    win-virtio
+    virtio-win
   ];
 
   users.users.${host.user.name} = {
