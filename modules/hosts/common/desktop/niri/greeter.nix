@@ -12,7 +12,7 @@
   imports = [ inputs.dankMaterialShell.nixosModules.greeter ];
 
   # Enable and configure the DankMaterialShell greeter for Niri
-  programs.dankMaterialShell.greeter = {
+  programs.dank-material-shell.greeter = {
     enable = true;
 
     # Use Niri as the compositor

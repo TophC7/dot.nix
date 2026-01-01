@@ -16,6 +16,8 @@
     gamescoperun =
       let
         niri = host.desktop == "niri";
+        hyprland = host.desktop == "hyprland";
+        waylandCompositor = niri || hyprland;
       in
       {
         enable = true;
@@ -23,8 +25,8 @@
 
         defaultSystemd = false;
         defaultWSI = true;
-        defaultHDR = !niri;
-        baseOptions = lib.mkIf niri {
+        defaultHDR = !waylandCompositor;
+        baseOptions = lib.mkIf waylandCompositor {
           "backend" = "wayland";
         };
 

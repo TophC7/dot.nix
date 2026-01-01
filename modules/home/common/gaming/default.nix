@@ -12,5 +12,6 @@
     cemu
     WiiUDownloader
     ukmm
+    r2modman
   ];
 }

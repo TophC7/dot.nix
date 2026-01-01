@@ -10,8 +10,9 @@
 {
   imports = lib.flatten [
     (lib.optional (host.desktop == "gnome") ./gnome)
+    (lib.optional (host.desktop == "hyprland") ./hyprland)
     (lib.optional (host.desktop == "niri") ./niri)
-./shared
+    ./shared
   ];
 
   services = {
