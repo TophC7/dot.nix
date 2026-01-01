@@ -1,6 +1,6 @@
-{ config, pkgs, ... }:
+# Nautilus file manager and related tools
+{ pkgs, ... }:
 {
-  # Nuatilus and its tools
   environment.systemPackages = with pkgs; [
     code-nautilus
     file-roller
