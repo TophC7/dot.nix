@@ -69,9 +69,14 @@
 
     ## Misc Packages ##
 
+    fresh = {
+      url = "github:sinelaw/fresh";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+    };
+
     solaar = {
       url = "github:Svenum/Solaar-Flake";
-      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
     vscode-server = {

@@ -19,6 +19,7 @@
 }:
 let
   yay = inputs.yay.packages.${host.system}.default;
+  fresh = inputs.fresh.packages.${host.system}.default;
 in
 {
   imports = lib.flatten [
@@ -32,6 +33,7 @@ in
     cachix
     curl
     ethtool
+    fresh
     git
     git-crypt
     gpg-tui

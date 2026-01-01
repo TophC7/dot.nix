@@ -45,8 +45,8 @@ in
       "~/.local/bin"
     ];
     sessionVariables = {
-      EDITOR = lib.mkDefault "micro";
-      VISUAL = lib.mkDefault "micro";
+      EDITOR = lib.mkDefault "fresh";
+      VISUAL = lib.mkDefault "fresh";
       FLAKE = lib.mkDefault "/repo/Nix/dot.nix";
       SHELL = lib.getExe user.shell;
     };
