@@ -92,8 +92,8 @@
         "vicinae": "vicinae"
       },
       "locked": {
-        "lastModified": 1767384810,
-        "narHash": "sha256-0lb1IV3bU6gkckcNk1tuL1CLvyDGEJBcCbPhGVP4EBI=",
+        "lastModified": 1767391528,
+        "narHash": "sha256-a6S7VVMwVmeISzhP+HjRfMcGw0SsJ1wULUS+GAEufMY=",
         "path": "/repo/Nix/arroz.nix",
         "type": "path"
       },
@@ -1085,8 +1085,8 @@
         "nixpkgs-stable": "nixpkgs-stable_2"
       },
       "locked": {
-        "lastModified": 1767376419,
-        "narHash": "sha256-YuDuLcPctAwyXYkJYCSKEzfmHHZJe2C8yHI/qpJy8M8=",
+        "lastModified": 1767388885,
+        "narHash": "sha256-G5y25bFrGJX2SSCU7d3Rm2Y46rZvlly3IesSNl0CpbM=",
         "path": "/repo/Nix/mix.nix",
         "type": "path"
       },
