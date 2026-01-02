@@ -2,21 +2,24 @@
   description = "Toph's Nix-Config";
 
   inputs = {
-    flake-parts.url = "github:hercules-ci/flake-parts";
-
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    chaotic.url = "github:chaotic-cx/nyx/nyxpkgs-unstable";
     nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-25.11";
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
-    chaotic.url = "github:chaotic-cx/nyx/nyxpkgs-unstable"; # Bleeding edge packages from Chaotic-AUR
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
     ## NixOS ##
+
+    flake-parts = {
+      url = "github:hercules-ci/flake-parts";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+    };
 
     hardware = {
       url = "github:nixos/nixos-hardware";
     };
 
     home-manager = {
-      url = "github:nix-community/home-manager/release-25.11";
+      url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
@@ -32,7 +35,6 @@
 
     ## VM tools ##
 
-    # nixtheplanet.url = "github:matthewcroughan/nixtheplanet";
     nixvirt = {
       url = "https://flakehub.com/f/AshleyYakeley/NixVirt/*.tar.gz";
       inputs.nixpkgs.follows = "nixpkgs-stable";
@@ -40,13 +42,26 @@
 
     ## Theming ##
 
+    arroz-nix = {
+      # url = "github:tophc7/arroz.nix";
+      url = "path:/repo/Nix/arroz.nix";
+      inputs = {
+        flake-parts.follows = "flake-parts";
+        home-manager.follows = "home-manager";
+        matugen.follows = "matugen";
+        mix-nix.follows = "mix-nix";
+        nixpkgs.follows = "nixpkgs-unstable";
+        stylix.follows = "stylix";
+      };
+    };
+
     rose-pine-hyprcursor = {
       url = "github:ndom91/rose-pine-hyprcursor";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
     stylix = {
-      url = "github:danth/stylix/release-25.11";
+      url = "github:danth/stylix";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
@@ -55,7 +70,8 @@
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
-    ## Gaming Packages ##
+    ## Gaming ##
+
     play = {
       # url = "github:tophc7/play.nix";
       url = "path:/repo/Nix/play.nix";
@@ -67,7 +83,7 @@
       };
     };
 
-    ## Misc Packages ##
+    ## Misc ##
 
     fresh = {
       url = "github:sinelaw/fresh";
@@ -76,11 +92,6 @@
 
     solaar = {
       url = "github:Svenum/Solaar-Flake";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
-    };
-
-    vscode-server = {
-      url = "github:nix-community/nixos-vscode-server";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
@@ -97,46 +108,6 @@
     nix-ai = {
       url = "github:numtide/nix-ai-tools";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
-    };
-
-    ## NIRI ##
-
-    niri = {
-      url = "github:sodiboo/niri-flake";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
-    };
-
-    quickshell = {
-      url = "git+https://git.outfoxxed.me/outfoxxed/quickshell";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
-    };
-
-    dgop = {
-      url = "github:AvengeMedia/dgop";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
-    };
-
-    dankMaterialShell = {
-      url = "github:AvengeMedia/DankMaterialShell";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
-      inputs.dgop.follows = "dgop";
-    };
-
-    vicinae = {
-      url = "github:vicinaehq/vicinae";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
-    };
-
-    ## HYPRLAND ##
-
-    hyprland = {
-      url = "github:hyprwm/Hyprland";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
-    };
-
-    hyprland-plugins = {
-      url = "github:hyprwm/hyprland-plugins";
-      inputs.hyprland.follows = "hyprland";
     };
   };
 
@@ -155,6 +126,7 @@
       {
         imports = [
           inputs.mix-nix.flakeModules.default
+          inputs.arroz-nix.flakeModules.default # Extends mix-nix with desktop/greeter options
           ./mix
           ./devshell.nix
         ];

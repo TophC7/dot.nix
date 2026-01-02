@@ -23,8 +23,6 @@ in
 {
   imports = lib.flatten [
     (lib.fs.scanPaths ./.)
-    # Desktop environment (if enabled)
-    (lib.optional (host.desktop != null) ../common/desktop)
     # Fastfetch from mix.nix
     inputs.mix-nix.homeManagerModules.fastfetch
   ];

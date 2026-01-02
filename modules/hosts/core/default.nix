@@ -24,8 +24,6 @@ in
 {
   imports = lib.flatten [
     (lib.fs.scanPaths ./.)
-    # Desktop environment (if enabled)
-    (lib.optional (host.desktop != null) ../common/desktop)
   ];
 
   # System-wide packages, root accessible

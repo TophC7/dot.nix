@@ -93,7 +93,18 @@
         haze = {
           user = "cesar";
           ip = "10.19.89.13";
-          desktop = "niri";
+          desktop = {
+            gnome = {
+              enable = true;
+              default = true;
+            };
+            hyprland.enable = true;
+            niri.enable = true;
+          };
+          greeter = {
+            type = "gdm";
+            autoLogin = true;
+          };
           mounts = {
             repo = true;
             tank = true;
@@ -103,7 +114,11 @@
         norion = {
           user = "toph";
           ip = "10.2.2.4";
-          desktop = "gnome";
+          desktop.gnome.enable = true;
+          greeter = {
+            type = "gdm";
+            autoLogin = true;
+          };
           mounts = {
             fast = true;
             repo = true;
@@ -120,7 +135,18 @@
         rune = {
           user = "toph";
           ip = "10.4.4.4";
-          desktop = "niri";
+          desktop = {
+            hyprland = {
+              enable = true;
+              default = true;
+            };
+            gnome.enable = true;
+            niri.enable = true;
+          };
+          greeter = {
+            type = "gdm";
+            autoLogin = true;
+          };
           mounts = {
             fast = true;
             repo = true;
@@ -131,7 +157,11 @@
 
         vm = {
           user = "toph";
-          desktop = "gnome";
+          desktop.gnome.enable = true;
+          greeter = {
+            type = "gdm";
+            autoLogin = true;
+          };
         };
 
         # ── x86 Servers ──
