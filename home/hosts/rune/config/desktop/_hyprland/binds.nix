@@ -87,11 +87,11 @@ in
       # ══════════════════════════════════════════════════════════════════════════
       #
       # Column width (cycle presets)
-      "$mod SHIFT, C, layoutmsg, colresize -conf"
-      "$mod SHIFT, B, layoutmsg, colresize +conf"
+      "$mod SUPER, C, layoutmsg, colresize -conf"
+      "$mod SUPER, B, layoutmsg, colresize +conf"
       # Window height
-      "$mod SHIFT, T, resizeactive, 0 -50"
-      "$mod SHIFT, V, resizeactive, 0 50"
+      "$mod SUPER, T, resizeactive, 0 -50"
+      "$mod SUPER, V, resizeactive, 0 50"
 
       #
       # ══════════════════════════════════════════════════════════════════════════

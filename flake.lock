@@ -96,8 +96,8 @@
         "vicinae": "vicinae"
       },
       "locked": {
-        "lastModified": 1767420674,
-        "narHash": "sha256-0MTp+NsHdyCCZBJ51UluJKUMr5w/un1vVRqVBFrD0Mc=",
+        "lastModified": 1767421503,
+        "narHash": "sha256-QTAuEKbk9ucm+XNsrO2HE4RKX+ho6HjXhH3aGjq4HGU=",
         "path": "/repo/Nix/arroz.nix",
         "type": "path"
       },
@@ -891,17 +891,14 @@
         "rust-overlay": "rust-overlay_2"
       },
       "locked": {
-        "lastModified": 1767419701,
-        "narHash": "sha256-9Cn/kCK83Icwa0AvKXVvxCS7ciYNunDm9HPx1V+8W60=",
-        "owner": "TophC7",
-        "repo": "hyprnavi-psm",
-        "rev": "694fd8816bae45ae44564878c650c9b79a9c0c98",
-        "type": "github"
+        "lastModified": 1767427064,
+        "narHash": "sha256-s39BpvG2jDDJIGCUCcRgcdyJnBe4nPg0Ei+B4tpckAw=",
+        "path": "/repo/rust/hyprnavi",
+        "type": "path"
       },
       "original": {
-        "owner": "TophC7",
-        "repo": "hyprnavi-psm",
-        "type": "github"
+        "path": "/repo/rust/hyprnavi",
+        "type": "path"
       }
     },
     "hyprtoolkit": {

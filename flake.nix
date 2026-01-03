@@ -112,7 +112,8 @@
     };
 
     hyprnavi-psm = {
-      url = "github:TophC7/hyprnavi-psm";
+      # url = "github:TophC7/hyprnavi-psm";
+      url = "path:/repo/rust/hyprnavi";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
   };
