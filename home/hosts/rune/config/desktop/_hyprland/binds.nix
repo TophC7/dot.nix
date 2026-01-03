@@ -8,7 +8,9 @@
   ...
 }:
 let
-  zen-browser = inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}.beta;
+  system = pkgs.stdenv.hostPlatform.system;
+  zen-browser = inputs.zen-browser.packages.${system}.beta;
+  hyprnavi = lib.getExe inputs.hyprnavi-psm.packages.${system}.default;
 in
 {
   wayland.windowManager.hyprland.settings = {
@@ -57,89 +59,39 @@ in
       #
       "$mod, Q, killactive"
       "$mod, D, centerwindow"
+      "$mod, D, layoutmsg, fit visible" # fits all visible windows onto screen space
       "$mod, P, togglefloating"
       "$mod, S, togglegroup" # Column tabbed display equivalent
       "$mod SUPER, F, fullscreen"
 
       #
       # ══════════════════════════════════════════════════════════════════════════
-      # FOCUS NAVIGATION (hyprscrolling)
+      # NAVIGATION & MOVEMENT (hyprnavi-psm)
       # ══════════════════════════════════════════════════════════════════════════
+      # hyprnavi flags: -p position-based | -s swap/move | -m cross-monitor
       #
-      # Column focus (left/right) - uses hyprscrolling's focus with wrapping
-      "$mod, C, layoutmsg, focus l"
-      "$mod, B, layoutmsg, focus r"
-      # Window focus within column (up/down)
-      "$mod, T, movefocus, u"
-      "$mod, V, movefocus, d"
+      # Focus: L/R crosses monitors at edges, U/D crosses workspace at edges
+      "$mod, C, exec, ${hyprnavi} l -pm"
+      "$mod, B, exec, ${hyprnavi} r -pm"
+      "$mod, T, exec, ${hyprnavi} u -p"
+      "$mod, V, exec, ${hyprnavi} d -p"
+      # Move window: L/R crosses monitors, U/D crosses workspace at edges
+      "$mod CTRL, C, exec, ${hyprnavi} l -psm"
+      "$mod CTRL, B, exec, ${hyprnavi} r -psm"
+      "$mod CTRL, T, exec, ${hyprnavi} u -ps"
+      "$mod CTRL, V, exec, ${hyprnavi} d -ps"
 
       #
       # ══════════════════════════════════════════════════════════════════════════
-      # WINDOW MOVEMENT (hyprscrolling)
+      # RESIZING
       # ══════════════════════════════════════════════════════════════════════════
       #
-      # Move window between columns (consume/expel like niri)
-      "$mod SHIFT, C, layoutmsg, movewindowto l"
-      "$mod SHIFT, B, layoutmsg, movewindowto r"
-      # Move window within column
-      "$mod SHIFT, T, movewindow, u"
-      "$mod SHIFT, V, movewindow, d"
-
-      #
-      # ══════════════════════════════════════════════════════════════════════════
-      # COLUMN/MONITOR MOVEMENT
-      # ══════════════════════════════════════════════════════════════════════════
-      #
-      # Move entire column to monitor
-      "$mod CTRL, C, movewindow, mon:l"
-      "$mod CTRL, B, movewindow, mon:r"
-      # Move column to workspace (up/down)
-      "$mod CTRL, T, movetoworkspace, e-1"
-      "$mod CTRL, V, movetoworkspace, e+1"
-
-      #
-      # ══════════════════════════════════════════════════════════════════════════
-      # COLUMN SIZING (hyprscrolling)
-      # ══════════════════════════════════════════════════════════════════════════
-      #
-      # Cycle through preset column widths (like niri's switch-preset-column-width)
-      "$mod SUPER, C, layoutmsg, colresize -conf"
-      "$mod SUPER, B, layoutmsg, colresize +conf"
-      # Adjust window height
-      "$mod SUPER, T, resizeactive, 0 -50"
-      "$mod SUPER, V, resizeactive, 0 50"
-
-      #
-      # ══════════════════════════════════════════════════════════════════════════
-      # WORKSPACE SWITCHING
-      # ══════════════════════════════════════════════════════════════════════════
-      #
-      "$mod, 1, workspace, 1"
-      "$mod, 2, workspace, 2"
-      "$mod, 3, workspace, 3"
-      "$mod, 4, workspace, 4"
-      "$mod, 5, workspace, 5"
-      "$mod, 6, workspace, 6"
-      "$mod, 7, workspace, 7"
-      "$mod, 8, workspace, 8"
-      "$mod, 9, workspace, 9"
-      "$mod, 0, workspace, 10"
-
-      # Move window to workspace
-      "$mod SHIFT, 1, movetoworkspace, 1"
-      "$mod SHIFT, 2, movetoworkspace, 2"
-      "$mod SHIFT, 3, movetoworkspace, 3"
-      "$mod SHIFT, 4, movetoworkspace, 4"
-      "$mod SHIFT, 5, movetoworkspace, 5"
-      "$mod SHIFT, 6, movetoworkspace, 6"
-      "$mod SHIFT, 7, movetoworkspace, 7"
-      "$mod SHIFT, 8, movetoworkspace, 8"
-      "$mod SHIFT, 9, movetoworkspace, 9"
-      "$mod SHIFT, 0, movetoworkspace, 10"
-
-      # Workspace scroll
-      "$mod, mouse_down, workspace, e+1"
-      "$mod, mouse_up, workspace, e-1"
+      # Column width (cycle presets)
+      "$mod SHIFT, C, layoutmsg, colresize -conf"
+      "$mod SHIFT, B, layoutmsg, colresize +conf"
+      # Window height
+      "$mod SHIFT, T, resizeactive, 0 -50"
+      "$mod SHIFT, V, resizeactive, 0 50"
 
       #
       # ══════════════════════════════════════════════════════════════════════════

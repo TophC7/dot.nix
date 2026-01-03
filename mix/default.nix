@@ -140,11 +140,10 @@
               enable = true;
               default = true;
             };
-            gnome.enable = true;
             niri.enable = true;
           };
           greeter = {
-            type = "gdm";
+            type = "dms";
             autoLogin = true;
           };
           mounts = {

@@ -48,6 +48,7 @@
       inputs = {
         flake-parts.follows = "flake-parts";
         home-manager.follows = "home-manager";
+        hyprnavi-psm.follows = "hyprnavi-psm";
         matugen.follows = "matugen";
         mix-nix.follows = "mix-nix";
         nixpkgs.follows = "nixpkgs-unstable";
@@ -107,6 +108,11 @@
 
     nix-ai = {
       url = "github:numtide/nix-ai-tools";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+    };
+
+    hyprnavi-psm = {
+      url = "github:TophC7/hyprnavi-psm";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
   };
