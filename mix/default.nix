@@ -114,9 +114,22 @@
         norion = {
           user = "toph";
           ip = "10.2.2.4";
-          desktop.gnome.enable = true;
+          desktop = {
+            niri = {
+              enable = true;
+              default = true;
+              dms = {
+                includeBinds = true;
+                includeColors = true;
+                includeLayout = true;
+                includeOutputs = true;
+                includeRecents = true;
+                includeWpblur = true;
+              };
+            };
+          };
           greeter = {
-            type = "gdm";
+            type = "dms";
             autoLogin = true;
           };
           mounts = {
