@@ -11,9 +11,56 @@ let
   system = pkgs.stdenv.hostPlatform.system;
   zen-browser = inputs.zen-browser.packages.${system}.beta;
   hyprnavi = lib.getExe inputs.hyprnavi-psm.packages.${system}.default;
+
+  # Window classes that should trigger passthrough submap (disables mouse keybinds)
+  passthrough-classes = [
+    "gamescope"
+    ".gamescope-wrapped"
+    "marvel-win64-shipping.exe"
+    "steam_app_3228590" # Deadzone Rouge
+  ];
+
+  # Auto-switch submap based on focused window class
+  submap-switcher = pkgs.writeScript "hypr-submap-switcher" ''
+    #!${lib.getExe pkgs.fish}
+    set socket "$XDG_RUNTIME_DIR/hypr/$HYPRLAND_INSTANCE_SIGNATURE/.socket2.sock"
+    set passthrough_classes ${lib.concatStringsSep " " passthrough-classes}
+
+    ${lib.getExe pkgs.socat} -U - "UNIX-CONNECT:$socket" | while read -l line
+        set parts (string split ">>" $line)
+        set event $parts[1]
+        set data $parts[2]
+
+        if test "$event" = activewindow
+            set class (string split "," $data)[1]
+            set is_game false
+            for pattern in $passthrough_classes
+                if string match -q $pattern $class
+                    set is_game true
+                    break
+                end
+            end
+            if test $is_game = true
+                hyprctl dispatch submap passthrough
+            else
+                hyprctl dispatch submap reset
+            end
+        end
+    end
+  '';
 in
 {
+  # Passthrough submap for games - disables mouse keybinds
+  # Switched automatically by submap-switcher listening to IPC
+  wayland.windowManager.hyprland.extraConfig = ''
+    submap = passthrough
+    bind = $mod SUPER, Escape, submap, reset
+    bind = $mod SUPER, F, fullscreen 
+    submap = reset
+  '';
+
   wayland.windowManager.hyprland.settings = {
+    exec-once = [ "${submap-switcher}" ];
     # Use Alt as primary mod (like niri config)
     "$mod" = "ALT";
 
@@ -61,8 +108,8 @@ in
       "$mod, D, centerwindow"
       "$mod, D, layoutmsg, fit visible" # fits all visible windows onto screen space
       "$mod, P, togglefloating"
-      "$mod, S, togglegroup" # Column tabbed display equivalent
       "$mod SUPER, F, fullscreen"
+      "$mod, S, togglespecialworkspace, scratch" # Scratch layer - toggle visibility of all floating windows
 
       #
       # ══════════════════════════════════════════════════════════════════════════
