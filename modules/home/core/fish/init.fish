@@ -1,3 +1,6 @@
+# Disable terminal focus reporting to prevent ^[[I/^[[O artifacts
+printf '\e[?1004l'
+
 function fish_greeting
     if not string match -q "*ghostty*" "$TERM"
         fastfetch --logo-type sixel
@@ -16,7 +19,7 @@ function s
     ssh $argv
 end
 
-# Copy competitions
+# Copy completions
 complete -c ls --wraps eza
 complete -c s --wraps ssh
 
