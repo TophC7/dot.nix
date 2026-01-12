@@ -11,22 +11,14 @@ end
 
 ## Aliases and Overrides ##
 
-function ls
-    eza $argv
-end
-
-function s
-    ssh $argv
-end
-
-# Copy completions
-complete -c ls --wraps eza
-complete -c s --wraps ssh
+abbr -a ls eza
+abbr -a s ssh
+abbr -a tt gtrash put
 
 # Discourage using rm command
 function rm
     if test (count $argv) -gt 0
-        echo "Error: 'rm' is protected. Please use 'trash' command instead."
+        echo "Error: 'rm' is protected. Please use 'gtrash put' or 'tt' command instead."
     end
 end
 

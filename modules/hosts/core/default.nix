@@ -35,6 +35,7 @@ in
     git
     git-crypt
     gpg-tui
+    gtrash
     jq
     micro
     openssh
@@ -107,6 +108,7 @@ in
       auto-optimise-store = true;
       warn-dirty = false;
       allow-import-from-derivation = true;
+      download-buffer-size = 2147483648; # 2GB
 
       experimental-features = [
         "nix-command"

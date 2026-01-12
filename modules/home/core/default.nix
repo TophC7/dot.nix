@@ -73,7 +73,6 @@ in
       eza # ls replacement
       lazyjournal # journalctl viewer
       nmap # network scannero
-      trashy # trash cli
       unrar # rar extraction
       unzip # zip extraction
       zip # zip compression
