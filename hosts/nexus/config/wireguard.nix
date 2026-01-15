@@ -18,11 +18,15 @@ let
 
   # ── Dynamic VPN Client Discovery ──
   # Filter hosts that are VPN clients:
-  # - Not this host (nexus)
-  # - Has vpn config
-  # - Has endpoint set (clients connect TO a server, servers don't have endpoint)
+  # - Not this host (nexus - the server)
+  # - Has vpn config with publicKey
+  # - Has a /32 address (clients have /32, server has /24)
   vpnClients = lib.filterAttrs (
-    name: spec: name != host.hostName && spec.vpn or null != null && spec.vpn.endpoint or null != null
+    name: spec:
+    name != host.hostName
+    && spec.vpn or null != null
+    && spec.vpn.publicKey or null != null
+    && lib.hasSuffix "/32" (spec.vpn.address or "")
   ) hosts;
 
   # Build peer config from host spec
@@ -51,6 +55,12 @@ in
       allowedUDPPorts = [ vpnPort ];
       # Trust the VPN interface - allow all traffic from VPN peers
       trustedInterfaces = [ vpnInterface ];
+      # Allow rathole container (on pangolin bridge) to reach WireGuard
+      # Docker NAT rules intercept local-destined traffic before the normal
+      # firewall rules apply, so we need an explicit rule for br-pangolin
+      extraInputRules = ''
+        iifname "br-pangolin" udp dport ${toString vpnPort} accept
+      '';
     };
   };
 }

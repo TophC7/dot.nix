@@ -46,6 +46,9 @@
   ## System-wide packages ##
   programs.nix-ld.enable = true;
 
+  # VPS with limited kernel permissions; disable sandboxing
+  nix.settings.sandbox = false;
+
   # https://wiki.nixos.org/wiki/FAQ/When_do_I_update_stateVersion
   system.stateVersion = "24.11";
 }

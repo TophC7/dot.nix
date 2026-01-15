@@ -28,8 +28,6 @@
         "video"
         "wheel"
       ];
-
-      wgEndpoint = "pangolin.ryot.foo:51821";
     in
     {
       ## Secrets ##
@@ -115,9 +113,12 @@
           user = "toph";
           ip = "10.2.2.4";
           desktop = {
-            niri = {
+            hyprland = {
               enable = true;
               default = true;
+            };
+            niri = {
+              enable = true;
               dms = {
                 includeBinds = true;
                 includeColors = true;
@@ -139,9 +140,8 @@
             tank = true;
           };
           vpn = {
-            publicKey = "ECl4YWWZfuAdYesxSUOSq7mTIYwII/eYg78dLR9XpmU=";
+            publicKey = "A+pF7xjkh+TcI2w9CqZydF8oRSQQxNvPpGp18/R3YCE=";
             address = "10.10.0.4/32";
-            endpoint = wgEndpoint;
           };
         };
 
@@ -152,8 +152,10 @@
             hyprland = {
               enable = true;
               default = true;
+              dms = {
+                sourceOutputs = true;
+              };
             };
-            niri.enable = true;
           };
           greeter = {
             type = "dms";
@@ -184,7 +186,7 @@
           isMinimal = true;
           mounts.repo = true;
           vpn = {
-            publicKey = "iOSuhmjJhUcqQQBnYOs/3WSs6dyX6JnqWzZ7JbceulU=";
+            publicKey = "CsFrUwKp1EQoBJqKkn44/P8q2+Zm5U0YTEpkLlrKlzI=";
             address = "10.10.0.1/24"; # Server address
             # No endpoint - this is the VPN server
           };
@@ -215,7 +217,6 @@
           vpn = {
             publicKey = "9vgWTiGy9lwjXT6/hqxXNodw4jdhZPVRpbwTIWAxDWg=";
             address = "10.10.0.8/32";
-            endpoint = wgEndpoint;
           };
         };
 
@@ -224,7 +225,6 @@
           vpn = {
             publicKey = "n9EbRKf4syovfi3lnTJ7NCuywLh1IuHL7XX+wK3drUg=";
             address = "10.10.0.10/32";
-            endpoint = wgEndpoint;
           };
         };
       };
