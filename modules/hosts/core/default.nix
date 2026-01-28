@@ -86,7 +86,10 @@ in
   };
 
   ## Primary shell enablement ##
-  programs.fish.enable = true;
+  programs.fish = {
+    enable = true;
+    useBabelfish = true; # Native fish - bash translation
+  };
   environment.shells = with pkgs; [
     bash
     fish
