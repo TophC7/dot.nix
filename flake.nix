@@ -2,17 +2,13 @@
   description = "Toph's Nix-Config";
 
   inputs = {
-    chaotic.url = "github:chaotic-cx/nyx/nyxpkgs-unstable";
     nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-25.11";
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
     ## NixOS ##
 
-    flake-parts = {
-      url = "github:hercules-ci/flake-parts";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
-    };
+    flake-parts.url = "github:hercules-ci/flake-parts";
 
     hardware = {
       url = "github:nixos/nixos-hardware";

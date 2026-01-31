@@ -19,7 +19,6 @@
     (lib.fs.scanPaths ./.)
 
     ## Hardware ##
-    inputs.chaotic.nixosModules.default
     inputs.hardware.nixosModules.lenovo-thinkpad-p14s-amd-gen5
 
     ## Additional Configs ##

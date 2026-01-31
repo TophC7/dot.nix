@@ -42,6 +42,9 @@
       timeout = 3;
     };
 
+    # Use custom CachyOS kernel optimized for network throughput
+    kernelPackages = pkgs.linuxPackages-ryot-net;
+
     # BTRFS support
     supportedFilesystems = [ "btrfs" ];
     initrd.supportedFilesystems = [ "btrfs" ];

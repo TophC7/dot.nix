@@ -19,7 +19,6 @@
     (lib.fs.scanPaths ./.)
 
     ## Hardware ##
-    inputs.chaotic.nixosModules.default
     inputs.hardware.nixosModules.common-cpu-amd
     inputs.hardware.nixosModules.common-gpu-amd
     inputs.hardware.nixosModules.common-pc-ssd

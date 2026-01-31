@@ -22,8 +22,8 @@
       timeout = 3;
     };
 
-    # Use ZFS-compatible kernel (automatically selects latest compatible version)
-    kernelPackages = config.boot.zfs.package.latestCompatibleLinuxPackages;
+    # Use custom CachyOS kernel with ZFS support, ThinLTO, and x86_64-v3
+    kernelPackages = pkgs.linuxPackages-ryot-zfs;
 
     initrd = {
       systemd.enable = true;
@@ -71,6 +71,7 @@
     ];
     zfs.forceImportRoot = true; # Required when forceImportAll is true
     zfs.forceImportAll = true; # Import all pools at boot
+    zfs.package = config.boot.kernelPackages.zfs_cachyos; # CachyOS-patched ZFS
   };
 
   # Force ethernet to 2.5Gbps without auto-negotiation

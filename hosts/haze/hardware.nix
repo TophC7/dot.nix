@@ -1,6 +1,5 @@
 {
   pkgs,
-  inputs,
   config,
   lib,
   modulesPath,
@@ -28,8 +27,8 @@
       timeout = 3;
     };
 
-    # Use the cachyos kernel for better performance
-    kernelPackages = pkgs.linuxPackages_cachyos;
+    # Use custom CachyOS kernel with ThinLTO, x86_64-v3, and BBR3
+    kernelPackages = pkgs.linuxPackages-ryot;
 
     # Kernel sysctl parameters
     kernel.sysctl = {
@@ -88,10 +87,3 @@
   hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableAllFirmware;
 
 }
-
-# STUFF ABOUT CHAOTIC NIX CACHE
-# nix eval 'github:chaotic-cx/nyx/nyxpkgs-unstable#linuxPackages_cachyos.kernel.outPath'
-# nix eval 'chaotic#linuxPackages_cachyos.kernel.outPath'
-# nix eval '<HOME>/git/Nix/dot.nix#nixosConfigurations.rune.config.boot.kernelPackages.kernel.outPath'
-# curl -L 'https://chaotic-nyx.cachix.org/{{HASH}}.narinfo'
-# sudo nixos-rebuild switch --flake ./git/Nix/dot.nix/. --option 'extra-substituters' 'https://chaotic-nyx.cachix.org/' --option extra-trusted-public-keys "chaotic-nyx.cachix.org-1:HfnXSw4pj95iI/n17rIDy40agHj12WfF+Gqk6SonIT8="

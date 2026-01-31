@@ -1,12 +1,10 @@
 {
   pkgs,
-  inputs,
   config,
   lib,
   modulesPath,
   ...
 }:
-
 {
   imports = lib.flatten [
     (modulesPath + "/installer/scan/not-detected.nix")
@@ -24,8 +22,8 @@
       timeout = 3;
     };
 
-    # Use the cachyos kernel for better performance
-    kernelPackages = pkgs.linuxPackages_cachyos;
+    # Use custom CachyOS kernel with ThinLTO, x86_64-v3, and BBR3
+    kernelPackages = pkgs.linuxPackages-ryot;
 
     initrd = {
       systemd.enable = true;
