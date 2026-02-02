@@ -6,6 +6,6 @@
 }:
 {
   ## Android Debug Bridge ##
-  programs.adb.enable = true;
+  environment.systemPackages = [ pkgs.android-tools ];
   users.users.${host.user.name}.extraGroups = [ "adbusers" ];
 }
