@@ -2,9 +2,10 @@
   description = "Toph's Nix-Config";
 
   inputs = {
-    nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-25.11";
-    nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    # Derive nixpkgs from mix-nix for cache coherence
+    # This ensures mix.nix packages use cached builds
+    nixpkgs.follows = "mix-nix/nixpkgs";
+    nixpkgs-stable.follows = "mix-nix/nixpkgs-stable";
 
     ## NixOS ##
 
@@ -16,17 +17,13 @@
 
     home-manager = {
       url = "github:nix-community/home-manager";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
 
     mix-nix = {
       # url = "github:tophc7/mix.nix";
       url = "git+file:///repo/Nix/mix.nix";
-      inputs = {
-        flake-parts.follows = "flake-parts";
-        home-manager.follows = "home-manager";
-        nixpkgs.follows = "nixpkgs-unstable";
-      };
+      # Don't override nixpkgs - let mix.nix control it for cache hits
     };
 
     ## VM tools ##
@@ -47,31 +44,31 @@
         hyprnavi-psm.follows = "hyprnavi-psm";
         matugen.follows = "matugen";
         mix-nix.follows = "mix-nix";
-        nixpkgs.follows = "nixpkgs-unstable";
+        nixpkgs.follows = "nixpkgs";
         stylix.follows = "stylix";
       };
     };
 
     rose-pine-hyprcursor = {
       url = "github:ndom91/rose-pine-hyprcursor";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
 
     stylix = {
       url = "github:danth/stylix";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
 
     matugen = {
       url = "github:/InioX/Matugen";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
 
     ## Gaming ##
 
     hytale-launcher = {
       url = "github:JPyke3/hytale-launcher-nix";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
 
     play = {
@@ -80,48 +77,48 @@
       inputs = {
         home-manager.follows = "home-manager";
         mix-nix.follows = "mix-nix";
-        nixpkgs.follows = "nixpkgs-unstable";
+        nixpkgs.follows = "nixpkgs";
       };
     };
 
     wayscope = {
       # url = "github:tophc7/wayscope";
       url = "git+file:///repo/rust/wayscope";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
 
     ## Misc ##
 
     fresh = {
       url = "github:sinelaw/fresh";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
 
     solaar = {
       url = "github:Svenum/Solaar-Flake";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
 
     yay = {
       # url = "github:tophc7/yay.nix";
       url = "git+file:///repo/Nix/yay.nix";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
 
     zen-browser = {
       url = "github:0xc000022070/zen-browser-flake/beta";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
 
     nix-ai = {
       url = "github:numtide/nix-ai-tools";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
 
     hyprnavi-psm = {
       # url = "github:TophC7/hyprnavi-psm";
       url = "git+file:///repo/rust/hyprnavi";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
