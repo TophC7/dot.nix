@@ -18,13 +18,20 @@
   ...
 }:
 let
-  yay = inputs.yay.packages.${host.system}.default;
   fresh = inputs.fresh.packages.${host.system}.default;
 in
 {
   imports = lib.flatten [
     (lib.fs.scanPaths ./.)
+    inputs.yay.nixosModules.default
   ];
+
+  # yay - Nix command wrapper with centralized builds
+  programs.yay = {
+    enable = true;
+    buildHost = "nimbus";
+    flakePath = "/repo/Nix/dot.nix";
+  };
 
   # System-wide packages, root accessible
   environment.systemPackages = with pkgs; [
@@ -43,7 +50,6 @@ in
     sshfs
     superfile
     wget
-    yay
     yazi
   ];
 
