@@ -86,7 +86,7 @@ let
       GitPython imageio-ffmpeg llama-cpp-agent llama-cpp-python \
       mkdocs mkdocs-material "mkdocstrings[python]" numpy \
       opencv-contrib-python opencv-python piexif py-cpuinfo pynvml \
-      simpleeval timm toml "transformers==4.38.2" uv yt-dlp
+      simpleeval timm toml uv yt-dlp color-matcher
 
     # insightface needs special handling
     pip install --no-build-isolation insightface --quiet 2>/dev/null || \
