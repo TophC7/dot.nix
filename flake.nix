@@ -84,6 +84,12 @@
       };
     };
 
+    wayscope = {
+      # url = "github:tophc7/wayscope";
+      url = "git+file:///repo/rust/wayscope";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+    };
+
     ## Misc ##
 
     fresh = {

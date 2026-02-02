@@ -7,73 +7,125 @@
   host,
   ...
 }:
+let
+  # Desktop environment detection for HDR support
+  niri = host.desktop.niri.enable;
+  hyprland = host.desktop.hyprland.enable;
+  gnome = host.desktop.gnome.enable;
+  allowHDR = !niri && (hyprland || gnome);
+  waylandBackend = !gnome;
+
+  baseEnv = {
+    XCURSOR_THEME = config.home.pointerCursor.name or "Adwaita";
+    XCURSOR_PATH = "${config.home.pointerCursor.package or pkgs.adwaita-icon-theme}/share/icons";
+  };
+
+  baseOptions =
+    lib.optionalAttrs waylandBackend {
+      backend = "wayland";
+    }
+    // { };
+in
 {
   imports = [
-    inputs.play.homeManagerModules.play
+    inputs.wayscope.homeManagerModules.wayscope
   ];
 
-  play = {
-    gamescoperun =
-      let
-        niri = host.desktop == "niri";
-        hyprland = host.desktop == "hyprland";
-        waylandCompositor = niri || hyprland;
-      in
-      {
-        enable = true;
-        useGit = true;
+  programs.wayscope = {
+    enable = true;
+    useGit = true;
 
-        defaultSystemd = false;
-        defaultWSI = true;
-        defaultHDR = !waylandCompositor;
-        baseOptions = lib.mkIf waylandCompositor {
-          "backend" = "wayland";
+    # Monitors come from config.monitors (mix.nix) automatically
+    # useSystemMonitors = true; # Auto-detected
+
+    profiles = {
+      # Default profile - used when no profile specified
+      default = {
+        useHDR = allowHDR;
+        useWSI = true;
+        options = baseOptions;
+        environment = baseEnv;
+      };
+
+      hdr = {
+        useHDR = true;
+        useWSI = true;
+        options = baseOptions;
+        environment = baseEnv;
+      };
+
+      auto-hdr = {
+        useHDR = true;
+        useWSI = false;
+        options = {
+          backend = "sdl";
+          hdr-itm-enabled = true;
         };
+        environment = baseEnv;
+      };
 
-        # Extra environment variables
-        environment = {
-          XCURSOR_THEME = config.home.pointerCursor.name or "Adwaita";
-          XCURSOR_PATH = "${config.home.pointerCursor.package or pkgs.adwaita-icon-theme}/share/icons";
+      wayland = {
+        useHDR = allowHDR;
+        useWSI = true;
+        unset = [
+          "DISPLAY"
+        ];
+      };
+
+      steam = {
+        useHDR = allowHDR;
+        useWSI = true;
+        options = baseOptions // {
+          steam = true;
+        };
+        environment = baseEnv // {
+          STEAM_FORCE_DESKTOPUI_SCALING = "1";
+          STEAM_GAMEPADUI = "1";
         };
       };
 
-    wrappers = {
-      steam = lib.mkDefault {
-        enable = true;
-        command = "${lib.getExe osConfig.programs.steam.package} -bigpicture -tenfoot";
-        extraOptions = {
-          "steam" = true;
+      steam-auto-hdr = {
+        useHDR = true;
+        useWSI = true;
+        options = {
+          backend = "sdl";
+          hdr-itm-enabled = true;
+          steam = true;
         };
-        environment = {
-          STEAM_FORCE_DESKTOPUI_SCALING = 1;
-          STEAM_GAMEPADUI = 1;
-        };
-      };
-
-      # Other game launchers
-      heroic = lib.mkDefault {
-        enable = true;
-        package = pkgs.heroic; # No special package configured by play.nix
-        extraOptions = {
-          "force-windows-fullscreen" = true;
+        environment = baseEnv // {
+          STEAM_FORCE_DESKTOPUI_SCALING = "1";
+          STEAM_GAMEPADUI = "1";
         };
       };
     };
-  };
 
-  # Simple wrapper package for native Steam client
-  home.packages = [
-    (pkgs.writeShellScriptBin "steam-client" ''
-      exec ${lib.getExe osConfig.programs.steam.package} "$@"
-    '')
-  ];
+    wrappers = {
+      steam-wayscope = {
+        enable = true;
+        profile = "steam";
+        command = "${lib.getExe osConfig.programs.steam.package} -bigpicture -tenfoot";
+      };
+
+      steam-auto-hdr = {
+        enable = true;
+        profile = "steam-auto-hdr";
+        command = "${lib.getExe osConfig.programs.steam.package} -bigpicture -tenfoot";
+      };
+
+      heroic = {
+        enable = true;
+        profile = "auto-hdr";
+        package = pkgs.heroic;
+      };
+    };
+  };
 
   xdg.desktopEntries = {
     ## Steam and Games ##
     steam = lib.mkDefault {
       name = "Steam";
-      comment = "Steam Big Picture (Gamescope with defaults)";
-      exec = "${lib.getExe config.play.wrappers.steam.wrappedPackage}";
+      comment = "Steam Client";
+      exec = "${lib.getExe osConfig.programs.steam.package}";
       icon = "steam";
       type = "Application";
       terminal = false;
@@ -90,16 +142,20 @@
         Keywords = "gaming;";
       };
       actions = {
-        native = {
-          name = "Steam (No Gamescope)";
-          exec = "${lib.getExe osConfig.programs.steam.package}";
+        gamescope = {
+          name = "Steam Big Picture (Wayscope Profile)";
+          exec = "${lib.getExe config.programs.wayscope.wrappers.steam-wayscope.wrappedPackage}";
+        };
+        gamescope-auto-hdr = {
+          name = "Steam Big Picture (Wayscope Profile)";
+          exec = "${lib.getExe config.programs.wayscope.wrappers.steam-auto-hdr.wrappedPackage}";
         };
         kill-processes = {
           name = "Kill Steam/Gamescope Processes";
           exec = "${pkgs.writeShellScript "kill-gaming-processes" ''
             set -e
             ${pkgs.procps}/bin/pkill -f "steam" || true
-            ${pkgs.procps}/bin/pkill -f "gamescope" || true  
+            ${pkgs.procps}/bin/pkill -f "gamescope" || true
             ${pkgs.procps}/bin/pkill -f "gamescopereaper" || true
             ${pkgs.libnotify}/bin/notify-send "Gaming Processes" "Killed steam, gamescope, and gamescopereaper processes"
           ''}";
@@ -110,7 +166,7 @@
     lemon = {
       name = "Lemon Craft";
       comment = "Minecraft via Steam";
-      exec = "${lib.getExe config.play.wrappers.steam.wrappedPackage} steam://rungameid/17657148064751681536";
+      exec = "${lib.getExe config.programs.wayscope.wrappers.steam-wayscope.wrappedPackage} steam://rungameid/17657148064751681536";
       icon = "/home/toph/.local/share/PrismLauncher/instances/Lemon Craft/icon.png";
       type = "Application";
       terminal = false;
@@ -121,7 +177,7 @@
     "com.heroicgameslauncher.hgl" = lib.mkDefault {
       name = "Heroic Games Launcher";
       comment = "Heroic in Gamescope Session";
-      exec = "${lib.getExe config.play.wrappers.heroic.wrappedPackage}";
+      exec = "${lib.getExe config.programs.wayscope.wrappers.heroic.wrappedPackage}";
       icon = "com.heroicgameslauncher.hgl";
       type = "Application";
       terminal = false;
