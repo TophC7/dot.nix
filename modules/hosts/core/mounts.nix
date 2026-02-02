@@ -45,13 +45,19 @@ let
   };
 
   # Helper function to generate mount configuration
+  # /repo gets stricter cache settings for Nix flake consistency
   mkNfsMount = name: cfg: {
     mount = {
       enable = true;
       what = "${cfg.server}:${cfg.path}";
       where = cfg.path;
       type = "nfs";
-      options = "nfsvers=4.2,noatime,soft,intr";
+      # /repo needs lookupcache=none,actimeo=0 to prevent stale flake.lock reads
+      # Other mounts use default caching for performance
+      options =
+        if name == "repo"
+        then "nfsvers=4.2,noatime,soft,intr,lookupcache=none,actimeo=0"
+        else "nfsvers=4.2,noatime,soft,intr";
       after = [ "network-online.target" ];
       wants = [ "network-online.target" ];
       unitConfig = {
