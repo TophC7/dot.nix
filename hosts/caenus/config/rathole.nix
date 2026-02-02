@@ -38,6 +38,11 @@
         };
 
         # UDP Services
+        "hytale" = {
+          bind_addr = "0.0.0.0:5520";
+          type = "udp";
+        };
+
         "pangolin-tunnels" = {
           bind_addr = "0.0.0.0:21820";
           type = "udp";
@@ -58,5 +63,9 @@
 
   networking.firewall.allowedTCPPorts = [
     2333 # Rathole control port
+  ];
+
+  networking.firewall.allowedUDPPorts = [
+    5520 # Hytale
   ];
 }

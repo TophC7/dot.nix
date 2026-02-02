@@ -54,6 +54,7 @@
       allowedUDPPorts = [
         111 # rpcbind
         2049 # NFSv4
+        5520 # Hytale
         10048 # mountd
       ];
     };

@@ -66,7 +66,10 @@ in
           "${volumePath}/config/traefik:/etc/traefik:ro"
         ];
         cmd = [ "--configFile=/etc/traefik/traefik_config.yml" ];
-        dependsOn = [ "gerbil" "pangolin" ];
+        dependsOn = [
+          "gerbil"
+          "pangolin"
+        ];
         log-driver = "journald";
         extraOptions = [ "--network=container:gerbil" ];
       };

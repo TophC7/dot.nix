@@ -2,6 +2,7 @@
   lib,
   pkgs,
   secrets,
+  hosts,
   ...
 }:
 let
@@ -37,6 +38,10 @@ let
     local_addr = "${gerbilIp}:25565"
 
     # UDP services
+    [client.services.hytale]
+    type = "udp"
+    local_addr = "${hosts.zebes.ip}:5520"
+
     [client.services.pangolin-tunnels]
     type = "udp"
     local_addr = "${gerbilIp}:21820"

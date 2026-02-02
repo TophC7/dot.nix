@@ -21,7 +21,7 @@
 
     mix-nix = {
       # url = "github:tophc7/mix.nix";
-      url = "path:/repo/Nix/mix.nix";
+      url = "git+file:///repo/Nix/mix.nix";
       inputs = {
         flake-parts.follows = "flake-parts";
         home-manager.follows = "home-manager";
@@ -40,7 +40,7 @@
 
     arroz-nix = {
       # url = "github:tophc7/arroz.nix";
-      url = "path:/repo/Nix/arroz.nix";
+      url = "git+file:///repo/Nix/arroz.nix";
       inputs = {
         flake-parts.follows = "flake-parts";
         home-manager.follows = "home-manager";
@@ -69,11 +69,15 @@
 
     ## Gaming ##
 
+    hytale-launcher = {
+      url = "github:JPyke3/hytale-launcher-nix";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+    };
+
     play = {
       # url = "github:tophc7/play.nix";
-      url = "path:/repo/Nix/play.nix";
+      url = "git+file:///repo/Nix/play.nix";
       inputs = {
-        chaotic.follows = "chaotic";
         home-manager.follows = "home-manager";
         mix-nix.follows = "mix-nix";
         nixpkgs.follows = "nixpkgs-unstable";
@@ -93,7 +97,8 @@
     };
 
     yay = {
-      url = "github:tophc7/yay.nix";
+      # url = "github:tophc7/yay.nix";
+      url = "git+file:///repo/Nix/yay.nix";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
@@ -109,7 +114,7 @@
 
     hyprnavi-psm = {
       # url = "github:TophC7/hyprnavi-psm";
-      url = "path:/repo/rust/hyprnavi";
+      url = "git+file:///repo/rust/hyprnavi";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
   };

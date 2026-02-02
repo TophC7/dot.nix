@@ -2,6 +2,8 @@
   flakeRoot,
   lib,
   pkgs,
+  host,
+  inputs,
   ...
 }:
 {
@@ -26,6 +28,8 @@
 
   ## Packages with no needed configs ##
   home.packages = with pkgs; [
+    inputs.hytale-launcher.packages.${host.system}.default
+
     ## Media ##
     ffmpeg_8-full
     spotify

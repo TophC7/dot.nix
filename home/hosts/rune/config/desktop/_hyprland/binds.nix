@@ -19,6 +19,7 @@ let
     "marvel-win64-shipping.exe"
     "deadzonesteam-win64-shipping.exe"
     "steam_app_3228590" # Deadzone Rouge
+    "HytaleClient"
   ];
 
   # Auto-switch submap based on focused window class
