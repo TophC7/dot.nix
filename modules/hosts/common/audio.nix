@@ -57,15 +57,47 @@ in
       };
     };
 
-    wireplumber.extraConfig."99-alsa-lowlatency"."monitor.alsa.rules" = [
-      {
-        matches = [ { "node.name" = "~alsa_output.*"; } ];
-        actions.update-props = {
-          "audio.format" = "S32LE";
-          "audio.rate" = rate * 2; # 96kHz for ALSA outputs
-          "api.alsa.period-size" = 2;
-        };
-      }
-    ];
+    wireplumber.extraConfig = {
+      # General low-latency ALSA settings for most devices
+      "99-alsa-lowlatency"."monitor.alsa.rules" = [
+        {
+          matches = [ { "node.name" = "~alsa_output.*"; } ];
+          actions.update-props = {
+            "audio.format" = "S32LE";
+            "audio.rate" = rate * 2; # 96kHz for ALSA outputs
+            "api.alsa.period-size" = 2;
+          };
+        }
+      ];
+
+      # HyperX Cloud Alpha S fix - only supports 48kHz/S16LE
+      # Runs after general rules (h > a alphabetically) to override for this device
+      "99-hyperx-fix"."monitor.alsa.rules" = [
+        # Device-level rule
+        {
+          matches = [
+            { "device.name" = "~alsa_card.usb-Kingston_HyperX_Cloud_Alpha_S.*"; }
+          ];
+          actions.update-props = {
+            "api.alsa.use-acp" = true;
+            "audio.rate" = 48000;
+            "audio.allowed-rates" = [ 48000 ];
+          };
+        }
+        # Node-level rule for sink/source
+        {
+          matches = [
+            { "node.name" = "~alsa_output.usb-Kingston_HyperX_Cloud_Alpha_S.*"; }
+          ];
+          actions.update-props = {
+            "audio.rate" = 48000;
+            "audio.allowed-rates" = [ 48000 ];
+            "audio.format" = "S16LE";
+            "api.alsa.period-size" = 1024;
+            "api.alsa.headroom" = 8192;
+          };
+        }
+      ];
+    };
   };
 }
