@@ -8,13 +8,13 @@
 
 {
   # Automatic garbage collection configuration
+  # Conservative settings since this is a binary cache server
   nix.gc = {
     automatic = true;
-    dates = "daily";
+    dates = "weekly"; # Weekly instead of daily - other hosts may need older paths
     options =
       let
-        keepDays = 30;
-        minFree = "10G";
+        keepDays = 60; # Extended from 30 - gives other hosts time to sync
         maxStore = "500G";
       in
       ''
@@ -29,6 +29,7 @@
   nix.settings = {
     keep-derivations = true;
     keep-outputs = true;
+    keep-env-derivations = true; # Keep derivations from nix develop/shell
     auto-optimise-store = true;
     min-free = lib.mkForce (128 * 1024 * 1024); # 128MB minimum free
     max-free = lib.mkForce (10 * 1024 * 1024 * 1024); # 10GB target free space
