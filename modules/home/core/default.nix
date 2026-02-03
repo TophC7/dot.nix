@@ -79,8 +79,9 @@ in
       ;
   };
 
-  programs.nix-index = {
-    enable = true;
+  programs = {
+    home-manager.enable = true;
+    nix-index.enable = true;
   };
 
   manual = {
@@ -99,8 +100,6 @@ in
       warn-dirty = false;
     };
   };
-
-  programs.home-manager.enable = true;
 
   ## NIX NIX NIX ##
   home.file =
