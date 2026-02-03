@@ -15,7 +15,6 @@ let
     [
       stdenv.cc.cc.lib # libstdc++.so.6
       glib
-      glibc
       libGL
       libGLU
       ncurses5
