@@ -20,6 +20,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    lanzaboote = {
+      url = "github:nix-community/lanzaboote/v1.0.0";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     mix-nix = {
       # url = "github:tophc7/mix.nix";
       url = "git+file:///repo/Nix/mix.nix";

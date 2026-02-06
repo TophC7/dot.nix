@@ -113,24 +113,13 @@
           user = "toph";
           ip = "10.2.2.4";
           desktop = {
-            hyprland = {
+            gnome = {
               enable = true;
               default = true;
             };
-            niri = {
-              enable = true;
-              dms = {
-                includeBinds = true;
-                includeColors = true;
-                includeLayout = true;
-                includeOutputs = true;
-                includeRecents = true;
-                includeWpblur = true;
-              };
-            };
           };
           greeter = {
-            type = "dms";
+            type = "gdm";
             autoLogin = true;
           };
           mounts = {
