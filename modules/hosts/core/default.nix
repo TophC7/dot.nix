@@ -24,6 +24,7 @@ in
   imports = lib.flatten [
     (lib.fs.scanPaths ./.)
     inputs.yay.nixosModules.default
+    inputs.bonk.nixosModules.default
   ];
 
   # yay - Nix command wrapper with centralized builds
@@ -31,6 +32,14 @@ in
     enable = true;
     buildHost = "nimbus";
     flakePath = "/repo/Nix/dot.nix";
+  };
+
+  # bonk - Nix command wrapper, yay replacement
+  programs.bonk = {
+    enable = true;
+    buildHost = "nimbus";
+    flakePath = "/repo/Nix/dot.nix";
+    extraArgs = [ "--impure" ];
   };
 
   # System-wide packages, root accessible

@@ -104,6 +104,12 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    bonk = {
+      # url = "github:tophc7/bonk";
+      url = "git+file:///repo/rust/bonk";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     yay = {
       # url = "github:tophc7/yay.nix";
       url = "git+file:///repo/Nix/yay.nix";
