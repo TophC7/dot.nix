@@ -25,6 +25,7 @@
     (map (lib.fs.relativeTo flakeRoot) [
       "modules/hosts/common/audio.nix"
       "modules/hosts/common/bluetooth.nix"
+      "modules/hosts/common/clamav.nix"
       "modules/hosts/common/ddcutil.nix"
       "modules/hosts/common/gaming.nix"
       "modules/hosts/common/kb.nix"
