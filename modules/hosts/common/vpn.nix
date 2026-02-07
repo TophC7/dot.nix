@@ -32,7 +32,7 @@ let
     "10.2.2.0/24" # NIMBUS network
     "10.3.3.0/24" # ZEBES network
     "10.4.4.0/24" # RUNE network
-    "10.19.89.0/24" # HAZE network
+    "10.10.10.0/24" # WIFI network
   ];
 in
 {

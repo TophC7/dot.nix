@@ -90,7 +90,7 @@
         # ── x86 Desktops ──
         haze = {
           user = "cesar";
-          ip = "10.19.89.13";
+          ip = "10.2.2.13";
           desktop = {
             gnome = {
               enable = true;

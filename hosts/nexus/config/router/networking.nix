@@ -89,11 +89,11 @@
         ];
       };
 
-      ## HAZE ## (10.19.89.0/24) - USB NIC
+      ## WIFI ## (10.10.10.0/24) - USB NIC
       enp0s13f0u1 = {
         ipv4.addresses = [
           {
-            address = "10.19.89.1";
+            address = "10.10.10.1";
             prefixLength = 24;
           }
         ];
