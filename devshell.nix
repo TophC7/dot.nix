@@ -57,7 +57,7 @@
             github-copilot-cli
           ]
           ++ [
-            inputs.yay.packages.${system}.default # My yay.nix tool
+            inputs.bonk.packages.${system}.default # bonk - NixOS workflow multitool
           ];
 
         NIX_CONFIG = "experimental-features = nix-command flakes";
@@ -65,7 +65,7 @@
         shellHook = ''
           clear
           echo "Development shell initialized"
-          echo -e "Run '\033[1;34myay rebuild\033[0m' to rebuild your system"
+          echo -e "Run '\033[1;34mbonk switch\033[0m' to rebuild your system"
 
           # Set FLAKE to the current working directory
           export FLAKE="$PWD"

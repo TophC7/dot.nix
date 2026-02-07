@@ -237,7 +237,7 @@ For setting up a new system (in NixOS) with this configuration:
 # Enter development shell with necessary tools for installation
 nix develop github:TophC7/dot.nix --extra-experimental-features "flakes nix-command"
 
-# Clone the configuration repository using yay try
+# Clone the configuration repository
 FLAKE=~/Documents/dot.nix
 cd ~/Documents
 git clone https://github.com/tophc7/dot.nix
@@ -294,39 +294,33 @@ git-crypt lock
    nix develop github:TophC7/dot.nix --extra-experimental-features "flakes nix-command"
 
    # Rebuild with your host configuration
-   yay rebuild -H your-hostname -p ~/Documents/dot.nix
+   bonk switch -H your-hostname -p ~/Documents/dot.nix
    sudo reboot -f
    ```
 
 ### **Day-to-Day System Management**
 
-Once installed, use the integrated `yay` tool for all system management:
+Once installed, use the integrated `bonk` tool for all system management:
 
 ```bash
 # Build and switch system configuration
-yay rebuild
+bonk switch
 
 # Update flake inputs
-yay update
+bonk update
 
-# Clean up system
-yay garbage
+# Clean up the nix store
+bonk store gc
 
 # Try packages temporarily
-yay try fastfetch -- fastfetch
-
-# Create archives
-yay tar myfiles/
-
-# Extract archives
-yay untar myfiles.tar.zst
+bonk try fastfetch -- fastfetch
 ```
 
 ### **Environment Variables**
 - **`FLAKE`**: Set to your flake directory to avoid using `-p` flag repeatedly
   ```bash
   export FLAKE="$HOME/Documents/dot.nix"
-  yay rebuild  # Will automatically use $FLAKE path
+  bonk switch  # Will automatically use $FLAKE path
   ```
 
 ---
