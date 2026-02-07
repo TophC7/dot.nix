@@ -208,11 +208,11 @@
         "rust-overlay": "rust-overlay"
       },
       "locked": {
-        "lastModified": 1770411841,
-        "narHash": "sha256-HccTo8VbrpAjTX2+TscEXI1iiwN5ljOWx1lrfxxKOgI=",
+        "lastModified": 1770495824,
+        "narHash": "sha256-IletE7CWWRNtMdbBvFs1/3VGAghWmrNEM5ts3eHhdCE=",
         "ref": "refs/heads/main",
-        "rev": "b5045d8b44a22fce375f8219a20274496631f745",
-        "revCount": 10,
+        "rev": "725ed3097a918f5a5739b85ebbb375e39c37464b",
+        "revCount": 12,
         "type": "git",
         "url": "file:///repo/rust/bonk"
       },
