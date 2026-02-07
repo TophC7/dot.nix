@@ -70,7 +70,8 @@ let
       smtp_port: ${toString smtp.port}
       smtp_user: "${smtp.user}"
       smtp_pass: "${smtp.password}"
-      no_reply: "no-reply@ryot.foo"
+      smtp_secure: false
+      no_reply: "${smtp.from}"
 
     users:
       server_admin:
