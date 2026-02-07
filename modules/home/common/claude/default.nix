@@ -12,5 +12,8 @@
   imports = lib.fs.scanPaths ./.;
 
   # Install claude-code package
-  home.packages = [ inputs.nix-ai.packages.${pkgs.stdenv.hostPlatform.system}.claude-code ];
+  home.packages = [
+    inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.claude-code
+    inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.gemini-cli
+  ];
 }
