@@ -1,4 +1,5 @@
 {
+  consts,
   config,
   lib,
   pkgs,
@@ -8,6 +9,7 @@
 let
   smtp = secrets.users.admin.smtp;
   pangolin = secrets.service.pangolin;
+  configPath = "${consts.DATA_BASE_PATH}/pangolin/config";
 
   # Create the configuration files as derivations
   pangolinConfigFile = pkgs.writeText "pangolin-config.yml" ''
@@ -208,9 +210,9 @@ in
 
   ## Tmp files and Service to Avoid symlinks
   systemd.tmpfiles.rules = [
-    "d /etc/pangolin/config 0755 root root -"
-    "d /etc/pangolin/config/traefik 0755 root root -"
-    "d /etc/pangolin/config/letsencrypt 0755 root root -"
+    "d ${configPath} 0755 root root -"
+    "d ${configPath}/traefik 0755 root root -"
+    "d ${configPath}/letsencrypt 0755 root root -"
   ];
 
   systemd.services.pangolin-config-sync = {
@@ -222,11 +224,11 @@ in
       RemainAfterExit = true;
     };
     script = ''
-      cp ${keyFile} /etc/pangolin/config/key
-      chmod 0600 /etc/pangolin/config/key
-      cp ${pangolinConfigFile} /etc/pangolin/config/config.yml
-      cp ${traefikConfigFile} /etc/pangolin/config/traefik/traefik_config.yml
-      cp ${dynamicConfigFile} /etc/pangolin/config/traefik/dynamic_config.yml
+      cp ${keyFile} ${configPath}/key
+      chmod 0600 ${configPath}/key
+      cp ${pangolinConfigFile} ${configPath}/config.yml
+      cp ${traefikConfigFile} ${configPath}/traefik/traefik_config.yml
+      cp ${dynamicConfigFile} ${configPath}/traefik/dynamic_config.yml
     '';
   };
 }
