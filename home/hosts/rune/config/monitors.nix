@@ -13,6 +13,18 @@ _: {
       enabled = true;
     }
     {
+      name = "HDMI-A-2"; # Virtual 2K display for Sunshine streaming
+      primary = false;
+      width = 2560;
+      height = 1440;
+      refreshRate = 60;
+      x = 0;
+      y = 0;
+      scale = 1.0;
+      transform = 0;
+      enabled = false;
+    }
+    {
       name = "DP-3"; # ASUSTek PG42UQ - 4K Gaming Monitor (RIGHT side, primary)
       primary = true;
       width = 3840;

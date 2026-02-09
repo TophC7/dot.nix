@@ -49,6 +49,7 @@
     # Workaround for boot issues
     kernelParams = [
       "amdgpu.dcdebugmask=0x10"
+      "video=HDMI-A-2:2560x1440R@60D" # Virtual 2K display for Sunshine streaming
     ];
     kernelModules = [
       "kvm-amd"
