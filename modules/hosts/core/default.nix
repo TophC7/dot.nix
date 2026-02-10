@@ -63,6 +63,8 @@ in
     allowUnfreePredicate = _: true;
     permittedInsecurePackages = [
       "mbedtls-2.28.10"
+      "proton-authenticator"
+      "proton-pass"
     ];
   };
 
