@@ -3,7 +3,7 @@
 # With mix.nix, basic user creation is handled by mkHost:
 #   - isNormalUser, home, group, shell, extraGroups, uid
 #
-# This module adds gojo.nix-specific extensions:
+# This module adds dot.nix-specific extensions:
 #   - Custom groups (ryot)
 #   - Sudo rules
 #   - Secrets (hashedPassword, SSH keys)

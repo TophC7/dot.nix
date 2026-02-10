@@ -201,7 +201,7 @@
         };
 
         # ── VPN Only ──
-        gojo = {
+        frame = {
           enable = false; # Do not build host, only VPN config
           vpn = {
             publicKey = "9vgWTiGy9lwjXT6/hqxXNodw4jdhZPVRpbwTIWAxDWg=";
