@@ -19,9 +19,14 @@ builds.mkBuildService {
   repoPath = "/repo/Nix/mix.nix";
 
   packages = [
+    # Bare kernels
     "linux-ryot"
     "linux-ryot-zfs"
     "linux-ryot-net"
+
+    # ZFS kernel modules (the expensive part — compiled against each kernel)
+    "linuxPackages-ryot-zfs.zfs_cachyos"
+    "linuxPackages-ryot-zfs.kernel.dev"
   ];
 
   schedule = "Mon *-*-* 02:00:00"; # Weekly Monday at 2 AM
