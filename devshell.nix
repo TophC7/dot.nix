@@ -17,7 +17,6 @@
             nix
             nixos-rebuild
             home-manager
-            nh
             # Git and git-crypt
             git
             git-crypt

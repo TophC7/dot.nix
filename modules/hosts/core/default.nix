@@ -73,14 +73,6 @@ in
   time.timeZone = lib.mkDefault "America/New_York";
   networking.timeServers = [ "pool.ntp.org" ];
 
-  ## Nix Helper ##
-  programs.nh = {
-    enable = true;
-    clean.enable = true;
-    clean.extraArgs = "--keep-since 20d --keep 20";
-    flake = "/repo/Nix/dot.nix/";
-  };
-
   ## SUDO and Terminal ##
   environment.enableAllTerminfo = true;
   hardware.enableAllFirmware = true;
@@ -109,6 +101,12 @@ in
   nix = {
     registry = lib.mapAttrs (_: value: { flake = value; }) inputs;
     nixPath = lib.mapAttrsToList (key: value: "${key}=${value.to.path}") config.nix.registry;
+
+    gc = {
+      automatic = true;
+      dates = "weekly";
+      options = "--delete-older-than 20d";
+    };
 
     settings = {
       connect-timeout = 5;
