@@ -1,13 +1,37 @@
 {
   secrets,
+  host,
   ...
 }:
 let
   name = "komodo";
   store = "/store/komodo";
-  env = secrets.service.komodo;
+  env = secrets.service.komodo // {
+    COMPOSE_KOMODO_IMAGE_TAG = "latest";
+    H_ENABLED = "false";
+    KOMODO_DATABASE_ADDRESS = "mongo:27017";
+    KOMODO_DISABLE_CONFIRM_DIALOG = "true";
+    KOMODO_DISABLE_NON_ADMIN_CREATE = "false";
+    KOMODO_DISABLE_USER_REGISTRATION = "false";
+    KOMODO_ENABLE_NEW_USERS = "false";
+    KOMODO_FIRST_SERVER = "https://${host.ip}:8120";
+    KOMODO_GOOGLE_OAUTH_ENABLED = "false";
+    KOMODO_HOST = "https://komodo.ryot.foo";
+    KOMODO_JWT_TTL = "1-day";
+    KOMODO_LOCAL_AUTH = "true";
+    KOMODO_MONITORING_INTERVAL = "15-sec";
+    KOMODO_RESOURCE_POLL_INTERVAL = "5-min";
+    KOMODO_TITLE = "Komodo";
+    KOMODO_TRANSPARENT_MODE = "false";
+  };
 in
 {
+  services.komodo-periphery = {
+    ssl.enable = true;
+    rootDirectory = store;
+    allowedIps = [ "172.16.0.0/12" ]; # Docker bridge subnet (Core container → host)
+  };
+
   virtualisation.oci-stacks.${name} = {
     containers = {
       "${name}-core" = {
@@ -45,24 +69,6 @@ in
         ];
       };
 
-      "${name}-periphery" = {
-        image = "ghcr.io/moghtech/komodo-periphery:latest";
-        environment = env;
-        volumes = [
-          "/proc:/proc:rw"
-          "/var/run/docker.sock:/var/run/docker.sock:rw"
-          "${store}/repos:/etc/komodo/repos:rw"
-          "${store}/ssl:/etc/komodo/ssl:rw"
-          "${store}/stacks:${store}/stacks:rw"
-        ];
-        labels."komodo.skip" = "";
-        log-driver = "local";
-        extraOptions = [
-          "--network=${name}"
-          "--network-alias=periphery"
-          "--pull=always"
-        ];
-      };
     };
     description = "Komodo deployment management stack";
   };

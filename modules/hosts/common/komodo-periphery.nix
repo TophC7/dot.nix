@@ -14,9 +14,9 @@ in
 {
   services.komodo-periphery = {
     enable = true;
-    ssl.enable = false;
-    user = user;
-    group = "ryot";
+    ssl.enable = lib.mkDefault false;
+    user = lib.mkDefault user;
+    group = lib.mkDefault "ryot";
     passkeys = [ passkey ];
     rootDirectory = lib.mkDefault "/ryot/komodo";
     allowedIps = [

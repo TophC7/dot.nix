@@ -1,6 +1,6 @@
 ###############################################################
 #
-#  Nimbus - LXC Container
+#  Nimbus - NAS
 #  NixOS running on Ryzen 7 5700X, 32GB RAM
 #
 #  Storage (ZFS), NFS, Filerun, and Backups
@@ -27,6 +27,7 @@
     (map (lib.fs.relativeTo flakeRoot) [
       "modules/hosts/common/docker.nix"
       "modules/hosts/common/pangolin/newt.nix"
+      "modules/hosts/common/komodo-periphery.nix"
     ])
   ];
 

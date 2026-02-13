@@ -32,6 +32,7 @@
       "modules/hosts/common/ddcutil.nix"
       "modules/hosts/common/docker.nix"
       "modules/hosts/common/nvtop.nix"
+      "modules/hosts/common/komodo-periphery.nix"
       "modules/hosts/common/pangolin/newt.nix"
     ])
   ];

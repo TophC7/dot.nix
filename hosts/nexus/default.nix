@@ -22,6 +22,7 @@
       "modules/hosts/common/acme.nix"
       "modules/hosts/common/docker.nix"
       "modules/hosts/common/pangolin/newt.nix"
+      "modules/hosts/common/komodo-periphery.nix"
     ])
   ];
 
