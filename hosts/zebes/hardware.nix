@@ -54,6 +54,7 @@
       "iptable_mangle"
       "iptable_nat"
       "kvm-amd"
+      "ntsync"
     ];
     extraModulePackages = [ ];
     extraModprobeConfig = ''
@@ -73,6 +74,11 @@
     zfs.forceImportAll = true; # Import all pools at boot
     zfs.package = config.boot.kernelPackages.zfs_cachyos; # CachyOS-patched ZFS
   };
+
+  # Allow Wine/Proton to access /dev/ntsync for NT synchronization primitives
+  services.udev.extraRules = ''
+    KERNEL=="ntsync", MODE="0666"
+  '';
 
   # Force ethernet to 2.5Gbps without auto-negotiation
   # This prevents I225-V link flapping issues
