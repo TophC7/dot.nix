@@ -43,6 +43,11 @@
           type = "udp";
         };
 
+        "enshrouded" = {
+          bind_addr = "0.0.0.0:15637";
+          type = "udp";
+        };
+
         "pangolin-tunnels" = {
           bind_addr = "0.0.0.0:21820";
           type = "udp";
@@ -67,5 +72,6 @@
 
   networking.firewall.allowedUDPPorts = [
     5520 # Hytale
+    15637 # Enshrouded
   ];
 }

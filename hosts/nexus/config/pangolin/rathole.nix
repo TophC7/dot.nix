@@ -42,6 +42,10 @@ let
     type = "udp"
     local_addr = "${hosts.zebes.ip}:5520"
 
+    [client.services.enshrouded]
+    type = "udp"
+    local_addr = "${hosts.zebes.ip}:15637"
+
     [client.services.pangolin-tunnels]
     type = "udp"
     local_addr = "${gerbilIp}:21820"

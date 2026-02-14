@@ -57,6 +57,7 @@
         2049 # NFSv4
         5520 # Hytale
         10048 # mountd
+        15637 # Enshrouded
       ];
     };
     networkmanager.settings.connection = {
