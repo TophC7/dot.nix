@@ -46,18 +46,8 @@ let
 
   eden-close = pkgs.writeScript "eden-close" ''
     #!${lib.getExe pkgs.fish}
-    hyprctl dispatch closewindow class:dev.eden_emu.eden
-
-    set -l timeout 30
-    while test $timeout -gt 0
-      if not pgrep -x eden >/dev/null
-        exit 0
-      end
-      sleep 1
-      set timeout (math "$timeout - 1")
-    end
-
-    kill -9 (pgrep -x eden)
+    # Force kill eden — graceful close doesn't work reliably
+    pkill -9 -x .eden-wrapped
   '';
 in
 {
@@ -69,6 +59,16 @@ in
 
     settings = {
       output_name = "HDMI-A-2";
+      capture = "wlr";
+      encoder = "vaapi";
+      adapter_name = "/dev/dri/renderD128";
+      hevc_mode = "0";
+      av1_mode = "0";
+      qp = "20";
+      vaapi_strict_rc_buffer = "enabled";
+      fec_percentage = "20";
+      # Prevents D-Bus notification deadlock crash on Hyprland
+      system_tray = "disabled";
     };
 
     applications = {
@@ -119,6 +119,11 @@ in
       ];
     };
   };
+
+  # Fix uinput permissions for virtual input devices
+  services.udev.extraRules = ''
+    KERNEL=="uinput", MODE="0660", GROUP="input", SYMLINK+="uinput"
+  '';
 
   systemd.tmpfiles.rules = [
     "d /home/toph/.local/state/sunshine/log 0755 toph users -"
