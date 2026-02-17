@@ -1425,11 +1425,11 @@
         "nixpkgs-stable": "nixpkgs-stable_2"
       },
       "locked": {
-        "lastModified": 1770943362,
-        "narHash": "sha256-ZLUudi8qnyJ/9H7Vss8Bjw7CuS4D+7u59yP7j7uAmoQ=",
+        "lastModified": 1771289712,
+        "narHash": "sha256-fuR7AH4tedLMaBVJ35SVYC4DwDEFe5EBR5HMB9Hl/bQ=",
         "ref": "refs/heads/main",
-        "rev": "39f6100bea29c4a753f556bbd7ce8de1601cbb2e",
-        "revCount": 71,
+        "rev": "339d01578f6f1c47bf5049e7b4d633cc6093ec44",
+        "revCount": 75,
         "type": "git",
         "url": "file:///repo/Nix/mix.nix"
       },
@@ -2008,11 +2008,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1770693064,
-        "narHash": "sha256-Pomhlz+3/6uRJUhKz/kJwmJUux8GTWbXlCX4/RxlXLo=",
+        "lastModified": 1770952264,
+        "narHash": "sha256-CjymNrJZWBtpavyuTkfPVPaZkwzIzGaf0E/3WgcwM14=",
         "owner": "oxalica",
         "repo": "rust-overlay",
-        "rev": "a5f6d8a6a6868db2a3055cfe2b5dd01422780433",
+        "rev": "ec6a3d5cdf14bb5a1dd03652bd3f6351004d2188",
         "type": "github"
       },
       "original": {
@@ -2121,8 +2121,8 @@
         "stoat-web-src": "stoat-web-src"
       },
       "locked": {
-        "lastModified": 1770780371,
-        "narHash": "sha256-pRK3RW7023zuyjyMAmEgsb0gwPAMohhWmoRzFsVC3KI=",
+        "lastModified": 1771005500,
+        "narHash": "sha256-wqY9Z/dFheTN5OlgAsJm55gRkD/sasLHAln/BlJKCMQ=",
         "path": "/repo/Nix/stoat.nix",
         "type": "path"
       },
@@ -2134,11 +2134,11 @@
     "stoat-backend-src": {
       "flake": false,
       "locked": {
-        "lastModified": 1770756516,
-        "narHash": "sha256-GKjbN/XbDFXorSBE8EkzF8qKJa3EAfDQ04IvDqX2yl0=",
+        "lastModified": 1770942089,
+        "narHash": "sha256-X4d7x9fOrgj8LB5v/qBARR6y4QJjk8byPIQpQcXtZ2I=",
         "owner": "stoatchat",
         "repo": "stoatchat",
-        "rev": "ba798490e2bce1762883de0bbed07ad296767dc7",
+        "rev": "2e87696c83e0ed8b359f634a80ab51213d82d23c",
         "type": "github"
       },
       "original": {
@@ -2150,11 +2150,11 @@
     "stoat-web-src": {
       "flake": false,
       "locked": {
-        "lastModified": 1770660422,
-        "narHash": "sha256-BRSOMubvfBt5tbBRIn14nZ5wVePNXZf9b/B51rFcZrE=",
+        "lastModified": 1771002455,
+        "narHash": "sha256-UfjT4fUIPukv4EhgC4RTZAs6kdl4Gnfqm7EmJoQwVzI=",
         "ref": "refs/heads/main",
-        "rev": "32dae942db0ed205945ae177a1646f9bdfeef4e9",
-        "revCount": 1568,
+        "rev": "4ad69901e7cfca355d08c042ef52960fe5fe6cd1",
+        "revCount": 1588,
         "submodules": true,
         "type": "git",
         "url": "https://github.com/stoatchat/for-web"
