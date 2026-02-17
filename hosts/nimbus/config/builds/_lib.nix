@@ -127,6 +127,17 @@ let
       # ── Nix-time generation of per-package update blocks ──
       # Each updateScript is written to its own store-path file to avoid
       # shell quoting issues (scripts may contain single/double quotes).
+      # Bin paths that update scripts may need (prepended to PATH in wrappers
+      # so child Fish processes find them even if user config resets PATH)
+      updatePath = lib.makeBinPath [
+        pkgs.nix
+        pkgs.git
+        pkgs.jq
+        pkgs.curl
+        pkgs.coreutils
+        pkgs.nix-prefetch-git
+      ];
+
       updatePhase = lib.concatMapStringsSep "\n" (
         pkg:
         if (pkg ? updateScript && pkg.updateScript != null) then
@@ -136,6 +147,7 @@ let
               executable = true;
               text = ''
                 #!${fish}
+                set -gx PATH ${updatePath} $PATH
                 cd "${repoPath}"; or exit 1
                 ${pkg.updateScript}
               '';
@@ -270,9 +282,13 @@ let
         # Start Notification
         #───────────────────────────────────────────────────────────────
 
-        set -l build_list (string join ", " $needs_build)
-        notify "## 🔨 ${name} Starting
-        > **Building:** $build_list"
+        set -l start_lines
+        set -a start_lines "## 🔨 ${name} Starting"
+        set -a start_lines "> **Building:**"
+        for pkg in $needs_build
+          set -a start_lines "> • $pkg"
+        end
+        notify (string join \n $start_lines | string collect)
 
         #───────────────────────────────────────────────────────────────
         # Phase 2: Build
@@ -327,26 +343,37 @@ let
         set -a lines "## 🔨 ${name} Complete"
 
         if test (count $built) -gt 0
-          set -a lines "> ✅ **Built:** "(string join ", " $built)
+          set -a lines "> ✅ **Built:**"
+          for pkg in $built
+            set -a lines "> • $pkg"
+          end
         end
 
         if test (count $failed) -gt 0
-          set -a lines "> ❌ **Failed:** "(string join ", " $failed)
+          set -a lines "> ❌ **Failed:**"
+          for pkg in $failed
+            set -a lines "> • $pkg"
+          end
         end
 
         if test (count $cached) -gt 0
-          set -a lines "> ⏭️ **Cached:** "(string join ", " $cached)
+          set -a lines "> ⏭️ **Cached:**"
+          for pkg in $cached
+            set -a lines "> • $pkg"
+          end
         end
 
         if test (count $update_failed) -gt 0
-          set -a lines "> ⚠️ **Update failed:** "(string join ", " $update_failed)
+          set -a lines "> ⚠️ **Update failed:**"
+          for pkg in $update_failed
+            set -a lines "> • $pkg"
+          end
         end
 
         set -a lines ">"
         set -a lines "> 📝 Run: \`nix flake update mix-nix\` in dot.nix"
 
-        set -l summary (string join \n $lines)
-        notify "$summary"
+        notify (string join \n $lines | string collect)
 
         #───────────────────────────────────────────────────────────────
         # Status JSON
@@ -393,7 +420,6 @@ let
         openssh
         coreutils
         curl
-        nix-prefetch-git
       ];
 
       environment = {
@@ -490,7 +516,6 @@ in
 
       environment.systemPackages = [
         pkgs.apprise
-        pkgs.git
         pkgs.jq
       ];
     };
