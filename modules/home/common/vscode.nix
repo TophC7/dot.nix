@@ -8,7 +8,8 @@
   home.packages = builtins.attrValues {
     inherit (pkgs)
       biome
-      nixfmt-rfc-style
+      nil
+      nixfmt
       nixpkgs-review
       prettier
       ;
