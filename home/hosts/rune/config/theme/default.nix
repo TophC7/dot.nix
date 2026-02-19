@@ -1,18 +1,16 @@
 {
   pkgs,
-  lib,
-  config,
   ...
 }:
 {
   theme = {
     enable = true;
-    image = ./wallpapers/waves.jpg;
+    image = ./wallpapers/809.jpg;
     polarity = "dark";
 
     icon = {
       package = pkgs.papirus-icon-theme.override {
-        color = "yellow";
+        color = "deeporange";
       };
       name = "Papirus";
     };
@@ -53,7 +51,7 @@
     };
 
     matugen = {
-      scheme = "scheme-expressive";
+      scheme = "scheme-rainbow";
     };
   };
 
