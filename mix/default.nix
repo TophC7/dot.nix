@@ -143,7 +143,7 @@
               default = true;
               dms = {
                 includeColors = true;
-                includeLayout = true;
+                # includeLayout = true;
                 includeBinds = true;
                 includeRecents = true;
                 includeOutputs = true;
