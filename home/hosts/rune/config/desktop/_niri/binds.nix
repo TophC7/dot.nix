@@ -19,12 +19,13 @@
           zen-browser = inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}.beta;
         in
         {
-          # Application launchers
+          #
+          # ══════════════════════════════════════════════════════════════════════════
+          # APPLICATION LAUNCHERS
+          # ══════════════════════════════════════════════════════════════════════════
+          #
           "Mod+G".action.spawn = lib.getExe pkgs.ghostty;
-          "Mod+E".action.spawn = [
-            (lib.getExe pkgs.vscode)
-            "--ozone-platform=x11"
-          ];
+          "Mod+E".action.spawn = lib.getExe pkgs.vscode;
           "Mod+W".action.spawn = lib.getExe zen-browser;
           "Mod+F".action.spawn = lib.getExe pkgs.nautilus;
 
@@ -62,7 +63,7 @@
           "Mod+Period".action.spawn = [
             "vicinae"
             "vicinae://extensions/vicinae/vicinae/search-emojis"
-          ]; # Clipboard manager
+          ]; # Emoji picker
 
           # "Mod+Tab".action.spawn = [
           #   "vicinae"
@@ -83,7 +84,11 @@
             "toggle"
           ]; # Notepad
 
-          # System controls
+          #
+          # ══════════════════════════════════════════════════════════════════════════
+          # SYSTEM CONTROLS
+          # ══════════════════════════════════════════════════════════════════════════
+          #
           "Ctrl+Alt+Delete".action.quit = { }; # Exit Niri
           "Ctrl+Super+Delete".action.spawn = [
             "loginctl"
@@ -100,38 +105,52 @@
           "Mod+Super+A".action.toggle-overview = { };
           "Mod+F1".action.show-hotkey-overlay = { };
 
-          # Window/Column management
+          #
+          # ══════════════════════════════════════════════════════════════════════════
+          # WINDOW/COLUMN MANAGEMENT
+          # ══════════════════════════════════════════════════════════════════════════
+          #
           "Mod+Q".action.close-window = { };
           "Mod+D".action.center-column = { };
           "Mod+P".action.toggle-window-floating = { }; # Kept (DMS notepad moved to Mod+Shift+P)
-          "Mod+S".action.toggle-column-tabbed-display = { }; # Kept (DMS settings moved to Mod+Comma)
+          "Mod+S".action.toggle-column-tabbed-display = { }; # Toggle tabbed column display
 
-          # Window focus
+          #
+          # ══════════════════════════════════════════════════════════════════════════
+          # NAVIGATION & MOVEMENT
+          # ══════════════════════════════════════════════════════════════════════════
+          #
+          # Focus: L/R crosses monitors at edges, U/D crosses workspaces at edges
           "Mod+C".action.focus-column-or-monitor-left = { };
           "Mod+B".action.focus-column-or-monitor-right = { };
           "Mod+T".action.focus-window-or-workspace-up = { };
           "Mod+V".action.focus-window-or-workspace-down = { };
 
-          # Window movement
-          "Mod+Shift+C".action.consume-or-expel-window-left = { };
-          "Mod+Shift+B".action.consume-or-expel-window-right = { };
-          "Mod+Shift+T".action.move-window-up = { };
-          "Mod+Shift+V".action.move-window-down = { };
+          # Move window: L/R crosses monitors at edge, U/D crosses workspaces at edge
+          "Mod+Ctrl+C".action.consume-or-expel-window-left-or-monitor-left = [ ];
+          "Mod+Ctrl+B".action.consume-or-expel-window-right-or-monitor-right = [ ];
+          "Mod+Ctrl+T".action.move-window-up-or-to-workspace-up = { };
+          "Mod+Ctrl+V".action.move-window-down-or-to-workspace-down = { };
 
-          # Monitor/Workspace movement
-          "Mod+Ctrl+C".action.move-column-to-monitor-left = { };
-          "Mod+Ctrl+B".action.move-column-to-monitor-right = { };
-          "Mod+Ctrl+T".action.move-column-to-workspace-up = { };
-          "Mod+Ctrl+V".action.move-column-to-workspace-down = { };
-
-          # Window sizing
+          #
+          # ══════════════════════════════════════════════════════════════════════════
+          # RESIZING
+          # ══════════════════════════════════════════════════════════════════════════
+          #
+          # Column width (cycle presets)
           "Mod+Super+C".action.switch-preset-column-width-back = { };
           "Mod+Super+B".action.switch-preset-column-width = { };
+          # Window height
           "Mod+Super+T".action.set-window-height = "+10%";
           "Mod+Super+V".action.set-window-height = "-10%";
           "Mod+Super+F".action.fullscreen-window = { };
+          "Mod+Super+F".allow-inhibiting = false;
 
-          # Screenshots
+          #
+          # ══════════════════════════════════════════════════════════════════════════
+          # SCREENSHOTS
+          # ══════════════════════════════════════════════════════════════════════════
+          #
           "Print".action.spawn = [
             "dms"
             "screenshot"
@@ -149,7 +168,11 @@
             "full"
           ];
 
-          # Media controls (DMS)
+          #
+          # ══════════════════════════════════════════════════════════════════════════
+          # MEDIA CONTROLS
+          # ══════════════════════════════════════════════════════════════════════════
+          #
           "XF86AudioRaiseVolume".action.spawn = [
             "${pkgs.pamixer}/bin/pamixer"
             "-i"
@@ -176,7 +199,7 @@
             "micmute"
           ];
 
-          # Media player controlss
+          # Media player controls
           "XF86AudioPlay".action.spawn = [
             "${pkgs.playerctl}/bin/playerctl"
             "play-pause"

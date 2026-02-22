@@ -138,11 +138,15 @@
           user = "toph";
           ip = "10.4.4.4";
           desktop = {
-            hyprland = {
+            niri = {
               enable = true;
               default = true;
               dms = {
-                sourceOutputs = true;
+                includeColors = true;
+                includeLayout = true;
+                includeBinds = true;
+                includeRecents = true;
+                includeOutputs = true;
               };
             };
           };
