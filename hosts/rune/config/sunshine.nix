@@ -1,38 +1,47 @@
 { pkgs, lib, ... }:
 let
-  # NOTE: This is a bit hacky, and will need to be refactored with any monitor changes. But its a simpler solution.
   virtual-on = pkgs.writeScript "sunshine-virtual-on" ''
     #!${lib.getExe pkgs.fish}
     # Disable physical monitors
-    hyprctl keyword monitor "DP-3, disable"
-    hyprctl keyword monitor "DP-5, disable"
-    # Enable virtual display at 2K@60
-    hyprctl keyword monitor "HDMI-A-2, 2560x1440@60, 0x0, 1"
+    niri msg output DP-3 off
+    niri msg output DP-5 off
+    # Enable virtual display
+    niri msg output HDMI-A-2 on
     sleep 1
-    hyprctl dispatch focusmonitor HDMI-A-2
+    niri msg action focus-monitor HDMI-A-2
   '';
 
   virtual-off = pkgs.writeScript "sunshine-virtual-off" ''
     #!${lib.getExe pkgs.fish}
     # Disable virtual display
-    hyprctl keyword monitor "HDMI-A-2, disable"
+    niri msg output HDMI-A-2 off
     # Re-enable physical monitors
-    hyprctl keyword monitor "DP-5, 1920x1080@60, 0x0, 1, transform, 3"
-    hyprctl keyword monitor "DP-3, 3840x2160@120, 1080x0, 1"
+    niri msg output DP-5 on
+    niri msg output DP-3 on
     sleep 1
-    hyprctl dispatch focusmonitor DP-3
+    niri msg action focus-monitor DP-3
   '';
 
   eden-open = pkgs.writeScript "eden-open" ''
     #!${lib.getExe pkgs.fish}
-    hyprctl keyword windowrulev2 "workspace name:eden silent, class:dev.eden_emu.eden"
-    hyprctl dispatch workspace name:eden
-    hyprctl dispatch exec ${lib.getExe pkgs.eden}
+    niri msg action focus-workspace eden
+    niri msg action spawn -- ${lib.getExe pkgs.eden}
 
     # Wait for eden window to appear (up to 10s)
     set -l attempts 20
+    set -l window_id ""
     while test $attempts -gt 0
-      if hyprctl clients -j | grep -q "dev.eden_emu.eden"
+      # niri msg windows outputs plaintext — parse Window ID before matching App ID
+      set -l current_id ""
+      for line in (niri msg windows 2>/dev/null)
+        if string match -rq '^Window ID (\d+)' -- $line
+          set current_id (string match -r '^Window ID (\d+)' -- $line)[2]
+        else if string match -rq 'App ID: "dev.eden_emu.eden"' -- $line
+          set window_id $current_id
+          break
+        end
+      end
+      if test -n "$window_id"
         break
       end
       sleep 0.5
@@ -40,8 +49,10 @@ let
     end
 
     # Focus and fullscreen
-    hyprctl dispatch focuswindow class:dev.eden_emu.eden
-    hyprctl dispatch fullscreen 2
+    if test -n "$window_id"
+      niri msg action focus-window --id $window_id
+      niri msg action fullscreen-window
+    end
   '';
 
   eden-close = pkgs.writeScript "eden-close" ''
@@ -58,8 +69,10 @@ in
     openFirewall = true;
 
     settings = {
-      output_name = "HDMI-A-2";
-      capture = "wlr";
+      # output_name left unset — after prep-cmd disables physical monitors,
+      # HDMI-A-2 is the only active display so Sunshine auto-selects it.
+      # NOTE: KMS capture on Linux expects numeric indexes (0, 1, 2), not connector names.
+      capture = "kms";
       encoder = "vaapi";
       adapter_name = "/dev/dri/renderD128";
       hevc_mode = "0";
@@ -67,7 +80,6 @@ in
       qp = "20";
       vaapi_strict_rc_buffer = "enabled";
       fec_percentage = "20";
-      # Prevents D-Bus notification deadlock crash on Hyprland
       system_tray = "disabled";
     };
 
