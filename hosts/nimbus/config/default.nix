@@ -7,6 +7,7 @@
     extraNetworks = [
       "filerun"
       "explorer"
+      "pocketbase"
     ];
   };
 }
