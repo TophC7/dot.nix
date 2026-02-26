@@ -2,8 +2,6 @@
 {
   pkgs,
   lib,
-  config,
-  inputs,
   host,
   secrets ? { },
   ...
@@ -33,6 +31,13 @@ in
     # Anytime I use auth, I want to use my yubikey. But I don't want to always be having to touch it
     # for things that don't need it. So I have to hardcode repos that require auth, and default to ssh for
     # actions that require auth.
+    delta = {
+      enable = true;
+      options = {
+        features = "side-by-side line-numbers hyperlinks commit-decoration";
+      };
+    };
+
     settings = {
       user = {
         name = userSecrets.fullName or user.name;
@@ -40,7 +45,6 @@ in
       };
 
       core = {
-        pager = "delta";
         # pre-emptively ignore mac crap
         excludeFiles = builtins.toFile "global-gitignore" ''
           .DS_Store
@@ -65,17 +69,6 @@ in
           *x64.bin diff=objdump-x86_64 difftool=objdump-x64
           *x86.bin diff=objdump-x86 difftool=objdump-x86
         '';
-      };
-
-      delta = {
-        enable = true;
-        features = [
-          "side-by-side"
-          "line-numbers"
-          "hyperlinks"
-          "line-numbers"
-          "commit-decoration"
-        ];
       };
 
       url = lib.optionalAttrs (!(host.isMinimal or false)) {
