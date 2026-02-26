@@ -1,27 +1,25 @@
 # Build Pipeline Factory
 #
-# Creates a single systemd service + timer for a per-package build pipeline.
-# Generates a Fish script that handles the full lifecycle:
-#   git sync -> per-package update + cache check -> build -> commit -> notify
+# Generates a systemd orchestrator + per-package build services from
+# group-based package declarations.
 #
 # Architecture:
-#   Timer -> Pipeline service (git sync -> update/check -> build -> commit -> notify)
+#   Timer → Orchestrator (git sync → group updates → pkg updates → cache check)
+#     └─ Per-package build services (started on-demand via sudo systemctl start)
 #
-# This is a simplification over the previous group-based orchestrator. Each
-# pipeline handles one set of packages with optional per-package update scripts.
-# There are no standalone services or sub-groups — one service, one timer.
+# Groups organize packages by source repository. Each group declares:
+#   - A git repo to sync/commit
+#   - A group-level update command (runs once)
+#   - A default expression generator (mkExpr)
+#   - A list of packages
 #
 # Usage:
-#   let
-#     builds = import ./_lib.nix { inherit lib pkgs secrets host; };
-#   in
 #   builds.mkPipeline {
 #     name = "mix-builder";
-#     repoPath = "/path/to/repo";
-#     schedule = "04:00";
-#     packages = [
-#       { name = "my-package"; updateScript = "nix flake update my-input"; }
-#       { name = "other-pkg"; }
+#     schedule = "Mon *-*-* 02:00:00";
+#     groups = [
+#       { name = "mix"; repo = mixRepo; update = "bonk update -p ${mixRepo}";
+#         mkExpr = overlay; packages = [ { name = "linux-ryot"; } ]; }
 #     ];
 #   }
 #
@@ -32,103 +30,99 @@
   host,
 }:
 let
-  # ── Shared Configuration ──────────────────────────────────────
+  # ── Shared Config ───────────────────────────────────────────────
   serviceUser = host.user.name;
   appriseUrl = "${secrets.service.discord.lenix}?avatar=no&footer=no";
-  stateBase = "mix-builder"; # StateDirectory name -> /var/lib/mix-builder/
 
   nix = lib.getExe pkgs.nix;
-  jq = lib.getExe pkgs.jq;
   fish = lib.getExe pkgs.fish;
   apprise = lib.getExe pkgs.apprise;
 
-  # ── Shared Fish Helper Functions ──────────────────────────────
-  #
-  # Injected into every generated script. Uses $log_tag for context.
-  #
-  sharedFishFunctions = ''
-    function log
-      echo (date "+%Y-%m-%d %H:%M:%S") "[$log_tag]" $argv
-    end
+  sanitizeName = name: builtins.replaceStrings [ "-" "." ] [ "_" "_" ] name;
 
-    function log_error
-      echo (date "+%Y-%m-%d %H:%M:%S") "[$log_tag ERROR]" $argv >&2
-    end
+  # Service name for a package's build unit
+  buildSvcName = pipelineName: pkg:
+    "${pipelineName}-build-${builtins.replaceStrings [ "." ] [ "-" ] pkg.name}";
 
-    function notify
-      set -l body $argv[1]
-      printf '%s' "$body" | ${apprise} -vv "${appriseUrl}"
-      or log "Failed to send notification (non-critical)"
-    end
+  # ── Expression File Generator ───────────────────────────────────
+  # Each package gets a .nix file in the store that evaluates to its derivation.
+  mkExprFile = pipelineName: group: pkg:
+    let
+      expr = if pkg ? expr then pkg.expr else group.mkExpr pkg.name;
+    in
+    pkgs.writeText "${buildSvcName pipelineName pkg}-expr.nix" expr;
 
-    # Check if a package is already built in the nix store
-    function pkg_in_cache
-      set -l repo $argv[1]
-      set -l pkg $argv[2]
-      ${nix} path-info --impure --expr "
-        let
-          flake = builtins.getFlake \"path:$repo\";
-          pkgs = import flake.inputs.nixpkgs {
-            system = \"x86_64-linux\";
-            overlays = [ flake.overlays.default ];
-          };
-        in pkgs.$pkg
-      " >/dev/null 2>&1
-      return $status
-    end
+  # ── Per-Package Build Service Generator ─────────────────────────
+  mkBuildService = pipelineName: group: pkg:
+    let
+      exprFile = mkExprFile pipelineName group pkg;
+      svcName = buildSvcName pipelineName pkg;
+    in
+    {
+      name = svcName;
+      value = {
+        description = "Build ${pkg.name}";
+        path = with pkgs; [ nix-output-monitor nix git coreutils ];
+        environment = {
+          HOME = "/home/${serviceUser}";
+          NIX_PATH = "nixpkgs=${pkgs.path}";
+        };
+        serviceConfig = {
+          Type = "oneshot";
+          ExecStart = pkgs.writeShellScript "build-${builtins.replaceStrings [ "." ] [ "-" ] pkg.name}" ''
+            exec ${nix} build --impure --no-link -L --expr "import ${exprFile}"
+          '';
+          User = serviceUser;
+          Group = "ryot";
+          TimeoutStartSec = "4h";
+          StandardOutput = "journal";
+          StandardError = "journal";
+          SyslogIdentifier = svcName;
 
-    # Build a single package
-    function build_pkg
-      set -l repo $argv[1]
-      set -l pkg $argv[2]
-      ${nix} build --impure --no-link -L --expr "
-        let
-          flake = builtins.getFlake \"path:$repo\";
-          pkgs = import flake.inputs.nixpkgs {
-            system = \"x86_64-linux\";
-            overlays = [ flake.overlays.default ];
-          };
-        in pkgs.$pkg
-      "
-      return $status
-    end
+          # Hardening
+          NoNewPrivileges = true;
+          PrivateTmp = true;
+          ProtectSystem = "strict";
+          ReadWritePaths = [
+            group.repo
+            "/nix/var"
+          ];
+          ProtectKernelTunables = true;
+          ProtectKernelModules = true;
+          ProtectControlGroups = true;
+        };
+        # NOT in wantedBy — started on-demand by orchestrator
+      };
+    };
 
-    # Convert a Fish array to a JSON array string
-    function to_json_array
-      if test (count $argv) -eq 0
-        echo "[]"
-        return
-      end
-      set -l items
-      for item in $argv
-        set -a items "\"$item\""
-      end
-      echo "["(string join "," $items)"]"
-    end
-  '';
-
-  # ── Pipeline Script Generator ─────────────────────────────────
-  #
-  # Creates a single Fish script for the entire pipeline lifecycle.
-  # Handles git sync, per-package updates, cache checks, builds,
-  # git commit/push, and Discord notifications.
-  #
-  mkPipelineScript =
+  # ── Orchestrator Script Generator ───────────────────────────────
+  mkOrchestratorScript =
     {
       name,
-      repoPath,
       branch,
-      packages, # List of { name, updateScript? }
+      notifyHint,
+      groups,
     }:
     let
-      # All package names as a space-separated Fish list
-      packageNames = lib.concatMapStringsSep " " (pkg: pkg.name) packages;
+      # Flatten all packages across groups (with group context)
+      allPkgs = lib.concatMap (
+        g: map (pkg: { inherit (pkg) name; group = g; inherit pkg; }) g.packages
+      ) groups;
 
-      # ── Nix-time generation of per-package update blocks ──
-      # Each updateScript is written to its own store-path file to avoid
-      # shell quoting issues (scripts may contain single/double quotes).
-      # Bin paths that update scripts may need (prepended to PATH in wrappers
-      # so child Fish processes find them even if user config resets PATH)
+      allPkgNames = lib.concatMapStringsSep " " (p: p.name) allPkgs;
+      allRepos = lib.unique (map (g: g.repo) groups);
+      reposList = lib.concatStringsSep " " allRepos;
+
+      # Per-package expression file mappings
+      exprFileAssignments = lib.concatMapStringsSep "\n" (
+        p:
+        let
+          exprFile = mkExprFile name p.group p.pkg;
+        in
+        "set -g expr_file_${sanitizeName p.name} ${exprFile}"
+      ) allPkgs;
+
+      # Per-package updater mappings (only for packages with update)
       updatePath = lib.makeBinPath [
         pkgs.nix
         pkgs.git
@@ -138,149 +132,237 @@ let
         pkgs.nix-prefetch-git
       ];
 
-      updatePhase = lib.concatMapStringsSep "\n" (
-        pkg:
-        if (pkg ? updateScript && pkg.updateScript != null) then
+      updaterAssignments = lib.concatMapStringsSep "\n" (
+        p:
+        if p.pkg ? update && p.pkg.update != null then
           let
             updateFile = pkgs.writeTextFile {
-              name = "${name}-update-${builtins.replaceStrings [ "." ] [ "-" ] pkg.name}.fish";
+              name = "${name}-update-${builtins.replaceStrings [ "." ] [ "-" ] p.name}.fish";
               executable = true;
               text = ''
                 #!${fish}
                 set -gx PATH ${updatePath} $PATH
-                cd "${repoPath}"; or exit 1
-                ${pkg.updateScript}
+                cd "${p.group.repo}"; or exit 1
+                ${p.pkg.update}
               '';
             };
           in
-          ''
-            log "Running update for ${pkg.name}..."
-            ${updateFile}; or begin
-              log_error "Update script failed for ${pkg.name}"
-              set -a update_failed "${pkg.name}"
-            end
-          ''
+          "set -g updater_${sanitizeName p.name} ${updateFile}"
         else
-          ''
-            log "No update script for ${pkg.name}"
-          ''
-      ) packages;
+          ""
+      ) allPkgs;
+
+      # Group update scripts (one per group)
+      groupUpdateAssignments = lib.concatMapStringsSep "\n" (
+        g:
+        let
+          updateFile = pkgs.writeTextFile {
+            name = "${name}-group-update-${g.name}.fish";
+            executable = true;
+            text = ''
+              #!${fish}
+              set -gx PATH ${updatePath} $PATH
+              cd "${g.repo}"; or exit 1
+              ${g.update}
+            '';
+          };
+        in
+        "set -g group_update_${sanitizeName g.name} ${updateFile}"
+      ) groups;
+
+      groupNames = lib.concatMapStringsSep " " (g: g.name) groups;
+
+      # Build service name mappings (for sudo systemctl start)
+      buildSvcAssignments = lib.concatMapStringsSep "\n" (
+        p:
+        "set -g build_svc_${sanitizeName p.name} ${buildSvcName name p.pkg}"
+      ) allPkgs;
     in
     pkgs.writeTextFile {
-      name = "${name}-pipeline.fish";
+      name = "${name}-orchestrator.fish";
       executable = true;
       text = ''
         #!${fish}
         #
-        # ${name} — Build Pipeline
-        # Auto-generated by mkPipeline — do not edit manually
-        #
-        # Lifecycle:
-        #   1. Setup & validate
-        #   2. Git sync (fetch + pull)
-        #   3. Per-package update scripts + cache checks
-        #   4. Build missing packages
-        #   5. Git commit + push (if flake.lock changed)
-        #   6. Send summary notification
+        # ${name} — Build Orchestrator
+        # Auto-generated by mkPipeline
         #
 
         set -g log_tag "${name}"
 
-        ${sharedFishFunctions}
+        # ── Helper functions ──────────────────────────────────────
 
-        #───────────────────────────────────────────────────────────────
-        # Phase 0: Setup
-        #───────────────────────────────────────────────────────────────
+        function log
+          echo (date "+%Y-%m-%d %H:%M:%S") "[$log_tag]" $argv
+        end
 
-        set -g repo_path "${repoPath}"
-        set -g state_dir "/var/lib/${stateBase}"
+        function log_error
+          echo (date "+%Y-%m-%d %H:%M:%S") "[$log_tag ERROR]" $argv >&2
+        end
+
+        function notify
+          set -l body $argv[1]
+          printf '%s' "$body" | ${apprise} -vv "${appriseUrl}"
+          or log "Failed to send notification (non-critical)"
+        end
+
+        function resolve_expr_file
+          set -l sanitized (string replace -a '-' '_' -- $argv[1] | string replace -a '.' '_')
+          echo (eval echo \$expr_file_$sanitized)
+        end
+
+        function pkg_in_cache
+          set -l expr_file (resolve_expr_file $argv[1])
+          ${nix} path-info --impure --expr "import $expr_file" >/dev/null 2>&1
+          return $status
+        end
+
+        function resolve_updater
+          set -l sanitized (string replace -a '-' '_' -- $argv[1] | string replace -a '.' '_')
+          set -l var_name "updater_$sanitized"
+          if set -q $var_name
+            echo $$var_name
+          end
+        end
+
+        function resolve_build_svc
+          set -l sanitized (string replace -a '-' '_' -- $argv[1] | string replace -a '.' '_')
+          echo (eval echo \$build_svc_$sanitized)
+        end
+
+        function to_json_array
+          if test (count $argv) -eq 0
+            echo "[]"
+            return
+          end
+          set -l items
+          for item in $argv
+            set -a items "\"$item\""
+          end
+          echo "["(string join "," $items)"]"
+        end
+
+        # ── Variable mappings (generated at NixOS eval time) ──────
+
+        ${exprFileAssignments}
+        ${updaterAssignments}
+        ${groupUpdateAssignments}
+        ${buildSvcAssignments}
+
+        # ── Setup ─────────────────────────────────────────────────
+
+        set -g all_repos ${reposList}
+        set -g all_groups ${groupNames}
+        set -g all_packages ${allPkgNames}
+        set -g state_dir "/var/lib/${name}"
         set -g branch "${branch}"
+
+        set -g needs_build
+        set -g cached
+        set -g built
+        set -g failed
+        set -g update_failed
 
         mkdir -p "$state_dir"
 
-        if not test -d "$repo_path"
-          log_error "Repository not found: $repo_path"
-          exit 1
-        end
-
-        cd "$repo_path"; or begin
-          log_error "Failed to cd to $repo_path"
-          exit 1
+        for repo in $all_repos
+          if not test -d "$repo"
+            log_error "Repository not found: $repo"
+            exit 1
+          end
         end
 
         log "Starting pipeline..."
 
-        #───────────────────────────────────────────────────────────────
-        # Phase 0.5: Git Sync
-        #───────────────────────────────────────────────────────────────
+        #───────────────────────────────────────────────────────────
+        # Phase 1: Git Sync
+        #───────────────────────────────────────────────────────────
 
-        log "Syncing repository..."
-
-        git fetch origin; or begin
-          log_error "Failed to fetch from origin"
-          notify "## ❌ ${name} Error
-        > Failed to fetch from origin"
-          exit 1
+        for repo in $all_repos
+          log "Syncing $repo..."
+          cd "$repo"; or begin
+            log_error "Failed to cd to $repo"
+            exit 1
+          end
+          git fetch origin; or begin
+            log_error "Failed to fetch from origin in $repo"
+            notify "## ❌ ${name} Error
+        > Failed to fetch from origin in $repo"
+            exit 1
+          end
+          git pull --ff-only origin $branch; or begin
+            log_error "Failed to pull in $repo (non-fast-forward?)"
+            notify "## ❌ ${name} Error
+        > Failed to pull in $repo (non-fast-forward?)"
+            exit 1
+          end
         end
 
-        git pull --ff-only origin $branch; or begin
-          log_error "Failed to pull (non-fast-forward?)"
-          notify "## ❌ ${name} Error
-        > Failed to pull from origin (non-fast-forward?)"
-          exit 1
+        #───────────────────────────────────────────────────────────
+        # Phase 2: Group Updates (once per group)
+        #───────────────────────────────────────────────────────────
+
+        for group in $all_groups
+          set -l sanitized (string replace -a '-' '_' -- $group | string replace -a '.' '_')
+          set -l var_name "group_update_$sanitized"
+          set -l update_script $$var_name
+
+          log "Running group update: $group..."
+          $update_script; or begin
+            log_error "Group update failed: $group"
+            set -a update_failed "group:$group"
+          end
         end
 
-        #───────────────────────────────────────────────────────────────
-        # Phase 1: Update Scripts + Cache Check
-        #───────────────────────────────────────────────────────────────
-
-        # Tracking arrays
-        set -g all_packages ${packageNames}
-        set -g needs_build
-        set -g cached
-        set -g update_failed
-
-        # ── Per-package update scripts (generated at Nix eval time) ──
-        ${updatePhase}
-
-        # ── Cache check (Fish loop over all packages) ──
-        log "Checking package cache..."
+        #───────────────────────────────────────────────────────────
+        # Phase 3: Per-Package Updates + Cache Check
+        #───────────────────────────────────────────────────────────
 
         for pkg in $all_packages
-          if pkg_in_cache "$repo_path" $pkg
-            log "Package $pkg is in cache"
+          # Per-package update (if defined)
+          set -l updater (resolve_updater $pkg)
+          if test -n "$updater"
+            log "Running update for $pkg..."
+            $updater; or begin
+              log_error "Update failed for $pkg"
+              set -a update_failed $pkg
+            end
+          end
+
+          # Cache check
+          if pkg_in_cache $pkg
+            log "Cached: $pkg"
             set -a cached $pkg
           else
-            log "Package $pkg is NOT in cache — needs build"
+            log "Needs build: $pkg"
             set -a needs_build $pkg
           end
         end
 
-        #───────────────────────────────────────────────────────────────
-        # Decision: Early exit if nothing to build
-        #───────────────────────────────────────────────────────────────
+        #───────────────────────────────────────────────────────────
+        # Early Exit
+        #───────────────────────────────────────────────────────────
 
         if test (count $needs_build) -eq 0
-          log "All packages up to date and in cache, nothing to build"
+          log "All packages cached, nothing to build"
 
-          # Still commit + push if update scripts changed anything
-          if not git diff --quiet 2>/dev/null
-            log "Committing changes (no builds needed)..."
-            git add flake.lock '*.json'
-            git commit -m "chore(${name}): update (all cached)
+          for repo in $all_repos
+            cd "$repo"
+            if not git diff --quiet 2>/dev/null
+              log "Committing updates in $repo..."
+              git add flake.lock '*.json'
+              git commit -m "chore(${name}): update (all cached)
 
         Auto-updated by ${name} pipeline — no builds required"
-            git push origin $branch; or begin
-              log_error "Failed to push flake.lock update"
+              git push origin $branch; or log_error "Failed to push $repo"
             end
           end
-
           exit 0
         end
 
-        #───────────────────────────────────────────────────────────────
+        #───────────────────────────────────────────────────────────
         # Start Notification
-        #───────────────────────────────────────────────────────────────
+        #───────────────────────────────────────────────────────────
 
         set -l start_lines
         set -a start_lines "## 🔨 ${name} Starting"
@@ -290,54 +372,55 @@ let
         end
         notify (string join \n $start_lines | string collect)
 
-        #───────────────────────────────────────────────────────────────
-        # Phase 2: Build
-        #───────────────────────────────────────────────────────────────
-
-        set -g built
-        set -g failed
+        #───────────────────────────────────────────────────────────
+        # Phase 4: Build (via child services)
+        #───────────────────────────────────────────────────────────
 
         log "Building packages..."
 
         for pkg in $needs_build
-          log "Building $pkg..."
-          if build_pkg "$repo_path" $pkg
-            log "Successfully built $pkg"
+          set -l svc (resolve_build_svc $pkg)
+          log "Starting $svc..."
+
+          if sudo systemctl start "$svc"
+            log "Built: $pkg"
             set -a built $pkg
           else
-            log_error "Failed to build $pkg"
+            log_error "Failed: $pkg (see: journalctl -u $svc)"
             set -a failed $pkg
           end
         end
 
-        #───────────────────────────────────────────────────────────────
-        # Git Commit + Push
-        #───────────────────────────────────────────────────────────────
+        #───────────────────────────────────────────────────────────
+        # Phase 5: Git Commit + Push
+        #───────────────────────────────────────────────────────────
 
-        if not git diff --quiet 2>/dev/null
-          log "Committing changes..."
-          git add flake.lock '*.json'
+        set -l built_str (string join ", " $built)
 
-          set -l built_str (string join ", " $built)
-          git commit -m "chore(${name}): build update
+        for repo in $all_repos
+          cd "$repo"
+          if not git diff --quiet 2>/dev/null
+            log "Committing changes in $repo..."
+            git add flake.lock '*.json'
+            git commit -m "chore(${name}): build update
 
         Auto-updated by ${name} pipeline
         Built: $built_str"
-
-          log "Pushing to origin..."
-          git push origin $branch; or begin
-            log_error "Failed to push to origin"
-            notify "## ❌ ${name} Error
-        > Built packages but failed to push to origin"
-            exit 1
+            log "Pushing $repo..."
+            git push origin $branch; or begin
+              log_error "Failed to push $repo"
+              notify "## ❌ ${name} Error
+        > Built packages but failed to push $repo"
+              exit 1
+            end
+          else
+            log "No changes in $repo"
           end
-        else
-          log "No changes to commit"
         end
 
-        #───────────────────────────────────────────────────────────────
-        # End Notification
-        #───────────────────────────────────────────────────────────────
+        #───────────────────────────────────────────────────────────
+        # Phase 6: Notify
+        #───────────────────────────────────────────────────────────
 
         set -l lines
         set -a lines "## 🔨 ${name} Complete"
@@ -371,27 +454,18 @@ let
         end
 
         set -a lines ">"
-        set -a lines "> 📝 Run: \`nix flake update mix-nix\` in dot.nix"
+        set -a lines "> ${notifyHint}"
 
         notify (string join \n $lines | string collect)
 
-        #───────────────────────────────────────────────────────────────
-        # Status JSON
-        #───────────────────────────────────────────────────────────────
+        #───────────────────────────────────────────────────────────
+        # Status JSON + Exit
+        #───────────────────────────────────────────────────────────
 
-        set -l built_json (to_json_array $built)
-        set -l failed_json (to_json_array $failed)
-        set -l cached_json (to_json_array $cached)
-        set -l update_failed_json (to_json_array $update_failed)
-
-        echo "{\"status\":\"completed\",\"built\":$built_json,\"failed\":$failed_json,\"cached\":$cached_json,\"update_failed\":$update_failed_json}" \
+        echo "{\"status\":\"completed\",\"built\":$(to_json_array $built),\"failed\":$(to_json_array $failed),\"cached\":$(to_json_array $cached),\"update_failed\":$(to_json_array $update_failed)}" \
           > "$state_dir/pipeline-status.json"
 
         log "Pipeline complete."
-
-        #───────────────────────────────────────────────────────────────
-        # Exit Code
-        #───────────────────────────────────────────────────────────────
 
         if test (count $failed) -gt 0
           exit 1
@@ -399,120 +473,107 @@ let
       '';
     };
 
-  # ── Shared Systemd Service Configuration ──────────────────────
-  #
-  # Common service settings shared by all pipeline services.
-  #
-  mkServiceConfig =
-    {
-      svcName,
-      script,
-      repoPath,
-      timeout,
-    }:
-    {
-      path = with pkgs; [
-        fish
-        git
-        nix
-        jq
-        apprise
-        openssh
-        coreutils
-        curl
-      ];
-
-      environment = {
-        HOME = "/home/${serviceUser}";
-        NIX_PATH = "nixpkgs=${pkgs.path}";
-        GIT_SSH_COMMAND = "${pkgs.openssh}/bin/ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new";
-      };
-
-      serviceConfig = {
-        Type = "oneshot";
-        ExecStart = "${script}";
-        User = serviceUser;
-        Group = "ryot";
-        WorkingDirectory = repoPath;
-        TimeoutStartSec = timeout;
-
-        # Shared state directory for status JSON files
-        StateDirectory = stateBase;
-        StateDirectoryMode = "0755";
-
-        # Logging
-        StandardOutput = "journal";
-        StandardError = "journal";
-        SyslogIdentifier = svcName;
-
-        # Hardening
-        NoNewPrivileges = true;
-        PrivateTmp = true;
-        ProtectSystem = "strict";
-        ReadWritePaths = [
-          repoPath
-          "/nix/var"
-          "/home/${serviceUser}/.ssh" # SSH needs to write known_hosts
-        ];
-        ProtectKernelTunables = true;
-        ProtectKernelModules = true;
-        ProtectControlGroups = true;
-        RestrictRealtime = true;
-        RestrictSUIDSGID = true;
-        LockPersonality = true;
-      };
-    };
-
 in
 {
-  # ── Main Factory Function ─────────────────────────────────────
-  #
-  # Returns a NixOS config attrset with:
-  #   - systemd.services.<name>    (pipeline service)
-  #   - systemd.timers.<name>      (single timer)
-  #   - environment.systemPackages (required tools)
-  #
   mkPipeline =
     {
       name,
       description ? "${name} Build Pipeline",
-      repoPath,
       branch ? "main",
       schedule,
-      timeout ? "10h",
-      packages, # List of { name, updateScript? }
+      timeout ? "12h",
+      notifyHint ? "📝 Pipeline complete",
+      groups, # List of { name, repo, update, mkExpr, packages }
     }:
     let
-      pipelineScript = mkPipelineScript {
-        inherit
-          name
-          repoPath
-          branch
-          packages
-          ;
+      # Flatten all packages with group context
+      allPkgs = lib.concatMap (
+        g: map (pkg: { inherit (pkg) name; group = g; inherit pkg; }) g.packages
+      ) groups;
+
+      allRepos = lib.unique (map (g: g.repo) groups);
+
+      orchestratorScript = mkOrchestratorScript {
+        inherit name branch notifyHint groups;
       };
+
+      # Generate per-package build services
+      buildServices = builtins.listToAttrs (
+        map (p: mkBuildService name p.group p.pkg) allPkgs
+      );
     in
     {
-      systemd.services.${name} =
-        (mkServiceConfig {
-          svcName = name;
-          script = pipelineScript;
-          inherit repoPath timeout;
-        })
+      systemd.services =
+        buildServices
         // {
-          inherit description;
+          ${name} = {
+            inherit description;
+            path = with pkgs; [
+              fish
+              git
+              nix
+              jq
+              apprise
+              openssh
+              coreutils
+              curl
+              sudo
+            ];
+            environment = {
+              HOME = "/home/${serviceUser}";
+              NIX_PATH = "nixpkgs=${pkgs.path}";
+              GIT_SSH_COMMAND = "${pkgs.openssh}/bin/ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new";
+            };
+            serviceConfig = {
+              Type = "oneshot";
+              ExecStart = "${orchestratorScript}";
+              User = serviceUser;
+              Group = "ryot";
+              WorkingDirectory = builtins.head allRepos;
+              TimeoutStartSec = timeout;
+              StateDirectory = name;
+              StateDirectoryMode = "0755";
+              StandardOutput = "journal";
+              StandardError = "journal";
+              SyslogIdentifier = name;
+
+              # Lighter hardening (needs sudo access for systemctl)
+              NoNewPrivileges = false; # Required for sudo
+              PrivateTmp = true;
+              ProtectSystem = "strict";
+              ReadWritePaths = allRepos ++ [
+                "/nix/var"
+                "/home/${serviceUser}/.ssh"
+              ];
+              ProtectKernelTunables = true;
+              ProtectKernelModules = true;
+              ProtectControlGroups = true;
+            };
+          };
         };
 
       systemd.timers.${name} = {
         description = "Timer for ${description}";
         wantedBy = [ "timers.target" ];
-
         timerConfig = {
           OnCalendar = schedule;
           Persistent = true;
           RandomizedDelaySec = "15min";
         };
       };
+
+      # Sudo rule: allow orchestrator user to start build services
+      security.sudo.extraRules = [
+        {
+          users = [ serviceUser ];
+          commands = [
+            {
+              command = "/run/current-system/sw/bin/systemctl start ${name}-build-*";
+              options = [ "NOPASSWD" ];
+            }
+          ];
+        }
+      ];
 
       environment.systemPackages = [
         pkgs.apprise

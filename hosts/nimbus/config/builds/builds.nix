@@ -1,17 +1,19 @@
 # Build Pipeline Configuration
 #
 # Single source of truth for all automated package builds.
-# Packages are built sequentially in the order defined below.
-# Each package can optionally define an updateScript to prepare
-# its flake inputs before the cache check.
+# Packages are organized into source groups. Each group declares
+# its repo, a group-level update command, and a default expression
+# generator. Packages inherit the group default or override with `expr`.
 #
 # Services generated:
-#   mix-builder.service   — Pipeline (triggered by timer)
-#   mix-builder.timer     — Weekly Monday at 2:00 AM
+#   mix-builder.service                — Orchestrator (triggered by timer)
+#   mix-builder.timer                  — Weekly Monday at 2:00 AM
+#   mix-builder-build-<pkg>.service    — Per-package build (started by orchestrator)
 #
 # Usage:
-#   systemctl start mix-builder       # Full pipeline run
-#   journalctl -u mix-builder         # View logs
+#   systemctl start mix-builder                         # Full pipeline
+#   journalctl -u mix-builder                           # Orchestrator logs
+#   journalctl -u mix-builder-build-hyprland            # Per-package logs
 #
 {
   lib,
@@ -29,40 +31,98 @@ let
       host
       ;
   };
-in
-let
-  repoPath = "/repo/Nix/mix.nix";
+
+  # ── Repository Paths ────────────────────────────────────────────
+  mixRepo = "/repo/Nix/mix.nix";
+  arrozRepo = "/repo/Nix/arroz.nix";
+
+  # ── Expression Helpers ──────────────────────────────────────────
+  # These define HOW to resolve a package name into a nix derivation.
+  # The factory (_lib.nix) doesn't know about overlay vs flake-input —
+  # it just receives nix expression strings.
+
+  # Resolve a package from mix.nix via its overlay
+  overlay = name: ''
+    let
+      flake = builtins.getFlake "path:${mixRepo}";
+      pkgs = import flake.inputs.nixpkgs {
+        system = "x86_64-linux";
+        overlays = [ flake.overlays.default ];
+      };
+    in pkgs.${name}
+  '';
+
+  # Resolve a package from an arroz.nix flake input
+  input = inputName: attr: ''
+    (builtins.getFlake "path:${arrozRepo}").inputs.${inputName}.packages.x86_64-linux.${attr}
+  '';
 in
 builds.mkPipeline {
   name = "mix-builder";
-  description = "mix.nix Build Pipeline";
-  inherit repoPath;
-  schedule = "Mon *-*-* 02:00:00"; # Weekly Monday at 2:00 AM
-  timeout = "10h";
+  description = "Package Build Pipeline";
+  schedule = "Mon *-*-* 02:00:00";
+  timeout = "12h";
+  notifyHint = "📝 Run: \\`nix flake update mix-nix && nix flake update arroz-nix\\` in dot.nix";
 
-  packages = [
-    # ── Kernels ────────────────────────────────────────────────
-    # First kernel entry runs bonk to update all flake inputs.
-    # Remaining kernel builds use the already-updated input.
+  groups = [
+    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    # mix.nix — Custom overlay packages
+    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     {
-      name = "linux-ryot";
-      updateScript = "bonk update -p ${repoPath}";
-    }
-    { name = "linux-ryot-zfs"; }
-    { name = "linux-ryot-net"; }
-    { name = "linuxPackages-ryot-zfs.zfs_cachyos"; }
-    { name = "linuxPackages-ryot-zfs.kernel.dev"; }
+      name = "mix";
+      repo = mixRepo;
+      update = "bonk update -p ${mixRepo}";
+      mkExpr = overlay;
 
-    # ── Packages ───────────────────────────────────────────────
-    # Update scripts fetch latest sources and update JSON manifests.
-    {
-      name = "eden";
-      updateScript = "fish ${repoPath}/packages/eden/update.fish";
+      packages = [
+        # Kernels
+        { name = "linux-ryot"; }
+        { name = "linux-ryot-zfs"; }
+        { name = "linux-ryot-net"; }
+        { name = "linuxPackages-ryot-zfs.zfs_cachyos"; }
+        { name = "linuxPackages-ryot-zfs.kernel.dev"; }
+
+        # Packages (with per-package update scripts)
+        {
+          name = "eden";
+          update = "fish ${mixRepo}/packages/eden/update.fish";
+        }
+        {
+          name = "gamescope-git";
+          update = "fish ${mixRepo}/packages/gamescope-git/update.fish";
+        }
+        { name = "WiiUDownloader"; }
+      ];
     }
+
+    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    # arroz.nix — Flake input packages (no binary cache)
+    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     {
-      name = "gamescope-git";
-      updateScript = "fish ${repoPath}/packages/gamescope-git/update.fish";
+      name = "arroz";
+      repo = arrozRepo;
+      update = "bonk update -p ${arrozRepo}";
+      mkExpr = name: input name name; # Default: input name = attr name
+
+      packages = [
+        { name = "quickshell"; }
+        { name = "hyprland"; }
+        { name = "hyprnavi-psm"; }
+
+        # These need explicit expr because attr ≠ package name
+        {
+          name = "dankMaterialShell";
+          expr = input "dankMaterialShell" "dms-shell";
+        }
+        {
+          name = "niri";
+          expr = input "niri" "niri-unstable";
+        }
+        {
+          name = "vicinae";
+          expr = input "vicinae" "default";
+        }
+      ];
     }
-    { name = "WiiUDownloader"; }
   ];
 }
