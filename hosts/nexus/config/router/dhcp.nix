@@ -75,7 +75,7 @@
         "74:56:3C:E7:F8:CD,10.2.2.13,haze"
 
         # WIFI network hosts
-        "94:83:C4:76:50:F7,10.10.10.10,wifi"
+        "94:83:c4:76:50:f8,10.10.10.10,wifi"
       ];
 
       # Custom DNS entries
