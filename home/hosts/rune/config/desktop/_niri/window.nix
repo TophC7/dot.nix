@@ -4,6 +4,14 @@
 {
   programs.niri = {
     settings = {
+      blur = {
+        enable = true; # set false to kill all blur globally
+        passes = 4; # more passes = larger/smoother blur, more GPU
+        offset = 3.0; # pixel offset multiplier per pass
+        noise = 0.2; # reduces color banding
+        saturation = 1.5; # > 1.0 boosts colors in blurred area
+      };
+
       layer-rules = [
         # Vicinae search layer (layer-shell surface)
         {
@@ -21,12 +29,17 @@
 
       window-rules = [
         {
+          background-effect = {
+            blur = true;
+            xray = false;
+          };
           geometry-corner-radius = {
             top-left = 8.0;
             top-right = 8.0;
             bottom-left = 8.0;
             bottom-right = 8.0;
           };
+          opacity = 0.97;
           clip-to-geometry = true;
           draw-border-with-background = false;
         }
