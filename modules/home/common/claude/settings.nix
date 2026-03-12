@@ -3,8 +3,6 @@
 # Uses staging pattern: settings_source -> onChange -> settings.json
 #
 {
-  lib,
-  pkgs,
   ...
 }:
 {
@@ -17,6 +15,7 @@
     text = builtins.toJSON {
       model = "opus";
       alwaysThinkingEnabled = true;
+      effortLevel = "high";
       outputStyle = "informative-learning";
 
       permissions = {
@@ -77,32 +76,6 @@
           "Read(.git-crypt)"
           "Read(*.key)"
           "Read(*.pem)"
-        ];
-      };
-
-      # Configure notification sounds
-      hooks = {
-        Stop = [
-          {
-            matcher = "";
-            hooks = [
-              {
-                type = "command";
-                command = "${pkgs.pulseaudio}/bin/paplay ${pkgs.sound-theme-freedesktop}/share/sounds/freedesktop/stereo/complete.oga";
-              }
-            ];
-          }
-        ];
-        Notification = [
-          {
-            matcher = "";
-            hooks = [
-              {
-                type = "command";
-                command = "${pkgs.pulseaudio}/bin/paplay ${pkgs.sound-theme-freedesktop}/share/sounds/freedesktop/stereo/message.oga";
-              }
-            ];
-          }
         ];
       };
     };
