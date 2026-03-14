@@ -2,8 +2,7 @@
 # Claude Code MCP (Model Context Protocol) servers configuration.
 # Global MCP servers are defined here; project-specific servers go in .mcp.json
 #
-{ lib, pkgs, ... }:
-{
+_: {
   # MCP servers can be configured here when needed.
   # Global servers apply to all projects; project-specific go in .mcp.json
   #
