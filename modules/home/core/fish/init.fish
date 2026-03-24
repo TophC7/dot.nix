@@ -1,5 +1,15 @@
-# Disable terminal focus reporting to prevent ^[[I/^[[O artifacts
+## TERMINAL FIXES ##
+
+# HACK: VSCode falsely advertises Kitty keyboard protocol support,
+# causing raw escape sequences (^[[13u) in child programs
+if set -q VSCODE_INJECTION
+    set -g fish_features query-term=-
+end
+
+# prevent ^[[I / ^[[O focus-reporting artifacts
 printf '\e[?1004l'
+
+## GREETING ##
 
 function fish_greeting
     if not string match -q "*ghostty*" "$TERM"
@@ -9,58 +19,50 @@ function fish_greeting
     end
 end
 
-## Aliases and Overrides ##
+## ALIASES ##
 
 abbr -a ls eza
 abbr -a s ssh
 abbr -a tt gtrash put
 
-# Discourage using rm command
+# NOTE: rm is intentionally blocked — use gtrash put (or tt) instead
 function rm
     if test (count $argv) -gt 0
         echo "Error: 'rm' is protected. Please use 'gtrash put' or 'tt' command instead."
     end
 end
 
-## Functions and tools ##
+## FUNCTIONS ##
 
 function zipz
-    # Ensure exactly two arguments are provided
     if test (count $argv) -ne 2
-        echo "Usage: bipzstd <directory> <output_filename>"
+        echo "Usage: zipz <directory> <output_filename>"
         return 1
     end
 
     set directory $argv[1]
     set output_file $argv[2]
 
-    # Verify that the specified directory exists
     if not test -d $directory
         echo "Error: '$directory' is not a valid directory."
         return 1
     end
 
-    # Correct output filename to always end with tar.zst
+    # correct extension to .tar.zst
     if not string match -q "*tar.zst" $output_file
-        # Remove any existing extension, if present
-        set base (string replace -r '\..*$' '' $output_file)
+        set base (string replace -r '\\..*$' '' $output_file)
         set output_file "$base.tar.zst"
         echo "Output filename corrected to: $output_file"
     end
 
-    # Check if the output file already exists to avoid accidental overwrite
     if test -f $output_file
         echo "Error: Output file '$output_file' already exists. Please remove it or choose another name."
         return 1
     end
 
-    # Create a tar archive of the directory and compress it with zstd.
-    # - The tar command outputs the archive to stdout.
-    # - zstd compresses it using 4 threads (-T4) and a compression level of 12 (-12).
-    # - The -c flag forces zstd to write to stdout.
+    # tar to stdout, pipe through zstd with 5 threads at level 15
     tar cf - $directory | nix run nixpkgs#zstd -- -c -T5 -15 -v >$output_file
 
-    # Check the exit status of the pipeline
     if test $status -eq 0
         echo "Compression successful: $output_file"
     else
@@ -70,7 +72,6 @@ function zipz
 end
 
 function unzipz
-    # Ensure exactly two arguments are provided
     if test (count $argv) -ne 2
         echo "Usage: unzipz <input_compressed_file> <destination_directory>"
         return 1
@@ -79,13 +80,11 @@ function unzipz
     set input_file $argv[1]
     set destination $argv[2]
 
-    # Verify that the input file exists
     if not test -f $input_file
         echo "Error: '$input_file' is not a valid file."
         return 1
     end
 
-    # Create the destination directory if it does not exist
     if not test -d $destination
         mkdir -p $destination
         if test $status -ne 0
@@ -94,13 +93,8 @@ function unzipz
         end
     end
 
-    # Decompress the file:
-    # - The zstd command (via nix) decompresses the compressed file,
-    #   using the -d flag (decompress) and -c to output to stdout.
-    # - The decompressed stream is piped to tar to extract its contents into the destination directory.
     cat $input_file | nix run nixpkgs#zstd -- -d -c -v | tar xf - -C $destination
 
-    # Check the exit status of the pipeline
     if test $status -eq 0
         echo "Decompression successful: files extracted to $destination"
     else
