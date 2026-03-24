@@ -66,12 +66,12 @@ In the GOOD example, only the PocketBase password quirk gets NOTE: because it's 
 Use mirrored comment markers as section dividers to visually break up a file into logical regions. These render with special highlight colors.
 
 ```
-// SECTION NAME //
-# SECTION NAME #
-; SECTION NAME ;
+// SECTION NAME //     JS, TS, Svelte, CSS, Rust, Java, Go, C
+## SECTION NAME ##     Fish, Python, Nix, Shell, YAML, TOML
+;; SECTION NAME ;;     Lisp, Clojure, Yuck
 ```
 
-Use these instead of dashes or equals signs as dividers. The mirrored style gets picked up by the highlighter and stands out clearly.
+The mirrored marker doubles the comment character on each side — `//` doubles `/`, `##` doubles `#`, `;;` doubles `;`. This is what the highlighter matches.
 
 ```js
 // IMPORTS //
@@ -87,6 +87,19 @@ let active = false;
 // HANDLERS //
 
 function onClick() { ... }
+```
+
+```fish
+## ALIASES ##
+
+abbr -a ls eza
+abbr -a s ssh
+
+## FUNCTIONS ##
+
+function greet
+    echo "hello"
+end
 ```
 
 ---
@@ -297,7 +310,8 @@ export const logout = command(...)
 ## Quick Reference
 
 ```
-// SECTION NAME //          section divider (use instead of dashes or equals)
+// SECTION NAME //          section divider (JS, TS, CSS, Rust, etc.)
+## SECTION NAME ##          section divider (Fish, Python, Nix, Shell, etc.)
 
 // TODO: ...                needs doing
 // NOTE: ...                surprising/non-obvious (use sparingly)
