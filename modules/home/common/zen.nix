@@ -1,5 +1,4 @@
 {
-  pkgs,
   inputs,
   ...
 }:
@@ -12,11 +11,7 @@
 
   xdg.mimeApps =
     let
-      value =
-        let
-          zen-browser = inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}.beta;
-        in
-        zen-browser.meta.desktopFileName;
+      value = "zen-beta.desktop";
       associations = builtins.listToAttrs (
         map
           (name: {

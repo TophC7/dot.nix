@@ -5,7 +5,7 @@
 {
   theme = {
     enable = true;
-    image = ./wallpapers/809.jpg;
+    image = ./wallpapers/809.png;
     polarity = "dark";
 
     icon = {

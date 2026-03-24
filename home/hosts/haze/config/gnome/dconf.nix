@@ -12,8 +12,7 @@ with lib.hm.gvariant;
   dconf.settings = {
     "org/gnome/shell" =
       let
-        zen-browser =
-          inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}.beta.meta.desktopFileName;
+        zen-browser = "zen-beta.desktop";
       in
       {
         favorite-apps = [
