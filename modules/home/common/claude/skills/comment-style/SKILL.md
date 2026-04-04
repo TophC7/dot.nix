@@ -14,6 +14,7 @@ These are Toph's commenting conventions. Follow them in ALL code output. They ar
 3. Comments are for humans scanning fast. Keep them short, punchy, and scannable.
 4. Use the label system. Labels aren't decoration — they're a visual triage system powered by color-coded highlighting.
 5. Most comments should be plain — no label. Labels are reserved for comments that genuinely deserve visual highlighting. If every comment is highlighted, nothing stands out.
+6. Do not use em dash (`—`) in comments. Prefer natural sentence flow that doesn't cut off abruptly. Do not circumvent this rule with '--'.
 
 ---
 
@@ -191,7 +192,7 @@ The angle-bracket-pair marker (orange and pink highlight) — used as a list bul
 
 // do NOT change this order — breaks hydration !!!
 
-const result = computeLayout(nodes)
+const result = computeLayout(nodes);
 // ^^ can be slow with 1000+ nodes
 
 // reasons this works:
@@ -246,12 +247,12 @@ Don't comment obvious code:
 
 ```js
 // BAD:
-const count = 0 // set count to zero
-items.forEach((item) => process(item)) // loop through items
+const count = 0; // set count to zero
+items.forEach((item) => process(item)); // loop through items
 
 // GOOD: (no comment needed, the code is clear)
-const count = 0
-items.forEach((item) => process(item))
+const count = 0;
+items.forEach((item) => process(item));
 ```
 
 Don't use plain dividers:
