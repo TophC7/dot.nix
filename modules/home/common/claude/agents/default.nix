@@ -9,14 +9,24 @@
 { lib, ... }:
 let
   # Auto-discover all .md files in this directory
-  mdFiles = lib.filterAttrs (
-    name: type: type == "regular" && lib.hasSuffix ".md" name
-  ) (builtins.readDir ./.);
+  mdFiles = lib.filterAttrs (name: type: type == "regular" && lib.hasSuffix ".md" name) (
+    builtins.readDir ./.
+  );
 in
 {
   # Generate home.file entries for each .md file
   home.file = lib.mapAttrs' (name: _: {
     name = ".claude/agents/${name}";
-    value = { source = ./. + "/${name}"; };
+    value = {
+      source = ./. + "/${name}";
+    };
   }) mdFiles;
 }
+
+# add these agents:
+# backend
+# debugger
+# documentation
+# rust
+# security
+# ux
