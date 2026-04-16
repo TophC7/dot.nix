@@ -2,8 +2,6 @@
   flakeRoot,
   lib,
   pkgs,
-  host,
-  inputs,
   ...
 }:
 {
@@ -13,7 +11,7 @@
 
     ## Additional Imports ##
     (map (lib.fs.relativeTo flakeRoot) [
-      "modules/home/common/chromium.nix"
+      # "modules/home/common/chromium.nix"
       "modules/home/common/claude"
       "modules/home/common/gaming"
       "modules/home/common/vscode.nix"
@@ -28,17 +26,18 @@
 
   ## Packages with no needed configs ##
   home.packages = with pkgs; [
-    inputs.hytale-launcher.packages.${host.system}.default
+    # inputs.hytale-launcher.packages.${host.system}.default
 
     ## Media ##
     ffmpeg_8-full
     spotify
     gpu-screen-recorder-gtk
+    vlc
+    v4l-utils
 
     ## Social ##
     telegram-desktop
     vesktop
-
     journey
 
     ## Tools ##
@@ -54,5 +53,6 @@
 
     # Web Dev
     gh
+    vivaldi
   ];
 }

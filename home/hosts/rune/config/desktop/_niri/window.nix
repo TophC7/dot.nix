@@ -196,6 +196,12 @@
             { app-id = "^steam_app_"; } # All Steam app windows
             { app-id = "\\.exe$"; } # All Wine/Proton .exe windows
             { app-id = "^HytaleClient$"; }
+            { title = "^Minecraft"; }
+          ];
+          excludes = [
+            {
+              app-id = ".*Minecraft\\*.*";
+            }
           ];
           default-column-width.proportion = 1.0;
           open-fullscreen = true;
