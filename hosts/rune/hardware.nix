@@ -54,6 +54,7 @@
     kernelModules = [
       "kvm-amd"
       "amdgpu"
+      "ntsync"
     ];
     extraModulePackages = [ ];
 
@@ -65,6 +66,11 @@
     # Allow running ARM binaries on x86_64; for Cross Compilation
     binfmt.emulatedSystems = [ "aarch64-linux" ];
   };
+
+  # Allow Wine/Proton to access /dev/ntsync for NT synchronization primitives
+  services.udev.extraRules = ''
+    KERNEL=="ntsync", MODE="0666"
+  '';
 
   # For less permission issues with SSHFS
   programs.fuse.userAllowOther = true;
