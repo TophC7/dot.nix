@@ -67,9 +67,18 @@ in
       wayland = {
         useHDR = allowHDR;
         useWSI = true;
-        unset = [
-          "DISPLAY"
-        ];
+        unset = [ "DISPLAY" ];
+      };
+
+      # Zink: translates OpenGL → Vulkan for better perf on AMD
+      minecraft = {
+        useHDR = allowHDR;
+        useWSI = true;
+        options = baseOptions;
+        environment = baseEnv // {
+          MESA_LOADER_DRIVER_OVERRIDE = "zink";
+        };
+        unset = [ "DISPLAY" ];
       };
 
       steam = {
