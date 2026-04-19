@@ -41,19 +41,21 @@ let
   sanitizeName = name: builtins.replaceStrings [ "-" "." ] [ "_" "_" ] name;
 
   # Service name for a package's build unit
-  buildSvcName = pipelineName: pkg:
-    "${pipelineName}-build-${builtins.replaceStrings [ "." ] [ "-" ] pkg.name}";
+  buildSvcName =
+    pipelineName: pkg: "${pipelineName}-build-${builtins.replaceStrings [ "." ] [ "-" ] pkg.name}";
 
   # ── Expression File Generator ───────────────────────────────────
   # Each package gets a .nix file in the store that evaluates to its derivation.
-  mkExprFile = pipelineName: group: pkg:
+  mkExprFile =
+    pipelineName: group: pkg:
     let
       expr = if pkg ? expr then pkg.expr else group.mkExpr pkg.name;
     in
     pkgs.writeText "${buildSvcName pipelineName pkg}-expr.nix" expr;
 
   # ── Per-Package Build Service Generator ─────────────────────────
-  mkBuildService = pipelineName: group: pkg:
+  mkBuildService =
+    pipelineName: group: pkg:
     let
       exprFile = mkExprFile pipelineName group pkg;
       svcName = buildSvcName pipelineName pkg;
@@ -62,7 +64,12 @@ let
       name = svcName;
       value = {
         description = "Build ${pkg.name}";
-        path = with pkgs; [ nix-output-monitor nix git coreutils ];
+        path = with pkgs; [
+          nix-output-monitor
+          nix
+          git
+          coreutils
+        ];
         environment = {
           HOME = "/home/${serviceUser}";
           NIX_PATH = "nixpkgs=${pkgs.path}";
@@ -106,7 +113,12 @@ let
     let
       # Flatten all packages across groups (with group context)
       allPkgs = lib.concatMap (
-        g: map (pkg: { inherit (pkg) name; group = g; inherit pkg; }) g.packages
+        g:
+        map (pkg: {
+          inherit (pkg) name;
+          group = g;
+          inherit pkg;
+        }) g.packages
       ) groups;
 
       allPkgNames = lib.concatMapStringsSep " " (p: p.name) allPkgs;
@@ -174,8 +186,7 @@ let
 
       # Build service name mappings (for sudo systemctl start)
       buildSvcAssignments = lib.concatMapStringsSep "\n" (
-        p:
-        "set -g build_svc_${sanitizeName p.name} ${buildSvcName name p.pkg}"
+        p: "set -g build_svc_${sanitizeName p.name} ${buildSvcName name p.pkg}"
       ) allPkgs;
     in
     pkgs.writeTextFile {
@@ -481,76 +492,82 @@ in
       description ? "${name} Build Pipeline",
       branch ? "main",
       schedule,
-      timeout ? "12h",
+      timeout ? "14h",
       notifyHint ? "📝 Pipeline complete",
       groups, # List of { name, repo, update, mkExpr, packages }
     }:
     let
       # Flatten all packages with group context
       allPkgs = lib.concatMap (
-        g: map (pkg: { inherit (pkg) name; group = g; inherit pkg; }) g.packages
+        g:
+        map (pkg: {
+          inherit (pkg) name;
+          group = g;
+          inherit pkg;
+        }) g.packages
       ) groups;
 
       allRepos = lib.unique (map (g: g.repo) groups);
 
       orchestratorScript = mkOrchestratorScript {
-        inherit name branch notifyHint groups;
+        inherit
+          name
+          branch
+          notifyHint
+          groups
+          ;
       };
 
       # Generate per-package build services
-      buildServices = builtins.listToAttrs (
-        map (p: mkBuildService name p.group p.pkg) allPkgs
-      );
+      buildServices = builtins.listToAttrs (map (p: mkBuildService name p.group p.pkg) allPkgs);
     in
     {
-      systemd.services =
-        buildServices
-        // {
-          ${name} = {
-            inherit description;
-            path = with pkgs; [
-              fish
-              git
-              nix
-              jq
-              apprise
-              openssh
-              coreutils
-              curl
-              sudo
-            ];
-            environment = {
-              HOME = "/home/${serviceUser}";
-              NIX_PATH = "nixpkgs=${pkgs.path}";
-              GIT_SSH_COMMAND = "${pkgs.openssh}/bin/ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new";
-            };
-            serviceConfig = {
-              Type = "oneshot";
-              ExecStart = "${orchestratorScript}";
-              User = serviceUser;
-              Group = "ryot";
-              WorkingDirectory = builtins.head allRepos;
-              TimeoutStartSec = timeout;
-              StateDirectory = name;
-              StateDirectoryMode = "0755";
-              StandardOutput = "journal";
-              StandardError = "journal";
-              SyslogIdentifier = name;
+      systemd.services = buildServices // {
+        ${name} = {
+          inherit description;
+          path = with pkgs; [
+            fish
+            git
+            nix
+            jq
+            apprise
+            openssh
+            coreutils
+            curl
+            sudo
+          ];
+          environment = {
+            HOME = "/home/${serviceUser}";
+            NIX_PATH = "nixpkgs=${pkgs.path}";
+            GIT_SSH_COMMAND = "${pkgs.openssh}/bin/ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new";
+          };
+          serviceConfig = {
+            Type = "oneshot";
+            ExecStart = "${orchestratorScript}";
+            User = serviceUser;
+            Group = "ryot";
+            WorkingDirectory = builtins.head allRepos;
+            TimeoutStartSec = timeout;
+            StateDirectory = name;
+            StateDirectoryMode = "0755";
+            StandardOutput = "journal";
+            StandardError = "journal";
+            SyslogIdentifier = name;
 
-              # Lighter hardening (needs sudo access for systemctl)
-              NoNewPrivileges = false; # Required for sudo
-              PrivateTmp = true;
-              ProtectSystem = "strict";
-              ReadWritePaths = allRepos ++ [
-                "/nix/var"
-                "/home/${serviceUser}/.ssh"
-              ];
-              ProtectKernelTunables = true;
-              ProtectKernelModules = true;
-              ProtectControlGroups = true;
-            };
+            # Lighter hardening (needs sudo access for systemctl)
+            NoNewPrivileges = false; # Required for sudo
+            PrivateTmp = true;
+            ProtectSystem = "strict";
+            ReadWritePaths = allRepos ++ [
+              "/nix/var"
+              "/home/${serviceUser}/.ssh"
+            ];
+            ProtectKernelTunables = true;
+            ProtectKernelModules = true;
+            ProtectControlGroups = true;
           };
         };
+      };
 
       systemd.timers.${name} = {
         description = "Timer for ${description}";

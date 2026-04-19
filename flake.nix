@@ -121,8 +121,13 @@
     };
 
     hyprnavi-psm = {
-      # url = "github:TophC7/hyprnavi-psm";
       url = "git+file:///repo/rust/hyprnavi";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    sworm = {
+      # url = "github:TophC7/Sworm";
+      url = "git+file:///home/toph/Development/ADE";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };

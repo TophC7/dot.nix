@@ -35,6 +35,7 @@ let
   # ── Repository Paths ────────────────────────────────────────────
   mixRepo = "/repo/Nix/mix.nix";
   arrozRepo = "/repo/Nix/arroz.nix";
+  dotRepo = "/repo/Nix/dot.nix";
 
   # ── Expression Helpers ──────────────────────────────────────────
   # These define HOW to resolve a package name into a nix derivation.
@@ -55,6 +56,11 @@ let
   # Resolve a package from an arroz.nix flake input
   input = inputName: attr: ''
     (builtins.getFlake "path:${arrozRepo}").inputs.${inputName}.packages.x86_64-linux.${attr}
+  '';
+
+  # Resolve a package from a dot.nix flake input
+  dotInput = inputName: attr: ''
+    (builtins.getFlake "path:${dotRepo}").inputs.${inputName}.packages.x86_64-linux.${attr}
   '';
 in
 builds.mkPipeline {
@@ -92,6 +98,9 @@ builds.mkPipeline {
           update = "fish ${mixRepo}/packages/gamescope-git/update.fish";
         }
         { name = "WiiUDownloader"; }
+
+        # nixpkgs pass-through (no mix.nix override, but resolved via overlay)
+        { name = "nh"; }
       ];
     }
 
@@ -121,6 +130,34 @@ builds.mkPipeline {
         {
           name = "vicinae";
           expr = input "vicinae" "default";
+        }
+      ];
+    }
+
+    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    # dot.nix — Flake input packages (no binary cache)
+    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    {
+      name = "dot";
+      repo = dotRepo;
+      update = "bonk update -p ${dotRepo}";
+      mkExpr = name: dotInput name name; # Default: input name = attr name
+
+      packages = [
+        { name = "fresh"; }
+
+        # llm-agents exposes many CLIs; expr selects the attr on that input
+        {
+          name = "codex";
+          expr = dotInput "llm-agents" "codex";
+        }
+        {
+          name = "claude-code";
+          expr = dotInput "llm-agents" "claude-code";
+        }
+        {
+          name = "gemini-cli";
+          expr = dotInput "llm-agents" "gemini-cli";
         }
       ];
     }
