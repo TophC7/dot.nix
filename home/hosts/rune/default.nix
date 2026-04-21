@@ -1,7 +1,9 @@
 {
   flakeRoot,
   lib,
+  host,
   pkgs,
+  inputs,
   ...
 }:
 {
@@ -22,6 +24,12 @@
 
   services.easyeffects = {
     enable = true;
+  };
+
+  programs.ghostty = {
+    settings = {
+      adjust-cell-height = 1;
+    };
   };
 
   ## Packages with no needed configs ##
@@ -54,5 +62,6 @@
     # Web Dev
     gh
     vivaldi
+    inputs.sworm.packages.${host.system}.default
   ];
 }
