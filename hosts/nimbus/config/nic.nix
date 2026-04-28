@@ -13,6 +13,7 @@
         "enp39s0" # 4-port NIC port 3
         "enp40s0" # 4-port NIC port 4
       ];
+      rstp = true;
     };
 
     # Explicitly configure the bridge with nimbus's current network settings

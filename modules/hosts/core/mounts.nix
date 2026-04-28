@@ -55,9 +55,6 @@ let
       options = "nfsvers=4.2,noatime,soft,intr";
       after = [ "network-online.target" ];
       wants = [ "network-online.target" ];
-      unitConfig = {
-        TimeoutSec = "10";
-      };
       mountConfig = {
         TimeoutSec = "10";
       };

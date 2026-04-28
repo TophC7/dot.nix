@@ -66,7 +66,7 @@ in
 builds.mkPipeline {
   name = "mix-builder";
   description = "Package Build Pipeline";
-  schedule = "Mon *-*-* 02:00:00";
+  schedule = "Wed *-*-* 04:00:00";
   timeout = "12h";
   notifyHint = "📝 Run: \\`nix flake update mix-nix && nix flake update arroz-nix\\` in dot.nix";
 

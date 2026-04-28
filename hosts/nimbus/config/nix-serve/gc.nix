@@ -11,18 +11,16 @@
   # Conservative settings since this is a binary cache server
   nix.gc = {
     automatic = true;
-    dates = "weekly"; # Weekly instead of daily - other hosts may need older paths
-    options =
+    dates = lib.mkForce "Mon *-*-* 03:30:00";
+    options = lib.mkForce (
       let
         keepDays = 60; # Extended from 30 - gives other hosts time to sync
         maxStore = "500G";
       in
-      ''
-        --delete-older-than ${toString keepDays}d
-        --max-freed ${maxStore}
-      '';
+      "--delete-older-than ${toString keepDays}d --max-freed ${maxStore}"
+    );
     persistent = true;
-    randomizedDelaySec = 1800;
+    randomizedDelaySec = lib.mkForce "45min";
   };
 
   # Enhanced Nix store optimization settings
@@ -35,31 +33,7 @@
     max-free = lib.mkForce (10 * 1024 * 1024 * 1024); # 10GB target free space
   };
 
-  # Add a service to clean up old nix-serve cache entries
-  systemd.services.nix-serve-cleanup = {
-    description = "Clean up old nix-serve cache entries";
-    serviceConfig = {
-      Type = "oneshot";
-      ExecStart = pkgs.writeShellScript "cleanup-cache" ''
-        #!${lib.getExe pkgs.bash}
-
-        # Collect garbage for unreferenced paths
-        ${pkgs.nix}/bin/nix-collect-garbage
-
-        echo "Cache cleanup completed"
-      '';
-      Nice = 19;
-      IOSchedulingClass = "idle";
-    };
-  };
-
-  systemd.timers.nix-serve-cleanup = {
-    description = "Daily nix-serve cache cleanup";
-    wantedBy = [ "timers.target" ];
-    timerConfig = {
-      OnCalendar = "daily";
-      Persistent = true;
-      RandomizedDelaySec = 3600;
-    };
-  };
+  # nix.gc above is the only garbage collection path. Keeping a second
+  # nix-collect-garbage timer makes write-heavy store cleanup harder to reason
+  # about on this host.
 }

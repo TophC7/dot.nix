@@ -77,7 +77,7 @@ let
         serviceConfig = {
           Type = "oneshot";
           ExecStart = pkgs.writeShellScript "build-${builtins.replaceStrings [ "." ] [ "-" ] pkg.name}" ''
-            exec ${nix} build --impure --no-link -L --expr "import ${exprFile}"
+            exec ${nix} --option max-jobs 1 --option cores 10 build --impure --no-link -L --expr "import ${exprFile}"
           '';
           User = serviceUser;
           Group = "ryot";
@@ -85,6 +85,9 @@ let
           StandardOutput = "journal";
           StandardError = "journal";
           SyslogIdentifier = svcName;
+          Nice = 19;
+          IOSchedulingClass = "idle";
+          IOSchedulingPriority = 7;
 
           # Hardening
           NoNewPrivileges = true;
@@ -553,6 +556,9 @@ in
             StandardOutput = "journal";
             StandardError = "journal";
             SyslogIdentifier = name;
+            Nice = 19;
+            IOSchedulingClass = "idle";
+            IOSchedulingPriority = 7;
 
             # Lighter hardening (needs sudo access for systemctl)
             NoNewPrivileges = false; # Required for sudo
@@ -575,7 +581,7 @@ in
         timerConfig = {
           OnCalendar = schedule;
           Persistent = true;
-          RandomizedDelaySec = "15min";
+          RandomizedDelaySec = "2h";
         };
       };
 

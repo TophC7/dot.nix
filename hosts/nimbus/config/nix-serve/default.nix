@@ -1,9 +1,12 @@
 {
   pkgs,
   secrets,
+  lib,
   ...
 }:
 {
+  imports = lib.fs.scanPaths ./.;
+
   services.nix-serve = {
     enable = true;
     port = 4488;

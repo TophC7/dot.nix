@@ -183,19 +183,21 @@
       ];
     };
 
-    # Bind mounts for Docker/LXC to ZFS storage (disabled temporarily)
+    # Bind mounts for Docker/LXC to ZFS storage.
+    # These must not be mounted in the initrd: /fast is a ZFS dataset and is
+    # only available after pool import in the real system.
     "/var/lib/docker" = {
       device = "/fast/lib/docker";
       fsType = "none";
       options = [ "bind" ];
-      neededForBoot = true;
+      depends = [ "/fast" ];
     };
 
     "/var/lib/lxc" = {
       device = "/fast/lib/lxc";
       fsType = "none";
       options = [ "bind" ];
-      neededForBoot = true;
+      depends = [ "/fast" ];
     };
   };
 
