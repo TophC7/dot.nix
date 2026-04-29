@@ -2322,10 +2322,10 @@
         ]
       },
       "locked": {
-        "lastModified": 1777330686,
-        "narHash": "sha256-x8iSpI4a2w63Fp9wEVZ4N08gO4mPmhoAW2RL7xb3n5s=",
+        "lastModified": 1777422552,
+        "narHash": "sha256-lSHxKhJE/5v+0qNU2Np+RMF2Iv1AE/8qzAH/d3J3AFo=",
         "ref": "refs/heads/main",
-        "rev": "ae1ca5c5b21b4b4e83702dbaa74674c4c8d4235e",
+        "rev": "894aacf7597579ccb139d8999ff3f4b332b87a15",
         "revCount": 74,
         "type": "git",
         "url": "file:///home/toph/Development/ADE"
