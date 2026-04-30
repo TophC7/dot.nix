@@ -1,4 +1,7 @@
-name: Cleanup
+---
+name: cleanup
+description: Review changed files for reuse, quality, and efficiency, then fix issues found.
+---
 
 # Cleanup: Code Review and Cleanup
 

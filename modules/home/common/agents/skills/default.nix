@@ -18,7 +18,6 @@ in
     name = ".agents/skills/${name}";
     value = {
       source = ./. + "/${name}";
-      recursive = true;
     };
   }) skillDirs;
 }

@@ -1,6 +1,16 @@
 ---
 name: work-spec
-description: Execute a spec authored under `.sworm/spec/<name>/` — drive it from the first unchecked task to the last without re-litigating decisions. Use when the user says "work the spec", "start the spec", "execute this spec", "implement phase N", "/work-spec", or names a `.sworm/spec/<name>/` directory and asks you to make it real. Also trigger when the user references a spec by phase or ticket and wants implementation rather than discussion. The skill makes the agent a conscientious executor: read the whole spec, plan once, work continuously, parallelize independent work via specialized subagents, reuse the existing codebase, refuse over-engineering, and only halt on a true blocker.
+description: >-
+  Execute a spec authored under `.sworm/spec/<name>/` by driving it from the
+  first unchecked task to the last without re-litigating decisions. Use when
+  the user says "work the spec", "start the spec", "execute this spec",
+  "implement phase N", "/work-spec", or names a `.sworm/spec/<name>/` directory
+  and asks you to make it real. Also trigger when the user references a spec by
+  phase or ticket and wants implementation rather than discussion. The skill
+  makes the agent a conscientious executor: read the whole spec, plan once,
+  work continuously, parallelize independent work via specialized subagents,
+  reuse the existing codebase, refuse over-engineering, and only halt on a true
+  blocker.
 ---
 
 # work-spec
