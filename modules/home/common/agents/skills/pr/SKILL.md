@@ -51,13 +51,13 @@ If the current branch does not match `dev/*`, use the current branch as the PR b
 
 If the PR branch has no upstream, push it:
 
-```bash
+```fish
 git push -u origin <pr-branch-name>
 ```
 
 If the PR branch already exists remotely, push it with:
 
-```bash
+```fish
 git push -u origin <pr-branch-name>
 ```
 
@@ -89,15 +89,16 @@ Rules:
 
 ### 5. Create the PR once
 
-Use a non-interactive command with an explicit heredoc body:
+Use a non-interactive command with an explicit body:
 
-```bash
-gh pr create --head "<pr-branch-name>" --title "the title" --body "$(cat <<'EOF'
-## Summary
-- bullet 1
-- bullet 2
-EOF
-)"
+```fish
+set pr_body (string join \n -- \
+    "## Summary" \
+    "- bullet 1" \
+    "- bullet 2" \
+    | string collect)
+
+gh pr create --head "<pr-branch-name>" --title "the title" --body "$pr_body"
 ```
 
 If the PR branch is the currently checked out branch, still pass `--head` explicitly.

@@ -159,7 +159,7 @@ Topics commonly covered: validation, IDs/branded types, query keys, store conven
 
 <Concrete steps. Where useful, include:>
 
-```bash
+```fish
 # verification commands
 grep -rn "<pattern>" src/ | wc -l
 ```

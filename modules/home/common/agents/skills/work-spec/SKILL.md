@@ -94,8 +94,8 @@ For each phase / ticket / task:
 
 1. Re-read the relevant file (phase / ticket file, or the §T row in `SPEC.md`) to refresh detail in working memory.
 2. Identify which sub-tasks are independent and can be done in parallel vs. sequenced. ("create file X" followed by "import X in Y" is sequential; two unrelated file creations are parallel.)
-3. Make the edits using `Edit` / `Write` directly. Use `Bash` for codemods (`sed`, `grep -l ... | xargs ...`) when the change is mechanical and applies to many files.
-4. After the unit's code lands, run its acceptance checks — every bullet in its `Acceptance` section. Most are one-shot bash (`./gradlew compileJava`, a `grep` that should return zero hits, a type-check). Run them. If a check fails, switch to backprop (step 8); don't move on with a failing acceptance.
+3. Make the edits using `Edit` / `Write` directly. Use terminal commands for codemods (`sed`, `grep -l ... | xargs ...`) when the change is mechanical and applies to many files.
+4. After the unit's code lands, run its acceptance checks — every bullet in its `Acceptance` section. Most are one-shot Fish-compatible commands (`./gradlew compileJava`, a `grep` that should return zero hits, a type-check). Run them. If a check fails, switch to backprop (step 8); don't move on with a failing acceptance.
 5. Update the unit's status: phase checkbox `[ ]` → `[x]` in `todo.md`; ticket §T status `open` → `closed` in `todo.md`; light-shape §T status `open` → `closed` in `SPEC.md`. If beads is the source of truth, also `bd close <id> -r "<one-line summary>" --suggest-next`.
 6. Mark the TaskCreate item completed and the next one in_progress.
 

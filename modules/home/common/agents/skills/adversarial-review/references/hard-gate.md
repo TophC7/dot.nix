@@ -97,7 +97,7 @@ Detect the stack from extensions present in the diff. Read everything in the mat
 `.sh`, `.bash`, `.fish`, `.zsh`
 
 - `.shellcheckrc` if present.
-- The shebang line (`#!/usr/bin/env bash` vs hardcoded).
+- The shebang line (`#!/usr/bin/env fish` vs hardcoded).
 - For fish: any `config.fish` or function-search path conventions.
 
 ### SQL / migrations

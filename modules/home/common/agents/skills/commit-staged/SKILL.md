@@ -33,16 +33,17 @@ Build a conventional commit message from the staged diff:
 
 ### 3. Create the commit once
 
-Use a heredoc so the message is explicit and non-interactive:
+Build the message explicitly, then commit non-interactively:
 
-```bash
-git commit -m "$(cat <<'EOF'
-type(scope): summary line
+```fish
+set commit_message (string join \n -- \
+    "type(scope): summary line" \
+    "" \
+    "- important detail 1" \
+    "- important detail 2" \
+    | string collect)
 
-- important detail 1
-- important detail 2
-EOF
-)"
+git commit -m "$commit_message"
 ```
 
 ### 4. Stop immediately on failure

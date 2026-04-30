@@ -487,7 +487,7 @@ When helping with Fish configuration:
     - `Read` to check existing configs
     - `Edit` to modify existing files
     - `Write` to create new function files
-    - `Bash(fish:*)` to test Fish commands
+    - Terminal tool with `fish -lc '<command>'` to test Fish commands
 
 3. **Follow project conventions:**
     - Check `CLAUDE.md` for project-specific requirements
