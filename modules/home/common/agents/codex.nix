@@ -5,14 +5,8 @@
 #
 {
   pkgs,
-  config,
-  lib,
   ...
 }:
-let
-  homeDir = config.home.homeDirectory;
-  skillDirs = lib.filterAttrs (_: type: type == "directory") (builtins.readDir ./skills);
-in
 {
   home.file = {
     ".codex/AGENTS.md" = {
@@ -87,11 +81,5 @@ in
         "$coreutils/chmod" 600 "$config"
       '';
     };
-  }
-  // lib.mapAttrs' (name: _: {
-    name = ".codex/skills/${name}";
-    value = {
-      source = config.lib.file.mkOutOfStoreSymlink "${homeDir}/.agents/skills/${name}";
-    };
-  }) skillDirs;
+  };
 }
