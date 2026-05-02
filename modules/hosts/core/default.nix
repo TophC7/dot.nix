@@ -130,6 +130,7 @@ in
       # nimbus IS the cache server - exclude it from its own substituters to prevent circular fetches
       substituters = [
         "https://cache.nixos.org"
+        "https://cache.garnix.io"
       ]
       ++ lib.optionals (host.hostName != "nimbus") [
         "https://cache.ryot.foo?priority=1"
@@ -137,6 +138,7 @@ in
 
       trusted-public-keys = [
         "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
+        "cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g="
         secrets.service.cache.pub
       ]
       ++ lib.optional (secrets ? service && secrets.service ? cache) secrets.service.cache.pub;

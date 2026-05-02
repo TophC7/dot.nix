@@ -14,7 +14,8 @@
     ## Additional Imports ##
     (map (lib.fs.relativeTo flakeRoot) [
       # "modules/home/common/chromium.nix"
-      "modules/home/common/claude"
+      "modules/home/common/agents"
+      "modules/home/common/affinity.nix"
       "modules/home/common/gaming"
       "modules/home/common/vscode.nix"
       "modules/home/common/xdg.nix"
