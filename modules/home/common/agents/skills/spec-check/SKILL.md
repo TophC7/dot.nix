@@ -71,7 +71,7 @@ If the spec's `todo.md` lists CLAUDE.md edits, check whether they actually lande
 
 ## Output format
 
-A single markdown report, structured by section:
+A single drift report printed to the terminal. Use the project-wide CLI line and card formats from `AGENTS.md` — never markdown tables (some agent CLIs do not render them). Status glyphs: `✓` pass, `✗` fail, `⊘` not run / manual.
 
 ```markdown
 # spec-check: <spec-name>
@@ -86,19 +86,15 @@ A single markdown report, structured by section:
 
 ## Acceptance
 
-| Source | Check | Status | Notes |
-|--------|-------|--------|-------|
-| Phase 1 | `tsc --noEmit` | ✓ | clean |
-| Phase 2 | `grep -rn 'as Patient\|as Encounter' src/` | ✗ | 3 hits in `src/legacy/*.ts` |
-| Spec-wide | `pnpm check:fix` | ✓ | clean |
-| Phase 3 | manual smoke: <description> | ⊘ | not automated, verify yourself |
+- ✓ Phase 1 · `tsc --noEmit` · clean
+- ✗ Phase 2 · `grep -rn 'as Patient\|as Encounter' src/` · 3 hits in `src/legacy/*.ts`
+- ✓ Spec-wide · `pnpm check:fix` · clean
+- ⊘ Phase 3 · manual smoke: <description> · not automated, verify yourself
 
 ## Invariants (§V)
 
-| Source | Rule | Status | Notes |
-|--------|------|--------|-------|
-| §V.1 | All API boundaries use valibot | ✓ | 14/14 handlers have schemas |
-| §V.2 | No `as <Type>` casts of unknown values | ✗ | 3 hits introduced since last check; see below |
+- ✓ §V.1 · All API boundaries use valibot · 14/14 handlers have schemas
+- ✗ §V.2 · No `as <Type>` casts of unknown values · 3 hits introduced since last check; see below
 
 ### §V.2 violations
 - `src/legacy/handlers/payment.ts:42` — `as PaymentMethod` on unparsed JSON
@@ -107,26 +103,23 @@ A single markdown report, structured by section:
 
 ## §T status drift
 
-<Only listed if spec ↔ code or spec ↔ beads disagree.>
+<Only listed if spec ↔ code or spec ↔ beads disagree. One card per drifted task.>
 
-| Task | Spec status | Code reality | Beads status |
-|------|-------------|--------------|--------------|
-| Phase 2 / T.3 | closed | acceptance fails (see above) | open (`bd-c1d4`) |
+── Phase 2 / T.3 ─────────────────
+Spec status:  closed
+Code reality: acceptance fails (see above)
+Beads status: open (`bd-c1d4`)
 
 ## Open §B bugs
 
 <Unresolved bugs from the spec's §B tables.>
 
-| id | severity | discovery | fix-target |
-|----|----------|-----------|------------|
-| bd-a3f8 | required | Phase 2 acceptance grep | Phase 3 |
+- `bd-a3f8` · required · discovered: Phase 2 acceptance grep · fix-target: Phase 3
 
 ## CLAUDE.md edits expected
 
-| Edit | Status |
-|------|--------|
-| Drop "<old rule>" (per Phase 1) | ✓ landed |
-| Add "<new rule>" (per Phase 0) | ✗ not in CLAUDE.md |
+- ✓ landed · Drop "<old rule>" (per Phase 1)
+- ✗ not in CLAUDE.md · Add "<new rule>" (per Phase 0)
 
 ## Verdict
 
@@ -157,7 +150,7 @@ Default mode is full check (everything in `## What to check`). Two reduced modes
 1. **Locate the spec.** User names it; or scan `.sworm/spec/` if exactly one spec exists; or ask.
 2. **Read every file in the spec directory.** Don't skim. The §V invariants and acceptance bullets are spread across phase files in phased shape.
 3. **Run checks in order.** Acceptance first, then §V, then §T, then §B, then CLAUDE.md. Parallelize the runs where the commands are independent.
-4. **Compose the report.** Fill the table cells with concrete file paths, line numbers, hit counts. "drift detected" without specifics is not useful.
+4. **Compose the report.** Fill the records with concrete file paths, line numbers, hit counts. "drift detected" without specifics is not useful.
 5. **Surface the verdict + recommended next action.** The report ends with one sentence the user can act on.
 6. **Never write back to the spec or codebase.** If the user says "fix it", switch to `work-spec`; if they say "update the spec", switch to `spec`.
 

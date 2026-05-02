@@ -7,6 +7,40 @@
   pkgs,
   ...
 }:
+let
+  codexFishGate = pkgs.writeTextFile {
+    name = "codex-require-fish-wrapper";
+    executable = true;
+    text = ''
+      #!${pkgs.fish}/bin/fish
+
+      set -l cat ${pkgs.coreutils}/bin/cat
+      set -l jq ${pkgs.jq}/bin/jq
+      set -l payload ($cat | string collect)
+      set -l tool_name (printf '%s' "$payload" | $jq -r '.tool_name // ""' | string collect)
+
+      if test "$tool_name" != Bash
+          exit 0
+      end
+
+      set -l command (printf '%s' "$payload" | $jq -r '.tool_input.command // ""' | string collect)
+      set -l trimmed (string trim -- "$command")
+
+      if string match -rq -- '^(command[[:space:]]+)?([^[:space:]]*/)?fish[[:space:]]+(-lc|-l[[:space:]]+-c|--login[[:space:]]+-c|--login[[:space:]]+--command)[[:space:]]+' "$trimmed"
+          exit 0
+      end
+
+      set -l reason "Codex shell commands must run through Fish. Use: fish -lc '<command>'. Do not pass Fish syntax directly to the shell tool."
+      $jq -cn --arg reason "$reason" '{
+        hookSpecificOutput: {
+          hookEventName: "PreToolUse",
+          permissionDecision: "deny",
+          permissionDecisionReason: $reason
+        }
+      }'
+    '';
+  };
+in
 {
   home.file = {
     ".codex/AGENTS.md" = {
@@ -26,6 +60,18 @@
 
         # Beads workflow context
         hooks.SessionStart = [{ hooks = [{ type = "command", command = "bd prime" }] }]
+
+        # Codex hook guardrails
+        features.codex_hooks = true
+
+        [[hooks.PreToolUse]]
+        matcher = "^Bash$"
+
+        [[hooks.PreToolUse.hooks]]
+        type = "command"
+        command = "${codexFishGate}"
+        timeout = 5
+        statusMessage = "Requiring Fish shell wrapper"
       '';
 
       onChange = ''

@@ -46,7 +46,11 @@ in
           model = "opus";
           alwaysThinkingEnabled = true;
           effortLevel = "high";
-          outputStyle = "wenyan-full";
+          outputStyle = "ultra";
+
+          env = {
+            CLAUDE_CODE_SHELL = lib.getExe pkgs.fish;
+          };
 
           # Beads (`bd`) auto-injects workflow context into Claude's session.
           # Declared here so it survives home-manager rebuilds.

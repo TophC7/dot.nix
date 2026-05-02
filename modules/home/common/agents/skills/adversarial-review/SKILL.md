@@ -5,7 +5,7 @@ description: >
     (CLAUDE.md, AGENTS.md, comment-style, manifest), then dispatches a six-scope
     swarm of agents in parallel — Architecture Fit, Reuse, Idiom Compliance, Quality,
     Efficiency, Comment Style — and collapses all findings into a single severity-
-    sorted markdown table. Use when users ask to "critically review", "critique",
+    sorted card list. Use when users ask to "critically review", "critique",
     "find issues in", "what's wrong with", or "review this PR / diff / code".
     Severity tiers: Blocking, Required, Suggestion. Optionally emits Blocking and
     Required findings as beads bugs (P0 / P1) so they survive the conversation.
@@ -67,12 +67,12 @@ Write a 2–3 sentence summary of what the change *does* before composing findin
 
 ## Six-scope swarm
 
-For non-trivial changes, dispatch six agents in **a single tool-call message** so they run in parallel. For a single-file or genuinely trivial change, you may run all six scopes inline in one pass — but still produce the same findings table.
+For non-trivial changes, dispatch six agents in **a single tool-call message** so they run in parallel. For a single-file or genuinely trivial change, you may run all six scopes inline in one pass — but still produce the same findings card list.
 
 Each agent:
 - Inherits the Hard Gate's reads.
-- Inherits the findings-table contract (below).
-- Caps at 5 rows by default; goes higher only when the scope genuinely has more independent issues, never to pad. A narrow scope with few hits is healthy.
+- Inherits the findings card-list contract (below).
+- Caps at 5 cards by default; goes higher only when the scope genuinely has more independent issues, never to pad. A narrow scope with few hits is healthy.
 - Receives the diff plus its scope-specific must-read list.
 
 Full per-scope prompt templates in `references/scopes.md`. Summary here:
@@ -161,33 +161,39 @@ Don't downgrade a real issue just because it is small. If it plausibly causes fu
 
 ## Output contract — non-negotiable
 
-Findings are delivered as a **single markdown table**. Prose findings, bulleted findings, and per-file sub-headings are disallowed. If a finding will not fit the schema below, the finding is not ready — keep investigating until it does.
+Findings are delivered as a **card list** (one record per finding) using the project-wide CLI card format from `AGENTS.md`. Prose findings, free-floating bullet lists, and per-file sub-headings are disallowed. Markdown pipe tables are explicitly disallowed because some agent CLIs (notably Codex) do not render them. If a finding will not fit the schema below, the finding is not ready — keep investigating until it does.
 
 ### Required schema
 
-| # | Severity | Location | Issue | Fix |
-|---|----------|----------|-------|-----|
-| 1 | Blocking | `src/lib/auth.ts:42` | Token expiry uses `<` not `<=`; tokens at exact expiry second are accepted, off-by-one window. | Replace `<` with `<=` on line 42; add a regression test in `auth.test.ts`. |
-| 2 | Required | `src-tauri/src/commands/session.rs:88-96` | `invoke` discards `Result::Err`, silently swallowing backend failures. | Return `Result<SessionId, String>`; propagate through the typed wrapper in `src/lib/api/backend.ts`. |
+```
+── #1 · Blocking · `src/lib/auth.ts:42` ─────────────────
+Issue: Token expiry uses `<` not `<=`; tokens at exact expiry second are accepted, off-by-one window.
+Fix:   Replace `<` with `<=` on line 42; add a regression test in `auth.test.ts`.
 
-- One row per finding. Never split a finding across rows.
-- `Severity` ∈ {Blocking, Required, Suggestion}. Sort Blocking → Required → Suggestion, then by `Location`.
-- `Location` is always a code-formatted `path:line` or `path:start-end`. Multiple sites for one finding go comma-separated in one cell.
-- `Issue` is one or two sentences naming the **failure mode**, not the rule. "Violates Svelte 5 idioms" is not an issue; "`$effect` mirrors state that should be `$derived`, so re-renders lag one tick" is.
-- `Fix` is imperative and specific. "Refactor this" is not a fix. "Extract `useTrackedAsyncLoad(key, load)` and consume it from both call sites" is.
-- Zero findings → write `No findings.` in place of the table. Do not emit an empty table.
+── #2 · Required · `src-tauri/src/commands/session.rs:88-96` ─────────────────
+Issue: `invoke` discards `Result::Err`, silently swallowing backend failures.
+Fix:   Return `Result<SessionId, String>`; propagate through the typed wrapper in `src/lib/api/backend.ts`.
+```
+
+- One card per finding. Never split a finding across cards.
+- Header line is always `── #<n> · <Severity> · <location> ──`. The `#<n>` is sequential from 1 across the merged report.
+- `Severity` ∈ {Blocking, Required, Suggestion}. Sort Blocking → Required → Suggestion, then by `<location>`.
+- `<location>` is always a code-formatted `path:line` or `path:start-end`. Multiple sites for one finding go comma-separated in the header.
+- `Issue:` is one or two sentences naming the **failure mode**, not the rule. "Violates Svelte 5 idioms" is not an issue; "`$effect` mirrors state that should be `$derived`, so re-renders lag one tick" is.
+- `Fix:` is imperative and specific. "Refactor this" is not a fix. "Extract `useTrackedAsyncLoad(key, load)` and consume it from both call sites" is.
+- Zero findings → write `No findings.` in place of the card list. Do not emit an empty section.
 
 ### Long-result handling
 
-When total findings > 20, keep all Blocking and Required in the table; move Suggestions into a short bulleted appendix titled `### Suggestions`. This preserves the high-severity signal when the diff is large.
+When total findings > 20, keep all Blocking and Required as full cards; move Suggestions into a short appendix titled `### Suggestions` using the line format (`- #<n> · <location> · <one-line summary>`). This preserves the high-severity signal when the diff is large.
 
 ### Synthesis from the swarm
 
 When all six agents return:
-- Merge all rows into one table.
-- Dedupe: if two agents flagged the same `path:line`, keep the higher-severity row; append the second agent's concern to the `Issue` cell separated by `;`.
-- Renumber the `#` column from 1.
-- If every agent returns zero rows, write `No findings.` once — not six times.
+- Merge all cards into one list.
+- Dedupe: if two agents flagged the same `path:line`, keep the higher-severity card; append the second agent's concern to the `Issue:` field separated by ` ; `.
+- Renumber the `#<n>` headers from 1.
+- If every agent returns zero cards, write `No findings.` once — not six times.
 
 ## Issue emission to beads (optional)
 
@@ -234,7 +240,7 @@ If a hit, append a `bd comments add` instead of creating a duplicate.
 2-3 sentence summary of what the change does. Written before findings, per the Hard Gate.
 
 ## Findings
-<the synthesized table, or `No findings.`>
+<the synthesized card list, or `No findings.`>
 
 ### Suggestions
 <only when total findings > 20; otherwise omit>

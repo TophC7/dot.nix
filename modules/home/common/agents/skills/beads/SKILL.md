@@ -69,7 +69,7 @@ bd dep relate <a> <b>                       # bidirectional informational link
 bd close <id> -r "<reason>" [--suggest-next]
 ```
 
-Always use `--json` when you'll parse the result. Render to the user as a tight markdown table — never echo raw JSON unless asked.
+Always use `--json` when you'll parse the result. Render to the user using the CLI line or card format (see Output discipline below) — never echo raw JSON unless asked, and never a markdown table.
 
 ## Doing it right
 
@@ -92,14 +92,16 @@ Always use `--json` when you'll parse the result. Render to the user as a tight 
 
 ## Output discipline
 
-User-facing output for any read is a markdown table:
+User-facing output for any read is the project-wide CLI line format from `AGENTS.md` — never a markdown table (some agent CLIs do not render them):
 
-| ID | P | Type | Title | Status | Deps |
-|----|---|------|-------|--------|------|
-| `bd-a3f8` | 0 | bug | Auth middleware token expiry off-by-one | open | — |
-| `bd-b7c2` | 1 | task | Cover middleware with regression test | open | `bd-a3f8` |
+```
+- `bd-a3f8` · P0 bug  · open · Auth middleware token expiry off-by-one
+- `bd-b7c2` · P1 task · open · Cover middleware with regression test  (deps: `bd-a3f8`)
+```
 
-Sort by `(priority asc, status, id)` unless the user asks otherwise. Echo `bd-` IDs in inline code so they're greppable.
+Field order: `<id> · P<priority> <type> · <status> · <title>`, with secondary metadata (deps, labels, due dates) in a trailing `(...)`. Sort by `(priority asc, status, id)` unless the user asks otherwise. Always wrap `bd-` IDs in inline code so they're greppable.
+
+For deeper inspection (`bd show`), use the card format from `AGENTS.md`: one card per issue, `Title:` / `Status:` / `Deps:` / `Description:` fields.
 
 For writes, echo the resulting ID(s) on one line and stop:
 
