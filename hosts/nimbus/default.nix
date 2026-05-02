@@ -51,6 +51,22 @@
   ## System-wide packages ##
   programs.nix-ld.enable = true;
 
+  # Nimbus is the default remote builder for bonk. Keep Nix from starting too
+  # many memory-heavy Rust/C++ derivations at once.
+  nix.settings = {
+    max-jobs = lib.mkDefault 3;
+    cores = lib.mkDefault 4;
+  };
+
+  # Fast compressed swap absorbs compiler spikes before falling back to the
+  # larger on-disk swapfile from hardware.nix.
+  zramSwap = {
+    enable = true;
+    algorithm = "zstd";
+    memoryPercent = 25;
+    priority = 100;
+  };
+
   # https://wiki.nixos.org/wiki/FAQ/When_do_I_update_stateVersion
   system.stateVersion = "25.11";
 }

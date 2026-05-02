@@ -204,6 +204,7 @@
   swapDevices = [
     {
       device = "/swap/swapfile";
+      size = 32768; # 32GB swap for remote builder compiler bursts
     }
   ];
 
