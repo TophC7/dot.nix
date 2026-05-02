@@ -92,6 +92,12 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    ## Creative ##
+
+    affinity-nix = {
+      url = "github:mrshmllow/affinity-nix";
+    };
+
     ## Misc ##
 
     fresh = {
