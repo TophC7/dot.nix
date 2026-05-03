@@ -9,6 +9,10 @@ Run the spec's invariants and acceptance against the live repo. Report what's dr
 
 This skill exists because specs decay. Rules in §V get violated by tangential PRs. Acceptance commands fail because the codebase moved on. Without a drift check, the spec turns into stale aspiration. With one, you can see exactly which assumptions still hold and which need updating before more `work-spec` runs land on a wrong foundation.
 
+`spec-check` answers: **does the spec still match the repo?**
+
+It does not answer: **what is the current local task queue?** That is `spec-sync`.
+
 ## When to trigger
 
 - "check the spec" / "is the spec still accurate"
@@ -16,7 +20,7 @@ This skill exists because specs decay. Rules in §V get violated by tangential P
 - `/spec-check` invocation
 - After a long pause in spec work (a week+, or after a major external refactor)
 - Before resuming `work-spec` on a partially-done spec
-- As a CI step (the user adds `spec-check` to a workflow)
+- Before declaring a long spec complete
 
 ## Hard rule: read-only
 
@@ -51,15 +55,23 @@ For each invariant:
 ### 3. §T task status
 
 For phased / ticketed / light: walk every §T table.
-- Tasks marked `closed` should have their acceptance still passing. If a closed task's acceptance now fails, that's drift — flag it.
-- Tasks marked `open` are skipped — they're not done yet, so failing isn't drift.
-- Tasks marked `in_progress` are listed as "still in progress" without judgment.
 
-If the spec has been exported to beads, cross-reference:
+For beads-backed specs:
+- Resolve every `bd-id` through beads.
+- Closed beads should have their acceptance still passing. If acceptance fails, that's drift.
+- Open / in-progress beads are listed as not yet complete, without judgment.
+- Missing local beads issues are local-state drift: the spec links an ID this machine cannot resolve.
+
+For Markdown-only light specs:
+- Tasks marked `closed` should have their acceptance still passing. If a closed task's acceptance now fails, that's drift.
+- Tasks marked `open` are skipped — they're not done yet, so failing isn't drift.
+- Tasks marked `in_progress` are listed as still in progress without judgment.
+
+If the spec is beads-backed, cross-reference:
 ```fish
-bd list --label spec:<spec-name> --json
+bd list --all --label spec:<spec-name> --json
 ```
-Compare the spec's §T statuses with beads' statuses. Drift here means someone closed an issue without updating the spec (or vice versa).
+Compare the spec's `bd-id` links with beads' statuses. Drift here means the spec points at missing local state, or a closed bead no longer satisfies acceptance.
 
 ### 4. §B bugs (if any unresolved)
 
@@ -106,9 +118,9 @@ A single drift report printed to the terminal. Use the project-wide CLI line and
 <Only listed if spec ↔ code or spec ↔ beads disagree. One card per drifted task.>
 
 ── Phase 2 / T.3 ─────────────────
-Spec status:  closed
+Spec link:    `bd-c1d4`
 Code reality: acceptance fails (see above)
-Beads status: open (`bd-c1d4`)
+Beads status: closed
 
 ## Open §B bugs
 
@@ -144,6 +156,13 @@ Default mode is full check (everything in `## What to check`). Two reduced modes
 
 - **`/spec-check fast`** — only acceptance, skip §V deep checks. For quick pre-PR reality check.
 - **`/spec-check invariants`** — only §V, skip acceptance. For "did anything I just merge break a cross-cutting rule".
+
+## `spec-check` vs `spec-sync`
+
+- Use `spec-sync` when you want the spec's `Current State` block updated from local beads.
+- Use `spec-check` when you want proof that closed work and spec invariants still match the code.
+- `spec-sync` is cheap and does not read code.
+- `spec-check` is heavier and read-only; it runs verification.
 
 ## Workflow
 

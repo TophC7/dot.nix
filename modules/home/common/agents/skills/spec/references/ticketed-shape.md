@@ -26,6 +26,12 @@ Naming rules:
 **Predecessor**: `<spec-name>` (if applicable, e.g. "follows the lib-refactor spec; cleanup work that didn't fit there")
 **Shape**: ticketed
 
+## Current State
+
+<!-- spec-sync:start -->
+Not synced yet.
+<!-- spec-sync:end -->
+
 ## §G — Goal
 
 <One paragraph: what bucket of work this is, why it exists, what's true after every ticket closes.>
@@ -59,13 +65,13 @@ Naming rules:
 
 ## §T — Tickets
 
-| id | status | priority | summary | file |
-|----|--------|----------|---------|------|
-| T1 | open | P1 | <one-line summary> | [ticket-1-<slug>.md](ticket-1-<slug>.md) |
-| T2 | open | P2 | <summary> | [ticket-2-<slug>.md](ticket-2-<slug>.md) |
-| T3 | open | P0 | <summary> | [ticket-3-<slug>.md](ticket-3-<slug>.md) |
+| bd-id | spec-ticket | priority | summary | file |
+|-------|-------------|----------|---------|------|
+| `bd-a3f8` | T1 | P1 | <one-line summary> | [ticket-1-<slug>.md](ticket-1-<slug>.md) |
+| `bd-b7c2` | T2 | P2 | <summary> | [ticket-2-<slug>.md](ticket-2-<slug>.md) |
+| `bd-c1d4` | T3 | P0 | <summary> | [ticket-3-<slug>.md](ticket-3-<slug>.md) |
 
-<Sort visually by priority, but the `id` is stable. work-spec / beads consume this table for the ready queue.>
+<Sort visually by priority, but the `spec-ticket` is stable. Local beads owns status, claims, blockers, follow-ups, and the ready queue.>
 
 ## Final state
 
@@ -77,7 +83,7 @@ Naming rules:
 
 ## Acceptance (overall)
 
-- [ ] Every §T row has `status: closed`.
+- [ ] Every §T row's `bd-id` issue is closed.
 - [ ] `<spec-wide verification command>` succeeds.
 - [ ] CLAUDE.md updated per the list above.
 ```
@@ -95,10 +101,10 @@ Naming rules:
 
 ## §T — Tasks
 
-| id | status | deps | summary | acceptance |
-|----|--------|------|---------|------------|
-| TN.1 | open | — | <subtask> | <verification> |
-| TN.2 | open | TN.1 | <subtask> | <verification> |
+| bd-id | spec-task | deps | summary | acceptance |
+|-------|-----------|------|---------|------------|
+| `bd-d2e5` | TN.1 | — | <subtask> | <verification> |
+| `bd-e3f6` | TN.2 | TN.1 | <subtask> | <verification> |
 
 <For tickets that decompose into sub-tasks. For atomic tickets, this section can be one row.>
 

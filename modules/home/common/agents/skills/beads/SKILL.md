@@ -30,21 +30,23 @@ Trigger whenever the user:
 Also trigger proactively from sibling skills:
 - `work-spec` hits a true blocker → create a P0 issue so the blocker survives the conversation.
 - `adversarial-review` produces Blocking / Required findings → offer to emit them as P0 / P1 bugs.
-- `spec` finishes authoring a `§T` task table → offer to export rows as beads issues with their `deps` mirrored.
+- `spec` authors a phased / ticketed `§T` task table → create local beads issues with their `deps` mirrored.
 
 ## First-run setup (per repo)
 
 Detect `.beads/` at repo root before any operation. If missing:
 
-1. **Ask the user about visibility** before initializing. The choice is one-time per repo:
-   - **Shared (default for repos the user owns):** `bd init` — issues commit to git and sync across machines/team.
-   - **Stealth (default for repos the user doesn't own / contributes to):** `bd init --stealth` — beads files stay out of git via per-repo `.git/info/exclude` and Claude Code settings; useful when you can't push `.beads/`.
-2. The **global** `bd prime` hooks (SessionStart / PreCompact) are already wired declaratively in `modules/home/common/agents/claude/default.nix` — **never run `bd setup claude` (no flag)**, it edits `~/.claude/settings.json` directly and gets clobbered on the next `home-manager switch`. For **per-project** hooks, `bd setup claude --project` is fine (it writes `.claude/settings.local.json`, which is local to the repo and not Nix-managed).
-3. If the project doesn't yet have an `AGENTS.md` snippet, suggest running `bd onboard` so the project advertises its bd usage to other agents.
+1. Initialize local-only state without asking:
+   ```fish
+   bd init --stealth
+   ```
+2. Treat `.beads/` as private machine state. Do not ask whether to commit it, do not run git sync flows, and do not add repo-tracked `.beads/` files.
+3. The **global** `bd prime` hooks (SessionStart / PreCompact) are already wired declaratively in `modules/home/common/agents/claude/default.nix` — **never run `bd setup claude` (no flag)**, it edits `~/.claude/settings.json` directly and gets clobbered on the next `home-manager switch`. For **per-project** hooks, `bd setup claude --project` is fine (it writes `.claude/settings.local.json`, which is local to the repo and not Nix-managed).
+4. If the project doesn't yet have an `AGENTS.md` snippet, suggest running `bd onboard` so the project advertises its bd usage to other agents.
 
 If `.beads/` exists, just use it. Don't re-init.
 
-See `references/stealth-vs-shared.md` for the trade-off.
+See `references/local-only.md` for the local-state policy.
 
 ## The core surface
 
@@ -82,7 +84,7 @@ Always use `--json` when you'll parse the result. Render to the user using the C
 
 ## Integration with sibling skills
 
-`spec`, `work-spec`, `adversarial-review`, and the in-repo `.sworm/spec/` system have explicit hooks into this skill. The contract is one-way (those skills call into beads), and the seams are documented in `references/integration.md`. Don't extend other skills to write JSONL or shell out independently — go through `bd`.
+`spec`, `work-spec`, `spec-sync`, `spec-check`, `adversarial-review`, and the in-repo `.sworm/spec/` system have explicit hooks into this skill. The contract is one-way (those skills call into beads), and the seams are documented in `references/integration.md`. Don't extend other skills to write JSONL or shell out independently — go through `bd`.
 
 ## When NOT to use
 
@@ -113,4 +115,4 @@ Created bd-a3f8 (P0 bug). Run `bd show bd-a3f8` for details.
 
 - `references/cli-cheatsheet.md` — the full command surface with annotated examples.
 - `references/integration.md` — how `spec`, `work-spec`, `adversarial-review` call into beads.
-- `references/stealth-vs-shared.md` — when to commit `.beads/`, when to gitignore it.
+- `references/local-only.md` — repo policy for private local beads state.

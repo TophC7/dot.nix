@@ -1,10 +1,16 @@
 # Integration with sibling skills
 
-How `spec`, `work-spec`, `adversarial-review`, and the `.sworm/spec/` system call into beads. The contract is one-way: those skills shell out via `bd`; this skill never reaches back.
+How `spec`, `work-spec`, `spec-sync`, `spec-check`, `adversarial-review`, and the `.sworm/spec/` system call into beads. The contract is one-way: those skills shell out via `bd`; this skill never reaches back.
 
-## `spec` — exporting §T tasks
+## `spec` — exporting §T tasks by default
 
-When `spec` finishes authoring a `§T — Tasks` table (any shape: phased, ticketed, or single-file), offer to export the rows as beads issues. The export is opt-in.
+When `spec` finishes authoring a phased or ticketed `§T — Tasks` table, export the rows as local beads issues by default. Light specs stay Markdown-only unless the user asks for beads tracking.
+
+If `.beads/` is missing, initialize local-only state without asking:
+
+```fish
+bd init --stealth
+```
 
 For each row:
 
@@ -23,17 +29,17 @@ Mirror dependencies row-by-row after creation:
 bd dep add <child-id> <parent-id>
 ```
 
-Echo the new IDs back into the spec's `§T` table in an `id` column so the spec and the graph stay linked. Example resulting row:
+Echo the new IDs back into the spec's `§T` table in a `bd-id` column so the spec and the graph stay linked. Do not keep Markdown task status as the source of truth for beads-backed specs. Example resulting row:
 
-| id | spec-task | deps | summary | acceptance |
-|----|-----------|------|---------|------------|
+| bd-id | spec-task | deps | summary | acceptance |
+|-------|-----------|------|---------|------------|
 | `bd-a3f8` | T.1 | — | Rename `legacy` → `dev` in tokenManager | `grep` returns 0 hits |
 
-Don't auto-export if `.beads/` doesn't exist yet — ask the user about init first (see `stealth-vs-shared.md`).
+After export, run `spec-sync` so the spec has a compact `Current State` block.
 
 ## `work-spec` — consuming the ready queue
 
-When `work-spec` runs against a spec whose `§T` was exported to beads:
+When `work-spec` runs against a phased or ticketed spec, local beads is the task source of truth:
 
 ```fish
 bd ready --json --label spec:<spec-name>
@@ -49,7 +55,30 @@ bd close <id> -r "<one-line summary>" --suggest-next
 
 `--suggest-next` prints newly-unblocked work, eliminating a separate `bd ready` round-trip when running through a queue.
 
-If the spec has not been exported, fall back to the spec's own phase / file order. Don't silently create issues mid-execution; that crosses the one-way boundary.
+If a phased or ticketed spec has not been exported, or its `bd-id` rows do not resolve in local beads, export it first and rewrite the local IDs. Do not silently fall back to Markdown status for durable specs. Light specs can still use the Markdown table directly unless the user opted into beads tracking.
+
+At the end of the invocation, run `spec-sync` so the checked-in spec shows the current local queue state.
+
+## `spec-sync` — rendering current state
+
+`spec-sync` renders local beads state back into the spec's generated `Current State` block. It does not inspect code, git diffs, or verification results.
+
+Use:
+
+```fish
+bd list --all --label spec:<spec-name> --json
+bd ready --json --label spec:<spec-name> --limit 1
+```
+
+Render:
+
+- closed / in-progress / open counts
+- one ready-next issue
+- open blockers (`spec:<spec-name>,blocker`)
+- open follow-ups (`spec:<spec-name>,followup`)
+- open backprop bugs (`spec:<spec-name>,backprop`)
+
+Cap each issue list at five items. If more exist, show the hidden count and the `bd list --label spec:<spec-name>` command.
 
 ### Backprop on verification failure
 
@@ -114,13 +143,13 @@ If the search returns a hit, append a comment via `bd comments add <id> "<note>"
 Beads' `--labels spec:<spec-name>` is the seam. Any issue tagged with that label belongs to the spec; any spec can resolve its issues with:
 
 ```fish
-bd list --label spec:<spec-name> --json
+bd list --all --label spec:<spec-name> --json
 ```
 
-This lets `spec-check` (the read-only drift report) produce a unified view: spec acceptance + open issues with this spec's label.
+This lets `spec-sync` render the current local queue and lets `spec-check` produce a unified read-only view: spec acceptance + open issues with this spec's label.
 
 ## What never crosses the boundary
 
 - `spec`, `work-spec`, `adversarial-review` never read `.beads/*.db` directly. They go through `bd`.
-- This skill never edits a spec file, never updates `todo.md` checkboxes, never appends `§B` rows. It produces issues; the calling skill writes back to the spec.
+- This skill never edits a spec file, never updates Markdown task status, never appends `§B` rows. It produces issues; the calling skill writes back to the spec.
 - Hooks (`bd hooks install`, `bd setup claude`) are user-installed, not skill-installed. The skill *recommends* them; the user enables them.

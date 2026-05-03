@@ -27,6 +27,8 @@ That's it. No `todo.md`, no per-phase files. The whole spec lives in `SPEC.md`.
 **Predecessor**: `<spec-name>` (if applicable)
 **Shape**: light
 
+<Light specs are Markdown-only by default. If the user opts into beads tracking, add a `Current State` block here and replace `status` with `bd-id` in §T.>
+
 ## §G — Goal
 
 <One paragraph: what this work is, why it exists, what's true after it ships. A reader with no context should leave knowing the goal.>
@@ -54,7 +56,7 @@ That's it. No `todo.md`, no per-phase files. The whole spec lives in `SPEC.md`.
 | T.2 | open | T.1 | <task summary> | <verification> |
 | T.3 | open | — | <task summary> | <verification> |
 
-<Tasks are the unit of work. work-spec consumes this table directly when no beads export exists, or `bd ready` when an export does. Each task should be small enough to land in one PR (or one focused commit if the whole spec is one PR).>
+<Tasks are the unit of work. work-spec consumes this table directly for Markdown-only light specs. If the user opts into beads tracking, local beads owns status and this table stores `bd-id` links instead. Each task should be small enough to land in one PR (or one focused commit if the whole spec is one PR).>
 
 ## §B — Bugs (discovered during execution)
 

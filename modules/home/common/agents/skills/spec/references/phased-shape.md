@@ -27,6 +27,12 @@ Naming rules:
 **Predecessor**: `<spec-name>` (link if applicable, brief note on what it produced)
 **Guiding principle**: <one sentence — e.g., "behavior-preserving where possible, intentional behavior changes flagged per phase">
 
+## Current State
+
+<!-- spec-sync:start -->
+Not synced yet.
+<!-- spec-sync:end -->
+
 ## §G — Goal
 
 <One paragraph that answers: what is this work, why does it exist, what will be true after it ships. A reader who finds this file with no other context should leave knowing the goal.>
@@ -69,14 +75,14 @@ Naming rules:
 
 ## Phases
 
-- [ ] **Phase 0** — <name> → [phase-0-<slug>.md](phase-0-<slug>.md)
+- **Phase 0** — <name> → [phase-0-<slug>.md](phase-0-<slug>.md)
   *<one-line summary, italicized>*
-- [ ] **Phase 1** — <name> → [phase-1-<slug>.md](phase-1-<slug>.md)
+- **Phase 1** — <name> → [phase-1-<slug>.md](phase-1-<slug>.md)
   *<one-line summary>*
-- [ ] **Phase N** — Polish → [phase-N-polish.md](phase-N-polish.md)
+- **Phase N** — Polish → [phase-N-polish.md](phase-N-polish.md)
   *Remaining cleanup that didn't fit anywhere else.*
 
-<Tick the checkboxes as phases land. The list is the canonical progress tracker.>
+<This list is stable onboarding context. Live progress lives in local beads and the generated Current State block.>
 
 ## Final state
 
@@ -143,13 +149,13 @@ Topics commonly covered: validation, IDs/branded types, query keys, store conven
 
 ## §T — Tasks
 
-| id | status | deps | summary | acceptance |
-|----|--------|------|---------|------------|
-| N.1 | open | — | Rename `legacy` → `dev` in `tokenManager.ts` | `grep -rn 'legacy' src/ | wc -l` returns 0 |
-| N.2 | open | N.1 | Update call sites | `tsc --noEmit` clean |
-| N.3 | open | N.2 | Add migration note to CLAUDE.md | manual review |
+| bd-id | spec-task | deps | summary | acceptance |
+|-------|-----------|------|---------|------------|
+| `bd-a3f8` | N.1 | — | Rename `legacy` → `dev` in `tokenManager.ts` | `grep -rn 'legacy' src/ | wc -l` returns 0 |
+| `bd-b7c2` | N.2 | N.1 | Update call sites | `tsc --noEmit` clean |
+| `bd-c1d4` | N.3 | N.2 | Add migration note to CLAUDE.md | manual review |
 
-<Each row is a task that can be claimed and worked. work-spec consumes this table (or its beads export, whichever is the source of truth in this repo).>
+<Each row is a task that can be claimed and worked. For phased specs, local beads is the source of truth for status, deps, claims, and blockers.>
 
 ### N.1 <Task title>
 

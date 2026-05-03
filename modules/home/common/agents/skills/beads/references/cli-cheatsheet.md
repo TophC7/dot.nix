@@ -5,8 +5,7 @@ Captured from `bd --help` on the installed binary. If the upstream surface drift
 ## Init / setup
 
 ```fish
-bd init                                  # default: shared, .beads/ committed to git
-bd init --stealth                        # local-only via .git/info/exclude + Claude settings
+bd init --stealth                        # repo policy: local-only .beads/ state
 bd init --prefix <p>                     # custom ID prefix instead of dir name
 bd setup claude --project                # PER-PROJECT hooks → .claude/settings.local.json (safe)
 bd setup claude --check                  # is integration installed?
@@ -20,6 +19,8 @@ bd doctor                                # health check; run first when somethin
 bd info                                  # daemon + database state
 bd where                                 # which .beads/ directory is active
 ```
+
+Use only local `.beads/` state for this repo. Do not suggest committing beads data.
 
 ## Create
 
@@ -79,13 +80,11 @@ bd duplicate bd-a3f8 bd-c1d4                          # mark a3f8 as duplicate o
 bd supersede bd-a3f8 bd-d2e5                          # a3f8 is replaced by d2e5
 ```
 
-## Sync (shared mode)
+## Import / export
 
 ```fish
-bd sync                                               # pull/merge/import + push, end-of-session
 bd export                                             # JSONL to stdout
 bd import < issues.jsonl
-bd merge                                              # git merge driver invocation
 ```
 
 ## Triage / review

@@ -73,7 +73,8 @@ Every spec uses these section names, regardless of shape. The shape decides whet
 - **§C — Constraints.** Locked decisions from the interview, out-of-scope items. Bullet list. Each bullet: WHAT was decided + brief WHY.
 - **§I — Interfaces.** Touched files, public surfaces, API contracts that change or get introduced. Bullet list with paths.
 - **§V — Invariants.** Cross-cutting rules every phase / ticket respects. The "what must remain true" list. Bullet list. Each invariant is testable (a grep, a type-check, a smoke step).
-- **§T — Tasks.** The work itself. Pipe table: `| id | status | deps | summary | acceptance |`. In phased shape, each phase file holds its own §T table. In ticketed shape, `todo.md` holds the master table. In light shape, `SPEC.md` has one §T.
+- **Current State.** A compact generated block maintained by `spec-sync` for beads-backed specs. It shows counts, ready-next, blockers, follow-ups, and backprop bugs. It is a snapshot, not the source of truth.
+- **§T — Tasks.** The work itself. For beads-backed specs, pipe table: `| bd-id | spec-task | deps | summary | acceptance |`; beads owns status. For Markdown-only light specs, pipe table: `| id | status | deps | summary | acceptance |`. In phased shape, each phase file holds its own §T table. In ticketed shape, `todo.md` holds the master table. In light shape, `SPEC.md` has one §T.
 - **§B — Bugs.** Failures discovered during execution that aren't part of the original plan. Pipe table: `| id | severity | discovery | fix-target |`. Backprop appends rows here automatically (see `references/backprop.md`); resolution either promotes the lesson to §V or closes silently.
 
 ## The interview — do this first, every time
@@ -121,23 +122,34 @@ These are what make a spec load-bearing rather than decorative.
 ## Comment / formatting conventions inside the spec
 
 - Markdown only. Code blocks fenced with language hints.
-- Checkboxes (`- [ ]`) for trackable items; markdown table for §T and §B.
+- Checkboxes (`- [ ]`) for acceptance and manual checklists; do not use checkboxes as canonical task status for beads-backed specs. Use markdown tables for §T and §B.
 - Don't use emoji. Don't use horizontal rules as decoration. Section dividers are H2s, named with the §-prefix (`## §G — Goal`).
 - File-path mentions use backticks (`src/lib/foo.ts:42`).
 
-## Optional: export §T to beads
+## Beads-backed execution state
 
-After writing the spec, offer to export §T tasks as beads issues so the ready queue is graph-aware. This is opt-in, not automatic. See the `beads` skill's `references/integration.md` for the export protocol (one `bd create` per row, `bd dep add` mirroring deps, IDs round-tripped back into §T).
+Phased and ticketed specs use local beads by default for live execution state. Markdown stays the onboarding document; beads owns status, deps, claims, blockers, follow-ups, and close reasons.
+
+If `.beads/` is missing, initialize local-only state without asking:
+
+```fish
+bd init --stealth
+```
+
+After writing phased or ticketed `§T` rows, create one beads issue per row, mirror deps with `bd dep add`, and round-trip IDs into the `bd-id` column. Then run `spec-sync` so `todo.md` has a compact `Current State` block.
+
+Light specs remain Markdown-only unless the user asks for beads tracking. This keeps one-shot work cheap.
 
 ## Workflow
 
 1. **Acknowledge the request and start the interview.** Don't write the spec until the user has clarified scope.
 2. **Read the project's existing specs first.** Match their naming and structure. If `.sworm/spec/` doesn't exist yet, create it.
 3. **Propose shape and name.** Tell the user: "I'll create `.sworm/spec/<kebab-case-name>/` as a [phased / ticketed / light] spec". Wait for confirmation if shape is non-obvious.
-4. **Write the index file first.** `todo.md` for phased/ticketed; `SPEC.md` for light. Get §G/§C/§V right before drafting individual phase / ticket files.
+4. **Write the index file first.** `todo.md` for phased/ticketed; `SPEC.md` for light. Get §G/§C/§V right before drafting individual phase / ticket files. For phased/ticketed specs, include a `Current State` block with `<!-- spec-sync:start -->` / `<!-- spec-sync:end -->` markers.
 5. **Write phase / ticket files** if the shape calls for them. Each one self-contained.
 6. **Cross-link.** Update the index with relative links; each file's "out of scope" should reference where the deferred work lives.
-7. **Show the user the structure** when done — list of files, one-line summary each. Offer to walk through any of them. Offer the beads export.
+7. **Export durable tasks.** For phased/ticketed specs, create local beads issues, mirror deps, write `bd-id` values into §T, and run `spec-sync`. For light specs, only export if requested.
+8. **Show the user the structure** when done — list of files, one-line summary each, plus the current ready item if beads-backed.
 
 ## What "no compromises" means
 

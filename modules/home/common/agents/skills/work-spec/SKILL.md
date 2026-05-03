@@ -53,9 +53,11 @@ Shape detection drives task selection. Don't guess; check the directory.
 Before touching code:
 
 - `git status` and `git log -5 --oneline` — know what's already in flight.
-- Cross-reference the spec's acceptance and §T statuses with the actual repo. A `closed` task in §T should already be done in code; if not, the spec is stale and you flag that to the user.
+- For beads-backed specs, cross-reference `bd-id` rows with local beads issues. Beads is the source of truth for task status; Markdown is onboarding context. If the spec links IDs that this machine cannot resolve, recreate local beads issues from the §T rows, rewrite the `bd-id` values, and run `spec-sync`.
+- For Markdown-only light specs, cross-reference the spec's acceptance and §T statuses with the actual repo. A `closed` task in §T should already be done in code; if not, the spec is stale and you flag that to the user.
 - Run `grep` on the spec's verification commands (acceptance bullets often contain literal greps) to learn what's already true.
-- If `.beads/` exists at repo root, run `bd list --label spec:<spec-name> --json` to see whether the spec has been exported. If yes, beads is the source of truth for §T status going forward.
+- If `.beads/` exists at repo root, run `bd list --all --label spec:<spec-name> --json` to see the local queue state.
+- If `.beads/` is missing and the spec is phased or ticketed, run `bd init --stealth` and export the spec's §T rows before work begins. Do not ask about visibility.
 
 This step prevents you from re-doing finished work or, worse, undoing it.
 
@@ -71,7 +73,9 @@ If a phase contains many sub-tasks (e.g. `1.1`, `1.2`, `1.3`), keep them as a si
 
 ### 5. Pick the next unit of work
 
-**If beads has the spec exported (`.beads/` exists, issues labeled `spec:<spec-name>`):**
+**If the spec is phased or ticketed:**
+
+Local beads is mandatory. If the spec has valid local `bd-id` rows, use them. If not, export §T rows to beads first, write `bd-id` values back into the spec, and run `spec-sync`.
 
 ```fish
 bd ready --json --label spec:<spec-name> --limit 1
@@ -80,11 +84,10 @@ bd update <id> --claim
 
 `bd ready` already understands priority, dependencies, and status. Use it. Don't re-derive ready logic in markdown.
 
-**If beads does not have the spec exported:**
+**If the spec is light and Markdown-only:**
 
-- Phased: next phase whose checkbox is `[ ]` and whose pre-reqs are all `[x]`.
-- Ticketed: next §T row whose `status` is `open` and whose `deps` are all `closed`.
-- Light: next §T row in the same way.
+- Pick the next §T row whose `status` is `open` and whose `deps` are all `closed`.
+- If the user opted the light spec into beads tracking, use `bd ready` instead.
 
 Either way, plan the run sequentially through the picked unit; don't pause for user check-in unless a true blocker surfaces.
 
@@ -96,7 +99,7 @@ For each phase / ticket / task:
 2. Identify which sub-tasks are independent and can be done in parallel vs. sequenced. ("create file X" followed by "import X in Y" is sequential; two unrelated file creations are parallel.)
 3. Make the edits using `Edit` / `Write` directly. Use terminal commands for codemods (`sed`, `grep -l ... | xargs ...`) when the change is mechanical and applies to many files.
 4. After the unit's code lands, run its acceptance checks — every bullet in its `Acceptance` section. Most are one-shot Fish-compatible commands (`./gradlew compileJava`, a `grep` that should return zero hits, a type-check). Run them. If a check fails, switch to backprop (step 8); don't move on with a failing acceptance.
-5. Update the unit's status: phase checkbox `[ ]` → `[x]` in `todo.md`; ticket §T status `open` → `closed` in `todo.md`; light-shape §T status `open` → `closed` in `SPEC.md`. If beads is the source of truth, also `bd close <id> -r "<one-line summary>" --suggest-next`.
+5. Update the unit's status in the correct source of truth. For beads-backed specs, `bd close <id> -r "<one-line summary>" --suggest-next`; do not tick Markdown task status. For Markdown-only light specs, update the §T row `open` → `closed` in `SPEC.md`.
 6. Mark the TaskCreate item completed and the next one in_progress.
 
 Don't pause for user check-in between units. The spec already authorized the sequence.
@@ -121,7 +124,7 @@ When an acceptance / verification command fails, follow the backprop protocol (f
    ```markdown
    | <id> | <severity> | <where it failed + failing command> | <fix-target unit> |
    ```
-2. **Create a beads bug** (if `.beads/` exists) so the failure outlives this conversation:
+2. **Create a beads bug** for beads-backed specs so the failure outlives this conversation:
    ```fish
    bd create "<one-line title>" \
      --type bug -p <0|1> \
@@ -173,7 +176,7 @@ The decision is part of the work. Note non-obvious calls in your unit summary at
 
 True blocker is defined at the top of this file. If you do hit one:
 
-1. Create a P0 beads issue (if `.beads/` exists):
+1. Create a P0 beads issue for beads-backed specs:
    ```fish
    bd create "BLOCKER: <one-line>" \
      --type bug -p 0 \
@@ -188,7 +191,8 @@ Don't halt to confirm a phase the spec already authorized.
 
 After the last unit:
 
-- Update `todo.md` / `SPEC.md`: every checkbox `[x]`, every §T row `closed`, overall acceptance section walked through.
+- For beads-backed specs, close every completed unit in beads and run `spec-sync` so `todo.md` / `SPEC.md` has a fresh Current State block.
+- For Markdown-only light specs, update `SPEC.md`: every §T row `closed`, overall acceptance section walked through.
 - Run the spec's overall acceptance commands top to bottom.
 - If the spec has a `phase-N-cleanup.md`, run its grep checks and smoke checklist.
 - Summarize to the user: which units landed, any decisions you made, any acceptance items that need a manual smoke test you couldn't run (e.g. in-game UI checks), and a one-line state-of-the-codebase note.
@@ -212,9 +216,9 @@ If a CLAUDE.md edit was assigned to a unit you completed, verify it's actually i
 You:
 1. Read `.sworm/spec/inventory-screen-replacement/todo.md` plus every phase file.
 2. Detect shape: phased.
-3. `git status`; check beads for `spec:inventory-screen-replacement` issues; confirm Phase 0 not yet done.
+3. `git status`; check beads for `spec:inventory-screen-replacement` issues; confirm the next ready issue.
 4. TaskCreate with one task per phase.
-5. Phase 0 in_progress: create the two new files, edit the screen, run `./gradlew compileJava`, run the acceptance greps. Tick `todo.md`. Close any beads issues for Phase 0 with `--suggest-next`.
+5. Phase 0 in_progress: create the two new files, edit the screen, run `./gradlew compileJava`, run the acceptance greps. Close the Phase 0 bead with `--suggest-next`, then run `spec-sync`.
 6. Phase 1 in_progress: same pattern. Continue through Phase 4.
 7. Final summary: phases landed, one judgment call you made, any in-game checks the user should run.
 
@@ -222,7 +226,7 @@ You:
 
 You:
 1. Read the spec index + phase 2 + conventions.md.
-2. Confirm Phase 0 and Phase 1 are landed (read code, not just checkboxes).
+2. Confirm Phase 0 and Phase 1 are landed (read code and beads status, not just the phase list).
 3. If they aren't, surface that to the user — don't silently regress prerequisites.
 4. Otherwise execute Phase 2 end-to-end.
 
@@ -234,12 +238,12 @@ You:
 3. Land all other phases.
 4. Summary explicitly notes the migration phase is unowned by you.
 
-**User:** "work the small-cleanup spec" (light shape, no beads export)
+**User:** "work the small-cleanup spec" (light shape, Markdown-only)
 
 You:
 1. Read `.sworm/spec/small-cleanup/SPEC.md`.
 2. Detect shape: light.
-3. Walk §T rows in dependency order; for each, claim, edit, run acceptance, mark closed.
+3. Walk §T rows in dependency order; for each, edit, run acceptance, mark closed.
 4. If any verification fails, run backprop (step 8) before moving on.
 5. Final summary plus the closed §T table.
 
@@ -249,7 +253,7 @@ You:
 - Stopping after each unit to ask "shall I continue?" — the spec already said yes.
 - Spawning a subagent per sub-task — overhead drowns the work.
 - Adding "while we're here" cleanups not in the spec — file follow-ups instead (beads issue, or §B row if the cleanup is in-scope).
-- Marking a checkbox `[x]` without running its acceptance check — the box is a claim, back it up.
+- Closing a bead or marking a Markdown-only light task without running its acceptance check — the status is a claim, back it up.
 - Treating the spec as a suggestion when the code disagrees — the spec is the authority for new work; reconcile by changing the code, not the spec. (Backprop handles the case where the *spec* learned something wrong.)
 - Asking permission to make a small naming or ordering call — make it.
 - Bypassing backprop ("the test was flaky, moving on") — if it failed, diagnose. Flake-diagnosed-as-flake gets a §B row noting the flake; flake-not-actually-a-flake gets a real fix.
