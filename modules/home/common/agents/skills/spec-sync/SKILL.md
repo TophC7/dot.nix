@@ -1,6 +1,7 @@
 ---
 name: spec-sync
-description: Render compact local beads state into a `.sworm/spec/<name>/` spec's generated Current State block. Use when the user says "sync the spec", "sync spec status", "update current state", after `work-spec` closes or creates spec-labeled issues, or before handing a beads-backed spec to another agent. This skill is intentionally lightweight: it reads beads and the spec index only; it does not inspect code, run acceptance checks, or infer progress.
+description: >-
+  Render compact local beads state into a `.sworm/spec/<name>/` spec's generated Current State block. Use when the user says "sync the spec", "sync spec status", "update current state", after `work-spec` closes or creates spec-labeled issues, or before handing a beads-backed spec to another agent. This skill is intentionally lightweight: it reads beads and the spec index only; it does not inspect code, run acceptance checks, or infer progress.
 ---
 
 # spec-sync
