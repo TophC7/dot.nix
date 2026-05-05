@@ -10,7 +10,12 @@
   ...
 }:
 {
-  imports = lib.fs.scanPaths ./.;
+  imports = (lib.fs.scanPaths ./.) ++ [
+    inputs.pi-nix.homeManagerModules.default
+  ];
+
+  # Enable the pi.nix module setup
+  programs.pi.enable = true;
 
   # Install agent tooling packages.
   home.packages =
@@ -24,7 +29,6 @@
       ];
       fromPkgs = with pkgs; [
         beads
-        crush
         t3code
         t3code-desktop
         ripgrep

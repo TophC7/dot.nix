@@ -4,10 +4,20 @@
 # Nix-managed block for shared agent behavior.
 #
 {
+  lib,
   pkgs,
   ...
 }:
 let
+  skillDirs = lib.filterAttrs (_: type: type == "directory") (builtins.readDir ./_catalog/skills);
+
+  skillLinks = lib.mapAttrs' (name: _: {
+    name = ".codex/skills/${name}";
+    value = {
+      source = ./_catalog/skills + "/${name}";
+    };
+  }) skillDirs;
+
   codexFishGate = pkgs.writeTextFile {
     name = "codex-require-fish-wrapper";
     executable = true;
@@ -53,7 +63,6 @@ in
         project_doc_fallback_filenames = [
           "CLAUDE.md",
           "GEMINI.md",
-          "CRUSH.md",
           ".github/copilot-instructions.md",
         ]
         project_doc_max_bytes = 65536
@@ -127,5 +136,5 @@ in
         "$coreutils/chmod" 600 "$config"
       '';
     };
-  };
+  } // skillLinks;
 }

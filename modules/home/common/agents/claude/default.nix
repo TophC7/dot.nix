@@ -9,23 +9,22 @@
   ...
 }:
 let
-  homeDir = config.home.homeDirectory;
-  skillDirs = lib.filterAttrs (_: type: type == "directory") (builtins.readDir ../skills);
+  skillDirs = lib.filterAttrs (_: type: type == "directory") (builtins.readDir ../_catalog/skills);
   agentFiles = lib.filterAttrs (name: type: type == "regular" && lib.hasSuffix ".md" name) (
-    builtins.readDir ../agents
+    builtins.readDir ../_catalog/agents
   );
 
   skillLinks = lib.mapAttrs' (name: _: {
     name = ".claude/skills/${name}";
     value = {
-      source = config.lib.file.mkOutOfStoreSymlink "${homeDir}/.agents/skills/${name}";
+      source = ../_catalog/skills + "/${name}";
     };
   }) skillDirs;
 
   agentLinks = lib.mapAttrs' (name: _: {
     name = ".claude/agents/${name}";
     value = {
-      source = config.lib.file.mkOutOfStoreSymlink "${homeDir}/.agents/agents/${name}";
+      source = ../_catalog/agents + "/${name}";
     };
   }) agentFiles;
 in

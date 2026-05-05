@@ -136,6 +136,13 @@
       url = "git+file:///home/toph/Development/ADE";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    pi-nix = {
+      url = "git+file:///repo/Nix/pi.nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.mix-nix.follows = "mix-nix";
+      inputs.home-manager.follows = "home-manager";
+    };
   };
 
   outputs =

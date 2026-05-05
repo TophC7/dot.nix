@@ -52,6 +52,7 @@ in
     superfile
     wget
     yazi
+    zellij
   ];
 
   # Enable print to PDF.
