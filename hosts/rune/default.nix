@@ -61,7 +61,7 @@
   };
 
   ## Environment variables for Cachix authentication ##
-  environment.sessionVariables = rec {
+  environment.sessionVariables = {
     CACHIX_AUTH_TOKEN = secrets.service.cachix.token;
   };
 

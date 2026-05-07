@@ -189,7 +189,8 @@
           user = "toph";
           ip = "10.2.2.2";
           isServer = true;
-          isMinimal = true;
+          # mix.nix skips home/hosts/<name> when isMinimal is true.
+          isMinimal = false;
           mounts.store = true;
         };
 
