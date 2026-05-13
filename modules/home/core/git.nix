@@ -28,9 +28,6 @@ in
       ".direnv"
     ];
 
-    # Anytime I use auth, I want to use my yubikey. But I don't want to always be having to touch it
-    # for things that don't need it. So I have to hardcode repos that require auth, and default to ssh for
-    # actions that require auth.
     delta = {
       enable = true;
       options = {
@@ -46,7 +43,7 @@ in
 
       core = {
         # pre-emptively ignore mac crap
-        excludeFiles = builtins.toFile "global-gitignore" ''
+        excludesFile = builtins.toFile "global-gitignore" ''
           .DS_Store
           .DS_Store?
           ._*
@@ -55,6 +52,11 @@ in
           ehthumbs.db
           Thumbs.db
           node_modules
+          # Sworm
+          .sworm/
+          !.sworm/*.json
+          # NFS
+          *.nfs*
         '';
         attributesfile = builtins.toFile "global-gitattributes" ''
           Cargo.lock -diff
