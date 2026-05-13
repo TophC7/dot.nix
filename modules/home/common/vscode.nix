@@ -12,7 +12,6 @@
       nixfmt
       nixpkgs-review
       prettier
-      antigravity-fhs
       ;
   };
 }

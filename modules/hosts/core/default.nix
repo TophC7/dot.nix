@@ -37,22 +37,29 @@ in
   # System-wide packages, root accessible
   environment.systemPackages = with pkgs; [
     cachix
+    coreutils # basic gnu utils
     curl
     ethtool
+    eza # ls replacement
     fresh
     git
     git-crypt
     gpg-tui
     gtrash
     jq
+    lazyjournal # journalctl viewer
     micro
+    nmap # network scannero
     openssh
     pciutils
     sshfs
     superfile
+    unrar # rar extraction
+    unzip # zip extraction
     wget
     yazi
     zellij
+    zip # zip compression
   ];
 
   # Enable print to PDF.

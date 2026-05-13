@@ -9,7 +9,6 @@
 #   - secrets (if configured via mix.secrets)
 #
 {
-  config,
   lib,
   pkgs,
   host,
@@ -67,15 +66,9 @@ in
   # Core pkgs with no configs
   home.packages = builtins.attrValues {
     inherit (pkgs)
-      coreutils # basic gnu utils
       direnv # environment per directory
       dust # disk usage
-      eza # ls replacement
-      lazyjournal # journalctl viewer
-      nmap # network scannero
-      unrar # rar extraction
-      unzip # zip extraction
-      zip # zip compression
+      openjdk25
       ;
   };
 
