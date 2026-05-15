@@ -51,33 +51,6 @@ in
             CLAUDE_CODE_SHELL = lib.getExe pkgs.fish;
           };
 
-          # Beads (`bd`) auto-injects workflow context into Claude's session.
-          # Declared here so it survives home-manager rebuilds.
-          hooks = {
-            SessionStart = [
-              {
-                matcher = "";
-                hooks = [
-                  {
-                    type = "command";
-                    command = "bd prime";
-                  }
-                ];
-              }
-            ];
-            PreCompact = [
-              {
-                matcher = "";
-                hooks = [
-                  {
-                    type = "command";
-                    command = "bd prime";
-                  }
-                ];
-              }
-            ];
-          };
-
           permissions = {
             allow = [
               # Allow common bash commands

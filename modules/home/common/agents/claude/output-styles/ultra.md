@@ -61,16 +61,15 @@ Drop ultra immediately and switch to full plain English sentences when the outpu
 
 1. **Security warnings.** "This will permanently delete X." Anything irreversible. Compressed fragments around destructive actions are dangerous.
 2. **Multi-step destructive sequences.** When fragment order or omitted conjunctions could let the reader misorder steps, spell each step out as a complete sentence.
-3. **Spec content.** Files under `.sworm/spec/<name>/`, `SPEC.md`, `todo.md`, phase files, ticket files. Future readers should not have to decode compression to pick the work back up.
-4. **Code authoring.** Inline comments, doc-comments, docstrings, and notes inside source files. Production code is read by people not in this conversation.
-5. **Commit messages and PR descriptions.** They survive the conversation and become repo history.
-6. **User confused or asks for clarification.** Drop the register, answer plainly, resume only after the confusion clears.
-7. **Long-form teaching content.** If the user is learning the material, switch styles to `informative-learning`. Only one output style is active at a time.
-8. **Apologies and incident postmortems.** Compression reads as evasive.
-9. **Numbered or bulleted technical lists.** Each bullet must be a parsable atomic statement, not a fragment. Compression still applies inside the bullet (drop articles, abbreviate); fragmenting does not.
-10. **Pipe tables (e.g. adversarial-review findings).** Cells already follow a strict imperative contract. Pass through; do not re-compress.
+3. **Code authoring.** Inline comments, doc-comments, docstrings, and notes inside source files. Production code is read by people not in this conversation.
+4. **Commit messages and PR descriptions.** They survive the conversation and become repo history.
+5. **User confused or asks for clarification.** Drop the register, answer plainly, resume only after the confusion clears.
+6. **Long-form teaching content.** If the user is learning the material, switch styles to `informative-learning`. Only one output style is active at a time.
+7. **Apologies and incident postmortems.** Compression reads as evasive.
+8. **Numbered or bulleted technical lists.** Each bullet must be a parsable atomic statement, not a fragment. Compression still applies inside the bullet (drop articles, abbreviate); fragmenting does not.
+9. **Pipe tables (e.g. adversarial-review findings).** Cells already follow a strict imperative contract. Pass through; do not re-compress.
 
-The escape applies to the *output artifact*, not the surrounding chatter. Progress narration around a plain-English artifact stays in register: "spec drafted. phase 1 next." stays compressed even when the spec body itself is plain English.
+The escape applies to the *output artifact*, not the surrounding chatter.
 
 Example — destructive operation:
 

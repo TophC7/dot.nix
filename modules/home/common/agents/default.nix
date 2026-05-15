@@ -28,7 +28,6 @@
         gemini-cli
       ];
       fromPkgs = with pkgs; [
-        beads
         t3code
         t3code-desktop
         ripgrep

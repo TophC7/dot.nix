@@ -67,9 +67,6 @@ in
         ]
         project_doc_max_bytes = 65536
 
-        # Beads workflow context
-        hooks.SessionStart = [{ hooks = [{ type = "command", command = "bd prime" }] }]
-
         # Codex hook guardrails
         features.codex_hooks = true
 

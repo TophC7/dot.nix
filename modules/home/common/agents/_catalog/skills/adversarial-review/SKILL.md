@@ -7,8 +7,7 @@ description: >
     Efficiency, Comment Style — and collapses all findings into a single severity-
     sorted card list. Use when users ask to "critically review", "critique",
     "find issues in", "what's wrong with", or "review this PR / diff / code".
-    Severity tiers: Blocking, Required, Suggestion. Optionally emits Blocking and
-    Required findings as beads bugs (P0 / P1) so they survive the conversation.
+    Severity tiers: Blocking, Required, Suggestion.
 license: MIT
 ---
 
@@ -195,32 +194,6 @@ When all six agents return:
 - Renumber the `#<n>` headers from 1.
 - If every agent returns zero cards, write `No findings.` once — not six times.
 
-## Issue emission to beads (optional)
-
-If `.beads/` exists at repo root, offer (or auto-execute when the user passes a flag like `--emit-issues`) to create durable beads bugs for high-severity findings:
-
-```fish
-# Per Blocking finding
-bd create "<finding title>" \
-  --type bug -p 0 \
-  -d "Location: <path:line>\nFailure mode: <Issue cell>\nFix: <Fix cell>" \
-  --labels "review,blocking"
-
-# Per Required finding
-bd create "<finding title>" \
-  --type bug -p 1 \
-  -d "Location: <path:line>\nFailure mode: <Issue cell>\nFix: <Fix cell>" \
-  --labels "review,required"
-```
-
-Suggestions are not auto-emitted. Always go through the `beads` skill — don't shell out to `bd` from this skill's main path. See `beads/references/integration.md` for the contract.
-
-Before creating, dedupe: search beads for an existing issue at the same location:
-```fish
-bd list --label review --desc-contains "<path:line>" --json
-```
-If a hit, append a `bd comments add` instead of creating a duplicate.
-
 ## Operating constraints
 
 - **Partial code:** state what you can't verify. Mark partial-context risks as "Verify" rather than escalating to Blocking when context is missing.
@@ -260,8 +233,7 @@ Approve = "no Blocking after rigorous review", not "perfect code". Don't manufac
 After the review, suggest concrete next steps:
 
 - **Discuss findings interactively** — talk through items in severity order; offer resolution options per finding.
-- **Emit issues to beads** — create the bd bugs and stop the conversation; user picks them up later via `bd ready`.
-- **Apply fixes** — switch to implementation mode (handing off to `work-spec` or direct edit).
+- **Apply fixes** — switch to implementation mode.
 
 If you are operating as a subagent or as an agent for another coding assistant, do not include next steps and only output the review.
 
