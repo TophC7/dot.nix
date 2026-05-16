@@ -16,16 +16,41 @@ in
     package = pkgs.gitFull;
 
     ignores = [
+      # macOS
+      ".DS_Store"
+      ".DS_Store?"
+      "._*"
+      ".Spotlight-V100"
+      ".Trashes"
+      "ehthumbs.db"
+      "Thumbs.db"
+
+      # editor / local artifacts
       ".csvignore"
+      ".bak/"
+      "*.bak"
+
+      # dependencies
+      "node_modules"
+
       # nix
       "*.drv"
       "result"
+
       # python
       "*.py?"
       "__pycache__/"
       ".venv/"
+
       # direnv
-      ".direnv"
+      ".direnv/"
+
+      # Sworm
+      ".sworm/*"
+      "!.sworm/*.json"
+
+      # NFS
+      "*.nfs*"
     ];
 
     delta = {
@@ -42,22 +67,6 @@ in
       };
 
       core = {
-        # pre-emptively ignore mac crap
-        excludesFile = builtins.toFile "global-gitignore" ''
-          .DS_Store
-          .DS_Store?
-          ._*
-          .Spotlight-V100
-          .Trashes
-          ehthumbs.db
-          Thumbs.db
-          node_modules
-          # Sworm
-          .sworm/
-          !.sworm/*.json
-          # NFS
-          *.nfs*
-        '';
         attributesfile = builtins.toFile "global-gitattributes" ''
           Cargo.lock -diff
           flake.lock -diff
