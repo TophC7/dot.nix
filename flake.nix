@@ -133,7 +133,7 @@
 
     sworm = {
       # url = "github:TophC7/Sworm";
-      url = "git+file:///home/toph/Development/ADE";
+      url = "git+file:///home/toph/Development/sworm";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
