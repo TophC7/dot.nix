@@ -68,12 +68,6 @@
           shell = "fish";
           extraGroups = userGroups;
         };
-
-        cesar = {
-          name = "cesar";
-          shell = "fish";
-          extraGroups = userGroups;
-        };
       };
 
       ## Hosts ##
@@ -88,27 +82,6 @@
         };
 
         # ── x86 Desktops ──
-        haze = {
-          user = "cesar";
-          ip = "10.2.2.13";
-          desktop = {
-            gnome = {
-              enable = true;
-              default = true;
-            };
-            hyprland.enable = true;
-            niri.enable = true;
-          };
-          greeter = {
-            type = "gdm";
-            autoLogin = true;
-          };
-          mounts = {
-            repo = true;
-            tank = true;
-          };
-        };
-
         norion = {
           user = "toph";
           ip = "10.2.2.4";

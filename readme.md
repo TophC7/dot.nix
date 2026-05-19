@@ -80,7 +80,6 @@ Each host configuration is located at `hosts/<hostname>/` and follows this patte
 | Host       | Type    | Purpose                | Hardware                    | Services                                           |
 | ---------- | ------- | ---------------------- | --------------------------- | -------------------------------------------------- |
 | **rune**   | Desktop | Workstation            | Ryzen 9 7900X3D, RX 9070 XT | Gaming, Development, VMs                           |
-| **haze**   | Desktop | Cesar's workstation    | Ryzen 5 7600x, RX 7600      | Gaming, Development                                |
 | **norion** | Laptop  | Work laptop            | Ryzen AI 9 HX PRO 370       | Development, OLM client                            |
 | **zebes**  | Server  | Main server            | Ryzen 7 5700X, RX 7900 GRE  | Komodo (Docker), AI (Ollama, ComfyUI), Explorer    |
 | **nimbus** | Server  | Storage server         | Ryzen 5 5600G               | ZFS/BTRFS storage, NFS, FileRun, Backups, Newt     |
@@ -110,7 +109,6 @@ Located in `home/hosts/<hostname>/`, these configurations override or extend use
 | User      | Theme      |
 | --------- | ---------- |
 | **toph**  | Invincible |
-| **cesar** | Soraka     |
 
 ---
 

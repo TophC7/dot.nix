@@ -72,7 +72,6 @@
         # NIMBUS network hosts
         "34:5A:60:58:1C:60,10.2.2.2,nimbus"
         "C8:53:09:F9:63:7F,10.2.2.4,norion"
-        "74:56:3C:E7:F8:CD,10.2.2.13,haze"
 
         # WIFI network hosts
         "94:83:c4:76:50:f8,10.10.10.10,wifi"

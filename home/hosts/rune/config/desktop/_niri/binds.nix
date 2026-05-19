@@ -10,8 +10,8 @@
   programs.niri = {
     settings = {
       input = {
-        mod-key = "Alt";
-        mod-key-nested = "Super";
+        mod-key = "Super";
+        mod-key-nested = "Alt";
       };
       binds =
 
@@ -62,7 +62,7 @@
 
           "Mod+Period".action.spawn = [
             "vicinae"
-            "vicinae://extensions/vicinae/vicinae/search-emojis"
+            "vicinae://extensions/vicinae/core/search-emojis"
           ]; # Emoji picker
 
           # "Mod+Tab".action.spawn = [
@@ -77,7 +77,7 @@
             "toggle"
           ]; # Power menu
 
-          "Mod+Super+N".action.spawn = [
+          "Mod+Shift+N".action.spawn = [
             "dms"
             "ipc"
             "notepad"
@@ -96,13 +96,13 @@
             "$USER"
           ];
 
-          "Mod+Super+L".action.spawn = [
+          "Mod+Shift+L".action.spawn = [
             "dms"
             "ipc"
             "lock"
           ]; # DMS lock screen (replaces swaylock)
 
-          "Mod+Super+A".action.toggle-overview = { };
+          "Mod+Space".action.toggle-overview = { };
           "Mod+F1".action.show-hotkey-overlay = { };
 
           #
@@ -138,13 +138,13 @@
           # ══════════════════════════════════════════════════════════════════════════
           #
           # Column width (cycle presets)
-          "Mod+Super+C".action.switch-preset-column-width-back = { };
-          "Mod+Super+B".action.switch-preset-column-width = { };
+          "Mod+Alt+C".action.switch-preset-column-width-back = { };
+          "Mod+Alt+B".action.switch-preset-column-width = { };
           # Window height
-          "Mod+Super+T".action.set-window-height = "+10%";
-          "Mod+Super+V".action.set-window-height = "-10%";
-          "Mod+Super+F".action.fullscreen-window = { };
-          "Mod+Super+F".allow-inhibiting = false;
+          "Mod+Alt+T".action.set-window-height = "+10%";
+          "Mod+Alt+V".action.set-window-height = "-10%";
+          "Mod+Shift+F".action.fullscreen-window = { };
+          "Mod+Shift+F".allow-inhibiting = false;
 
           #
           # ══════════════════════════════════════════════════════════════════════════
