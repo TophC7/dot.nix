@@ -57,12 +57,12 @@
 
           "Mod+X".action.spawn = [
             "vicinae"
-            "vicinae://extensions/vicinae/clipboard/history"
+            "vicinae://launch/clipboard/history"
           ]; # Clipboard manager
 
           "Mod+Period".action.spawn = [
             "vicinae"
-            "vicinae://extensions/vicinae/core/search-emojis"
+            "vicinae://launch/core/search-emojis"
           ]; # Emoji picker
 
           # "Mod+Tab".action.spawn = [
