@@ -18,6 +18,14 @@
         name = "🪑 Repo";
       }
       {
+        path = "/repo/Minecraft";
+        name = "⛏️ Minecraft";
+      }
+      {
+        path = "/repo/psynk";
+        name = "💻 Psynk.ai";
+      }
+      {
         path = "/store";
         name = "🐳 Store";
       }
@@ -37,10 +45,13 @@
     folderIcons = {
       "/fast" = "folder-development";
       "/repo" = "folder-git";
+      "/repo/Minecraft" = "folder-development";
       "/repo/Nix" = "folder-linux";
+      "/repo/psynk" = "folder-development";
       "/steam" = "folder-steam";
       "/store" = "folder-docker";
       "/tank" = "folder-cd";
+      "/tank/STORAGE/Share" = "folder-documents";
       "${config.home.homeDirectory}/Games" = "folder-games";
     };
   };

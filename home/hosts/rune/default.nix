@@ -13,7 +13,7 @@
 
     ## Additional Imports ##
     (map (lib.fs.relativeTo flakeRoot) [
-      # "modules/home/common/chromium.nix"
+      "modules/home/common/chromium.nix"
       "modules/home/common/agents"
       "modules/home/common/affinity.nix"
       "modules/home/common/gaming"

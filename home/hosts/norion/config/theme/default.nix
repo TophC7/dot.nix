@@ -51,7 +51,7 @@
     };
 
     matugen = {
-      scheme = "scheme-expressive";
+      scheme = "scheme-rainbow";
     };
   };
 

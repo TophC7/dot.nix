@@ -19,7 +19,7 @@
     (lib.fs.scanPaths ./.)
 
     ## Hardware ##
-    inputs.hardware.nixosModules.lenovo-thinkpad-p14s-amd-gen5
+    inputs.hardware.nixosModules.lenovo-thinkpad-p14s-amd-gen6
 
     ## Additional Configs ##
     (map (lib.fs.relativeTo flakeRoot) [
@@ -27,6 +27,7 @@
       "modules/hosts/common/bluetooth.nix"
       "modules/hosts/common/clamav.nix"
       "modules/hosts/common/ddcutil.nix"
+      "modules/hosts/common/docker.nix"
       "modules/hosts/common/gaming.nix"
       "modules/hosts/common/kb.nix"
       "modules/hosts/common/nvtop.nix"
@@ -56,7 +57,7 @@
   };
 
   ## Environment variables for Cachix authentication ##
-  environment.sessionVariables = rec {
+  environment.sessionVariables = {
     CACHIX_AUTH_TOKEN = secrets.service.cachix.token;
   };
 

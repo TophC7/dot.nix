@@ -36,6 +36,8 @@
         "usb_storage"
         "usbhid"
         "sd_mod"
+        "tpm_crb"
+        "tpm_tis"
       ];
       kernelModules = [ ];
 
@@ -44,6 +46,10 @@
         device = "/dev/disk/by-uuid/cb373530-da5e-4960-86a7-137b139f08a1";
         allowDiscards = true; # Enable TRIM for SSD performance
         bypassWorkqueues = true; # Better SSD performance
+        crypttabExtraOpts = [
+          # Unlock from TPM when Secure Boot state matches enrolled PCR policy.
+          "tpm2-device=auto"
+        ];
       };
     };
 

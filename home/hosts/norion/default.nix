@@ -1,11 +1,15 @@
 {
   pkgs,
   lib,
-  flakeRoot,
+  flakeRoot, 
+  inputs,
   ...
 }:
 {
   imports = lib.flatten [
+    ## Norion Specific ##
+    (lib.fs.scanPaths ./.)
+
     ## Common Imports ##
     (map (lib.fs.relativeTo flakeRoot) [
       "modules/home/common/chromium.nix"
@@ -15,9 +19,6 @@
       "modules/home/common/xdg.nix"
       "modules/home/common/zen.nix"
     ])
-
-    ## Rune Specific ##
-    ./config
   ];
 
   ## Packages with no needed configs ##
@@ -31,12 +32,10 @@
     vesktop
 
     ## Tools ##
-    bitwarden-desktop
-    inspector
     solaar
-    vial # KB setup
 
     ## Development ##
     gh
+    inputs.sworm.packages.${host.system}.default
   ];
 }

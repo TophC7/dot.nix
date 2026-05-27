@@ -86,13 +86,13 @@
           user = "toph";
           ip = "10.2.2.4";
           desktop = {
-            gnome = {
+            niri = {
               enable = true;
               default = true;
             };
           };
           greeter = {
-            type = "gdm";
+            type = "dms";
             autoLogin = true;
           };
           mounts = {
