@@ -53,12 +53,43 @@ let
     in
     pkgs.writeText "${buildSvcName pipelineName pkg}-expr.nix" expr;
 
+  # ── Shared Cache Root Pruner ────────────────────────────────────
+  mkPruneRootsScript =
+    pipelineName: retentionDays:
+    pkgs.writeTextFile {
+      name = "${pipelineName}-prune-roots.fish";
+      executable = true;
+      text = ''
+        #!${fish}
+        set -g log_tag "${pipelineName}-prune-roots"
+        set -g roots_dir "/var/lib/${pipelineName}/roots"
+        set -g retention_days ${toString retentionDays}
+        set -g retention_minutes (math --scale=0 "$retention_days * 24 * 60")
+
+        function log
+          echo (date "+%Y-%m-%d %H:%M:%S") "[$log_tag]" $argv
+        end
+
+        if not test -d "$roots_dir"
+          exit 0
+        end
+
+        log "Pruning cache roots older than $retention_days days"
+        ${pkgs.findutils}/bin/find "$roots_dir" -type l -mmin +$retention_minutes -print -delete \
+          | while read -l root
+              log "Pruned cache root: $root"
+            end
+        ${pkgs.findutils}/bin/find "$roots_dir" -mindepth 1 -type d -empty -delete
+      '';
+    };
+
   # ── Per-Package Build Service Generator ─────────────────────────
   mkBuildService =
     pipelineName: group: pkg:
     let
       exprFile = mkExprFile pipelineName group pkg;
       svcName = buildSvcName pipelineName pkg;
+      sanitizedPkgName = sanitizeName pkg.name;
     in
     {
       name = svcName;
@@ -76,12 +107,23 @@ let
         };
         serviceConfig = {
           Type = "oneshot";
-          ExecStart = pkgs.writeShellScript "build-${builtins.replaceStrings [ "." ] [ "-" ] pkg.name}" ''
-            exec ${nix} --option max-jobs 1 --option cores 10 build --impure --no-link -L --expr "import ${exprFile}"
-          '';
+          ExecStart = pkgs.writeTextFile {
+            name = "build-${builtins.replaceStrings [ "." ] [ "-" ] pkg.name}.fish";
+            executable = true;
+            text = ''
+              #!${fish}
+              set -l root_dir "/var/lib/${pipelineName}/roots/${sanitizedPkgName}"
+              set -l out_link "$root_dir/"(date -u "+%Y%m%dT%H%M%SZ")
+
+              mkdir -p "$root_dir"; or exit 1
+              exec ${nix} --option max-jobs 1 --option cores 10 build --impure --out-link "$out_link" -L --expr "import ${exprFile}"
+            '';
+          };
           User = serviceUser;
           Group = "ryot";
           TimeoutStartSec = "4h";
+          StateDirectory = pipelineName;
+          StateDirectoryMode = "0755";
           StandardOutput = "journal";
           StandardError = "journal";
           SyslogIdentifier = svcName;
@@ -96,6 +138,7 @@ let
           ReadWritePaths = [
             group.repo
             "/nix/var"
+            "/var/lib/${pipelineName}"
           ];
           ProtectKernelTunables = true;
           ProtectKernelModules = true;
@@ -111,6 +154,8 @@ let
       name,
       branch,
       notifyHint,
+      retentionDays,
+      pruneRootsScript,
       groups,
     }:
     let
@@ -225,10 +270,38 @@ let
           echo (eval echo \$expr_file_$sanitized)
         end
 
-        function pkg_in_cache
+        function pkg_output_paths
           set -l expr_file (resolve_expr_file $argv[1])
-          ${nix} path-info --impure --expr "import $expr_file" >/dev/null 2>&1
+          set -l output_json (${nix} eval --impure --json --expr "let p = import $expr_file; in map (output: builtins.toString (builtins.getAttr output p)) (p.outputs or [ \"out\" ])"); or return 1
+          printf '%s\n' $output_json | ${pkgs.jq}/bin/jq -r '.[]'
+        end
+
+        function pkg_in_cache
+          set -l output_paths (pkg_output_paths $argv[1]); or return 1
+
+          for output_path in $output_paths
+            ${nix} path-info "$output_path" >/dev/null 2>&1; or return 1
+          end
+
+          return 0
+        end
+
+        function root_pkg
+          set -l pkg $argv[1]
+          set -l expr_file (resolve_expr_file $pkg)
+          set -l sanitized (string replace -a '-' '_' -- $pkg | string replace -a '.' '_')
+          set -l pkg_root_dir "$roots_dir/$sanitized"
+          set -l out_link "$pkg_root_dir/$run_id"
+
+          mkdir -p "$pkg_root_dir"; or return 1
+
+          log "Rooting $pkg for $retention_days days at $out_link"
+          ${nix} build --impure --out-link "$out_link" --expr "import $expr_file" >/dev/null
           return $status
+        end
+
+        function prune_roots
+          ${pruneRootsScript}
         end
 
         function resolve_updater
@@ -269,7 +342,10 @@ let
         set -g all_groups ${groupNames}
         set -g all_packages ${allPkgNames}
         set -g state_dir "/var/lib/${name}"
+        set -g roots_dir "$state_dir/roots"
         set -g branch "${branch}"
+        set -g retention_days ${toString retentionDays}
+        set -g run_id (date -u "+%Y%m%dT%H%M%SZ")
 
         set -g needs_build
         set -g cached
@@ -277,7 +353,7 @@ let
         set -g failed
         set -g update_failed
 
-        mkdir -p "$state_dir"
+        mkdir -p "$state_dir" "$roots_dir"
 
         for repo in $all_repos
           if not test -d "$repo"
@@ -345,8 +421,13 @@ let
 
           # Cache check
           if pkg_in_cache $pkg
-            log "Cached: $pkg"
-            set -a cached $pkg
+            if root_pkg $pkg
+              log "Cached: $pkg"
+              set -a cached $pkg
+            else
+              log_error "Failed to root cached package: $pkg"
+              set -a failed "root:$pkg"
+            end
           else
             log "Needs build: $pkg"
             set -a needs_build $pkg
@@ -358,6 +439,14 @@ let
         #───────────────────────────────────────────────────────────
 
         if test (count $needs_build) -eq 0
+          prune_roots
+
+          if test (count $failed) -gt 0
+            notify "## ❌ ${name} Error
+        > Failed to root cached packages: $(string join ', ' $failed)"
+            exit 1
+          end
+
           log "All packages cached, nothing to build"
 
           for repo in $all_repos
@@ -404,6 +493,8 @@ let
             set -a failed $pkg
           end
         end
+
+        prune_roots
 
         #───────────────────────────────────────────────────────────
         # Phase 5: Git Commit + Push
@@ -497,6 +588,8 @@ in
       schedule,
       timeout ? "14h",
       notifyHint ? "📝 Pipeline complete",
+      retentionDays ? 14,
+      rootPruneSchedule ? "Mon *-*-* 02:30:00",
       groups, # List of { name, repo, update, mkExpr, packages }
     }:
     let
@@ -511,12 +604,15 @@ in
       ) groups;
 
       allRepos = lib.unique (map (g: g.repo) groups);
+      pruneRootsScript = mkPruneRootsScript name retentionDays;
 
       orchestratorScript = mkOrchestratorScript {
         inherit
           name
           branch
           notifyHint
+          retentionDays
+          pruneRootsScript
           groups
           ;
       };
@@ -526,6 +622,28 @@ in
     in
     {
       systemd.services = buildServices // {
+        "${name}-prune-roots" = {
+          description = "Prune ${name} cache roots older than ${toString retentionDays} days";
+          serviceConfig = {
+            Type = "oneshot";
+            ExecStart = "${pruneRootsScript}";
+            User = serviceUser;
+            Group = "ryot";
+            StateDirectory = name;
+            StateDirectoryMode = "0755";
+            StandardOutput = "journal";
+            StandardError = "journal";
+            SyslogIdentifier = "${name}-prune-roots";
+            NoNewPrivileges = true;
+            PrivateTmp = true;
+            ProtectSystem = "strict";
+            ReadWritePaths = [ "/var/lib/${name}" ];
+            ProtectKernelTunables = true;
+            ProtectKernelModules = true;
+            ProtectControlGroups = true;
+          };
+        };
+
         ${name} = {
           inherit description;
           path = with pkgs; [
@@ -566,6 +684,7 @@ in
             ProtectSystem = "strict";
             ReadWritePaths = allRepos ++ [
               "/nix/var"
+              "/var/lib/${name}"
               "/home/${serviceUser}/.ssh"
             ];
             ProtectKernelTunables = true;
@@ -575,13 +694,25 @@ in
         };
       };
 
-      systemd.timers.${name} = {
-        description = "Timer for ${description}";
-        wantedBy = [ "timers.target" ];
-        timerConfig = {
-          OnCalendar = schedule;
-          Persistent = true;
-          RandomizedDelaySec = "2h";
+      systemd.timers = {
+        ${name} = {
+          description = "Timer for ${description}";
+          wantedBy = [ "timers.target" ];
+          timerConfig = {
+            OnCalendar = schedule;
+            Persistent = true;
+            RandomizedDelaySec = "2h";
+          };
+        };
+
+        "${name}-prune-roots" = {
+          description = "Timer for ${name} cache root pruning";
+          wantedBy = [ "timers.target" ];
+          timerConfig = {
+            OnCalendar = rootPruneSchedule;
+            Persistent = true;
+            RandomizedDelaySec = "15min";
+          };
         };
       };
 

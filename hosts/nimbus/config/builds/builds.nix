@@ -68,6 +68,8 @@ builds.mkPipeline {
   description = "Package Build Pipeline";
   schedule = "Wed *-*-* 04:00:00";
   timeout = "12h";
+  retentionDays = 14;
+  rootPruneSchedule = "Mon *-*-* 02:30:00"; # before nix.gc at 03:30
   notifyHint = "📝 Run: \\`nix flake update mix-nix && nix flake update arroz-nix\\` in dot.nix";
 
   groups = [
