@@ -70,6 +70,7 @@ in
     allowUnfree = true;
     allowUnfreePredicate = _: true;
     permittedInsecurePackages = [
+      "electron-39.8.10"
       "mbedtls-2.28.10"
       "proton-authenticator"
       "proton-pass"

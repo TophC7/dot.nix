@@ -1,13 +1,37 @@
 ## TERMINAL FIXES ##
 
-# HACK: VSCode falsely advertises Kitty keyboard protocol support,
-# causing raw escape sequences (^[[13u) in child programs
-if set -q VSCODE_INJECTION
-    set -g fish_features query-term=-
+# HACK: Some terminals or TUI apps leave fish in kitty keyboard protocol
+# mode, which turns Ctrl-C and other keys into raw CSI-u sequences.
+if not contains -- no-keyboard-protocols $fish_features
+    set -ga fish_features no-keyboard-protocols
 end
 
-# prevent ^[[I / ^[[O focus-reporting artifacts
-printf '\e[?1004l'
+# VSCode still needs the older query-term workaround as well.
+if set -q VSCODE_INJECTION
+    if not contains -- query-term=- $fish_features
+        set -ga fish_features query-term=-
+    end
+end
+
+function __reset_terminal_state
+    # Restore the tty to sane line discipline and drop terminal input modes
+    # that commonly leak out of TUIs and leave the shell unreadable.
+    command stty sane </dev/tty >/dev/tty 2>/dev/null
+
+    # Disable focus reporting and kitty keyboard protocol reporting.
+    printf '\e[?1004l\e[<u'
+end
+
+__reset_terminal_state
+
+# Re-apply the reset when a command exits or when the shell itself exits.
+function __reset_terminal_state_postexec --on-event fish_postexec
+    __reset_terminal_state
+end
+
+function __reset_terminal_state_exit --on-event fish_exit
+    __reset_terminal_state
+end
 
 ## GREETING ##
 
@@ -24,6 +48,7 @@ end
 abbr -a ls eza
 abbr -a s ssh
 abbr -a tt gtrash put
+abbr -a zj "zellij attach --create main"
 
 # NOTE: rm is intentionally blocked — use gtrash put (or tt) instead
 function rm

@@ -50,15 +50,9 @@
     journey
 
     ## Tools ##
-    bitwarden-desktop
-    inspector
     remmina
     solaar
     vial # KB setup
-
-    #proton
-    proton-pass
-    proton-authenticator
 
     # Web Dev
     gh

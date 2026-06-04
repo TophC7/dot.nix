@@ -26,6 +26,7 @@
         codex
         copilot-cli
         gemini-cli
+        antigravity-cli
       ];
       fromPkgs = with pkgs; [
         t3code

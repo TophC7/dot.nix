@@ -46,7 +46,6 @@
       inputs = {
         flake-parts.follows = "flake-parts";
         home-manager.follows = "home-manager";
-        hyprnavi-psm.follows = "hyprnavi-psm";
         matugen.follows = "matugen";
         mix-nix.follows = "mix-nix";
         nixpkgs.follows = "nixpkgs";

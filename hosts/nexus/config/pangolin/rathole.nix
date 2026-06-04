@@ -35,7 +35,7 @@ let
 
     [client.services.pangolin-minecraft]
     type = "tcp"
-    local_addr = "${gerbilIp}:25565"
+    local_addr = "${hosts.zebes.ip}:25565"
 
     # UDP services
     [client.services.hytale]

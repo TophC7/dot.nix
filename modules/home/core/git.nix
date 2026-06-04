@@ -53,13 +53,6 @@ in
       "*.nfs*"
     ];
 
-    delta = {
-      enable = true;
-      options = {
-        features = "side-by-side line-numbers hyperlinks commit-decoration";
-      };
-    };
-
     settings = {
       user = {
         name = userSecrets.fullName or user.name;
@@ -98,4 +91,11 @@ in
     };
   };
 
+  programs.delta = {
+    enable = true;
+    enableGitIntegration = true;
+    options = {
+      features = "side-by-side line-numbers hyperlinks commit-decoration";
+    };
+  };
 }
