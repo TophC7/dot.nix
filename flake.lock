@@ -36,11 +36,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1780525620,
-        "narHash": "sha256-JekrwHpfE+d9iA9pT2/+Ac2Sh9bNIfrKkfcXpUh0WyI=",
+        "lastModified": 1780535140,
+        "narHash": "sha256-7DY5MLUYDF92HDoYnP3XotJg9I66r5e5/v3ois3k6oA=",
         "ref": "refs/heads/main",
-        "rev": "657a3fcea891a3de2772439a0841244979f954e7",
-        "revCount": 3,
+        "rev": "6bb7807e5446c78e85e330feecff6d8bd3ad3884",
+        "revCount": 4,
         "type": "git",
         "url": "https://git.ryot.foo/toph/anker-powerconf-c200-linux"
       },
@@ -56,12 +56,12 @@
         "dms-actions": "dms-actions",
         "dms-amd-gpu-monitor": "dms-amd-gpu-monitor",
         "dms-cat-widget": "dms-cat-widget",
-        "dms-claude-code": "dms-claude-code",
         "dms-clipboard-plus": "dms-clipboard-plus",
         "dms-display-settings": "dms-display-settings",
         "dms-easyeffects": "dms-easyeffects",
         "dms-github-heatmap": "dms-github-heatmap",
         "dms-nix-monitor": "dms-nix-monitor",
+        "dms-plugins": "dms-plugins",
         "dms-quick-tote": "dms-quick-tote",
         "flake-parts": [
           "flake-parts"
@@ -86,11 +86,11 @@
         "vicinae": "vicinae"
       },
       "locked": {
-        "lastModified": 1780525296,
-        "narHash": "sha256-h+vErpgTbNpVSOCVPthbPKEkHq9IC4M6ShWW7ILI9G4=",
+        "lastModified": 1780581667,
+        "narHash": "sha256-dMyxP7lyuiu562mmFdZTerzngm3TZCN7h09uaLUwK7s=",
         "ref": "refs/heads/main",
-        "rev": "20dd1533b1ac4b0c55abd980b0d514188e8ffdd5",
-        "revCount": 48,
+        "rev": "0f04999c3bca57d38c23979d7a97d1f90b8db565",
+        "revCount": 50,
         "type": "git",
         "url": "file:///repo/Nix/arroz.nix"
       },
@@ -502,11 +502,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1780498191,
-        "narHash": "sha256-BuvJ6IfRxx552EoK/MHa1HMipObiBXNSrqHfPNXb4rQ=",
+        "lastModified": 1780531574,
+        "narHash": "sha256-DngmgE5GUbqFzZnnCrM2Z6lGNDGkSfXvNVUhPZSLjgY=",
         "owner": "AvengeMedia",
         "repo": "DankMaterialShell",
-        "rev": "e5fff91ae66fa44379ffe31f25ed8cf5c6807d67",
+        "rev": "59431869dc14ab1cb2d05bbbf81839d95e4724cd",
         "type": "github"
       },
       "original": {
@@ -560,22 +560,6 @@
       "original": {
         "owner": "xi-ve",
         "repo": "cat-dms",
-        "type": "github"
-      }
-    },
-    "dms-claude-code": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1778494894,
-        "narHash": "sha256-8tAyxl/Q0ZhHw1P0DTp5gCx9kW7Ju+PMX+1Fuiu05A8=",
-        "owner": "titeya",
-        "repo": "dms-claudecode",
-        "rev": "fd96519334b7ef755b539ece233d8ccf15e0217f",
-        "type": "github"
-      },
-      "original": {
-        "owner": "titeya",
-        "repo": "dms-claudecode",
         "type": "github"
       }
     },
@@ -657,6 +641,27 @@
         "owner": "antonjah",
         "repo": "nix-monitor",
         "type": "github"
+      }
+    },
+    "dms-plugins": {
+      "inputs": {
+        "nixpkgs": [
+          "arroz-nix",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1780581398,
+        "narHash": "sha256-w/EGc4LD4oJnrexI9liCdQIkhfdlEbJAcuFPfTyffMw=",
+        "ref": "refs/heads/main",
+        "rev": "7757654742f455f1f03067b39a49b721a55004d9",
+        "revCount": 3,
+        "type": "git",
+        "url": "https://git.ryot.foo/toph/dms-plugins"
+      },
+      "original": {
+        "type": "git",
+        "url": "https://git.ryot.foo/toph/dms-plugins"
       }
     },
     "dms-quick-tote": {
@@ -1469,11 +1474,11 @@
         "treefmt-nix": "treefmt-nix_2"
       },
       "locked": {
-        "lastModified": 1780524670,
-        "narHash": "sha256-FLLyk8c49u1mRz9dmc/ovzNfxUxfCsJbpNhnQrBs0rI=",
+        "lastModified": 1781029859,
+        "narHash": "sha256-OvzEyChuf0DWLmmmRNCLhf+JRlVLUSU0Uk0MHAjuyog=",
         "owner": "numtide",
         "repo": "llm-agents.nix",
-        "rev": "37dba89dfd2e556d852fbb893d7ecc5ee680c820",
+        "rev": "c1c11575f43fd4f22ea81099aa8eeb3522840c17",
         "type": "github"
       },
       "original": {
@@ -2557,11 +2562,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1780427948,
-        "narHash": "sha256-rB8wNk6QSR6nD0WQ/6aUgaHPaLvNHQIXpUQLfb/uM4s=",
+        "lastModified": 1780694757,
+        "narHash": "sha256-jZN7enP9YVRhRn/LHoIKEsBYn71qZas3qGkwAMHbdhg=",
         "ref": "refs/heads/main",
-        "rev": "541cbd933d71f55da955d834e06bf3b2ea88938a",
-        "revCount": 87,
+        "rev": "7696cea19d8d5eb554df85400dcb26adf4425cda",
+        "revCount": 88,
         "type": "git",
         "url": "file:///home/toph/Development/sworm"
       },
