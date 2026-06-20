@@ -1,7 +1,4 @@
-#
 # Agent tooling module orchestrator.
-# Auto-discovers sibling modules via lib.fs.scanPaths.
-#
 {
   pkgs,
   lib,
@@ -11,11 +8,22 @@
 }:
 {
   imports = (lib.fs.scanPaths ./.) ++ [
+    inputs.codex-desktop-linux.homeManagerModules.default
     inputs.pi-nix.homeManagerModules.default
   ];
 
   # Enable the pi.nix module setup
   programs.pi.enable = true;
+
+  programs.codexDesktopLinux =
+    let
+      isDesktopHost = !(host.isServer or false);
+      codexCli = inputs.llm-agents.packages.${host.system}.codex;
+    in
+    if isDesktopHost then {
+      enable = true;
+      cliPackage = codexCli;
+    } else { };
 
   # Install agent tooling packages.
   home.packages =

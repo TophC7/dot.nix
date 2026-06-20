@@ -8,23 +8,17 @@
   ...
 }:
 let
-  # Desktop environment detection for HDR support
-  niri = host.desktop.niri.enable;
-  hyprland = host.desktop.hyprland.enable;
-  gnome = host.desktop.gnome.enable;
-  allowHDR = !niri && (hyprland || gnome);
-  waylandBackend = !gnome;
+  # Niri HDR is not ready yet; keep HDR opt-in profiles SDL-only.
+  allowHDR = !(host.isServer or false);
 
   baseEnv = {
     XCURSOR_THEME = config.home.pointerCursor.name or "Adwaita";
     XCURSOR_PATH = "${config.home.pointerCursor.package or pkgs.adwaita-icon-theme}/share/icons";
   };
 
-  baseOptions =
-    lib.optionalAttrs waylandBackend {
-      backend = "wayland";
-    }
-    // { };
+  baseOptions = {
+    backend = "wayland";
+  };
 in
 {
   imports = [
@@ -33,7 +27,9 @@ in
 
   programs.wayscope = {
     enable = true;
-    useGit = true;
+    # Use nixpkgs gamescope so compositor and Mesa/RADV share the same glibc.
+    # Chaotic gamescope_git can lag glibc and make Vulkan fall back to llvmpipe.
+    useGit = false;
 
     # Monitors come from config.monitors (mix.nix) automatically
     # useSystemMonitors = true; # Auto-detected

@@ -4,7 +4,7 @@
 # Auto-discovers sibling modules via lib.fs.scanPaths.
 #
 # Available in specialArgs:
-#   - host (host.user, host.desktop, host.hostName, etc.)
+#   - host (host.user, host.isServer, host.hostName, etc.)
 #   - inputs
 #   - secrets (if configured via mix.secrets)
 #
@@ -23,6 +23,7 @@ in
 {
   imports = lib.flatten [
     (lib.fs.scanPaths ./.)
+    (lib.optionals (!(host.isServer or false)) [ ../common/desktop ])
     inputs.bonk.nixosModules.default
   ];
 

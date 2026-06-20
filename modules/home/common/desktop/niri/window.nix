@@ -129,7 +129,6 @@
             { app-id = "^TelegramDesktop$"; }
           ];
           default-column-width.proportion = 1.0;
-          open-on-output = "DP-5";
         }
 
         # File manager & Terminal

@@ -13,7 +13,7 @@
 # Usage:
 #   systemctl start mix-builder                         # Full pipeline
 #   journalctl -u mix-builder                           # Orchestrator logs
-#   journalctl -u mix-builder-build-hyprland            # Per-package logs
+#   journalctl -u mix-builder-build-niri                # Per-package logs
 #
 {
   lib,
@@ -34,7 +34,6 @@ let
 
   # ── Repository Paths ────────────────────────────────────────────
   mixRepo = "/repo/Nix/mix.nix";
-  arrozRepo = "/repo/Nix/arroz.nix";
   dotRepo = "/repo/Nix/dot.nix";
 
   # ── Expression Helpers ──────────────────────────────────────────
@@ -53,11 +52,6 @@ let
     in pkgs.${name}
   '';
 
-  # Resolve a package from an arroz.nix flake input
-  input = inputName: attr: ''
-    (builtins.getFlake "path:${arrozRepo}").inputs.${inputName}.packages.x86_64-linux.${attr}
-  '';
-
   # Resolve a package from a dot.nix flake input
   dotInput = inputName: attr: ''
     (builtins.getFlake "path:${dotRepo}").inputs.${inputName}.packages.x86_64-linux.${attr}
@@ -70,7 +64,7 @@ builds.mkPipeline {
   timeout = "12h";
   retentionDays = 14;
   rootPruneSchedule = "Mon *-*-* 02:30:00"; # before nix.gc at 03:30
-  notifyHint = "📝 Run: \\`nix flake update mix-nix && nix flake update arroz-nix\\` in dot.nix";
+  notifyHint = "📝 Run: \\`nix flake update mix-nix\\` in dot.nix";
 
   groups = [
     # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -107,36 +101,6 @@ builds.mkPipeline {
     }
 
     # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    # arroz.nix — Flake input packages (no binary cache)
-    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    {
-      name = "arroz";
-      repo = arrozRepo;
-      update = "bonk update -p ${arrozRepo}";
-      mkExpr = name: input name name; # Default: input name = attr name
-
-      packages = [
-        { name = "quickshell"; }
-        { name = "hyprland"; }
-        { name = "hyprnavi-psm"; }
-
-        # These need explicit expr because attr ≠ package name
-        {
-          name = "dankMaterialShell";
-          expr = input "dankMaterialShell" "dms-shell";
-        }
-        {
-          name = "niri";
-          expr = input "niri" "niri-unstable";
-        }
-        {
-          name = "vicinae";
-          expr = input "vicinae" "default";
-        }
-      ];
-    }
-
-    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     # dot.nix — Flake input packages (no binary cache)
     # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     {
@@ -146,7 +110,27 @@ builds.mkPipeline {
       mkExpr = name: dotInput name name; # Default: input name = attr name
 
       packages = [
-        { name = "fresh"; }
+        {
+          name = "fresh";
+          expr = dotInput "fresh" "default";
+        }
+        {
+          name = "quickshell";
+          expr = dotInput "quickshell" "default";
+        }
+
+        {
+          name = "dankMaterialShell";
+          expr = dotInput "dankMaterialShell" "dms-shell";
+        }
+        {
+          name = "niri";
+          expr = dotInput "niri" "niri-unstable";
+        }
+        {
+          name = "vicinae";
+          expr = dotInput "vicinae" "default";
+        }
 
         # llm-agents exposes many CLIs; expr selects the attr on that input
         {

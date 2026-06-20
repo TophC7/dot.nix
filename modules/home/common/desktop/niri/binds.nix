@@ -65,11 +65,6 @@
             "vicinae://launch/core/search-emojis"
           ]; # Emoji picker
 
-          # "Mod+Tab".action.spawn = [
-          #   "vicinae"
-          #   "vicinae://extensions/vicinae/wm/switch-windows"
-          # ]; # Window switcher
-
           "Mod+Shift+X".action.spawn = [
             "dms"
             "ipc"

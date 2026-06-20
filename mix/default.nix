@@ -4,11 +4,11 @@
 # This file is imported as a flake-parts module.
 #
 # Available in modules via specialArgs:
-#   - `host` - Current host spec (host.user, host.desktop, etc.)
+#   - `host` - Current host spec (host.user, host.isServer, etc.)
 #   - `inputs` - All flake inputs
 #   - `secrets` - Secrets if configured via mix.secrets
 #
-{ lib, ... }:
+_:
 {
   # No imports; Both hostSpec and secrets are handled by mix.nix directly
 
@@ -85,16 +85,6 @@
         norion = {
           user = "toph";
           ip = "10.2.2.4";
-          desktop = {
-            niri = {
-              enable = true;
-              default = true;
-            };
-          };
-          greeter = {
-            type = "dms";
-            autoLogin = true;
-          };
           mounts = {
             fast = true;
             repo = true;
@@ -110,23 +100,6 @@
         rune = {
           user = "toph";
           ip = "10.4.4.4";
-          desktop = {
-            niri = {
-              enable = true;
-              default = true;
-              dms = {
-                includeColors = true;
-                # includeLayout = true;
-                includeBinds = true;
-                includeRecents = true;
-                includeOutputs = true;
-              };
-            };
-          };
-          greeter = {
-            type = "dms";
-            autoLogin = true;
-          };
           mounts = {
             fast = true;
             repo = true;
@@ -137,11 +110,6 @@
 
         vm = {
           user = "toph";
-          desktop.gnome.enable = true;
-          greeter = {
-            type = "gdm";
-            autoLogin = true;
-          };
         };
 
         # ── x86 Servers ──
