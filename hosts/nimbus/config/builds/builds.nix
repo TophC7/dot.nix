@@ -131,20 +131,6 @@ builds.mkPipeline {
           name = "vicinae";
           expr = dotInput "vicinae" "default";
         }
-
-        # llm-agents exposes many CLIs; expr selects the attr on that input
-        {
-          name = "codex";
-          expr = dotInput "llm-agents" "codex";
-        }
-        {
-          name = "claude-code";
-          expr = dotInput "llm-agents" "claude-code";
-        }
-        {
-          name = "gemini-cli";
-          expr = dotInput "llm-agents" "gemini-cli";
-        }
       ];
     }
   ];

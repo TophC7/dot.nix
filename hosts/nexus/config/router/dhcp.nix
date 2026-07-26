@@ -36,7 +36,6 @@
         "enp2s0" # RUNE
         "enp3s0" # ZEBES
         "enp4s0" # NIMBUS
-        "enp0s13f0u1" # WIFI (USB NIC)
         "wg-vpn" # WireGuard VPN interface
       ];
 
@@ -57,8 +56,6 @@
         "10.3.3.100,10.3.3.250,12h"
         # NIMBUS network
         "10.2.2.100,10.2.2.250,12h"
-        # WIFI network
-        "10.10.10.100,10.10.10.250,12h"
       ];
 
       # Static DHCP reservations
@@ -72,9 +69,6 @@
         # NIMBUS network hosts
         "34:5A:60:58:1C:60,10.2.2.2,nimbus"
         "C8:53:09:F9:63:7F,10.2.2.4,norion"
-
-        # WIFI network hosts
-        "94:83:c4:76:50:f8,10.10.10.10,wifi"
       ];
 
       # Custom DNS entries
@@ -83,25 +77,21 @@
         "/router.ryot.local/10.4.4.1" # RUNE
         "/router.ryot.local/10.3.3.1" # ZEBES
         "/router.ryot.local/10.2.2.1" # NIMBUS
-        "/router.ryot.local/10.10.10.1" # WIFI
 
         # AdGuard web UI
         "/adguard.ryot.foo/10.4.4.1" # RUNE
         "/adguard.ryot.foo/10.3.3.1" # ZEBES
         "/adguard.ryot.foo/10.2.2.1" # NIMBUS
-        "/adguard.ryot.foo/10.10.10.1" # WIFI
 
         # Pangolin web UI
         "/pangolin.ryot.foo/10.4.4.1" # RUNE
         "/pangolin.ryot.foo/10.3.3.1" # ZEBES
         "/pangolin.ryot.foo/10.2.2.1" # NIMBUS
-        "/pangolin.ryot.foo/10.10.10.1" # WIFI
 
         # All *.ryot.foo domains via gerbil
         "/.ryot.foo/10.4.4.1" # RUNE
         "/.ryot.foo/10.3.3.1" # ZEBES
         "/.ryot.foo/10.2.2.1" # NIMBUS
-        "/.ryot.foo/10.10.10.1" # WIFI
 
         # Direct local host access
         "/gerbil.ryot.local/10.1.1.11"

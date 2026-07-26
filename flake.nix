@@ -172,10 +172,8 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    llm-agents = {
-      url = "github:numtide/llm-agents.nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    # Keep llm-agents' pinned nixpkgs: Numtide's prebuilt binaries are keyed to it.
+    llm-agents.url = "github:numtide/llm-agents.nix";
 
     codex-desktop-linux = {
       url = "github:ilysenko/codex-desktop-linux";

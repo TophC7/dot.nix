@@ -1,8 +1,4 @@
 {
-  lib,
-  ...
-}:
-{
   networking = {
     nat = {
       # Enable NAT for WAN interface
@@ -12,7 +8,6 @@
         "enp2s0" # RUNE
         "enp3s0" # ZEBES
         "enp4s0" # NIMBUS
-        "enp0s13f0u1" # WIFI (USB NIC)
         "wg-+" # WireGuard VPN interface
         "br-+" # All Docker bridge networks (br-*)
       ];

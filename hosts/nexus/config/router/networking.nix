@@ -1,5 +1,4 @@
 {
-  config,
   host,
   lib,
   pkgs,
@@ -36,7 +35,7 @@
 
     # Define network interfaces
     interfaces = {
-      ## WAN ##
+      ## Ethernet WAN ##
       enp1s0 = {
         useDHCP = true;
       };
@@ -89,21 +88,6 @@
         ];
       };
 
-      ## WIFI ## (10.10.10.0/24) - USB NIC
-      enp0s13f0u1 = {
-        ipv4.addresses = [
-          {
-            address = "10.10.10.1";
-            prefixLength = 24;
-          }
-        ];
-        ipv6.addresses = [
-          {
-            address = "fd30:3484:4f32:89::1";
-            prefixLength = 64;
-          }
-        ];
-      };
     };
 
     # DNS servers for the router itself
@@ -118,7 +102,7 @@
     # Search domains
     search = [ "ryot.local" ];
 
-    # Enable DHCP client for WAN interface (override global setting)
+    # Enable DHCP client for WAN interfaces (override global setting)
     dhcpcd.enable = lib.mkForce true;
   };
 
