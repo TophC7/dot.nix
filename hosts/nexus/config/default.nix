@@ -17,7 +17,6 @@ in
   services.newt = {
     extraNetworks = [
       "adguard"
-      "komodo"
       "pangolin"
     ];
   };
