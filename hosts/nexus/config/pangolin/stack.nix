@@ -47,7 +47,7 @@ in
         volumes = [ "${volumePath}/config:/app/config:rw" ];
         log-driver = "journald";
         extraOptions = [
-          ''--health-cmd=["curl", "-f", "http://localhost:3001/api/v1/"]''
+          "--health-cmd=curl -f http://localhost:3001/api/v1/"
           "--health-interval=3s"
           "--health-retries=15"
           "--health-timeout=3s"
@@ -59,7 +59,7 @@ in
       };
 
       traefik = {
-        image = "traefik:v3.4.0";
+        image = "traefik:latest";
         environment.CLOUDFLARE_DNS_API_TOKEN = secrets.service.cloudflare.token;
         volumes = [
           "${volumePath}/config/letsencrypt:/letsencrypt:rw"

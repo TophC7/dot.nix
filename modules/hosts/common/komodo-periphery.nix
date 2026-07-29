@@ -4,6 +4,7 @@
   host,
   hosts,
   lib,
+  pkgs,
   secrets,
   ...
 }:
@@ -14,14 +15,19 @@ in
 {
   services.komodo-periphery = {
     enable = true;
-    ssl.enable = lib.mkDefault false;
     user = lib.mkDefault user;
     group = lib.mkDefault "ryot";
-    passkeys = [ passkey ];
     rootDirectory = lib.mkDefault "/ryot/komodo";
-    allowedIps = [
-      hosts.zebes.ip
-    ];
+
+    # Compatibility bridge while Core moves to v2 PKI authentication.
+    passkeyFiles = pkgs.writeText "komodo-passkeys" passkey;
+
+    inbound = {
+      ssl.enable = lib.mkDefault false;
+      allowedIps = [
+        hosts.zebes.ip
+      ];
+    };
   };
 
   # Relax systemd sandbox so periphery can spawn terminals and access user shells

@@ -11,7 +11,7 @@ in
     network.enable = false;
     containers = {
       "newt-host" = {
-        image = "fosrl/newt";
+        image = "fosrl/newt:latest";
         cmd = [
           "--id"
           env.ID

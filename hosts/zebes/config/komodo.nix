@@ -27,9 +27,11 @@ let
 in
 {
   services.komodo-periphery = {
-    ssl.enable = true;
     rootDirectory = store;
-    allowedIps = [ "172.16.0.0/12" ]; # Docker bridge subnet (Core container → host)
+    inbound = {
+      ssl.enable = true;
+      allowedIps = [ "172.16.0.0/12" ]; # Docker bridge subnet (Core container → host)
+    };
   };
 
   virtualisation.oci-stacks.${name} = {
@@ -37,11 +39,15 @@ in
       "${name}-core" = {
         image = "ghcr.io/moghtech/komodo-core:latest";
         environment = env;
-        volumes = [ "${store}/cache:/repo-cache:rw" ];
+        volumes = [
+          "${store}/cache:/repo-cache:rw"
+          "${store}/core-keys:/config/keys:rw"
+        ];
         labels."komodo.skip" = "";
         dependsOn = [ "${name}-mongo" ];
         log-driver = "local";
         extraOptions = [
+          "--init"
           "--network=${name}"
           "--network-alias=core"
           "--pull=always"

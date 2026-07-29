@@ -104,7 +104,7 @@ let
       plugins:
         badger:
           moduleName: "github.com/fosrl/badger"
-          version: "v1.2.0"
+          version: "v1.5.0"
 
     log:
       level: "DEBUG"

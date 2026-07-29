@@ -12,6 +12,7 @@ in
 
   services.newt = {
     enable = true;
+    image = "fosrl/newt:latest";
     id = cfg.ID;
     secret = cfg.SECRET;
     pangolinEndpoint = "https://pangolin.ryot.foo";
