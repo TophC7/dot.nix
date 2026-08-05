@@ -25,7 +25,6 @@
 
     ## Additional Configs ##
     (map (lib.fs.relativeTo flakeRoot) [
-      "modules/hosts/common/adb.nix"
       "modules/hosts/common/audio.nix"
       "modules/hosts/common/bluetooth.nix"
       "modules/hosts/common/ddcutil.nix"

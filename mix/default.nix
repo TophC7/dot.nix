@@ -8,15 +8,13 @@
 #   - `inputs` - All flake inputs
 #   - `secrets` - Secrets if configured via mix.secrets
 #
-_:
-{
+_: {
   # No imports; Both hostSpec and secrets are handled by mix.nix directly
 
   mix =
     let
       userGroups = [
         # Common groups for all users
-        "adbusers"
         "audio"
         "docker"
         "gamemode"
