@@ -99,7 +99,7 @@ in
   ## Primary shell enablement ##
   programs.fish = {
     enable = true;
-    useBabelfish = true; # Native fish - bash translation
+    useBabelfish = false;
   };
   environment.shells = with pkgs; [
     bash
@@ -120,6 +120,8 @@ in
 
     settings = {
       connect-timeout = 5;
+      # nh evaluates remote builds locally without forwarding --fallback.
+      fallback = true;
       log-lines = 25;
       min-free = 128000000; # 128MB
       max-free = 1000000000; # 1GB
@@ -140,8 +142,8 @@ in
       # nimbus IS the cache server - exclude it from its own substituters to prevent circular fetches
       substituters = [
         "https://cache.nixos.org"
-        "https://cache.garnix.io"
-"https://cache.numtide.com"
+        "https://cache.forall.systems" # affinity-nix
+        "https://cache.numtide.com"
       ]
       ++ lib.optionals (host.hostName != "nimbus") [
         "https://cache.ryot.foo?priority=1"
@@ -149,8 +151,8 @@ in
 
       trusted-public-keys = [
         "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
-        "cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g="
-"niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g="
+        "cache.forall.systems:5PmD7QO4MSF8YgyRZtkSGXRDo96H3bybIf2SsQh8ScI="
+        "niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g="
         secrets.service.cache.pub
       ]
       ++ lib.optional (secrets ? service && secrets.service ? cache) secrets.service.cache.pub;

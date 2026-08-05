@@ -11,9 +11,9 @@ let
   niriSession = "${inputs.niri.packages.${system}.niri-unstable}/bin/niri-session";
 in
 {
-  imports = [ inputs.dankMaterialShell.nixosModules.greeter ];
+  imports = [ inputs.dank-greeter.nixosModules.default ];
 
-  programs.dank-material-shell.greeter = {
+  programs.dms-greeter = {
     enable = lib.mkDefault true;
     compositor.name = lib.mkDefault "niri";
     configHome = lib.mkDefault "/home/${host.user.name}";

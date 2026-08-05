@@ -40,7 +40,8 @@ in
 {
   imports = [
     inputs.mix-nix.homeManagerModules.monitors
-  ] ++ lib.fs.scanPaths ./.;
+  ]
+  ++ lib.fs.scanPaths ./.;
 
   programs.niri.settings = {
     input = {
@@ -147,6 +148,9 @@ in
             scale = monitor.scale;
             transform.rotation = transformToRotation monitor.transform;
             variable-refresh-rate = monitor.vrr or false;
+          }
+          // lib.optionalAttrs (monitor.primary or false) {
+            focus-at-startup = true;
           };
         }) (config.monitors or [ ])
       )
