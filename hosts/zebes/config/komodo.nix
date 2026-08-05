@@ -7,7 +7,7 @@ let
   name = "komodo";
   store = "/store/komodo";
   env = secrets.service.komodo // {
-    COMPOSE_KOMODO_IMAGE_TAG = "latest";
+    COMPOSE_KOMODO_IMAGE_TAG = "2";
     H_ENABLED = "false";
     KOMODO_DATABASE_ADDRESS = "mongo:27017";
     KOMODO_DISABLE_CONFIRM_DIALOG = "true";
@@ -37,7 +37,7 @@ in
   virtualisation.oci-stacks.${name} = {
     containers = {
       "${name}-core" = {
-        image = "ghcr.io/moghtech/komodo-core:latest";
+        image = "ghcr.io/moghtech/komodo-core:${env.COMPOSE_KOMODO_IMAGE_TAG}";
         environment = env;
         volumes = [
           "${store}/cache:/repo-cache:rw"

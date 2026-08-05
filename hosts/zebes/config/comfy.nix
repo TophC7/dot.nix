@@ -6,6 +6,7 @@
 }:
 
 let
+  enable = false; # Re-enable after ComfyUI packaging is updated.
   comfyHome = "/store/comfyui";
   comfyVersion = "v0.3.76";
 
@@ -104,7 +105,7 @@ let
       "$@"
   '';
 in
-{
+lib.mkIf enable {
   # System packages for debugging/monitoring
   environment.systemPackages = with pkgs; [
     rocmPackages.rocm-smi
