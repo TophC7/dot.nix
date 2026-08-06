@@ -4,6 +4,8 @@
 #
 {
   config,
+  inputs,
+  host,
   lib,
   pkgs,
   ...
@@ -29,6 +31,11 @@ let
   }) agentFiles;
 in
 {
+  home.packages = with inputs.llm-agents.packages.${host.system}; [
+    claude-code
+    claude-desktop
+  ];
+
   home.file = {
     # Global CLAUDE.md - instructions that apply to every conversation
     ".claude/CLAUDE.md".source = ./CLAUDE.md;
