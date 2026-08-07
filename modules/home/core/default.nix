@@ -46,6 +46,7 @@ in
       EDITOR = lib.mkDefault "fresh";
       VISUAL = lib.mkDefault "fresh";
       FLAKE = lib.mkDefault "/repo/Nix/dot.nix";
+      NH_FLAKE = lib.mkDefault "/repo/Nix/dot.nix";
       SHELL = lib.getExe user.shell;
     };
     preferXdgDirectories = true; # whether to make programs use XDG directories whenever supported
