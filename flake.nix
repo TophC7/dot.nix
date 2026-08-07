@@ -10,6 +10,7 @@
     ## NixOS ##
 
     flake-parts.url = "github:hercules-ci/flake-parts";
+    systems-linux.url = "github:nix-systems/default-linux";
 
     hardware = {
       url = "github:nixos/nixos-hardware";
@@ -47,6 +48,11 @@
 
     dankMaterialShell = {
       url = "github:AvengeMedia/DankMaterialShell";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    dank-greeter = {
+      url = "github:AvengeMedia/dank-greeter";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -97,6 +103,11 @@
 
     niri = {
       url = "github:tophc7/niri-flake";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    nautilus-my-computer = {
+      url = "github:yannmasoch/nautilus-my-computer?dir=packaging/nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -175,6 +186,11 @@
     # Keep llm-agents' pinned nixpkgs: Numtide's prebuilt binaries are keyed to it.
     llm-agents.url = "github:numtide/llm-agents.nix";
 
+    codex-desktop-linux = {
+      url = "github:ilysenko/codex-desktop-linux";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     hyprnavi-psm = {
       url = "git+file:///repo/rust/hyprnavi";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -184,6 +200,7 @@
       # url = "github:TophC7/Sworm";
       url = "git+file:///home/toph/Development/sworm";
       inputs.nixpkgs.follows = "nixpkgs";
+      inputs.bun2nix.inputs.systems.follows = "systems-linux";
     };
 
     pi-nix = {

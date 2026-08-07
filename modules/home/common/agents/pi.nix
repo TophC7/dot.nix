@@ -7,7 +7,10 @@
   imports = [ inputs.pi-nix.homeManagerModules.default ];
 
   # Enable the pi.nix module setup
-  programs.pi.enable = true;
+  programs.pi = {
+    enable = true;
+    antigravity.enable = true;
+  };
 
   # Local inference on Zebes. llama-server ignores the placeholder API key,
   # but Pi requires configured auth before exposing a custom model.
