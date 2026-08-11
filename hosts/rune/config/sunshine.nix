@@ -1,4 +1,9 @@
-{ pkgs, lib, ... }:
+{
+  host,
+  lib,
+  pkgs,
+  ...
+}:
 let
   virtual-on = pkgs.writeScript "sunshine-virtual-on" ''
     #!${lib.getExe pkgs.fish}
@@ -62,6 +67,8 @@ let
   '';
 in
 {
+  users.users.${host.user.name}.extraGroups = [ "uinput" ];
+
   services.sunshine = {
     enable = true;
     autoStart = true;
@@ -131,11 +138,6 @@ in
       ];
     };
   };
-
-  # Fix uinput permissions for virtual input devices
-  services.udev.extraRules = ''
-    KERNEL=="uinput", MODE="0660", GROUP="input", SYMLINK+="uinput"
-  '';
 
   systemd.tmpfiles.rules = [
     "d /home/toph/.local/state/sunshine/log 0755 toph users -"
