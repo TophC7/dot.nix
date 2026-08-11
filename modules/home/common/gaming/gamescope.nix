@@ -4,16 +4,14 @@
   lib,
   pkgs,
   inputs,
-  host,
   ...
 }:
 let
-  # Niri HDR is not ready yet; keep HDR opt-in profiles SDL-only.
-  allowHDR = !(host.isServer or false);
-
   baseEnv = {
     XCURSOR_THEME = config.home.pointerCursor.name or "Adwaita";
     XCURSOR_PATH = "${config.home.pointerCursor.package or pkgs.adwaita-icon-theme}/share/icons";
+    # Zink: translates OpenGL → Vulkan for better perf on AMD
+    MESA_LOADER_DRIVER_OVERRIDE = "zink";
   };
 
   baseOptions = {
@@ -27,9 +25,12 @@ in
 
   programs.wayscope = {
     enable = true;
-    # Use nixpkgs gamescope so compositor and Mesa/RADV share the same glibc.
-    # Chaotic gamescope_git can lag glibc and make Vulkan fall back to llvmpipe.
-    useGit = false;
+    # mix.nix's overlay builds both packages from the host package set, keeping
+    # Gamescope and Mesa/RADV on the same glibc.
+    gamescope = {
+      package = pkgs.gamescope-git;
+      wsiPackage = pkgs.gamescope-git.wsi;
+    };
 
     # Monitors come from config.monitors (mix.nix) automatically
     # useSystemMonitors = true; # Auto-detected
@@ -37,64 +38,18 @@ in
     profiles = {
       # Default profile - used when no profile specified
       default = {
-        useHDR = allowHDR;
-        useWSI = true;
         options = baseOptions;
-        environment = baseEnv;
-      };
-
-      hdr = {
-        useHDR = true;
-        useWSI = true;
-        options = baseOptions;
-        environment = baseEnv;
-      };
-
-      auto-hdr = {
-        useHDR = true;
-        useWSI = false;
-        options = {
-          backend = "sdl";
-          hdr-itm-enabled = true;
-        };
         environment = baseEnv;
       };
 
       wayland = {
-        useHDR = allowHDR;
-        useWSI = true;
-        unset = [ "DISPLAY" ];
-      };
-
-      # Zink: translates OpenGL → Vulkan for better perf on AMD
-      minecraft = {
-        useHDR = allowHDR;
-        useWSI = true;
         options = baseOptions;
-        environment = baseEnv // {
-          MESA_LOADER_DRIVER_OVERRIDE = "zink";
-        };
+        environment = baseEnv;
         unset = [ "DISPLAY" ];
       };
 
       steam = {
-        useHDR = allowHDR;
-        useWSI = true;
         options = baseOptions // {
-          steam = true;
-        };
-        environment = baseEnv // {
-          STEAM_FORCE_DESKTOPUI_SCALING = "1";
-          STEAM_GAMEPADUI = "1";
-        };
-      };
-
-      steam-auto-hdr = {
-        useHDR = true;
-        useWSI = true;
-        options = {
-          backend = "sdl";
-          hdr-itm-enabled = true;
           steam = true;
         };
         environment = baseEnv // {
@@ -111,19 +66,21 @@ in
         command = "${lib.getExe osConfig.programs.steam.package} -bigpicture -tenfoot";
       };
 
-      steam-auto-hdr = {
-        enable = true;
-        profile = "steam-auto-hdr";
-        command = "${lib.getExe osConfig.programs.steam.package} -bigpicture -tenfoot";
-      };
-
       heroic = {
         enable = true;
-        profile = "auto-hdr";
+        profile = "wayland";
         package = pkgs.heroic;
       };
     };
   };
+
+  # Heroic cannot discover Proton builds exposed only through Steam's wrapper.
+  xdg.configFile = lib.listToAttrs (
+    map (proton: {
+      name = "heroic/tools/proton/${proton.name}";
+      value.source = "${proton}/bin";
+    }) osConfig.programs.steam.extraCompatPackages
+  );
 
   xdg.desktopEntries = {
     ## Steam and Games ##
@@ -151,10 +108,6 @@ in
           name = "Steam Big Picture (Wayscope Profile)";
           exec = "${lib.getExe config.programs.wayscope.wrappers.steam-wayscope.wrappedPackage}";
         };
-        gamescope-auto-hdr = {
-          name = "Steam Big Picture (Wayscope Profile)";
-          exec = "${lib.getExe config.programs.wayscope.wrappers.steam-auto-hdr.wrappedPackage}";
-        };
         kill-processes = {
           name = "Kill Steam/Gamescope Processes";
           exec = "${pkgs.writeShellScript "kill-gaming-processes" ''
@@ -166,16 +119,6 @@ in
           ''}";
         };
       };
-    };
-
-    lemon = {
-      name = "Lemon Craft";
-      comment = "Minecraft via Steam";
-      exec = "${lib.getExe config.programs.wayscope.wrappers.steam-wayscope.wrappedPackage} steam://rungameid/17657148064751681536";
-      icon = "/home/toph/.local/share/PrismLauncher/instances/Lemon Craft/icon.png";
-      type = "Application";
-      terminal = false;
-      categories = [ "Game" ];
     };
 
     ## Other Launchers ##
