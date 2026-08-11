@@ -69,6 +69,7 @@
         # NIMBUS network hosts
         "34:5A:60:58:1C:60,10.2.2.2,nimbus"
         "C8:53:09:F9:63:7F,10.2.2.4,norion"
+        "B0:4F:13:0F:AA:06,10.2.2.5,meowl"
       ];
 
       # Custom DNS entries

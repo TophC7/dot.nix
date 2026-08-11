@@ -80,6 +80,11 @@ _: {
         };
 
         # ── x86 Desktops ──
+        meowl = {
+          user = "toph";
+          ip = "10.2.2.5";
+        };
+
         norion = {
           user = "toph";
           ip = "10.2.2.4";
