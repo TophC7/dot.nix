@@ -6,6 +6,6 @@
   # Common desktop packages
   home.packages = with pkgs; [
     android-tools
-    scrcpy
+    scrcpy # android screen mirror
   ];
 }

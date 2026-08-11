@@ -39,7 +39,7 @@ in
       image = cfg.image;
       polarity = cfg.polarity;
 
-      fonts = lib.mkIf (cfg.fonts != null) cfg.fonts;
+      fonts = lib.optionalAttrs (cfg.fonts != null) cfg.fonts;
 
       icons = lib.mkIf (cfg.icon != null) {
         enable = lib.mkDefault true;
