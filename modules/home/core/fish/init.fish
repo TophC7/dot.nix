@@ -45,6 +45,7 @@ end
 
 ## ALIASES ##
 
+abbr -a bs bonk s
 abbr -a ls eza
 abbr -a s ssh
 abbr -a tt gtrash put
