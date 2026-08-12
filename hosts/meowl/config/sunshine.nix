@@ -1,4 +1,4 @@
-{ host, ... }:
+{ gpus, host, ... }:
 {
   users.users.${host.user.name}.extraGroups = [ "uinput" ];
 
@@ -13,7 +13,7 @@
       csrf_allowed_origins = "https://meowl:47990,https://meowl.ryot.local:47990,https://10.2.2.142:47990,https://10.2.2.5:47990";
       capture = "kms";
       encoder = "vaapi";
-      adapter_name = "/dev/dri/renderD128";
+      adapter_name = "/dev/dri/by-path/pci-${gpus.display}-render";
       av1_mode = "0";
       system_tray = "disabled";
     };

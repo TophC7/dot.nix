@@ -54,7 +54,14 @@
       computeRuntime = "legacy";
       vaapiDriver = "intel-media-driver";
     };
+
+    nvidia = {
+      open = true;
+      modesetting.enable = true;
+    };
   };
+
+  services.xserver.videoDrivers = [ "nvidia" ];
 
   programs.fuse.userAllowOther = true;
 

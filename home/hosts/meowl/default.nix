@@ -1,4 +1,4 @@
-{ lib, ... }:
+{ gpus, lib, ... }:
 {
   imports = lib.fs.scanPaths ./.;
 
@@ -16,6 +16,10 @@
       enabled = true;
     }
   ];
+
+  # Keep composition on the GPU that owns the virtual output; games still
+  # select the NVIDIA GPU through Vulkan or PRIME render offload.
+  programs.niri.settings.debug.render-drm-device = "/dev/dri/by-path/pci-${gpus.display}-render";
 
   theme.enable = false;
 }

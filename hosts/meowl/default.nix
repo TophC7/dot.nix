@@ -6,13 +6,21 @@
 #
 ###############################################################
 
-{ inputs, lib, ... }:
+{
+  flakeRoot,
+  inputs,
+  lib,
+  ...
+}:
 {
   imports = lib.flatten [
     (lib.fs.scanPaths ./.)
     inputs.hardware.nixosModules.common-cpu-intel
     inputs.hardware.nixosModules.common-pc-ssd
+    (lib.fs.relativeTo flakeRoot "modules/hosts/common/gaming.nix")
   ];
+
+  play.amd.enable = lib.mkForce false;
 
   networking.enableIPv6 = false;
   programs.nix-ld.enable = true;
