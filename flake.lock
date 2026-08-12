@@ -116,6 +116,26 @@
         "type": "github"
       }
     },
+    "bedrock-on-linux": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1786480368,
+        "narHash": "sha256-NHM4nouC/2kljSDl4wNQ/D8+RvXMsc/Af+Nt/oMNsCo=",
+        "owner": "Wyze3306",
+        "repo": "BedrockOnLinux",
+        "rev": "c03b81f0ddcb1e63bdc826659fefa1a189859e1d",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Wyze3306",
+        "repo": "BedrockOnLinux",
+        "type": "github"
+      }
+    },
     "bonk": {
       "inputs": {
         "flake-utils": "flake-utils",
@@ -2174,6 +2194,7 @@
       "inputs": {
         "affinity-nix": "affinity-nix",
         "anker-c200": "anker-c200",
+        "bedrock-on-linux": "bedrock-on-linux",
         "bonk": "bonk",
         "codex-desktop-linux": "codex-desktop-linux",
         "dank-greeter": "dank-greeter",
