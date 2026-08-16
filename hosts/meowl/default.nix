@@ -17,7 +17,11 @@
     (lib.fs.scanPaths ./.)
     inputs.hardware.nixosModules.common-cpu-intel
     inputs.hardware.nixosModules.common-pc-ssd
-    (lib.fs.relativeTo flakeRoot "modules/hosts/common/gaming.nix")
+    (map (lib.fs.relativeTo flakeRoot) [
+      "modules/hosts/common/gaming.nix"
+      "modules/hosts/common/docker.nix"
+      "modules/hosts/common/pangolin/newt.nix"
+    ])
   ];
 
   play.amd.enable = lib.mkForce false;

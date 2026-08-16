@@ -1,6 +1,27 @@
-{ gpus, lib, ... }:
 {
-  imports = lib.fs.scanPaths ./.;
+  flakeRoot,
+  gpus,
+  host,
+  inputs,
+  lib,
+  ...
+}:
+{
+  imports = lib.flatten [
+    ## Meowl Specific Imports ##
+    (lib.fs.scanPaths ./.)
+
+    ## Additional Imports ##
+    (map (lib.fs.relativeTo flakeRoot) [
+      "modules/home/common/gaming"
+      "modules/home/common/xdg.nix"
+      "modules/home/common/zen.nix"
+    ])
+  ];
+
+  home.packages = [
+    inputs.bedrock-on-linux.packages.${host.system}.default
+  ];
 
   monitors = [
     {
@@ -20,6 +41,4 @@
   # Keep composition on the GPU that owns the virtual output; games still
   # select the NVIDIA GPU through Vulkan or PRIME render offload.
   programs.niri.settings.debug.render-drm-device = "/dev/dri/by-path/pci-${gpus.display}-render";
-
-  theme.enable = false;
 }
