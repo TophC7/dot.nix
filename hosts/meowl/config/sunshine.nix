@@ -1,4 +1,17 @@
-{ gpus, host, ... }:
+{
+  config,
+  gpus,
+  host,
+  lib,
+  pkgs,
+  ...
+}:
+let
+  wayscope = config.home-manager.users.${host.user.name}.programs.wayscope.wrappers;
+  steam = lib.getExe config.programs.steam.package;
+  steamWayscope = lib.getExe wayscope.steam-wayscope.wrappedPackage;
+  setsid = lib.getExe' pkgs.util-linux "setsid";
+in
 {
   users.users.${host.user.name}.extraGroups = [ "uinput" ];
 
@@ -17,5 +30,26 @@
       av1_mode = "0";
       system_tray = "disabled";
     };
+
+    applications.apps = [
+      {
+        name = "Desktop";
+        image-path = "desktop.png";
+      }
+      {
+        name = "Steam Big Picture";
+        prep-cmd = [
+          {
+            do = steamWayscope;
+            undo = "${setsid} ${steam} steam://close/bigpicture";
+          }
+        ];
+        image-path = "steam.png";
+      }
+      {
+        name = "Heroic Console";
+        cmd = lib.getExe wayscope.heroic-console.wrappedPackage;
+      }
+    ];
   };
 }

@@ -1,10 +1,16 @@
 {
+  config,
   host,
   lib,
   pkgs,
   ...
 }:
 let
+  wayscope = config.home-manager.users.${host.user.name}.programs.wayscope.wrappers;
+  steam = lib.getExe config.programs.steam.package;
+  steamWayscope = lib.getExe wayscope.steam-wayscope.wrappedPackage;
+  setsid = lib.getExe' pkgs.util-linux "setsid";
+
   virtual-on = pkgs.writeScript "sunshine-virtual-on" ''
     #!${lib.getExe pkgs.fish}
     # Disable physical monitors
@@ -114,8 +120,8 @@ in
               undo = "${virtual-off}";
             }
             {
-              do = "steam-wayscope";
-              undo = "setsid steam steam://close/bigpicture";
+              do = steamWayscope;
+              undo = "${setsid} ${steam} steam://close/bigpicture";
             }
           ];
           image-path = "steam.png";
