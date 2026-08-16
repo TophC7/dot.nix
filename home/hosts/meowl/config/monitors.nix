@@ -1,7 +1,8 @@
-_: {
+{ gpu, ... }:
+{
   monitors = [
     {
-      name = "HDMI-A-3";
+      name = gpu.connector;
       primary = true;
       width = 2560;
       height = 1440;

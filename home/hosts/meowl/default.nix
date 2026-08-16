@@ -1,6 +1,5 @@
 {
   flakeRoot,
-  gpus,
   host,
   inputs,
   lib,

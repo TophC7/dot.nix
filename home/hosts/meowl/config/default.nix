@@ -1,11 +1,9 @@
-{ gpus, lib, ... }:
+{ gpu, lib, ... }:
 {
   imports = lib.fs.scanPaths ./.;
 
-  # Keep Niri and Gamescope on the Intel GPU that owns the display output.
-  # Games launched inside Gamescope can still select NVIDIA through Vulkan or PRIME.
   programs = {
-    niri.settings.debug.render-drm-device = "/dev/dri/by-path/pci-${gpus.display}-render";
+    niri.settings.debug.render-drm-device = "/dev/dri/by-path/pci-${gpu.pciAddress}-render";
     wayscope.profiles =
       lib.genAttrs
         [
@@ -14,7 +12,13 @@
           "wayland"
         ]
         (_: {
-          options.prefer-vk-device = "8086:9bc8";
+          options.prefer-vk-device = gpu.vulkanId;
+          unset = [
+            "AMD_VULKAN_ICD"
+            "DISABLE_LAYER_AMD_SWITCHABLE_GRAPHICS_1"
+            "MESA_LOADER_DRIVER_OVERRIDE"
+            "RADV_PERFTEST"
+          ];
         });
   };
 }

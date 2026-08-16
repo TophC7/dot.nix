@@ -1,5 +1,6 @@
 {
   config,
+  gpu,
   lib,
   modulesPath,
   pkgs,
@@ -44,15 +45,10 @@
             | base64 -d > $out/lib/firmware/edid/meowl_1440p.bin
         '')
       ];
-      outputs."HDMI-A-3" = {
+      outputs.${gpu.connector} = {
         edid = "meowl_1440p.bin";
         mode = "e";
       };
-    };
-
-    intelgpu = {
-      computeRuntime = "legacy";
-      vaapiDriver = "intel-media-driver";
     };
 
     nvidia = {

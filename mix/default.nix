@@ -83,9 +83,10 @@ _: {
         meowl = {
           user = "toph";
           ip = "10.2.2.5";
-          specialArgs.gpus = {
-            display = "0000:00:02.0";
-            gaming = "0000:01:00.0";
+          specialArgs.gpu = {
+            pciAddress = "0000:01:00.0";
+            vulkanId = "10de:2584";
+            connector = "HDMI-A-4";
           };
         };
 

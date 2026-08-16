@@ -71,12 +71,6 @@ in
         profile = "wayland";
         package = pkgs.heroic;
       };
-
-      heroic-console = {
-        enable = true;
-        profile = "wayland";
-        command = "${lib.getExe pkgs.heroic} --console";
-      };
     };
   };
 
