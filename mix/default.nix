@@ -98,10 +98,7 @@ _: {
             store = true;
             tank = true;
           };
-          vpn = {
-            publicKey = "A+pF7xjkh+TcI2w9CqZydF8oRSQQxNvPpGp18/R3YCE=";
-            address = "10.10.0.4/32";
-          };
+          vpn.address = "10.10.0.4/32";
         };
 
         rune = {
@@ -126,11 +123,7 @@ _: {
           isServer = true;
           isMinimal = true;
           mounts.repo = true;
-          vpn = {
-            publicKey = "CsFrUwKp1EQoBJqKkn44/P8q2+Zm5U0YTEpkLlrKlzI=";
-            address = "10.10.0.1/24"; # Server address
-            # No endpoint - this is the VPN server
-          };
+          vpn.address = "10.10.0.1/24"; # Server address
         };
 
         nimbus = {
@@ -154,20 +147,14 @@ _: {
         };
 
         # ── VPN Only ──
-        frame = {
-          enable = false; # Do not build host, only VPN config
-          vpn = {
-            publicKey = "9vgWTiGy9lwjXT6/hqxXNodw4jdhZPVRpbwTIWAxDWg=";
-            address = "10.10.0.8/32";
-          };
-        };
-
         husky = {
           enable = false; # Do not build host, only VPN config
-          vpn = {
-            publicKey = "n9EbRKf4syovfi3lnTJ7NCuywLh1IuHL7XX+wK3drUg=";
-            address = "10.10.0.10/32";
-          };
+          vpn.address = "10.10.0.10/32";
+        };
+
+        sammy = {
+          enable = false; # Do not build host, only VPN config
+          vpn.address = "10.10.0.8/32";
         };
       };
     };

@@ -19,24 +19,35 @@ let
   # ── Dynamic VPN Client Discovery ──
   # Filter hosts that are VPN clients:
   # - Not this host (nexus - the server)
-  # - Has vpn config with publicKey
   # - Has a /32 address (clients have /32, server has /24)
   vpnClients = lib.filterAttrs (
     name: spec:
-    name != host.hostName
-    && spec.vpn or null != null
-    && spec.vpn.publicKey or null != null
-    && lib.hasSuffix "/32" (spec.vpn.address or "")
+    name != host.hostName && spec.vpn or null != null && lib.hasSuffix "/32" (spec.vpn.address or "")
   ) hosts;
 
-  # Build peer config from host spec
-  mkPeer = name: spec: {
-    publicKey = spec.vpn.publicKey;
-    allowedIPs = [ spec.vpn.address ];
-    persistentKeepalive = spec.vpn.persistentKeepalive or 25;
-  };
+  clientPublicKey = name: lib.attrByPath [ "service" "wg-${name}" "publicKey" ] null secrets;
+  missingPublicKeys = lib.filter (name: clientPublicKey name == null) (lib.attrNames vpnClients);
+
+  # Build peer config from host spec and key stored in secrets
+  mkPeer =
+    name: spec:
+    let
+      publicKey = clientPublicKey name;
+    in
+    {
+      publicKey = if publicKey == null then "" else publicKey;
+      allowedIPs = [ spec.vpn.address ];
+      persistentKeepalive = spec.vpn.persistentKeepalive or 25;
+    };
 in
 {
+  assertions = [
+    {
+      assertion = missingPublicKeys == [ ];
+      message = "VPN clients missing WireGuard public keys in secrets: ${lib.concatStringsSep ", " missingPublicKeys}";
+    }
+  ];
+
   networking = {
     # WireGuard VPN server interface
     wireguard.interfaces.${vpnInterface} = {

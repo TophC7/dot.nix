@@ -11,10 +11,7 @@
 #     ip = "192.168.1.10";
 #     mounts.fast = true;
 #     mounts.tank = true;
-#     vpn = {
-#       publicKey = "abc123...";
-#       address = "10.10.0.2/32";
-#     };
+#     vpn.address = "10.10.0.2/32";
 #   };
 #
 # For modules usage see: modules/hosts/core/mounts.nix
@@ -69,12 +66,6 @@ let
 
   vpnType = t.submodule {
     options = {
-      publicKey = mkOption {
-        type = t.str;
-        description = "WireGuard public key for this host";
-        example = "xTIBA5rboUvnH4htodjb60Y7YAf21w7HkAPtUYZV8yY=";
-      };
-
       address = mkOption {
         type = t.str;
         description = "IP address for WireGuard interface (with CIDR notation)";
