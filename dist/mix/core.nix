@@ -1,19 +1,18 @@
 {
   config,
-  inputs,
-  isARM,
+  host,
   lib,
   pkgs,
-  host,
-  system,
   ...
 }:
 let
+  isARM = host.system == "aarch64-linux";
   isCross = pkgs.stdenv.buildPlatform.system != pkgs.stdenv.hostPlatform.system;
 in
 {
+  image.fileName = lib.mkForce "nixos-${host.hostName}-${config.system.nixos.label}-${host.system}.iso";
+
   isoImage = {
-    isoName = lib.mkForce "nixos-${host.network.hostName}-${config.system.nixos.label}-${pkgs.stdenv.hostPlatform.system}.iso";
     makeEfiBootable = true;
     makeUsbBootable = true;
     compressImage = false;
@@ -21,22 +20,19 @@ in
     includeSystemBuildDependencies = lib.mkIf (isARM || isCross) false;
   };
 
-  ## SSH  & NETWORK ##
   services.openssh = {
     enable = true;
     settings = {
-      PermitRootLogin = "yes";
-      PasswordAuthentication = true;
+      PermitRootLogin = lib.mkForce "yes";
+      PasswordAuthentication = lib.mkForce true;
     };
   };
 
   networking = {
-    wireless.enable = false;
     networkmanager.enable = true;
     enableIPv6 = false;
   };
 
-  ## PKGS ##
   environment.systemPackages = with pkgs; [
     parted
     gptfdisk
@@ -44,27 +40,18 @@ in
     gparted
   ];
 
-  ## VM additions ##
   services.spice-vdagentd.enable = true;
   services.qemuGuest.enable = true;
   virtualisation.vmware.guest.enable = pkgs.stdenv.hostPlatform.isx86;
   virtualisation.hypervGuest.enable =
     pkgs.stdenv.hostPlatform.isx86 || pkgs.stdenv.hostPlatform.isAarch64;
   services.xe-guest-utilities.enable = pkgs.stdenv.hostPlatform.isx86;
-  # The VirtualBox guest additions rely on an out-of-tree kernel module
-  # which lags behind kernel releases, potentially causing broken builds.
   virtualisation.virtualbox.guest.enable = false;
 
-  ## System ##
-  system.stateVersion = "25.05";
-  nixpkgs.hostPlatform = system;
-  users.mutableUsers = lib.mkForce true; # Allow password changes
-
-  nixpkgs.config = {
-    allowUnsupportedSystem = true;
-    allowUnfree = true;
-    allowBroken = false;
-  };
+  system.stateVersion = "25.11";
+  boot.zfs.forceImportRoot = false;
+  nixpkgs.hostPlatform = host.system;
+  users.mutableUsers = lib.mkForce true;
 
   systemd.services = lib.mkIf isARM {
     systemd-firstboot.enable = lib.mkForce false;

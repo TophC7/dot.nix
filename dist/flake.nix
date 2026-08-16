@@ -1,113 +1,138 @@
 {
-  description = "NixOS ISO configurations based on dot.nix";
+  description = "NixOS installation media based on the current dot.nix modules";
 
+  # Keep these aligned with inputs referenced by ../modules. dist stays CI-safe
+  # by using public sources instead of the root flake's local development URLs.
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    nixpkgs.follows = "mix-nix/nixpkgs";
 
-    dot-nix = {
-      url = "github:tophc7/dot.nix";
+    mix-nix.url = "github:tophc7/mix.nix";
+    flake-parts.follows = "mix-nix/flake-parts";
+
+    home-manager = {
+      url = "github:nix-community/home-manager";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    fresh = {
+      url = "github:sinelaw/fresh";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    bonk = {
+      url = "github:tophc7/bonk";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    niri = {
+      url = "github:tophc7/niri-flake";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    dank-greeter = {
+      url = "github:AvengeMedia/dank-greeter";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    nautilus-my-computer = {
+      url = "github:yannmasoch/nautilus-my-computer?dir=packaging/nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    quickshell = {
+      url = "git+https://git.outfoxxed.me/outfoxxed/quickshell";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    dankMaterialShell = {
+      url = "github:AvengeMedia/DankMaterialShell";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    dms-actions = {
+      url = "github:AvengeMedia/dms-plugins";
+      flake = false;
+    };
+
+    dms-easyeffects = {
+      url = "github:jonkristian/dms-easyeffects";
+      flake = false;
+    };
+
+    dms-quick-tote = {
+      url = "github:JDKamalakar/DMS-Quick_Tote";
+      flake = false;
+    };
+
+    dms-clipboard-plus = {
+      url = "github:Dadangdut33/dms-plugins";
+      flake = false;
+    };
+
+    dms-github-heatmap = {
+      url = "github:JDKamalakar/DMS-GitHub_HeatMap";
+      flake = false;
+    };
+
+    dms-amd-gpu-monitor = {
+      url = "github:JDKamalakar/DMS-AMD_GPU_Monitor_Revive";
+      flake = false;
+    };
+
+    dms-cat-widget = {
+      url = "github:xi-ve/cat-dms";
+      flake = false;
+    };
+
+    dms-plugins = {
+      url = "git+https://git.ryot.foo/toph/dms-plugins";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    anker-c200 = {
+      url = "git+https://git.ryot.foo/toph/anker-powerconf-c200-linux";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    stylix = {
+      url = "github:danth/stylix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    vicinae = {
+      url = "github:vicinaehq/vicinae";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    zen-browser = {
+      url = "github:0xc000022070/zen-browser-flake/beta";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
   outputs =
-    {
-      self,
-      nixpkgs,
-      dot-nix,
-      ...
-    }@inputs:
+    inputs@{ flake-parts, ... }:
     let
-      inherit (nixpkgs) lib;
-
-      # Merge inputs with dot-nix inputs
-      allInputs = inputs // dot-nix.inputs;
-
-      # Define supported systems
-      ARM = "aarch64-linux";
-      X86 = "x86_64-linux";
-
-      systems = [
-        ARM
-        X86
-      ];
-
-      # Helper to create ISO configurations
-      mkIso =
-        name: system: modules:
-        lib.nixosSystem {
-          inherit system;
-          specialArgs = {
-            inputs = allInputs; # Pass merged inputs as 'inputs'
-            outputs = dot-nix.outputs; # Pass main flake outputs
-            inherit system;
-            isARM = system == ARM;
-            lib = nixpkgs.lib.extend (
-              self: super: {
-                custom = import "${dot-nix}/lib" { inherit (nixpkgs) lib; };
-              }
-            );
-          };
-
-          modules = [
-            "${nixpkgs}/nixos/modules/installer/cd-dvd/installation-cd-minimal.nix"
-            ./not-secrets.nix
-            ./default.nix
-          ] ++ modules;
-        };
-
-      # Generate configurations for all system/type combinations
-      mkConfigurations =
-        let
-          configs = lib.flatten (
-            lib.map (
-              system:
-              let
-                archSuffix = if system == ARM then "arm" else "x86";
-              in
-              [
-                {
-                  name = "server-iso-${archSuffix}";
-                  inherit system;
-                  modules = [ ./dist/server.nix ];
-                }
-                {
-                  name = "desktop-iso-${archSuffix}";
-                  inherit system;
-                  modules = [ ./dist/desktop.nix ];
-                }
-              ]
-            ) systems
-          );
-        in
-        lib.listToAttrs (
-          lib.map (config: {
-            name = config.name;
-            value = mkIso config.name config.system config.modules;
-          }) configs
-        );
-
-      # Generate packages per system - all available on x86_64 via cross-compilation
-      mkPackages =
-        system:
-        let
-          archSuffix = if system == ARM then "arm" else "x86";
-        in
-        {
-          "server-iso-${archSuffix}" =
-            self.nixosConfigurations."server-iso-${archSuffix}".config.system.build.isoImage;
-          "desktop-iso-${archSuffix}" =
-            self.nixosConfigurations."desktop-iso-${archSuffix}".config.system.build.isoImage;
-        };
+      inherit (inputs.mix-nix) lib;
+      flakeRoot = ./.;
+      dotNixRoot = ../.;
     in
-    {
-      nixosConfigurations = mkConfigurations;
+    flake-parts.lib.mkFlake
+      {
+        inherit inputs;
+        specialArgs = {
+          inherit lib flakeRoot dotNixRoot;
+        };
+      }
+      {
+        imports = [
+          inputs.mix-nix.flakeModules.default
+          ./mix
+        ];
 
-      packages = {
-        "${X86}" = (mkPackages X86) // (mkPackages ARM);
-        "${ARM}" = mkPackages ARM;
+        systems = [
+          "x86_64-linux"
+          "aarch64-linux"
+        ];
       };
-
-      inherit (dot-nix.outputs) overlays;
-    };
 }

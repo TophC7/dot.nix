@@ -3,13 +3,12 @@ name: Build NixOS ISOs (x86 only)
 on:
   push:
     branches: [main]
+    tags: ["*"]
     paths:
-      - "iso/**"
-      - "hosts/global/**"
-      - "home/global/**"
-      - "modules/**"
-      - "flake.nix"
-      - "flake.lock"
+      - "dist/**"
+      - "modules/hosts/**"
+      - "modules/home/**"
+      - ".github/workflows/build-iso.yml"
   workflow_dispatch:
 
 jobs:
@@ -17,62 +16,63 @@ jobs:
     strategy:
       matrix:
         iso-type: [server, desktop]
-        arch: [x86]
 
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install Nix
-        uses: DeterminateSystems/nix-installer-action@v9
+        uses: DeterminateSystems/determinate-nix-action@v3
 
-      - name: Setup Nix cache
-        uses: DeterminateSystems/magic-nix-cache-action@v2
+      - name: Set up Nix cache
+        uses: DeterminateSystems/magic-nix-cache-action@v14
 
-      - name: Build ISO (with retry)
+      - name: Build ISO
         uses: nick-fields/retry@v3
         with:
-          timeout_minutes: 45
+          timeout_minutes: 60
           max_attempts: 3
           retry_wait_seconds: 30
           command: |
-            cd iso
-            nix build .#${{ matrix.iso-type }}-iso-x86 \
+            nix build ./dist#${{ matrix.iso-type }}-iso-x86 \
+              --out-link result-${{ matrix.iso-type }} \
               --print-build-logs \
               --accept-flake-config
 
-      - name: Get ISO filename
+      - name: Locate ISO
         id: iso-info
         run: |
-          cd iso
-          ISO_PATH=$(nix build .#${{ matrix.iso-type }}-iso-x86 --print-out-paths --no-link)
-          ISO_FILE=$(find $ISO_PATH -name "*.iso" -o -name "*.iso.zst" | head -1)
-          ISO_NAME=$(basename "$ISO_FILE")
-          echo "iso-path=$ISO_FILE" >> $GITHUB_OUTPUT
-          echo "iso-name=$ISO_NAME" >> $GITHUB_OUTPUT
+          ISO_FILE=$(find -L "result-${{ matrix.iso-type }}" -type f \( -name "*.iso" -o -name "*.iso.zst" \) -print -quit)
+          test -n "$ISO_FILE"
+          ISO_FILE=$(readlink -f "$ISO_FILE")
+          echo "iso-path=$ISO_FILE" >> "$GITHUB_OUTPUT"
+          echo "iso-name=$(basename "$ISO_FILE")" >> "$GITHUB_OUTPUT"
 
-      - name: Upload ISO as artifact
+      - name: Upload ISO artifact
         uses: actions/upload-artifact@v4
         with:
-          name: nixos-${{ matrix.iso-type }}-${{ matrix.arch }}-iso
+          name: nixos-${{ matrix.iso-type }}-x86-iso
           path: ${{ steps.iso-info.outputs.iso-path }}
           retention-days: 30
+          if-no-files-found: error
 
   create-release:
     needs: build-iso
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/')
+    permissions:
+      contents: write
 
     steps:
-      - name: Download all artifacts
+      - name: Download ISO artifacts
         uses: actions/download-artifact@v4
         with:
           path: ./isos
 
-      - name: Create Release
-        uses: softprops/action-gh-release@v1
+      - name: Create release
+        uses: softprops/action-gh-release@v2
         with:
           files: ./isos/**/*.iso*
           tag_name: ${{ github.ref_name }}
@@ -80,21 +80,18 @@ jobs:
           body: |
             ## NixOS ISOs for ${{ github.ref_name }}
 
-            This release contains automatically built NixOS ISOs based on my configuration.
+            This release contains automatically built NixOS installation media based on the current dot.nix modules.
 
-            ### Available ISOs:
+            ### Available ISOs
             - **Server ISO**: Minimal server environment with SSH access
-            - **Desktop ISO**: GNOME desktop environment for installation
+            - **Desktop ISO**: Current dot.nix desktop with graphical installer
             - **Architecture**: x86_64 (Intel/AMD systems)
 
-            ### Usage:
-            1. Download the appropriate ISO for your system
-            2. Flash to USB or boot in VM
-            3. Default credentials: user `nixos`, password `nixos`
-            4. SSH is enabled for remote installation
+            ### Usage
+            1. Download the appropriate ISO.
+            2. Flash it to USB or boot it in a VM.
+            3. Log in as `nixos` with password `nixos`.
 
-            Note: ARM ISOs are not provided in this build. Users requiring ARM versions should build locally.
+            ARM outputs remain available for local builds.
 
             Built automatically from commit: ${{ github.sha }}
-          draft: false
-          prerelease: false
