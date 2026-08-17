@@ -6,7 +6,7 @@
   ...
 }:
 let
-  codexCli = inputs.llm-agents.packages.${host.system}.codex;
+  agentPackages = inputs.llm-agents.packages.${host.system};
   skillDirs = lib.filterAttrs (_: type: type == "directory") (builtins.readDir ./_catalog/skills);
 
   skillLinks = lib.mapAttrs' (name: _: {
@@ -18,14 +18,7 @@ let
 
 in
 {
-  imports = [ inputs.codex-desktop-linux.homeManagerModules.default ];
-
-  home.packages = [ codexCli ];
-
-  programs.codexDesktopLinux = lib.mkIf (!(host.isServer or false)) {
-    enable = true;
-    cliPackage = codexCli;
-  };
+  home.packages = [ agentPackages.codex ] ++ lib.optional (host.desktop != null) agentPackages.chatgpt;
 
   home.file = {
     ".codex/AGENTS.md".source = ./AGENTS.md;

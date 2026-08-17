@@ -191,11 +191,6 @@
     # Keep llm-agents' pinned nixpkgs: Numtide's prebuilt binaries are keyed to it.
     llm-agents.url = "github:numtide/llm-agents.nix";
 
-    codex-desktop-linux = {
-      url = "github:ilysenko/codex-desktop-linux";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     hyprnavi-psm = {
       url = "git+file:///repo/rust/hyprnavi";
       inputs.nixpkgs.follows = "nixpkgs";
