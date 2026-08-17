@@ -146,11 +146,11 @@
         "rust-overlay": "rust-overlay"
       },
       "locked": {
-        "lastModified": 1774891440,
-        "narHash": "sha256-qNmbW6aUMiIr8k7F+g7bqEa0aPzySUyjT+j3iA5Lx4E=",
+        "lastModified": 1786642530,
+        "narHash": "sha256-Kwi0d12fJP6VYvfAO8Tq/PflcC9SOLUVDlW39rzE3hs=",
         "ref": "refs/heads/main",
-        "rev": "737bf81523ffd311fbd308938463679a793d1e22",
-        "revCount": 20,
+        "rev": "c4eac0b708153465b5b7344aec8bf6dab0c72e81",
+        "revCount": 21,
         "type": "git",
         "url": "file:///repo/rust/bonk"
       },
@@ -2024,11 +2024,11 @@
         "pi-web-access": "pi-web-access"
       },
       "locked": {
-        "lastModified": 1786125253,
-        "narHash": "sha256-ESziCy+u8I9gTG38DUWLL7WuirHLXupsfss0XPWD5aM=",
+        "lastModified": 1786588042,
+        "narHash": "sha256-7SsLcUV6Br5A5OJfupjyu0snKcBUMhOcVAc8Eu+6Txk=",
         "ref": "refs/heads/main",
-        "rev": "b29b3f83d71d2345265b477ec7d02a4a4c3323b6",
-        "revCount": 78,
+        "rev": "ca99ea0a777a8590578fdccd4c6122a3c7080dea",
+        "revCount": 80,
         "type": "git",
         "url": "file:///repo/Nix/pi.nix"
       },
@@ -2463,11 +2463,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1784568612,
-        "narHash": "sha256-7LbJA/6OTN5X3FBnRKzVFRdhxOevx/lZOpFoFbKuWrk=",
+        "lastModified": 1786638128,
+        "narHash": "sha256-6vjgsFmUC1domPSiuxbgOXrVTdXhmjWwTAb9v3taz5I=",
         "ref": "refs/heads/main",
-        "rev": "5cb582a3f1447a5d46f85180b24a104099933fc5",
-        "revCount": 89,
+        "rev": "589fa6eb0d37dcaaacd277a6e907527686d36199",
+        "revCount": 90,
         "type": "git",
         "url": "file:///home/toph/Development/sworm"
       },

@@ -133,6 +133,11 @@
 
     ## Gaming ##
 
+    bedrock-on-linux = {
+      url = "github:Wyze3306/BedrockOnLinux";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     hytale-launcher = {
       url = "github:JPyke3/hytale-launcher-nix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -205,6 +210,8 @@
 
     pi-nix = {
       url = "git+file:///repo/Nix/pi.nix";
+      # Deployment must not require the build host to access local checkouts or SSH keys.
+      inputs.pi-source.url = "git+https://git.ryot.foo/toph/pi.git";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.mix-nix.follows = "mix-nix";
       inputs.home-manager.follows = "home-manager";
