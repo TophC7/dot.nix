@@ -1,6 +1,5 @@
 # Vicinae launcher configuration with Matugen theming
 {
-  inputs,
   config,
   pkgs,
   lib,
@@ -37,16 +36,14 @@ let
   '';
 in
 {
-  imports = [ inputs.vicinae.homeManagerModules.default ];
-
-  services.vicinae = lib.mkIf cfg.enable {
+  programs.vicinae = lib.mkIf cfg.enable {
     enable = lib.mkDefault true;
     systemd.enable = lib.mkDefault true;
   };
 
   # Override systemd service environment
   systemd.user.services.vicinae.Service.Environment =
-    lib.mkIf config.services.vicinae.systemd.enable
+    lib.mkIf config.programs.vicinae.systemd.enable
       [
         "QT_SCALE_FACTOR=1.10"
       ];

@@ -111,10 +111,6 @@ builds.mkPipeline {
 
       packages = [
         {
-          name = "fresh";
-          expr = dotInput "fresh" "default";
-        }
-        {
           name = "quickshell";
           expr = dotInput "quickshell" "default";
         }
@@ -126,10 +122,6 @@ builds.mkPipeline {
         {
           name = "niri";
           expr = dotInput "niri" "niri-unstable";
-        }
-        {
-          name = "vicinae";
-          expr = dotInput "vicinae" "default";
         }
       ];
     }

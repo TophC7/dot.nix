@@ -111,11 +111,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    vicinae = {
-      url = "github:vicinaehq/vicinae";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     rose-pine-hyprcursor = {
       url = "github:ndom91/rose-pine-hyprcursor";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -135,11 +130,6 @@
 
     bedrock-on-linux = {
       url = "github:Wyze3306/BedrockOnLinux";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    hytale-launcher = {
-      url = "github:JPyke3/hytale-launcher-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -167,11 +157,6 @@
 
     ## Misc ##
 
-    fresh = {
-      url = "github:sinelaw/fresh";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     solaar = {
       url = "github:Svenum/Solaar-Flake";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -190,11 +175,6 @@
 
     # Keep llm-agents' pinned nixpkgs: Numtide's prebuilt binaries are keyed to it.
     llm-agents.url = "github:numtide/llm-agents.nix";
-
-    hyprnavi-psm = {
-      url = "git+file:///repo/rust/hyprnavi";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
 
     sworm = {
       # url = "github:TophC7/Sworm";

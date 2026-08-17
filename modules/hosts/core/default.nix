@@ -17,9 +17,6 @@
   secrets ? { },
   ...
 }:
-let
-  fresh = inputs.fresh.packages.${host.system}.default;
-in
 {
   imports = lib.flatten [
     (lib.fs.scanPaths ./.)
@@ -42,7 +39,7 @@ in
     curl
     ethtool
     eza # ls replacement
-    fresh
+    fresh-editor
     git
     git-crypt
     gpg-tui
