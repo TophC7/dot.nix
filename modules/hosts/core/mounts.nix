@@ -5,7 +5,7 @@
 #   mix.hosts.desktop.mounts = {
 #     fast = true;   # Mount /fast from nimbus
 #     tank = true;   # Mount /tank from nimbus
-#     repo = true;   # Mount /repo from nimbus (default: true)
+#     repo = true;   # Mount /repo from nimbus
 #   };
 #
 {
@@ -17,8 +17,7 @@ let
   username = host.user.name;
 
   # Mount configuration from extended hostSpec
-  # Use empty set as default if mounts not specified
-  hostMounts = host.mounts or { };
+  hostMounts = host.mounts;
 
   # Define mount sources
   mountConfigs = {
@@ -73,7 +72,7 @@ let
   };
 
   # Generate mounts only for enabled mount points
-  enabledMounts = lib.filterAttrs (name: _: hostMounts.${name} or false) mountConfigs;
+  enabledMounts = lib.filterAttrs (name: _: hostMounts.${name}) mountConfigs;
 
   # Generate all mount configurations
   allMountConfigs = lib.mapAttrs mkNfsMount enabledMounts;

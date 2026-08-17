@@ -1,6 +1,19 @@
 # Common desktop host stack.
-# Non-server hosts get the desktop stack; servers stay headless.
-{ host, lib, ... }:
+{ host, ... }:
+let
+  desktops = {
+    gnome = [ ./gnome.nix ];
+    niri = [
+      ./dms.nix
+      ./niri.nix
+    ];
+  };
+in
 {
-  imports = lib.optionals (!(host.isServer or false)) (lib.fs.scanPaths ./.);
+  imports = [
+    ../audio.nix
+    ../ddcutil.nix
+    ./nautilus.nix
+  ]
+  ++ desktops.${host.desktop};
 }

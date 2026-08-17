@@ -1,13 +1,14 @@
 # Extended host specification for dot.nix
-# Extends mix.nix's base hostSpec with storage, networking, and VPN options
+# Adds desktop, storage, networking, and VPN options to mix.nix's base host spec.
 #
-# This is a mix.nix extension - uses lib.hosts.mkHostSpec to add
-# custom options while preserving all base hostSpec functionality.
+# This mix.nix extension adds custom options while preserving the base
+# host specification.
 #
 # Usage:
 #   # In host definitions:
 #   mix.hosts.desktop = {
 #     user = "toph";
+#     desktop = "gnome";
 #     ip = "192.168.1.10";
 #     mounts.fast = true;
 #     mounts.tank = true;
@@ -16,7 +17,7 @@
 #
 # For modules usage see: modules/hosts/core/mounts.nix
 #
-{ lib }:
+{ config, lib, ... }:
 let
   inherit (lib) mkOption;
   t = lib.types;
@@ -54,8 +55,7 @@ let
       repo = mkOption {
         type = t.bool;
         description = "Mount the /repo storage pool (git repos, Nix config)";
-        # Almost all hosts need /repo - it's where the flake lives
-        default = true;
+        default = false;
       };
     };
   };
@@ -81,14 +81,14 @@ let
 
       persistentKeepalive = mkOption {
         type = t.nullOr t.int;
-        description = "Persistent keepalive interval in seconds (for NAT traversal)";
-        default = null;
+        description = "Persistent keepalive interval in seconds; null disables it";
+        default = 25;
         example = 25;
       };
 
       allowedIPs = mkOption {
         type = t.listOf t.str;
-        description = "List of allowed IP ranges for this peer";
+        description = "Allowed IP ranges for this peer; empty uses the homelab defaults";
         default = [ ];
         example = [
           "10.10.0.0/24"
@@ -99,10 +99,21 @@ let
   };
 
 in
-lib.hosts.mkHostSpec {
+{
   # ─────────────────────────────────────────────────────────────
   # EXTENDED OPTIONS
   # ─────────────────────────────────────────────────────────────
+
+  options.desktop = mkOption {
+    type = t.nullOr (
+      t.enum [
+        "gnome"
+        "niri"
+      ]
+    );
+    default = if config.enable && !config.isServer then "niri" else null;
+    description = "Desktop environment used by this host";
+  };
 
   options.mounts = mkOption {
     type = mountsType;

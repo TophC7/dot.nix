@@ -9,8 +9,6 @@
 #   - `secrets` - Secrets if configured via mix.secrets
 #
 _: {
-  # No imports; Both hostSpec and secrets are handled by mix.nix directly
-
   mix =
     let
       userGroups = [
@@ -35,6 +33,7 @@ _: {
       };
 
       ## mix.nix Configurations ##
+      hostSpecExtensions = [ ./hostSpec.nix ];
       hostsDir = ../hosts; # NixOS configs: hosts/<hostname>/
       hostsHomeDir = ../home/hosts; # HM configs: home/hosts/<hostname>/
       usersHomeDir = ../home/users; # HM configs: home/users/<username>/
@@ -83,6 +82,7 @@ _: {
         meowl = {
           user = "toph";
           ip = "10.2.2.5";
+          desktop = "gnome";
           specialArgs.gpu = {
             pciAddress = "0000:01:00.0";
             vulkanId = "10de:2584";

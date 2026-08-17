@@ -1,7 +1,6 @@
 # Common Niri Home Manager configuration for desktop hosts.
 {
   config,
-  inputs,
   lib,
   pkgs,
   ...
@@ -38,10 +37,7 @@ let
       0;
 in
 {
-  imports = [
-    inputs.mix-nix.homeManagerModules.monitors
-  ]
-  ++ lib.fs.scanPaths ./.;
+  imports = lib.fs.scanPaths ./.;
 
   programs.niri.settings = {
     input = {

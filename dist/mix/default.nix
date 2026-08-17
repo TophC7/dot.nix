@@ -10,6 +10,8 @@ let
 in
 {
   mix = {
+    hostSpecExtensions = [ (dotNixRoot + "/mix/hostSpec.nix") ];
+
     secrets = {
       file = flakeRoot + "/mix/not-secrets.nix";
       skipValidation = true; # This file intentionally contains only public live-ISO credentials.

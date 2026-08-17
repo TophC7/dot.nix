@@ -23,7 +23,7 @@ in
 {
   imports = lib.flatten [
     (lib.fs.scanPaths ./.)
-    (lib.optionals (!(host.isServer or false)) [ ../common/desktop ])
+    (lib.optionals (host.desktop != null) [ ../common/desktop ])
     inputs.bonk.nixosModules.default
   ];
 

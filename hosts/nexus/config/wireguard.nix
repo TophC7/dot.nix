@@ -12,6 +12,8 @@ let
 
   # Server config from host spec
   serverAddress = host.vpn.address; # e.g., "10.10.0.1/24"
+  sammyAddress = hosts.sammy.vpn.address;
+  meowlAddress = hosts.meowl.ip;
 
   # Private key from secrets
   privateKey = secrets.service."wg-nexus".privateKey or "";
@@ -57,6 +59,24 @@ in
 
       # Dynamically generate peers from all VPN-enabled hosts
       peers = lib.mapAttrsToList mkPeer vpnClients;
+    };
+
+    # Enforce Sammy's access before the permissive NixOS and Docker chains.
+    nftables.tables.vpn-access = {
+      family = "inet";
+      content = ''
+        chain restrict-sammy-input {
+          type filter hook input priority filter - 10; policy accept;
+          ip saddr ${sammyAddress} udp dport 53 accept
+          ip saddr ${sammyAddress} tcp dport 53 accept
+          ip saddr ${sammyAddress} drop
+        }
+
+        chain restrict-sammy-forward {
+          type filter hook forward priority filter - 10; policy accept;
+          ip saddr ${sammyAddress} ip daddr != ${meowlAddress} drop
+        }
+      '';
     };
 
     # Note: wg-vpn is added to NAT internal interfaces in router.nix

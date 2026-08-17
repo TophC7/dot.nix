@@ -1,9 +1,18 @@
 # Common desktop Home Manager stack.
-# Desktop is derived from host role: every non-server gets Niri + DMS.
-{ host, lib, ... }:
+{ host, inputs, ... }:
 let
-  isDesktop = !(host.isServer or false);
+  desktops = {
+    gnome = [
+      ./gnome.nix
+      ./shared
+    ];
+    niri = [
+      ./dms
+      ./niri
+      ./shared
+    ];
+  };
 in
 {
-  imports = lib.optionals isDesktop (lib.fs.scanPaths ./.);
+  imports = [ inputs.mix-nix.homeManagerModules.monitors ] ++ desktops.${host.desktop};
 }

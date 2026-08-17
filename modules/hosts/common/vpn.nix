@@ -14,7 +14,7 @@
   ...
 }:
 let
-  cfgWg = host.vpn or null;
+  cfgWg = host.vpn;
   # Get the actual nexus public key from secrets
   nexusPublicKey = secrets.service."wg-nexus".publicKey or null;
   # Get private key for this host from secrets
@@ -23,16 +23,21 @@ let
   # Default endpoint: use secrets.service.caenus.ip (can be overridden per-host)
   caelusIp = secrets.service.caenus.ip;
   defaultEndpoint = "${caelusIp}:51821";
-  endpoint = if cfgWg ? endpoint && cfgWg.endpoint != null then cfgWg.endpoint else defaultEndpoint;
+  endpoint = if cfgWg.endpoint != null then cfgWg.endpoint else defaultEndpoint;
 
   # Allowed IP ranges for the VPN (semicolon-separated for NetworkManager)
-  allowedIPs = lib.concatStringsSep ";" [
-    "10.10.0.0/24" # VPN subnet (includes DNS at 10.10.0.1)
-    "10.1.1.0/24" # Pangolin/LAN network
-    "10.2.2.0/24" # NIMBUS network
-    "10.3.3.0/24" # ZEBES network
-    "10.4.4.0/24" # RUNE network
-  ];
+  allowedIPs = lib.concatStringsSep ";" (
+    if cfgWg.allowedIPs != [ ] then
+      cfgWg.allowedIPs
+    else
+      [
+        "10.10.0.0/24" # VPN subnet (includes DNS at 10.10.0.1)
+        "10.1.1.0/24" # Pangolin/LAN network
+        "10.2.2.0/24" # NIMBUS network
+        "10.3.3.0/24" # ZEBES network
+        "10.4.4.0/24" # RUNE network
+      ]
+  );
 in
 {
   config = lib.mkIf (cfgWg != null) {
@@ -63,8 +68,10 @@ in
       # Peer config - section name includes the public key
       "wireguard-peer.${nexusPublicKey}" = {
         endpoint = endpoint;
-        persistent-keepalive = "25";
         allowed-ips = allowedIPs;
+      }
+      // lib.optionalAttrs (cfgWg.persistentKeepalive != null) {
+        persistent-keepalive = toString cfgWg.persistentKeepalive;
       };
 
       ipv4 = {
