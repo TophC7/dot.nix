@@ -29,6 +29,14 @@
   networking.enableIPv6 = false;
   programs.nix-ld.enable = true;
 
+  # Meowl is an always-on desktop and game-streaming host.
+  systemd.sleep.settings.Sleep = {
+    AllowSuspend = false;
+    AllowHibernation = false;
+    AllowSuspendThenHibernate = false;
+    AllowHybridSleep = false;
+  };
+
   # https://wiki.nixos.org/wiki/FAQ/When_do_I_update_stateVersion
   system.stateVersion = "25.11";
 }
