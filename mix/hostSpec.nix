@@ -115,6 +115,15 @@ in
     description = "Desktop environment used by this host";
   };
 
+  options.niriShell = mkOption {
+    type = t.enum [
+      "dms"
+      "pana"
+    ];
+    default = "dms";
+    description = "Desktop shell used by Niri hosts";
+  };
+
   options.mounts = mkOption {
     type = mountsType;
     description = "Storage mount points for this host";

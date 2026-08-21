@@ -96,6 +96,15 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    pana = {
+      url = "git+file:///repo/rust/pana";
+      inputs.mix-nix.follows = "mix-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.home-manager.follows = "home-manager";
+      inputs.matugen.follows = "matugen";
+      inputs.niri.follows = "niri";
+    };
+
     anker-c200 = {
       url = "git+https://git.ryot.foo/toph/anker-powerconf-c200-linux";
       inputs.nixpkgs.follows = "nixpkgs";

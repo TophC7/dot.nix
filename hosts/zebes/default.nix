@@ -58,6 +58,7 @@
         5520 # Hytale
         10048 # mountd
         15637 # Enshrouded
+        7777 # Astroneer
       ];
     };
     networkmanager.settings.connection = {

@@ -1,13 +1,18 @@
 # Common desktop Home Manager stack.
 { host, inputs, ... }:
 let
+  niriShells = {
+    dms = ./dms;
+    pana = ./pana;
+  };
+
   desktops = {
     gnome = [
       ./gnome.nix
       ./shared
     ];
     niri = [
-      ./dms
+      niriShells.${host.niriShell}
       ./niri
       ./shared
     ];

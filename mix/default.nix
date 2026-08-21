@@ -105,6 +105,7 @@ _: {
         rune = {
           user = "toph";
           ip = "10.4.4.4";
+          niriShell = "pana";
           mounts = {
             fast = true;
             repo = true;
