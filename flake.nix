@@ -157,11 +157,6 @@
 
     ## Misc ##
 
-    solaar = {
-      url = "github:Svenum/Solaar-Flake";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     bonk = {
       # url = "github:tophc7/bonk";
       url = "git+file:///repo/rust/bonk";
