@@ -27,11 +27,10 @@ in
     inputs.mix-nix.homeManagerModules.fastfetch
   ];
 
-  # Fastfetch config - logo auto-discovered from user's home.directory
   mix.fastfetch = {
     enable = true;
-    weather.location = "Richmond";
-    logo.directory = lib.fs.relativeTo flakeRoot "hosts/${host.hostName}";
+    weather.location = "Arecibo";
+    logo.source = lib.fs.relativeTo flakeRoot "home/users/${user.name}/logo.png";
   };
 
   services.ssh-agent.enable = true;

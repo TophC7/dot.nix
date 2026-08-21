@@ -15,7 +15,6 @@
     (map (lib.fs.relativeTo flakeRoot) [
       "modules/home/common/chromium.nix"
       "modules/home/common/agents"
-      "modules/home/common/affinity.nix"
       "modules/home/common/gaming"
       "modules/home/common/vscode.nix"
       "modules/home/common/xdg.nix"
@@ -35,12 +34,13 @@
 
   ## Packages with no needed configs ##
   home.packages = with pkgs; [
-    # inputs.hytale-launcher.packages.${host.system}.default
+    inputs.bedrock-on-linux.packages.${host.system}.default
 
     ## Media ##
     ffmpeg_8-full
     spotify
     gpu-screen-recorder-gtk
+    moonlight-qt
     vlc
     v4l-utils
 
@@ -56,6 +56,7 @@
 
     # Web Dev
     gh
+    gh-dash
     vivaldi
     inputs.sworm.packages.${host.system}.default
   ];
