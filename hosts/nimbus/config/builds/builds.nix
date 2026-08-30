@@ -35,6 +35,7 @@ let
   # ── Repository Paths ────────────────────────────────────────────
   mixRepo = "/repo/Nix/mix.nix";
   dotRepo = "/repo/Nix/dot.nix";
+  ompRepo = "/repo/Nix/omp.nix";
 
   # ── Expression Helpers ──────────────────────────────────────────
   # These define HOW to resolve a package name into a nix derivation.
@@ -56,6 +57,13 @@ let
   dotInput = inputName: attr: ''
     (builtins.getFlake "path:${dotRepo}").inputs.${inputName}.packages.x86_64-linux.${attr}
   '';
+
+  # Resolve a package from omp.nix's own outputs.
+  # Reads the working tree so the lock bumped in Phase 2 is the one we build;
+  # going through dot.nix would build last week's commit instead.
+  ompPkg = attr: ''
+    (builtins.getFlake "path:${ompRepo}").packages.x86_64-linux.${attr}
+  '';
 in
 builds.mkPipeline {
   name = "mix-builder";
@@ -64,7 +72,7 @@ builds.mkPipeline {
   timeout = "12h";
   retentionDays = 14;
   rootPruneSchedule = "Mon *-*-* 02:30:00"; # before nix.gc at 03:30
-  notifyHint = "📝 Run: \\`nix flake update mix-nix\\` in dot.nix";
+  notifyHint = "📝 Run: \\`nix flake update mix-nix omp-nix\\` in dot.nix";
 
   groups = [
     # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -97,6 +105,23 @@ builds.mkPipeline {
 
         # nixpkgs pass-through (no mix.nix override, but resolved via overlay)
         { name = "nh"; }
+      ];
+    }
+
+    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    # omp.nix — Oh My Pi + its MCP server (no upstream binary cache)
+    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    {
+      name = "omp";
+      repo = ompRepo;
+      update = "bonk update -p ${ompRepo}";
+      mkExpr = ompPkg;
+
+      packages = [
+        { name = "omp"; }
+        # context-mode is pinned to a tag, so `update` never moves it —
+        # it rides along to stay cached against whatever nixpkgs omp pins.
+        { name = "context-mode"; }
       ];
     }
 

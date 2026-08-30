@@ -187,13 +187,11 @@
       inputs.bun2nix.inputs.systems.follows = "systems-linux";
     };
 
-    pi-nix = {
-      url = "git+file:///repo/Nix/pi.nix";
-      # Deployment must not require the build host to access local checkouts or SSH keys.
-      inputs.pi-source.url = "git+https://git.ryot.foo/toph/pi.git";
-      inputs.nixpkgs.follows = "nixpkgs";
-      inputs.mix-nix.follows = "mix-nix";
-      inputs.home-manager.follows = "home-manager";
+    omp-nix = {
+      url = "git+file:///repo/Nix/omp.nix";
+      # No nixpkgs override: upstream omp pins its own nixpkgs for `packages.omp`
+      # either way, and leaving omp.nix self-locking keeps the context-mode we
+      # consume identical to the one nimbus builds from that repo directly.
     };
   };
 
