@@ -49,6 +49,7 @@
     # Workaround for boot issues
     kernelParams = [
       "amdgpu.dcdebugmask=0x10"
+      "amdgpu.dcfeaturemask=0x402" # Enable HDMI 2.1 FRL while preserving the default feature bit
       "video=HDMI-A-2:2560x1440R@60D" # Virtual 2K display for Sunshine streaming
     ];
     kernelModules = [

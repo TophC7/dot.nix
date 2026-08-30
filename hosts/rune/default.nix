@@ -11,6 +11,7 @@
   lib,
   pkgs,
   secrets,
+  host,
   ...
 }:
 {
@@ -39,6 +40,11 @@
       "modules/hosts/common/waydroid.nix"
     ])
   ];
+
+  play.switch2Controllers = {
+    enable = true;
+    user = host.user.name;
+  };
 
   networking = {
     enableIPv6 = false;
