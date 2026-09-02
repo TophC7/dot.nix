@@ -1850,11 +1850,11 @@
         "omp": "omp"
       },
       "locked": {
-        "lastModified": 1788321164,
-        "narHash": "sha256-xdMIYKUH9LiTqqOiUPhMjv2NLNeV7umjUMlUmTGNoRM=",
+        "lastModified": 1788388242,
+        "narHash": "sha256-/xykptfAHM3SWNTqDME5JeVyvVsrD38IIJAo2v9+LB4=",
         "ref": "refs/heads/main",
-        "rev": "68b95a0a001c5ff25e93869e88b1e0564f0ebb8b",
-        "revCount": 8,
+        "rev": "72e7c0a6b9892e882d006235c15caed107b97a65",
+        "revCount": 10,
         "type": "git",
         "url": "file:///repo/Nix/omp.nix"
       },
@@ -2198,11 +2198,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1788112374,
-        "narHash": "sha256-4FXmJA+G5pPXmyF5Ldbhgp4abc6NKH83BVcq6HhlG3U=",
+        "lastModified": 1788388985,
+        "narHash": "sha256-FgO41nNlZ4aGSFwgECbbhUuIf8yCSpeyIoVU222A4Mc=",
         "ref": "refs/heads/main",
-        "rev": "8271703471b069ccfbb91510c14e05dc00dcf265",
-        "revCount": 96,
+        "rev": "0d6d79e2a47e302c8a3908b3d699a985c439648f",
+        "revCount": 103,
         "type": "git",
         "url": "file:///home/toph/Development/sworm"
       },
