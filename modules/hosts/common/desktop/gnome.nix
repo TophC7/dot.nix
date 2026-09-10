@@ -43,7 +43,6 @@
       gnome-contacts
       gnome-maps
       gnome-music
-      gnome-photos
       gnome-terminal
       gnome-tour
       gnome-user-docs

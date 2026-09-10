@@ -93,6 +93,7 @@ _: {
         norion = {
           user = "toph";
           ip = "10.2.2.4";
+          desktop = "gnome";
           mounts = {
             fast = true;
             repo = true;

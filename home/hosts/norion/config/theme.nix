@@ -11,7 +11,7 @@
     in
     {
       enable = true;
-      image = wallpaperRoot + "/norion-blue.png";
+      image = wallpaperRoot + "/amir-zand-breath.png";
       polarity = "dark";
 
       icon = {
@@ -50,10 +50,6 @@
           popups = 11;
           terminal = 12;
         };
-      };
-
-      base16 = {
-        generate = true;
       };
 
       matugen = {
