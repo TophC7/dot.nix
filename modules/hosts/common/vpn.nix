@@ -63,6 +63,11 @@ in
 
       wireguard = {
         private-key = hostPrivateKey;
+        # Path to the nexus endpoint is WAN, not LAN: measured inner ceiling is
+        # 1376 bytes (1380 is silently dropped, no ICMP frag-needed comes back).
+        # NM's default 1420 makes every full-size TCP segment vanish, which hangs
+        # NFS mounts over this tunnel while small RPCs still succeed.
+        mtu = 1360;
       };
 
       # Peer config - section name includes the public key

@@ -51,11 +51,14 @@ let
       what = "${cfg.server}:${cfg.path}";
       where = cfg.path;
       type = "nfs";
-      options = "nfsvers=4.2,noatime,soft,intr";
+      options = "nfsvers=4.2,noatime,soft";
       after = [ "network-online.target" ];
       wants = [ "network-online.target" ];
       mountConfig = {
-        TimeoutSec = "10";
+        # Roaming clients reach these servers over the WAN WireGuard tunnel at
+        # ~170ms RTT; 10s was short enough that mount.nfs got SIGTERMed mid-handshake
+        # and left orphaned processes behind, failing the unit on every retry.
+        TimeoutSec = "60";
       };
     };
 
