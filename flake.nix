@@ -187,12 +187,6 @@
       inputs.bun2nix.inputs.systems.follows = "systems-linux";
     };
 
-    omp-nix = {
-      url = "git+file:///repo/Nix/omp.nix";
-      # No nixpkgs override: upstream omp pins its own nixpkgs for `packages.omp`
-      # either way, and leaving omp.nix self-locking keeps the context-mode we
-      # consume identical to the one nimbus builds from that repo directly.
-    };
   };
 
   outputs =
