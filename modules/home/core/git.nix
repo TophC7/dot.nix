@@ -47,7 +47,7 @@ in
 
       # Sworm
       ".sworm/*"
-      "!.sworm/*.json"
+      "!.sworm/*.json*"
 
       # NFS
       "*.nfs*"

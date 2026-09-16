@@ -182,7 +182,7 @@
 
     sworm = {
       # url = "github:TophC7/Sworm";
-      url = "git+file:///home/toph/Development/sworm";
+      url = "git+file:///repo/rust/sworm";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.bun2nix.inputs.systems.follows = "systems-linux";
     };
