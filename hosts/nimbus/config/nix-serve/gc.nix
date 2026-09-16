@@ -1,8 +1,6 @@
 # Enhanced garbage collection configuration for nix-serve host
 {
-  config,
   lib,
-  pkgs,
   ...
 }:
 
@@ -25,9 +23,12 @@
 
   # Enhanced Nix store optimization settings
   nix.settings = {
+    # Keep build dependencies reusable between nightly runs. Root retention
+    # bounds host generations; disabling these can force custom tools to rebuild.
     keep-derivations = true;
     keep-outputs = true;
-    keep-env-derivations = true; # Keep derivations from nix develop/shell
+    keep-env-derivations = true;
+
     auto-optimise-store = true;
     min-free = lib.mkForce (128 * 1024 * 1024); # 128MB minimum free
     max-free = lib.mkForce (10 * 1024 * 1024 * 1024); # 10GB target free space
