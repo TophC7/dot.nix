@@ -136,11 +136,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1789583071,
-        "narHash": "sha256-BL679RtjlfE9zKIE/Mrwvzzrv1WUmRyJXAuYD0ImBWw=",
+        "lastModified": 1789587623,
+        "narHash": "sha256-CMx6y7v+Rd2fB12RQHrsf/RIG3YJu+VR+r49j6FXwoU=",
         "owner": "Wyze3306",
         "repo": "BedrockOnLinux",
-        "rev": "ec8e8490bd16308f6c9e453f694773dfc362eb5d",
+        "rev": "cf9d11840602ed79fe30de0e17565b51ec9a9013",
         "type": "github"
       },
       "original": {
@@ -1111,11 +1111,11 @@
         "treefmt-nix": "treefmt-nix"
       },
       "locked": {
-        "lastModified": 1789552626,
-        "narHash": "sha256-uLUOUASz1t+YvEu6e1l71d/5eTnWC7psI+rRxTpj514=",
+        "lastModified": 1789593852,
+        "narHash": "sha256-DX1XnvOy+uepJGk2439KB1BeMJKR3MUwrsX21u4xbXE=",
         "owner": "numtide",
         "repo": "llm-agents.nix",
-        "rev": "cbfe11b1e27e0bfde1ce9f221fcc9c88940f0602",
+        "rev": "2ca3b3460812f4e7a79a4dca25776616730ef7aa",
         "type": "github"
       },
       "original": {
@@ -1179,10 +1179,10 @@
         "omp": "omp"
       },
       "locked": {
-        "lastModified": 1789588872,
-        "narHash": "sha256-6/SHbYp3zOQ8f80KgJi5Iruq/oDCYZYl9wMhBpDFKcU=",
+        "lastModified": 1789592152,
+        "narHash": "sha256-vu/L78k8aIj5AoUIKJUQpWiIjEITizzm6O1uBcIZwQI=",
         "ref": "refs/heads/main",
-        "rev": "4b4d29bdab0dbaba1f1138e9847407786bb59f4f",
+        "rev": "3a58811db97080c6cd5491fb442f8d88fa7c05d1",
         "revCount": 151,
         "type": "git",
         "url": "file:///repo/Nix/mix.nix"
