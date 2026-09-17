@@ -144,6 +144,7 @@
             { app-id = "\\.exe$"; } # All Wine/Proton .exe windows
             { app-id = "^HytaleClient$"; }
             { title = "^Minecraft"; }
+            { title = "^Risk of Rain 2"; }
           ];
           excludes = [
             {

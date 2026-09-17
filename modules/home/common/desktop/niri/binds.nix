@@ -6,7 +6,9 @@
   ...
 }:
 let
-  zen-browser = inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}.beta;
+  inherit (pkgs.stdenv.hostPlatform) system;
+  zen-browser = inputs.zen-browser.packages.${system}.beta;
+  sworm = inputs.sworm.packages.${system}.default;
 in
 {
   programs.niri.settings = {
@@ -18,7 +20,7 @@ in
     binds = {
       # Applications
       "Mod+G".action.spawn = lib.getExe pkgs.ghostty;
-      "Mod+E".action.spawn = lib.getExe pkgs.vscode;
+      "Mod+E".action.spawn = lib.getExe sworm;
       "Mod+W".action.spawn = lib.getExe zen-browser;
       "Mod+F".action.spawn = lib.getExe pkgs.nautilus;
 
