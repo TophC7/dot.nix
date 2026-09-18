@@ -9,12 +9,15 @@ let
   user = host.user.name;
   mixRepo = "/repo/Nix/mix.nix";
   dotRepo = "/repo/Nix/dot.nix";
+  # --no-config: NixOS ships /etc/fish/nixos-env-preinit.fish, which re-sources the
+  # system environment and overwrites PATH unless __NIXOS_SET_ENVIRONMENT_DONE is set.
+  # That silently discards the unit's `path`, so every helper below resolves to nothing.
   lockPublisher = pkgs.writeScriptBin "lock-publisher" ''
-    #!${lib.getExe pkgs.fish}
+    #!${lib.getExe pkgs.fish} --no-config
     ${builtins.readFile ./lock-publisher.fish}
   '';
   builder = pkgs.writeScript "build-hosts.fish" ''
-    #!${lib.getExe pkgs.fish}
+    #!${lib.getExe pkgs.fish} --no-config
     ${builtins.readFile ./build-hosts.fish}
   '';
 in
@@ -44,6 +47,8 @@ in
       HOME = "/home/${user}";
       HOST_BUILD_STATE = "/var/lib/host-builder";
       HOST_BUILD_SYSTEM = pkgs.stdenv.hostPlatform.system;
+      # Throwaway/loaner hosts: nothing consumes their closures from the cache.
+      HOST_BUILD_SKIP = "meowl vm";
       HOST_BUILD_MIX_REPO = mixRepo;
       HOST_BUILD_DOT_REPO = dotRepo;
       HOST_BUILD_NOTIFY_URL = "${secrets.service.discord.lenix}?avatar=no&footer=no";
