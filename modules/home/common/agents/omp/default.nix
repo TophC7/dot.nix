@@ -196,8 +196,6 @@ let
           )
         ];
     };
-
-    openai-codex.modelOverrides."gpt-5.6-luna".compat.extraBody.service_tier = "priority";
   };
 
   configFile = yaml.generate "omp-config.yml" settings;
