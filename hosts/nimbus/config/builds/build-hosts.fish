@@ -29,6 +29,7 @@ function report --argument-names heading
     section '♻️ **Unchanged:**' $unchanged_hosts
     section '❌ **Failed:**' $failed_hosts
     section '⏭️ **Skipped:**' $skipped_hosts
+    section '⚠️ **Dirty Inputs Skipped:**' $skipped_dirty_inputs
     set -a report_lines ">"
     if set -q published_locks[1]
         set -a report_lines "> 📝 Locks: "(string join ' · ' -- $published_locks)
@@ -123,6 +124,71 @@ function publish_lock --argument-names label repo state_dir
     return 0
 end
 
+function update_flake_lock --argument-names repo
+    set -l lock_file "$repo/flake.lock"
+    if not test -f "$lock_file"
+        log "Updating all inputs for $repo (no flake.lock found)"
+        nix flake update --flake "$repo"; or return 1
+        return 0
+    end
+
+    set -l inputs_tsv (jq -r '
+      . as $top
+      | .nodes.root.inputs
+      | to_entries[]
+      | .key as $name
+      | (if (.value | type) == "string" then .value else null end) as $node_name
+      | if $node_name then
+          $top.nodes[$node_name] as $node
+          | [
+              $name,
+              ($node.original.type // ""),
+              ($node.original.url // ""),
+              ($node.original.path // "")
+            ] | @tsv
+        else
+          empty
+        end
+    ' "$lock_file" 2>/dev/null); or return 1
+
+    set -l to_update
+    for line in $inputs_tsv
+        set -l parts (string split \t -- "$line")
+        set -l name $parts[1]
+        set -l url $parts[3]
+        set -l path $parts[4]
+
+        set -l local_path "$path"
+        if test -z "$local_path"
+            if string match -q "file://*" -- "$url"
+                set local_path (string replace -r "^file://" "" -- "$url" | string replace -r '\?.*$' "")
+            else if string match -q "git+file://*" -- "$url"
+                set local_path (string replace -r '^git\+file://' "" -- "$url" | string replace -r '\?.*$' "")
+            end
+        end
+
+        if test -n "$local_path" -a -d "$local_path"
+            set -l dirty (git -C "$local_path" status --porcelain 2>/dev/null)
+            if test -n "$dirty"
+                log "Skipping dirty local input: $name ($local_path)"
+                set -a -g skipped_dirty_inputs "$name"
+                continue
+            end
+        end
+
+        set -a to_update $name
+    end
+
+    if test (count $to_update) -eq 0
+        log "No clean inputs to update for $repo"
+        return 0
+    end
+
+    log "Updating "(count $to_update)" inputs in $repo"
+    nix flake update --flake "$repo" $to_update; or return 1
+    return 0
+end
+
 rm -rf -- "$temporary_roots"; or fail 'Cannot remove stale temporary roots'
 mkdir -p "$temporary_roots" "$HOST_BUILD_STATE/roots" "$HOST_BUILD_STATE/locks/mix" "$HOST_BUILD_STATE/locks/dot"
 or fail 'Cannot initialize host builder state'
@@ -135,7 +201,7 @@ lock-publisher prepare "$HOST_BUILD_DOT_REPO" "$HOST_BUILD_STATE/locks/dot"
 or fail 'Failed to prepare dot.nix lock publication'
 
 log 'Updating mix.nix flake lock'
-nix flake update --flake "$HOST_BUILD_MIX_REPO"
+update_flake_lock "$HOST_BUILD_MIX_REPO"
 or fail 'Failed to update mix.nix flake lock'
 lock-publisher capture "$HOST_BUILD_MIX_REPO" "$HOST_BUILD_STATE/locks/mix"
 or fail 'Failed to capture mix.nix flake lock'
@@ -143,7 +209,7 @@ publish_lock mix.nix "$HOST_BUILD_MIX_REPO" "$HOST_BUILD_STATE/locks/mix"
 or fail 'Failed to publish mix.nix flake lock'
 
 log 'Updating dot.nix flake lock'
-nix flake update --flake "$HOST_BUILD_DOT_REPO"
+update_flake_lock "$HOST_BUILD_DOT_REPO"
 or fail 'Failed to update dot.nix flake lock'
 lock-publisher capture "$HOST_BUILD_DOT_REPO" "$HOST_BUILD_STATE/locks/dot"
 or fail 'Failed to capture dot.nix flake lock'
