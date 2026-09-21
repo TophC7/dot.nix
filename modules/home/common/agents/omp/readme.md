@@ -28,7 +28,6 @@ Custom TypeScript extensions running inside OMP:
 
 | Extension | What it does |
 | --- | --- |
-| **`antigravity.ts`** | Fixes Google Antigravity OAuth requests. Drops `requestType` to match the official client envelope and rewrites `<system-conventions>` tags to `<system_conventions>` to bypass Google's prompt-fingerprint filter. |
 | **`macros.ts`** | Adds `/macro [name]` and `Ctrl+M` keybind to open an interactive picker for prompt templates in `agent/macros/`. Strips frontmatter before pasting into the composer. |
 | **`luna-priority.ts`** | Injects `service_tier: "priority"` into requests targeting `openai-codex/gpt-5.6-luna`. |
 | **`caveman.ts`** | Adds `/caveman [on\|off]` to enforce terse, fluff-free responses while keeping technical substance intact. State persists across sessions and branches. |
