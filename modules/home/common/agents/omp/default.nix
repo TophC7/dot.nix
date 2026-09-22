@@ -36,7 +36,7 @@ let
       task = "openai-codex/gpt-5.6-sol:high";
       tiny = "openai-codex/gpt-5.3-codex-spark";
       bard = "google-antigravity/gemini-3.8-flash:high";
-      designer = "anthropic/claude-opus-5:high";
+      designer = "anthropic/claude-opus-5.5:high";
       audit = "openai-codex/gpt-6-astra:low";
     };
 
