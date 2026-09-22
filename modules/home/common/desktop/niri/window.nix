@@ -136,6 +136,26 @@
           default-window-height.fixed = 360;
         }
 
+        # Display calibration (DisplayCAL & ArgyllCMS)
+        {
+          matches = [
+            { title = "^TestWin$"; }
+          ];
+          open-floating = true;
+          default-column-width.fixed = 400;
+          default-window-height.fixed = 400;
+        }
+        {
+          matches = [
+            { app-id = "^displaycal$"; }
+            { title = "^DisplayCAL.*$"; }
+            { title = "^Interactive display adjustment.*$"; }
+          ];
+          open-floating = true;
+          default-column-width.fixed = 850;
+          default-window-height.fixed = 750;
+        }
+
         # Gaming
         {
           matches = [

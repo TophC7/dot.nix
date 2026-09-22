@@ -1179,11 +1179,11 @@
         "omp": "omp"
       },
       "locked": {
-        "lastModified": 1790099356,
-        "narHash": "sha256-+a6Hc6ZjJlk42/4yYXMYUtSb98vhn/Timg1kA8uHECY=",
+        "lastModified": 1790105502,
+        "narHash": "sha256-Vpq3H9hrm07C5n+or70SxqPsc+IWcWnwRKeA4NJrclM=",
         "ref": "refs/heads/main",
-        "rev": "d3dff18098ecfb4f279d5ed4508030f1838f5683",
-        "revCount": 157,
+        "rev": "766fa5cc0b3adc7417479b21552802213463571d",
+        "revCount": 158,
         "type": "git",
         "url": "file:///repo/Nix/mix.nix"
       },
@@ -1303,11 +1303,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1787372347,
-        "narHash": "sha256-Foo41OtooHMiBITAFKdOhitmjrMZqcGy1epJNz7sNQ4=",
+        "lastModified": 1789370898,
+        "narHash": "sha256-QBlvSGth1NfAWw7iePOzFlrz0/pX6CfkFCcPALdySNI=",
         "owner": "ryoppippi",
         "repo": "nix-bun",
-        "rev": "fee8f233ad9409be44259b4f428f83ecb2812e37",
+        "rev": "48e887d7955c1c05b8d4627ed39bafe4bf2455a7",
         "type": "github"
       },
       "original": {
@@ -1593,16 +1593,15 @@
         "rust-overlay": "rust-overlay_3"
       },
       "locked": {
-        "lastModified": 1789138415,
-        "narHash": "sha256-SkmGFFNIkq1y6iIuSnIAGGVeqwws213AAoYwySjLfk4=",
+        "lastModified": 1790100459,
+        "narHash": "sha256-33SGYHt1RbzPoUzHky6v8jPxlknBbdJGYudpF9tXYDA=",
         "owner": "can1357",
         "repo": "oh-my-pi",
-        "rev": "1d03e330accc29c6610a6ac0c0b7bd5162126d40",
+        "rev": "8cd6f8c619e89e935b6c6c5c91f6a4d20f6d7a75",
         "type": "github"
       },
       "original": {
         "owner": "can1357",
-        "ref": "refs/pull/11730/head",
         "repo": "oh-my-pi",
         "type": "github"
       }
@@ -1906,11 +1905,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1789508689,
-        "narHash": "sha256-faWvjA+OTW+uQhOTy3uEMW8zahf3QJGQYUJwFoWAFAU=",
+        "lastModified": 1790117718,
+        "narHash": "sha256-p6HaLfbcUVOuzjhFS2RRjpu2HAixQQ/GCqLrv1mqMt4=",
         "ref": "refs/heads/main",
-        "rev": "4bdc40137eb28645684ce2b67fdf26abbf95edc4",
-        "revCount": 136,
+        "rev": "fe026ee633c772864a33fa12e17a3a02869fad5e",
+        "revCount": 137,
         "type": "git",
         "url": "file:///repo/rust/sworm"
       },

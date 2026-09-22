@@ -28,6 +28,7 @@
     (map (lib.fs.relativeTo flakeRoot) [
       "modules/hosts/common/audio.nix"
       "modules/hosts/common/bluetooth.nix"
+      "modules/hosts/common/color.nix"
       "modules/hosts/common/ddcutil.nix"
       "modules/hosts/common/docker.nix"
       "modules/hosts/common/gaming.nix"
