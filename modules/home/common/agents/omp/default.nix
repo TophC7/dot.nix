@@ -32,11 +32,10 @@ let
       default = "google-antigravity/gemini-3.8-flash:high";
       commit = "google-antigravity/gemini-3.8-flash:low";
       plan = "anthropic/claude-fable-5-1:medium";
-      smol = "openai-codex/gpt-5.6-luna:xhigh";
-      task = "openai-codex/gpt-5.6-sol:high";
-      tiny = "openai-codex/gpt-5.3-codex-spark";
+      smol = "openai-codex/gpt-6-luna:xhigh";
+      task = "openai-codex/gpt-6-sol:high";
       bard = "google-antigravity/gemini-3.8-flash:high";
-      designer = "anthropic/claude-opus-5.5:high";
+      designer = "anthropic/claude-opus-5-5:high";
       audit = "openai-codex/gpt-6-astra:low";
     };
 

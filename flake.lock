@@ -3,7 +3,7 @@
     "ambxst": {
       "inputs": {
         "axctl": "axctl",
-        "nixpkgs": "nixpkgs_6"
+        "nixpkgs": "nixpkgs_5"
       },
       "locked": {
         "lastModified": 1779243039,
@@ -1179,11 +1179,11 @@
         "omp": "omp"
       },
       "locked": {
-        "lastModified": 1790105502,
-        "narHash": "sha256-Vpq3H9hrm07C5n+or70SxqPsc+IWcWnwRKeA4NJrclM=",
+        "lastModified": 1790127039,
+        "narHash": "sha256-hjMTX+AhB3KJKlavVIMwGXSA0gPE7ZCBOD4FLcfhzw4=",
         "ref": "refs/heads/main",
-        "rev": "766fa5cc0b3adc7417479b21552802213463571d",
-        "revCount": 158,
+        "rev": "cd70160e1765eb44ea7f406970790582b32632dd",
+        "revCount": 160,
         "type": "git",
         "url": "file:///repo/Nix/mix.nix"
       },
@@ -1478,22 +1478,6 @@
     },
     "nixpkgs_5": {
       "locked": {
-        "lastModified": 1786384358,
-        "narHash": "sha256-RzPPiWeUtuvymnpuEWsdtzli5w4kjZs49FqEs3/1u+I=",
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "2fcb964de67fcf60b43471c55d5d99e61a9ccb5a",
-        "type": "github"
-      },
-      "original": {
-        "owner": "NixOS",
-        "ref": "nixos-unstable",
-        "repo": "nixpkgs",
-        "type": "github"
-      }
-    },
-    "nixpkgs_6": {
-      "locked": {
         "lastModified": 1778869304,
         "narHash": "sha256-30sZNZoA1cqF5JNO9fVX+wgiQYjB7HJqqJ4ztCDeBZE=",
         "owner": "NixOS",
@@ -1508,7 +1492,7 @@
         "type": "github"
       }
     },
-    "nixpkgs_7": {
+    "nixpkgs_6": {
       "locked": {
         "lastModified": 1781074563,
         "narHash": "sha256-d34lhgOet4IqYMnCxbIvwFBMOyTV6PT4TyNEOP0/ZhU=",
@@ -1542,7 +1526,7 @@
     },
     "noctalia": {
       "inputs": {
-        "nixpkgs": "nixpkgs_7"
+        "nixpkgs": "nixpkgs_6"
       },
       "locked": {
         "lastModified": 1781456172,
@@ -1588,16 +1572,19 @@
         "bun2nix": "bun2nix_2",
         "bun2nix-darwin-x64": "bun2nix-darwin-x64",
         "nix-bun": "nix-bun",
-        "nixpkgs": "nixpkgs_5",
+        "nixpkgs": [
+          "mix-nix",
+          "nixpkgs"
+        ],
         "nixpkgs-darwin-x64": "nixpkgs-darwin-x64",
         "rust-overlay": "rust-overlay_3"
       },
       "locked": {
-        "lastModified": 1790100459,
-        "narHash": "sha256-33SGYHt1RbzPoUzHky6v8jPxlknBbdJGYudpF9tXYDA=",
+        "lastModified": 1790118515,
+        "narHash": "sha256-hxuGYuPchiLsiV4q8yy7kOrSJ8BJz9GWrSd4XTMx9jY=",
         "owner": "can1357",
         "repo": "oh-my-pi",
-        "rev": "8cd6f8c619e89e935b6c6c5c91f6a4d20f6d7a75",
+        "rev": "da58b16f424273605795435a6753778f422baff3",
         "type": "github"
       },
       "original": {
