@@ -19,6 +19,7 @@
       "modules/home/common/vscode.nix"
       "modules/home/common/xdg.nix"
       "modules/home/common/zen.nix"
+      "modules/home/common/sworm.nix"
     ])
   ];
 
@@ -58,6 +59,5 @@
     gh
     gh-dash
     vivaldi
-    inputs.sworm.packages.${host.system}.default
   ];
 }

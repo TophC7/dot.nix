@@ -18,6 +18,7 @@
       "modules/home/common/vscode.nix"
       "modules/home/common/xdg.nix"
       "modules/home/common/zen.nix"
+      "modules/home/common/sworm.nix"
     ])
   ];
 
@@ -36,6 +37,5 @@
 
     ## Development ##
     gh
-    inputs.sworm.packages.${host.system}.default
   ];
 }
