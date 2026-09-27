@@ -12,393 +12,135 @@
 ![Screenshot with Soraka wallpaper](public/soraka.png)
 ---
 
-## Architecture Overview
+## The Fleet
 
-This repository is a **host-focused NixOS configuration** that manages system and user environments across multiple machines. It uses **flake.parts** for modularity and delegates packages, overlays, and custom library utilities to my library **mix.nix** for clean separation of concerns. See [mix.nix Integration](#mix-nix-integration) for more on that.
+Every machine has a designated role, managed declaratively from this repository.
+
+| Host | Form | Hardware | Role & Highlights |
+| :--- | :--- | :--- | :--- |
+| **rune** | Workstation | Ryzen 9 7900X3D<br>Radeon RX 9070 XT<br>32GB RAM | **Primary battle station.** Niri Wayland compositor + Pana desktop, Switch 2 controllers (`play.switch2Controllers`), Waydroid, Solaar, full homelab NFS mounts. |
+| **norion** | Laptop | Lenovo ThinkPad P14s Gen 6<br>Ryzen AI 9 HX PRO 370<br>64GB RAM | **Mobile workstation.** GNOME, private Cachix cache (`psynk-private`), WireGuard roaming VPN, homelab NFS mounts. |
+| **meowl** | SFF Desktop | Dell OptiPlex 3080<br>Intel Core i5-10505<br>GeForce RTX 3050 6GB OEM | **Always-on desktop & game streamer.** GNOME, Sunshine streaming host for remote play, Newt zero-trust tunnel. |
+| **nimbus** | NAS & Builder | Ryzen 7 5700X<br>32GB RAM | **Storage backbone & remote builder.** ZFS + BTRFS storage pools, NFS exports (`/tank`, `/fast`, `/repo`), Explorer file server, PocketBase, dedicated remote builder for `bonk`, `nix-serve` binary cache. |
+| **zebes** | Homelab | Ryzen 5 5600G<br>Radeon RX 7900 GRE<br>32GB RAM | **Compute & AI engine.** `llama-cpp` LLM inference with Vulkan acceleration, Komodo container orchestration core, dedicated game servers (Minecraft, Astroneer, Enshrouded). |
+| **nexus** | Router | Intel N150 (4C/4T)<br>8GB RAM<br>4x Intel I226-V 2.5GbE | **Network core & edge gateway.** Dedicated 2.5GbE router (NAT, routing, DHCP), AdGuard Home DNS sinkhole, Pangolin reverse proxy stack (Gerbil + Traefik), WireGuard VPN server, Rathole tunnels. |
+| **caenus** | Cloud VPS | Oracle Cloud ARM64<br>4 vCPU, 24GB RAM | **Public ingress & relay.** Public IP endpoint, Rathole tunnel server, WireGuard OLM gateway. |
+| **vm** | VM | Variable | **Disposable sandbox** for testing system configs and experimental modules. |
+
+> [!NOTE]
+> WireGuard mesh configurations also support client-only endpoints like **husky** and **sammy** without building dedicated system closures.
+
+---
+
+## The Desktop Experience
+
+The workstations run a custom Wayland environment centered around fluidity, keyboard-driven navigation, and automatic Material Design color harmonies.
+
+* **Compositor & Shell:** [Niri](https://github.com/tophc7/niri-flake) scrollable tiling Wayland compositor paired with **Pana** — Toph's custom pure-Rust desktop shell (actively replacing legacy Quickshell DMS). Workstations and streamers also provide GNOME with custom extensions like `copyous`.
+* **Dynamic Material Theming:** Wallpaper colors are extracted on the fly via [Matugen](https://github.com/InioX/Matugen) and applied across Stylix and system styling. Pana generates matching ANSI-16 palettes for terminals, keeping shell colors synchronized with the active wallpaper.
+* **Curated App Stack:**
+  * **Editor:** [Sworm](https://github.com/tophc7/sworm) (default editor mapped to all text and code MIME types) and VS Code.
+  * **Terminal:** [Ghostty](https://ghostty.org/) with [Fish](https://fishshell.com/) (Tide prompt, GRC syntax colorization, custom abbreviations).
+  * **Browser:** [Zen Browser](https://zen-browser.app/) with shared profiles.
+  * **Navigation & Launchers:** [Vicinae](https://github.com/vicinaehq/vicinae) and application search.
+  * **File Management:** Nautilus and Yazi.
+
+---
+
+## Homelab & Infrastructure
+
+* **Distributed Storage:** Centralized NFS architecture mounting `/tank` (cold storage), `/fast` (fast SSD storage), `/repo` (code repositories), and `/store` (service state) across machines with systemd automount.
+* **Containers & Orchestration:** Managed via [Komodo](https://komodo.ryot.foo) with periphery agents across servers, paired with declarative `oci-stacks` for Explorer, PocketBase, and game servers.
+* **Edge & Zero-Trust Networking:**
+  * **Pangolin Stack:** Gerbil, Pangolin, and Traefik running on Nexus for SSL termination and reverse proxying with Cloudflare DNS challenges.
+  * **Zero Trust & Tunnels:** Newt tunnels and Rathole reverse tunnels forward services securely to public endpoints without exposing home IP addresses.
+  * **AdGuard Home & WireGuard:** Whole-network DNS filtering and roaming VPN access.
+
+---
+
+## Custom Tooling
+
+A collection of bespoke tools built to run this setup smoothly:
+
+| Tool | Purpose |
+| :--- | :--- |
+| **[`mix.nix`](https://github.com/tophc7/mix.nix)** | Reusable flake architecture engine handling multi-host generation, API v2 discovery, secrets, and module wiring. |
+| **[`bonk`](https://github.com/tophc7/bonk)** | Daily NixOS workflow multitool wrapping `nh`, system rebuilds, remote building on Nimbus, and generation cleanup. |
+| **[`sworm`](https://github.com/tophc7/sworm)** | Fast, lightweight code editor built for modern terminal and desktop workflows. |
+| **[`pana`](https://github.com/tophc7/pana)** | Custom pure-Rust Wayland desktop shell, material theming engine, and system widgets. |
+| **[`play.nix`](https://github.com/tophc7/play.nix)** & **[`wayscope`](https://github.com/tophc7/wayscope)** | Gaming stack with Switch 2 controller integration, GameMode, and Wayland Gamescope profiles. |
+
+---
+
+## Layout
+
+Built on **mix.nix API v2**, using a clean, discovery-based structure where NixOS and Home Manager code live together naturally:
 
 ```
 dot.nix/
-├── flake.nix                       # Central entry using flake.parts
-├── devshell.nix                    # Development shell configuration
-├── CLAUDE.md                       # Claude Code integration & dev instructions
-├── .mcp.json                       # Model Context Protocol server config
-├── hosts/                          # NixOS system configurations (flat structure)
-│   ├── rune/
-│   └── ...
-├── home/                           # Home Manager user environments
-│   ├── hosts/                      # Per-host user overrides
-│   └── users/                      # Per-user configurations
-├── mix/                            # Host & user specifications, secrets
-│   ├── default.nix                 # Host and user definitions (uses mix.nix)
-│   ├── hostSpec.nix                # Host attribute schema
-│   └── secrets.nix                 # Encrypted secrets (git-crypt)
-├── modules/                        # Core NixOS & Home Manager modules
-│   ├── hosts/
-│   └── home/
-├── dist/                           # ISO build configurations [WIP]
-├── public/                         # Public assets & example secrets
-└── .github/workflows/              # CI/CD automation
+├── hosts/                  # Machine definitions (NixOS + optional host home/)
+│   ├── rune/               # Workstation: default.nix, hardware.nix, home/, config/
+│   ├── norion/             # Laptop: default.nix, hardware.nix, home/, config/
+│   ├── meowl/              # Game streamer: default.nix, hardware.nix, home/, config/
+│   ├── nimbus/             # Storage server: default.nix, hardware.nix, config/
+│   ├── zebes/              # Compute server: default.nix, hardware.nix, config/
+│   ├── nexus/              # Router: default.nix, hardware.nix, config/
+│   ├── caenus/             # VPS: default.nix, hardware.nix, config/
+│   └── vm/                 # VM canvas: default.nix, hardware.nix, home/
+├── modules/
+│   ├── core/               # Global baseline for all hosts (NixOS + core home/ for fish, git, btop, etc.)
+│   ├── features/           # Optional building blocks loaded by name via lib.features
+│   │   ├── desktop/        # Niri, Pana, GNOME, nautilus, shared configs
+│   │   ├── gaming/         # Steam, Play, controller tweaks
+│   │   ├── docker/         # Container runtime
+│   │   ├── sworm/          # Sworm editor integration
+│   │   ├── zen/            # Zen browser config
+│   │   └── ...             # audio, bluetooth, solaar, vpn, xdg, etc.
+│   └── users/toph/         # User profile, Fastfetch logo, wallpapers
+├── mix/                    # mix.nix flake-parts module (host/user declarations, hostSpec schema, secrets)
+└── dist/                   # Minimal standalone installer ISOs extending this flake
 ```
 
----
+### Selecting Features
 
-## Core Components
+Hosts pick features cleanly with `lib.features`:
 
-### **Flake Management (`flake.nix`)**
-The central entry point using **flake.parts** for modularity:
-- **External Dependencies**: `nixpkgs`, `home-manager`, `stylix`, `hardware modules`, `mix-nix`, `play`, `solaar`, `chaotic`, `niri`, and others
-- **System Outputs**: Complete NixOS configurations auto-generated from host specifications
-- **Library Extension**: Extends `nixpkgs.lib` with utilities from **mix.nix** (`lib.fs.*`, `lib.hosts.*`, etc.)
-- **Flake Modules**: Imports from mix.nix and local `./mix` directory for host/user management
-
-### **Secret Management**
-- **Encryption**: `git-crypt` secures sensitive data in `mix/secrets.nix`
-- **Structure**: Defined by `mix/hostSpec.nix` and mix.nix library
-- **Content**: SSH keys, API tokens, hashed passwords, SMTP credentials, VPN configurations
-
-### **Host & User Specifications**
-- **`mix/default.nix`**: Central orchestration point for the entire configuration using mix.nix:
-  - **User Definitions**: Declares all users with their uid, shell, and group memberships
-  - **Core Module Configuration**: Specifies `modules/hosts/core` as core modules applied to **all hosts** and `modules/home/core` as core Home Manager modules applied to **all users**
-  - **Host Definitions**: Declares all hosts, each referencing a user and defining system-level settings (IP, desktop environment, mounts, VPN)
-  - **Secrets & Directory Mapping**: Configures secrets file locations and maps host/user home directories
-  - **Special Arguments**: Passes flake root and other arguments to all modules
-- **`mix/hostSpec.nix`**: Type schema extending the mix.nix host specification with dot.nix-specific attributes. See [mix.nix documentation](https://github.com/TophC7/mix.nix?tab=readme-ov-file#type-extension) for the base schema and additional details.
-- **`mix/secrets.nix`**: Encrypted secret structure and values
-  - Example [secrets.example.nix](public/secrets.example.nix)
-
----
-
-## System Architecture (`hosts/`)
-
-Each host configuration is located at `hosts/<hostname>/` and follows this pattern:
-- **`default.nix`**: Main configuration that imports hardware modules, host-specific service configurations, and optional common modules.
-- **`config/`**: Optional service-specific configurations and customizations that are auto-discovered and imported
-
-### Current Hosts
-
-| Host       | Type    | Purpose                | Hardware                    | Services                                           |
-| ---------- | ------- | ---------------------- | --------------------------- | -------------------------------------------------- |
-| **rune**   | Desktop | Workstation            | Ryzen 9 7900X3D, RX 9070 XT | Gaming, Development, VMs                           |
-| **norion** | Laptop  | Work laptop            | Ryzen AI 9 HX PRO 370       | Development, OLM client                            |
-| **zebes**  | Server  | Main server            | Ryzen 7 5700X, RX 7900 GRE  | Komodo (Docker), AI (Ollama, ComfyUI), Explorer    |
-| **nimbus** | Server  | Storage server         | Ryzen 5 5600G               | ZFS/BTRFS storage, NFS, FileRun, Backups, Newt     |
-| **nexus**  | Server  | Router & services host | Intel N150 (2C), 2GB        | Router, DHCP, DNS, AdGuard, Rathole, WireGuard VPN |
-| **caenus** | Server  | ARM VPS                | ARM 4vCPU, 24GB RAM, 200GB  | Rathole server, Public IP endpoint                 |
-| **vm**     | VM      | Testing environment    | Variable                    | System testing                                     |
-
----
-
-## User Environment (`home/`)
-
-User configurations are organized into two directories:
-
-### **User-Specific Configurations**
-Located in `home/users/<username>/`, these configurations apply globally across all hosts for that user. Core Home Manager modules (shell, Git, SSH, etc.) are imported by mix.nix. This directory is for user-specific customizations and preferences that should be consistent across all machines the user accesses:
-- **Theme Configuration**: Stylix-based theming with wallpaper-generated color schemes
-- **Custom Overrides**: User-specific program configurations and preferences
-
-### **Host-Specific Overrides**
-Located in `home/hosts/<hostname>/`, these configurations override or extend user settings on specific machines:
-- **Monitor Configurations**: Per-host monitor layouts via mix.nix
-- **Desktop Customizations**: GNOME dconf or desktop-specific settings
-- **Host-Specific Theming**: Theme variations tailored to each workstation
-
-### Current Users
-
-| User      | Theme      |
-| --------- | ---------- |
-| **toph**  | Invincible |
-
----
-
-## Theming & Customization
-
-### **Desktop Environments**
-- **GNOME**: PaperWM for tiling workflow, GNOME extensions (Blur My Shell, Vitals, Pano), and dconf customizations for enhanced usability
-- **Niri**: Wayland compositor with Vicinae application launcher for quick program access, available on designated hosts
-- **Per-Host Customization**: Monitor layouts, dconf settings, and UI tweaks customized per workstation via `home/hosts/<hostname>/`
-
----
-
-## mix.nix Integration
-
-This repository depends on **mix.nix**, a reusable library that provides:
-
-### **Declarative Host Management**
-- Automatic `nixosConfigurations` generation from host specifications
-- User definition and reference system across multiple hosts
-- Seamless secrets access across all hosts via git-crypt integration (mix.nix expects encrypted secrets to be available)
-
-### **Library Utilities**
-- **`lib.fs.*`**: File system utilities (path scanning, relative paths)
-- **`lib.hosts.*`**: Host management utilities
-- **`lib.desktop.*`**: Desktop environment helpers
-- And many other utility functions
-
-### **Flake-Parts Modules Provided by mix.nix**
-mix.nix provides flake-parts modules that integrate seamlessly into this repository's flake:
-- **hosts**: Auto-generates NixOS configurations from host specifications in `mix/default.nix`
-- **secrets**: Manages encrypted secrets access and validation
-- **modules**: Discovers and imports Nix modules from the configured directories
-- **overlays**: Provides custom package overlays system
-- **packages**: Exposes custom package definitions
-
-### **Home Manager Modules**
-
-#### **theme** - Unified Theming System
-The `theme` module from mix.nix provides a centralized theming specification that can be applied at either the user or host level:
-- **Wallpaper-Based Color Generation**: Automatically generates Material You color schemes from your wallpaper using matugen
-- **Customizable Schemes**: Supports multiple Material Design schemes (expressive, tonal-spot, vibrant, and more)
-- **Per-User & Per-Host Flexibility**: Define themes in `home/users/<username>/` for consistent theming across all hosts, or in `home/hosts/<hostname>/` for host-specific variations
-- **Icon & Cursor Theming**: Declarative specification of icon themes (Papirus, etc.) and cursor themes
-- **Integration Points**: Provides theme values that are consumed by Stylix and other configuration modules to apply colors system-wide (GTK, terminal, VS Code, etc.)
-
-#### **Other Home Manager Modules**
-- **monitors**: Declarative multi-monitor configuration
-- **fastfetch**: System information display
-- **nautilus**: GNOME Files configuration including GTK bookmarks and custom folder icons
-
-### **NixOS Modules**
-- **newt**: Tunneling service for zero-trust access
-- **olm**: OLM client for Pangolin network access
-- **oci-stacks**: OCI container stack management
-
-For complete mix.nix documentation, see [github.com/tophc7/mix.nix](https://github.com/tophc7/mix.nix).
-
----
-
-## Notable Features
-
-### Enhanced Gaming
-- **Optimized Stack**: Steam integration with Proton, GameScope, and GameMode.
-- **Hardware Tuning**: AMD GPU specific settings (e.g., `lact` for tuning) and Variable Refresh Rate (VRR) support.
-
-### Robust Storage & Backups
-- **Multi-Tier Storage Architecture**:
-  - `/tank` - Cold storage for archival data (from nimbus)
-  - `/fast` - Performance storage for active projects (from nimbus)
-  - `/store` - Service data and Docker volumes (from zebes)
-  - `/repo` - Shared repository access across all hosts
-- **Reliable NFS Mounts**: Systemd-based mounting with automount for improved reliability
-- **Data Integrity**: ZFS/BTRFS filesystems with snapshots and data protection
-- **Comprehensive Backups**: Incremental backups of critical data, Docker volumes, and Forgejo instances with Apprise notifications
-- **Automated Backup Chain**: Systemd timers orchestrate automated backups and data synchronization
-
-### Streamlined Desktop & User Experience
-- **Custom Fish Shell**: Enhanced with the Tide prompt, `grc` for colorized output, and utility functions
-- **Modern Terminal**: `ghostty` as the default terminal emulator, themed with Stylix
-- **Efficient File Management**: `yazi` configured as the terminal file manager
-- **Curated Applications**: Configurations for Zen browser, VS Code, and more
-- **XDG & Mime Associations**: Sensible default applications configured via `xdg.mimeApps` with `handlr-regex`
-- **Claude Code Integration**: Enhanced with custom output styles and MCP server for NixOS-aware assistance
-
-### Advanced Container Management
-- **Docker Orchestration**: Komodo provides a web UI for managing Docker stacks
-- **Explorer Service**: Modern file browser deployed on nimbus and zebes for easy file access
-- **Key Services**: Pre-defined configurations for Pangolin (reverse proxy), FileRun, and Explorer
-- **Declarative Stacks**: `compose2nix` converts Docker Compose files into NixOS declarative modules
-
-### Integrated Security
-- **Secure Remote Access**:
-  - Pangolin network with OLM for Zero Trust access
-  - WireGuard VPN for direct homelab connectivity
-  - Rathole tunneling for reliable external access
-- **Automated Certificates**: ACME (Let's Encrypt) with DNS challenges for SSL/TLS
-- **SSH Key Deployment**: Automated management and deployment of SSH keys
-
-### AI & Machine Learning
-- **Ollama**: Local LLM inference for text generation and analysis
-- **Native ComfyUI**: Deployed as a Systemd service with Python venv
-- **GPU Acceleration**: Optimized for AMD RX 7900 GRE with ROCm 6.4 support
-- **Flexible Deployment**: Self-managed Python environments with automatic dependency handling
-
-### Advanced Networking
-- **Full Router Capabilities**: Nexus serves as complete router with NAT, firewall rules, and packet forwarding
-- **DHCP Server**: Dynamic IP allocation with static reservations for known hosts
-- **DNS Management**: AdGuard Home for ad-blocking and DNS filtering with search domains
-- **WireGuard VPN**: Direct homelab access with automatic DNS configuration
-- **Rathole Tunneling**: High-performance tunneling for external access
-- **Service Discovery**: Automatic routing between internal networks and services
-- **Zero Trust Access**: Pangolin network with secure tunneling via Newt
-
----
-
-## Usage & Deployment
-
-### **Initial System Installation**
-
-For setting up a new system (in NixOS) with this configuration:
-
-#### **1. Clone Configuration Repository**
-```bash
-# Enter development shell with necessary tools for installation
-nix develop github:TophC7/dot.nix --extra-experimental-features "flakes nix-command"
-
-# Clone the configuration repository
-FLAKE=~/Documents/dot.nix
-cd ~/Documents
-git clone https://github.com/tophc7/dot.nix
+```nix
+imports = lib.flatten [
+  ./hardware.nix
+  ./config
+  (lib.features [
+    "audio"
+    "bluetooth"
+    "docker"
+    "gaming"
+    "sworm"
+    "zen"
+  ])
+];
 ```
 
-#### **2. Unlock Encrypted Secrets**
-```bash
-cd ~/Documents/dot.nix
-git-crypt unlock <<path/to/symmetric.key>> # Or use GPG key
-```
+`lib.features` automatically pulls in `nixos.nix` for the system and forwards `home.nix` to Home Manager `sharedModules` without boilerplate or bridge files.
 
-<details>
-<summary><b>Setup Your Own Secrets</b></summary>
+---
 
-Since you won't have access to the encrypted secrets, create your own:
+## Daily Management
+
+Day-to-day workflow uses `bonk`:
 
 ```bash
-cd ~/Documents/dot.nix
-
-# Copy the example and customize it
-cp lib/public/secrets.example.nix secrets.nix
-
-# Edit with your credentials, SSH keys, etc.
-micro secrets.nix
-
-# Initialize git-crypt for your secrets
-git-crypt init
-git-crypt add-gpg-user YOUR_GPG_KEY_ID
-```
-
-After setting up your secrets, encrypt the file:
-```bash
-git add secrets.nix
-git-crypt lock
-```
-
-</details>
-
-#### **3. Configure Hardware Settings**
-1. Compare hardware configurations:
-   ```bash
-   micro ~/Documents/dot.nix/hosts/<hostname>/hardware.nix
-   micro /etc/nixos/hardware-configuration.nix
-   ```
-
-2. Update hardware.nix with the `fileSystems` and `swapDevices` from the generated `/etc/nixos/hardware-configuration.nix`
-
-#### **4. Install Configuration (TTY Recommended)**
-1. Switch to TTY: `Ctrl+Alt+F2` (to avoid desktop service conflicts)
-2. Login to TTY
-3. Rebuild system:
-   ```bash
-   # Enter development shell again with necessary tools for installation
-   nix develop github:TophC7/dot.nix --extra-experimental-features "flakes nix-command"
-
-   # Rebuild with your host configuration
-   bonk switch -H your-hostname -p ~/Documents/dot.nix
-   sudo reboot -f
-   ```
-
-### **Day-to-Day System Management**
-
-Once installed, use the integrated `bonk` tool for all system management:
-
-```bash
-# Build and switch system configuration
+# Rebuild and switch current system (offloads heavy builds to Nimbus)
 bonk switch
+
+# Rebuild any other machine in the fleet
+bonk switch -H norion
 
 # Update flake inputs
 bonk update
 
-# Clean up the nix store
+# Clean up old generations & nix-store garbage
 bonk store gc
 
-# Try packages temporarily
-bonk try fastfetch -- fastfetch
+# Try packages on the fly
+bonk try eza -- eza -la
 ```
-
-### **Environment Variables**
-- **`FLAKE`**: Set to your flake directory to avoid using `-p` flag repeatedly
-  ```bash
-  export FLAKE="$HOME/Documents/dot.nix"
-  bonk switch  # Will automatically use $FLAKE path
-  ```
-
----
-
-## ISO Generation [WIP]
-
-ISO building is currently broken. The `dist/` directory contains a new ISO build system that follows a simplified mix.nix configuration, but it's currently non-functional and undocumented. This directory is intended to serve as a template for starting your own configuration based on dot.nix once finished.
-
----
-## Development Philosophy
-
-### Modularity
-- **Separation of Concerns**: System vs. user configurations, separated from packages/overlays (via mix.nix)
-- **Reusable Components**: Shared modules across hosts
-- **Parameterization**: Host specs drive configuration choices
-
-### Maintainability
-- **Structured Secrets**: Clearly defined secret specifications in git-crypt encrypted files
-- **Documentation**: Inline comments and clear naming conventions
-- **Testing**: VM and test configurations for safe experimentation
-
-### Flexibility
-- **Multiple Users**: Support for different users with different preferences
-- **Host Adaptation**: Same user config adapts to different machines
-- **Service Composition**: Mix and match services per host needs
-
----
-
-## Key Technologies
-
-| Category           | Technologies                                                                                 |
-| ------------------ | -------------------------------------------------------------------------------------------- |
-| **Core**           | NixOS, Home Manager, Nix Flakes, mix.nix                                                     |
-| **Shell**          | Fish Shell, Tide Prompt                                                                      |
-| **Desktop**        | GNOME, Niri, PaperWM, Stylix, Ghostty, Yazi                                                  |
-| **Virtualization** | libvirt, QEMU, LXC                                                                           |
-| **Storage**        | ZFS, BTRFS, BorgBackup, NFS, `inotify-tools`                                                 |
-| **Containers**     | Docker, Komodo, compose2nix                                                                  |
-| **Networking**     | Router, DHCP, DNS, WireGuard VPN, Rathole, Newt, Pangolin, OLM, AdGuard Home, Cloudflare DNS |
-| **AI/ML**          | Ollama, ComfyUI, Stable Diffusion                                                            |
-| **Reverse Proxy**  | Traefik (via Pangolin)                                                                       |
-| **Security**       | git-crypt, ACME, Zero Trust tunneling                                                        |
-| **Development**    | VS Code, `nixfmt`, `biome`, Claude Code                                                      |
-| **Gaming**         | Steam, Proton, GameScope, GameMode, `lact`                                                   |
-| **Monitoring**     | Apprise notifications, systemd timers                                                        |
-| **CI/CD**          | GitHub Actions                                                                               |
-
-## Quick Reference
-
-### Key Configuration Files 
-- `mix/default.nix` - Host and user specifications defined with mix.nix
-- `mix/hostSpec.nix` - Host attribute schema extension
-- `mix/secrets.nix` - Encrypted secrets (git-crypt)
-- `modules/hosts/` - Core NixOS modules applied to all hosts
-- `modules/home/` - Core Home Manager modules applied to all users
-- `CLAUDE.md` - Development instructions for Claude Code
-- `.mcp.json` - Model Context Protocol server configuration
-- `flake.nix` - Central dependency management and flake-parts entry point
-- `devshell.nix` - Development shell configuration
-
-### Frequently Modified Directories
-- `home/users/<username>/` - Individual user configurations
-- `home/hosts/<hostname>/` - Host-specific user overrides and customizations
-- `hosts/<hostname>/` - Host-specific system configurations
-- `hosts/<hostname>/hardware.nix` - Hardware-specific settings per host
-- `hosts/<hostname>/config/` - Optional service-specific configurations
-
-### Development Workflow
-- `devshell.nix` - Development environment for the flake
-- `.github/workflows/` - CI/CD automation
-- `dist/` - ISO build system (separate flake, currently WIP)
-
----
-
-## Credits & Acknowledgments
-
-This configuration was originally inspired by **[EmergentMind's configuration](https://github.com/EmergentMind/nix-config)**, which provided an excellent introduction to modular NixOS configurations. While early versions drew heavily from their architecture, this configuration has since evolved significantly with the integration of **mix.nix** and represents a distinct approach to multi-host NixOS management.
-
-A thank you to @EmergentMind for the foundational concepts that helped shape this journey.
-
----
-
-This configuration emphasizes **reproducibility**, **security**, and **maintainability** while supporting a complex multi-user, multi-host homelab environment. I quite love it, hope it serves as inspo to some of you out there.

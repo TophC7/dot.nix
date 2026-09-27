@@ -1,6 +1,7 @@
 ###############################################################
 #
 #  Nexus - Router & Services Host
+#  NixOS running on Intel N150 (4C/4T), 8GB RAM, 4x Intel I226-V 2.5GbE
 #
 #  Router, Firewall, DHCP, DNS, Docker services
 #  Pangolin Proxy, Zero Trust access, Wireguard VPN, Rathole tunnels

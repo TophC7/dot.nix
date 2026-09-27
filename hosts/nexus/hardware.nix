@@ -1,3 +1,10 @@
+###############################################################
+#
+#  Nexus - Hardware Configuration
+#  Intel N150 (4C/4T), 8GB RAM, 4x Intel I226-V 2.5GbE
+#
+###############################################################
+
 {
   config,
   lib,
@@ -19,9 +26,10 @@
       "sd_mod"
       "r8169" # Realtek network cards
       "igb" # Intel network cards
+      "igc" # Intel I226-V 2.5GbE network cards
     ];
     initrd.kernelModules = [ ];
-    kernelModules = [ "kvm-amd" ];
+    kernelModules = [ "kvm-intel" ];
     extraModulePackages = [ ];
 
     # Enable IP forwarding for router functionality
@@ -182,5 +190,5 @@
   networking.useDHCP = false;
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
-  hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
+  hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
 }
