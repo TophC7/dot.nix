@@ -1892,11 +1892,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1790394012,
-        "narHash": "sha256-QZCUvC+7pmeqjYw/HTZXcxkxHX4PWi4IWzA/WtkWjX4=",
+        "lastModified": 1790452119,
+        "narHash": "sha256-Y9I+f9cX1ourjtTWnpmk30DOfo4GwXH9cZzcAtRq6bw=",
         "ref": "refs/heads/main",
-        "rev": "c1bd8a664269774aaaa68042bdba0eb96e30a841",
-        "revCount": 145,
+        "rev": "4d0b0bd5813195bef97d7727cd1f565b3588ea4c",
+        "revCount": 146,
         "type": "git",
         "url": "file:///repo/rust/sworm"
       },
