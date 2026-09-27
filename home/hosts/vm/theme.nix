@@ -50,10 +50,6 @@
         };
       };
 
-      base16 = {
-        generate = true;
-      };
-
       matugen = {
         scheme = "scheme-expressive";
       };

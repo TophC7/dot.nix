@@ -17,7 +17,7 @@ in
     enable = lib.mkDefault true;
     enableFishIntegration = lib.mkDefault true;
     settings = {
-      theme = lib.mkDefault "dank16";
+      theme = lib.mkDefault "pana";
       # Pin a real monospace + nerd font. Generic "monospace" caused
       # intermittent line-height bumps when Ghostty fell back to fonts
       # with different ascender/descender metrics for special glyphs.
