@@ -6,7 +6,6 @@
 ###############################################################
 
 {
-  flakeRoot,
   inputs,
   lib,
   pkgs,
@@ -16,24 +15,31 @@
 {
   imports = lib.flatten [
     ## Norion Specific Imports ##
-    (lib.fs.scanPaths ./.)
+    ./hardware.nix
+    ./config
 
     ## Hardware ##
     inputs.hardware.nixosModules.lenovo-thinkpad-p14s-amd-gen6
 
     ## Additional Configs ##
-    (map (lib.fs.relativeTo flakeRoot) [
-      "modules/hosts/common/audio.nix"
-      "modules/hosts/common/bluetooth.nix"
-      "modules/hosts/common/clamav.nix"
-      "modules/hosts/common/ddcutil.nix"
-      "modules/hosts/common/docker.nix"
-      "modules/hosts/common/gaming.nix"
-      "modules/hosts/common/kb.nix"
-      "modules/hosts/common/nvtop.nix"
-      "modules/hosts/common/plymouth.nix"
-      "modules/hosts/common/solaar.nix"
-      "modules/hosts/common/vpn.nix"
+    (lib.features [
+      "audio"
+      "bluetooth"
+      "clamav"
+      "ddcutil"
+      "docker"
+      "gaming"
+      "kb"
+      "nvtop"
+      "plymouth"
+      "solaar"
+      "vpn"
+      "chromium"
+      "agents"
+      "vscode"
+      "xdg"
+      "zen"
+      "sworm"
     ])
   ];
 

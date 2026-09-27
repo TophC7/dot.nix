@@ -8,7 +8,6 @@
 ###############################################################
 
 {
-  flakeRoot,
   host,
   lib,
   ...
@@ -16,11 +15,12 @@
 {
   imports = lib.flatten [
     ## Caenus Specific Imports ##
-    (lib.fs.scanPaths ./.)
+    ./hardware.nix
+    ./config
 
     ## Additional Configs ##
-    (map (lib.fs.relativeTo flakeRoot) [
-      "modules/hosts/common/docker.nix"
+    (lib.features [
+      "docker"
     ])
   ];
 

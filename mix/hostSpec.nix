@@ -15,7 +15,7 @@
 #     vpn.address = "10.10.0.2/32";
 #   };
 #
-# For modules usage see: modules/hosts/core/mounts.nix
+# For modules usage see: modules/core/config/mounts.nix
 #
 { config, lib, ... }:
 let
@@ -122,6 +122,13 @@ in
     ];
     default = "dms";
     description = "Desktop shell used by Niri hosts";
+  };
+
+  # dot.nix's own flag: drops the Toph wallpaper copy and Git push URL rewriting
+  options.isMinimal = mkOption {
+    type = t.bool;
+    default = false;
+    description = "Minimal host: skip user extras (wallpapers, Git push URL rewriting)";
   };
 
   options.mounts = mkOption {

@@ -1,8 +1,6 @@
 {
   config,
   dotNixRoot,
-  flakeRoot,
-  inputs,
   ...
 }:
 let
@@ -10,28 +8,16 @@ let
 in
 {
   mix = {
+    apiVersion = 2;
+    # Reuse dot.nix's modules/core and modules/features; this flake adds its own
+    # modules/core (installer + ISO settings) and modules/users/nixos
+    extends = dotNixRoot;
     hostSpecExtensions = [ (dotNixRoot + "/mix/hostSpec.nix") ];
 
     secrets = {
-      file = flakeRoot + "/mix/not-secrets.nix";
+      file = ./not-secrets.nix;
       skipValidation = true; # This file intentionally contains only public live-ISO credentials.
     };
-
-    usersHomeDir = flakeRoot + "/home/users";
-    specialArgs = { inherit flakeRoot; };
-
-    coreModules = [
-      "${inputs.nixpkgs}/nixos/modules/installer/cd-dvd/installation-cd-minimal.nix"
-      (dotNixRoot + "/modules/hosts/core")
-      (flakeRoot + "/mix/core.nix")
-      ({ host, ... }: {
-        imports = [
-          (flakeRoot + "/hosts/${if host.isServer then "server" else "desktop"}.nix")
-        ];
-      })
-    ];
-
-    coreHomeModules = [ (dotNixRoot + "/modules/home/core") ];
 
     users.nixos = {
       name = "nixos";

@@ -33,10 +33,9 @@ _: {
       };
 
       ## mix.nix Configurations ##
+      # API v2 layout: hosts/, modules/core, modules/features/, modules/users/
+      apiVersion = 2;
       hostSpecExtensions = [ ./hostSpec.nix ];
-      hostsDir = ../hosts; # NixOS configs: hosts/<hostname>/
-      hostsHomeDir = ../home/hosts; # HM configs: home/hosts/<hostname>/
-      usersHomeDir = ../home/users; # HM configs: home/users/<username>/
 
       # Global special arguments
       specialArgs =
@@ -46,16 +45,6 @@ _: {
         {
           inherit flakeRoot;
         };
-
-      # Core modules applied to ALL hosts
-      coreModules = [
-        ../modules/hosts/core
-      ];
-
-      # Core Home Manager modules applied to ALL users with HM enabled
-      coreHomeModules = [
-        ../modules/home/core
-      ];
 
       ## Users ##
       users = {
@@ -133,7 +122,7 @@ _: {
           user = "toph";
           ip = "10.2.2.2";
           isServer = true;
-          # mix.nix skips home/hosts/<name> when isMinimal is true.
+          # Keep shared wallpapers and Git push URL rewriting on this server.
           isMinimal = false;
           mounts.store = true;
         };

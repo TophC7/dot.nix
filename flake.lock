@@ -1179,11 +1179,10 @@
         "omp": "omp"
       },
       "locked": {
+        "dirtyRev": "f9291c441beb3ed84c6dade3c37b23aeafa15354-dirty",
+        "dirtyShortRev": "f9291c4-dirty",
         "lastModified": 1790408855,
-        "narHash": "sha256-VFfwuy30SYh5efqQLzNc38OUuv47OItgE9hf0BOFPvg=",
-        "ref": "refs/heads/main",
-        "rev": "f9291c441beb3ed84c6dade3c37b23aeafa15354",
-        "revCount": 164,
+        "narHash": "sha256-49FqLwmznnEd1JOiYnUO7RD7wUH6k/y3YOAvaQ66k80=",
         "type": "git",
         "url": "file:///repo/Nix/mix.nix"
       },

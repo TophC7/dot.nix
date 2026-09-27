@@ -6,7 +6,6 @@
 ###############################################################
 
 {
-  flakeRoot,
   lib,
   pkgs,
   ...
@@ -14,11 +13,14 @@
 {
   imports = lib.flatten [
     ## VM Specific Imports ##
-    (lib.fs.scanPaths ./.)
+    ./hardware.nix
 
     ## Additional Configs ##
-    (map (lib.fs.relativeTo flakeRoot) [
-      "modules/hosts/common/plymouth.nix" # fancy boot screen
+    (lib.features [
+      "plymouth" # fancy boot screen
+      "vscode"
+      "xdg"
+      "zen"
     ])
   ];
 

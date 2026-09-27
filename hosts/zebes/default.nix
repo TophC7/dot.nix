@@ -9,7 +9,6 @@
 ###############################################################
 
 {
-  flakeRoot,
   host,
   inputs,
   lib,
@@ -18,7 +17,8 @@
 {
   imports = lib.flatten [
     ## Zebes Specific Imports ##
-    (lib.fs.scanPaths ./.)
+    ./hardware.nix
+    ./config
 
     ## Hardware ##
     inputs.hardware.nixosModules.common-cpu-amd
@@ -26,14 +26,14 @@
     inputs.hardware.nixosModules.common-pc-ssd
 
     ## Additional Configs ##
-    (map (lib.fs.relativeTo flakeRoot) [
-      "modules/hosts/common/acme.nix"
-      "modules/hosts/common/bluetooth.nix"
-      "modules/hosts/common/ddcutil.nix"
-      "modules/hosts/common/docker.nix"
-      "modules/hosts/common/nvtop.nix"
-      "modules/hosts/common/komodo-periphery.nix"
-      "modules/hosts/common/pangolin/newt.nix"
+    (lib.features [
+      "acme"
+      "bluetooth"
+      "ddcutil"
+      "docker"
+      "nvtop"
+      "komodo-periphery"
+      "pangolin/newt"
     ])
   ];
 

@@ -8,21 +8,21 @@
 ###############################################################
 
 {
-  flakeRoot,
   lib,
   ...
 }:
 {
   imports = lib.flatten [
     ## Nexus Specific Imports ##
-    (lib.fs.scanPaths ./.)
+    ./hardware.nix
+    ./config
 
     ## Additional Configs ##
-    (map (lib.fs.relativeTo flakeRoot) [
-      "modules/hosts/common/acme.nix"
-      "modules/hosts/common/docker.nix"
-      "modules/hosts/common/pangolin/newt.nix"
-      "modules/hosts/common/komodo-periphery.nix"
+    (lib.features [
+      "acme"
+      "docker"
+      "pangolin/newt"
+      "komodo-periphery"
     ])
   ];
 

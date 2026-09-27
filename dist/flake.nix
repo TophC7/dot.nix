@@ -1,18 +1,16 @@
 {
   description = "NixOS installation media based on the current dot.nix modules";
 
-  # Keep these aligned with inputs referenced by ../modules. dist stays CI-safe
-  # by using public sources instead of the root flake's local development URLs.
+  # Keep these aligned with inputs referenced by ../modules. Local development
+  # only: mix-nix points at the local mix.nix checkout, so this flake is not
+  # CI-portable until mix-nix is repinned to a published source.
   inputs = {
     nixpkgs.follows = "mix-nix/nixpkgs";
 
-    mix-nix.url = "github:tophc7/mix.nix";
+    mix-nix.url = "git+file:///repo/Nix/mix.nix";
     flake-parts.follows = "mix-nix/flake-parts";
 
-    home-manager = {
-      url = "github:nix-community/home-manager";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    home-manager.follows = "mix-nix/home-manager";
 
     fresh = {
       url = "github:sinelaw/fresh";
@@ -114,14 +112,13 @@
     inputs@{ flake-parts, ... }:
     let
       inherit (inputs.mix-nix) lib;
-      flakeRoot = ./.;
       dotNixRoot = ../.;
     in
     flake-parts.lib.mkFlake
       {
         inherit inputs;
         specialArgs = {
-          inherit lib flakeRoot dotNixRoot;
+          inherit lib dotNixRoot;
         };
       }
       {

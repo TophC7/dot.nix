@@ -1,0 +1,127 @@
+# Core Home Manager modules - required for all users
+#
+# Shared by mix.nix (modules/core/home -> home-manager.sharedModules).
+# Auto-discovers sibling modules via lib.fs.scanPaths.
+#
+# Available in specialArgs:
+#   - host (host.user, host.isServer, host.hostName, etc.)
+#   - inputs
+#   - secrets (if configured via mix.secrets)
+#
+{
+  lib,
+  pkgs,
+  host,
+  inputs,
+  ...
+}:
+let
+  user = host.user;
+in
+{
+  imports = lib.flatten [
+    (lib.fs.scanPaths ./.)
+    # Fastfetch from mix.nix
+    inputs.mix-nix.homeManagerModules.fastfetch
+  ];
+
+  mix.fastfetch = {
+    enable = true;
+    weather.location = "Arecibo";
+  };
+
+  services.ssh-agent.enable = true;
+
+  home = {
+    username = lib.mkDefault user.name;
+    stateVersion = lib.mkDefault "25.11";
+    sessionPath = [
+      "~/.local/bin"
+    ];
+    sessionVariables = {
+      EDITOR = lib.mkDefault "fresh";
+      VISUAL = lib.mkDefault "fresh";
+      FLAKE = lib.mkDefault "/repo/Nix/dot.nix";
+      NH_FLAKE = lib.mkDefault "/repo/Nix/dot.nix";
+      SHELL = lib.getExe user.shell;
+    };
+    preferXdgDirectories = true; # whether to make programs use XDG directories whenever supported
+  };
+
+  xdg = {
+    enable = true;
+    userDirs = {
+      enable = true;
+      createDirectories = true;
+      setSessionVariables = true;
+      extraConfig = {
+        # publicshare and templates defined as null here instead of as options because
+        PUBLICSHARE = "/var/empty";
+        TEMPLATES = "/var/empty";
+      };
+    };
+  };
+
+  # Core pkgs with no configs
+  home.packages = builtins.attrValues {
+    inherit (pkgs)
+      direnv # environment per directory
+      dust # disk usage
+      openjdk25
+      ;
+  };
+
+  programs = {
+    home-manager.enable = true;
+    nix-index.enable = true;
+  };
+
+  manual = {
+    html.enable = false;
+    json.enable = false;
+    manpages.enable = false;
+  };
+
+  nix = {
+    package = lib.mkDefault pkgs.nix;
+    settings = {
+      experimental-features = [
+        "nix-command"
+        "flakes"
+      ];
+      warn-dirty = false;
+    };
+  };
+
+  ## NIX NIX NIX ##
+  home.file =
+    let
+      nixConfig = pkgs.writeText "config.nix" ''
+        {
+          allowUnfree = true;
+          fallback = true;
+          connect-timeout = 10;
+          permittedInsecurePackages = [
+            "minecraft"
+            "ventoy-gtk3-1.1.05"
+            "modrinth-app"
+            "claude-code"
+            "electron-39.8.10"
+            "mbedtls-2.28.10"
+          ];
+        }
+      '';
+    in
+    {
+      ".config/nixpkgs/config_source" = {
+        source = nixConfig;
+        onChange = ''
+          cp $HOME/.config/nixpkgs/config_source $HOME/.config/nixpkgs/config.nix
+          chmod 644 $HOME/.config/nixpkgs/config.nix
+        '';
+      };
+    };
+
+  # Nicely reload system units when changing configs
+  systemd.user.startServices = "sd-switch";
+}

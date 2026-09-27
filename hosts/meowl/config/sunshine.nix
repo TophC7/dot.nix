@@ -87,50 +87,54 @@ in
 {
   users.users.${user}.extraGroups = [ "uinput" ];
 
-  home-manager.users.${user}.programs.wayscope = {
-    profiles = {
-      sunshine-eden-720p = {
-        options = lowResolutionOptions // {
-          backend = "wayland";
+  home-manager.sharedModules = [
+    {
+      programs.wayscope = {
+        profiles = {
+          sunshine-eden-720p = {
+            options = lowResolutionOptions // {
+              backend = "wayland";
+            };
+            environment = wayscopeEnvironment;
+          };
+          sunshine-heroic-720p = {
+            options = lowResolutionOptions // {
+              backend = "wayland";
+            };
+            environment = wayscopeEnvironment;
+            unset = [ "DISPLAY" ];
+          };
+          sunshine-steam-720p = {
+            options = lowResolutionOptions // {
+              backend = "wayland";
+              steam = true;
+            };
+            environment = wayscopeEnvironment // {
+              STEAM_FORCE_DESKTOPUI_SCALING = "1";
+              STEAM_GAMEPADUI = "1";
+            };
+          };
         };
-        environment = wayscopeEnvironment;
-      };
-      sunshine-heroic-720p = {
-        options = lowResolutionOptions // {
-          backend = "wayland";
+        wrappers = {
+          sunshine-eden-720p = {
+            enable = true;
+            profile = "sunshine-eden-720p";
+            command = "${eden} -platform xcb -qwindowgeometry ${toString lowResolution.width}x${toString lowResolution.height}";
+          };
+          sunshine-heroic-720p = {
+            enable = true;
+            profile = "sunshine-heroic-720p";
+            package = pkgs.heroic;
+          };
+          sunshine-steam-720p = {
+            enable = true;
+            profile = "sunshine-steam-720p";
+            command = "${lib.getExe config.programs.steam.package} -bigpicture -tenfoot";
+          };
         };
-        environment = wayscopeEnvironment;
-        unset = [ "DISPLAY" ];
       };
-      sunshine-steam-720p = {
-        options = lowResolutionOptions // {
-          backend = "wayland";
-          steam = true;
-        };
-        environment = wayscopeEnvironment // {
-          STEAM_FORCE_DESKTOPUI_SCALING = "1";
-          STEAM_GAMEPADUI = "1";
-        };
-      };
-    };
-    wrappers = {
-      sunshine-eden-720p = {
-        enable = true;
-        profile = "sunshine-eden-720p";
-        command = "${eden} -platform xcb -qwindowgeometry ${toString lowResolution.width}x${toString lowResolution.height}";
-      };
-      sunshine-heroic-720p = {
-        enable = true;
-        profile = "sunshine-heroic-720p";
-        package = pkgs.heroic;
-      };
-      sunshine-steam-720p = {
-        enable = true;
-        profile = "sunshine-steam-720p";
-        command = "${lib.getExe config.programs.steam.package} -bigpicture -tenfoot";
-      };
-    };
-  };
+    }
+  ];
 
   services.sunshine = {
     enable = true;

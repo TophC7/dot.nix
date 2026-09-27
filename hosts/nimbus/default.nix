@@ -8,7 +8,6 @@
 ###############################################################
 
 {
-  flakeRoot,
   inputs,
   lib,
   pkgs,
@@ -17,17 +16,19 @@
 {
   imports = lib.flatten [
     ## Nimbus Specific Imports ##
-    (lib.fs.scanPaths ./.)
+    ./hardware.nix
+    ./config
 
     ## Hardware ##
     inputs.hardware.nixosModules.common-cpu-amd
     inputs.hardware.nixosModules.common-pc-ssd
 
     ## Additional Configs ##
-    (map (lib.fs.relativeTo flakeRoot) [
-      "modules/hosts/common/docker.nix"
-      "modules/hosts/common/pangolin/newt.nix"
-      "modules/hosts/common/komodo-periphery.nix"
+    (lib.features [
+      "docker"
+      "pangolin/newt"
+      "komodo-periphery"
+      "agents"
     ])
   ];
 

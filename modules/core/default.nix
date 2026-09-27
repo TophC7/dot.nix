@@ -1,0 +1,156 @@
+# Core NixOS modules - required for all hosts
+#
+# mix.nix API v2 imports this for every host (modules/core) and adds ./home to
+# home-manager.sharedModules. NixOS modules come from ./config via lib.fs.scanPaths.
+#
+# Available in specialArgs:
+#   - host (host.user, host.isServer, host.hostName, etc.)
+#   - inputs
+#   - secrets (if configured via mix.secrets)
+#
+{
+  inputs,
+  config,
+  host,
+  lib,
+  pkgs,
+  secrets ? { },
+  ...
+}:
+{
+  imports = lib.flatten [
+    (lib.fs.scanPaths ./config)
+    (lib.optionals (host.desktop != null) (lib.features [ "desktop" ]))
+    inputs.bonk.nixosModules.default
+  ];
+
+  # bonk - NixOS workflow multitool (wraps nh, nix, nix-store)
+  programs.bonk = {
+    enable = true;
+    buildHost = "nimbus";
+    flakePath = "/repo/Nix/dot.nix";
+    extraArgs = [ "--impure" ];
+  };
+
+  # System-wide packages, root accessible
+  environment.systemPackages = with pkgs; [
+    cachix
+    coreutils # basic gnu utils
+    curl
+    ethtool
+    eza # ls replacement
+    fresh-editor
+    git
+    git-crypt
+    gpg-tui
+    gtrash
+    jq
+    lazyjournal # journalctl viewer
+    micro
+    nmap # network scannero
+    openssh
+    pciutils
+    sshfs
+    superfile
+    unrar # rar extraction
+    unzip # zip extraction
+    wget
+    yazi
+    zellij
+    zip # zip compression
+  ];
+
+  # Enable print to PDF.
+  services.printing.enable = true;
+
+  ## Nixpkgs config ##
+  nixpkgs.config = {
+    allowUnfree = true;
+    allowUnfreePredicate = _: true;
+    permittedInsecurePackages = [
+      "electron-39.8.10"
+      "mbedtls-2.28.10"
+      "proton-authenticator"
+      "proton-pass"
+    ];
+  };
+
+  ## Localization ##
+  i18n.defaultLocale = lib.mkDefault "en_US.UTF-8";
+  time.timeZone = lib.mkDefault "America/New_York";
+  networking.timeServers = [ "pool.ntp.org" ];
+
+  ## SUDO and Terminal ##
+  environment.enableAllTerminfo = true;
+  hardware.enableAllFirmware = true;
+
+  security.sudo = {
+    extraConfig = ''
+      Defaults lecture = never
+      Defaults pwfeedback
+      Defaults timestamp_timeout=120
+      Defaults env_keep+=SSH_AUTH_SOCK
+    '';
+  };
+
+  ## Primary shell enablement ##
+  programs.fish = {
+    enable = true;
+    useBabelfish = false;
+  };
+  environment.shells = with pkgs; [
+    bash
+    fish
+  ];
+
+  ## NIX NIX NIX ##
+  documentation.nixos.enable = lib.mkForce false;
+  nix = {
+    registry = lib.mapAttrs (_: value: { flake = value; }) inputs;
+    nixPath = lib.mapAttrsToList (key: value: "${key}=${value.to.path}") config.nix.registry;
+
+    gc = {
+      automatic = true;
+      dates = "weekly";
+      options = "--delete-older-than 20d";
+    };
+
+    settings = {
+      connect-timeout = 5;
+      # nh evaluates remote builds locally without forwarding --fallback.
+      fallback = true;
+      log-lines = 25;
+      min-free = 128000000; # 128MB
+      max-free = 1000000000; # 1GB
+
+      trusted-users = [ "@wheel" ];
+      auto-optimise-store = true;
+      warn-dirty = false;
+      allow-import-from-derivation = true;
+      download-buffer-size = 2147483648; # 2GB
+
+      experimental-features = [
+        "nix-command"
+        "flakes"
+      ];
+
+      # Binary cache substituters
+      # priority=1 ensures local cache is checked first (faster for custom packages)
+      # nimbus IS the cache server - exclude it from its own substituters to prevent circular fetches
+      substituters = [
+        "https://cache.nixos.org"
+        "https://cache.numtide.com"
+      ]
+      ++ lib.optionals (host.hostName != "nimbus") [
+        "https://cache.ryot.foo?priority=1"
+      ];
+
+      trusted-public-keys = [
+        "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
+        "niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g="
+        secrets.service.cache.pub
+      ]
+      ++ lib.optional (secrets ? service && secrets.service ? cache) secrets.service.cache.pub;
+    };
+  };
+}

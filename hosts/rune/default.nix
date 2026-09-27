@@ -6,7 +6,6 @@
 ###############################################################
 
 {
-  flakeRoot,
   inputs,
   lib,
   pkgs,
@@ -17,7 +16,8 @@
 {
   imports = lib.flatten [
     ## Rune Specific Imports ##
-    (lib.fs.scanPaths ./.)
+    ./hardware.nix
+    ./config
 
     ## Hardware ##
     inputs.hardware.nixosModules.common-cpu-amd
@@ -25,20 +25,26 @@
     inputs.hardware.nixosModules.common-pc-ssd
 
     ## Additional Configs ##
-    (map (lib.fs.relativeTo flakeRoot) [
-      "modules/hosts/common/audio.nix"
-      "modules/hosts/common/bluetooth.nix"
-      "modules/hosts/common/color.nix"
-      "modules/hosts/common/ddcutil.nix"
-      "modules/hosts/common/docker.nix"
-      "modules/hosts/common/gaming.nix"
-      "modules/hosts/common/kb.nix"
-      "modules/hosts/common/komodo-periphery.nix"
-      "modules/hosts/common/libvirt.nix"
-      "modules/hosts/common/nvtop.nix"
-      "modules/hosts/common/plymouth.nix"
-      "modules/hosts/common/solaar.nix"
-      "modules/hosts/common/waydroid.nix"
+    (lib.features [
+      "audio"
+      "bluetooth"
+      "color"
+      "ddcutil"
+      "docker"
+      "gaming"
+      "kb"
+      "komodo-periphery"
+      "libvirt"
+      "nvtop"
+      "plymouth"
+      "solaar"
+      "waydroid"
+      "chromium"
+      "agents"
+      "vscode"
+      "xdg"
+      "zen"
+      "sworm"
     ])
   ];
 

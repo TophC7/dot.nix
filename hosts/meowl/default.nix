@@ -7,20 +7,22 @@
 ###############################################################
 
 {
-  flakeRoot,
   inputs,
   lib,
   ...
 }:
 {
   imports = lib.flatten [
-    (lib.fs.scanPaths ./.)
+    ./hardware.nix
+    ./config
     inputs.hardware.nixosModules.common-cpu-intel
     inputs.hardware.nixosModules.common-pc-ssd
-    (map (lib.fs.relativeTo flakeRoot) [
-      "modules/hosts/common/gaming.nix"
-      "modules/hosts/common/docker.nix"
-      "modules/hosts/common/pangolin/newt.nix"
+    (lib.features [
+      "gaming"
+      "docker"
+      "pangolin/newt"
+      "xdg"
+      "zen"
     ])
   ];
 

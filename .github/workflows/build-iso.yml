@@ -6,8 +6,7 @@ on:
     tags: ["*"]
     paths:
       - "dist/**"
-      - "modules/hosts/**"
-      - "modules/home/**"
+      - "modules/**"
       - ".github/workflows/build-iso.yml"
   workflow_dispatch:
 
