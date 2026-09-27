@@ -2,7 +2,7 @@
 name: cleanup-audit-scout
 description: Read-only audit pass for /cleanup; flags behavioral regressions, broken caller contracts, edge cases, races, and seam violations that need a human decision, never routine cleanup
 tools: read, grep, glob
-model: "@audit"
+model: "@advisor"
 blocking: true
 read-summarize: false
 ---

@@ -31,22 +31,20 @@ let
     modelRoles = {
       default = "google-antigravity/gemini-3.8-flash:high";
       commit = "google-antigravity/gemini-3.8-flash:low";
-      plan = "anthropic/claude-fable-5-1:medium";
+      plan = "openai-codex/gpt-6-astra:high";
       smol = "openai-codex/gpt-6-luna:xhigh";
-      task = "openai-codex/gpt-6-sol:high";
+      task = "anthropic/claude-opus-5-5:medium";
+      advisor = "anthropic/claude-opus-5-5:medium";
       bard = "google-antigravity/gemini-3.8-flash:high";
-      designer = "anthropic/claude-opus-5-5:high";
-      audit = "openai-codex/gpt-6-astra:low";
+      claude = "anthropic/claude-opus-5-5:medium";
+      codex = "openai-codex/gpt-6-astra:medium";
     };
 
     cycleOrder = [
       "default"
       "bard"
-      "task"
-      "audit"
-      "plan"
-      "designer"
-      "smol"
+      "claude"
+      "codex"
     ];
 
     defaultThinkingLevel = "high";

@@ -2,7 +2,7 @@
 name: review-adversarial-idiom-scout
 description: Read-only /review:adversarial pass for language, framework, runtime, and project idioms
 tools: read, grep, glob, lsp, ast_grep
-model: "@audit"
+model: "@advisor"
 blocking: true
 read-summarize: false
 output:
