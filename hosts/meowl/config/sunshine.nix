@@ -124,7 +124,7 @@ in
           sunshine-heroic-720p = {
             enable = true;
             profile = "sunshine-heroic-720p";
-            package = pkgs.heroic;
+            package = homeConfig.play.heroic.package;
           };
           sunshine-steam-720p = {
             enable = true;

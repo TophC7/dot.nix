@@ -69,18 +69,10 @@ in
       heroic = {
         enable = true;
         profile = "wayland";
-        package = pkgs.heroic;
+        package = config.play.heroic.package;
       };
     };
   };
-
-  # Heroic cannot discover Proton builds exposed only through Steam's wrapper.
-  xdg.configFile = lib.listToAttrs (
-    map (proton: {
-      name = "heroic/tools/proton/${proton.name}";
-      value.source = "${proton}/bin";
-    }) osConfig.programs.steam.extraCompatPackages
-  );
 
   xdg.desktopEntries = {
     ## Steam and Games ##
@@ -133,7 +125,7 @@ in
       actions = {
         native = {
           name = "Heroic (No Gamescope)";
-          exec = "${lib.getExe pkgs.heroic}";
+          exec = "${lib.getExe config.play.heroic.package}";
         };
       };
     };
