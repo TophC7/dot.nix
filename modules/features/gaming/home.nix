@@ -1,14 +1,10 @@
 {
   pkgs,
   lib,
-  inputs,
   ...
 }:
 {
-  imports = lib.fs.scanPaths ./home ++ [ inputs.play.homeManagerModules.play ];
-
-  # Links Steam's Proton builds into Heroic under stable names
-  play.heroic.enable = true;
+  imports = lib.fs.scanPaths ./home;
 
   home.packages = with pkgs; [
     prismlauncher

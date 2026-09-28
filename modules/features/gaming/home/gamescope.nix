@@ -69,7 +69,7 @@ in
       heroic = {
         enable = true;
         profile = "wayland";
-        package = config.play.heroic.package;
+        package = osConfig.play.heroic.package;
       };
     };
   };
@@ -125,7 +125,7 @@ in
       actions = {
         native = {
           name = "Heroic (No Gamescope)";
-          exec = "${lib.getExe config.play.heroic.package}";
+          exec = "${lib.getExe osConfig.play.heroic.package}";
         };
       };
     };
