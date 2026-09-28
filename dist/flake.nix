@@ -1,21 +1,15 @@
 {
   description = "NixOS installation media based on the current dot.nix modules";
 
-  # Keep these aligned with inputs referenced by ../modules. Local development
-  # only: mix-nix points at the local mix.nix checkout, so this flake is not
-  # CI-portable until mix-nix is repinned to a published source.
+  # Keep these aligned with inputs referenced by ../modules. mix-nix tracks the
+  # published repo so CI can build this flake.
   inputs = {
     nixpkgs.follows = "mix-nix/nixpkgs";
 
-    mix-nix.url = "git+file:///repo/Nix/mix.nix";
+    mix-nix.url = "github:tophc7/mix.nix";
     flake-parts.follows = "mix-nix/flake-parts";
 
     home-manager.follows = "mix-nix/home-manager";
-
-    fresh = {
-      url = "github:sinelaw/fresh";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
 
     bonk = {
       url = "github:tophc7/bonk";
@@ -25,6 +19,14 @@
     niri = {
       url = "github:tophc7/niri-flake";
       inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    pana = {
+      url = "github:tophc7/pana";
+      inputs.mix-nix.follows = "mix-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.home-manager.follows = "home-manager";
+      inputs.niri.follows = "niri";
     };
 
     dank-greeter = {
@@ -37,73 +39,18 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    quickshell = {
-      url = "git+https://git.outfoxxed.me/outfoxxed/quickshell";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    dankMaterialShell = {
-      url = "github:AvengeMedia/DankMaterialShell";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    dms-actions = {
-      url = "github:AvengeMedia/dms-plugins";
-      flake = false;
-    };
-
-    dms-easyeffects = {
-      url = "github:jonkristian/dms-easyeffects";
-      flake = false;
-    };
-
-    dms-quick-tote = {
-      url = "github:JDKamalakar/DMS-Quick_Tote";
-      flake = false;
-    };
-
-    dms-clipboard-plus = {
-      url = "github:Dadangdut33/dms-plugins";
-      flake = false;
-    };
-
-    dms-github-heatmap = {
-      url = "github:JDKamalakar/DMS-GitHub_HeatMap";
-      flake = false;
-    };
-
-    dms-amd-gpu-monitor = {
-      url = "github:JDKamalakar/DMS-AMD_GPU_Monitor_Revive";
-      flake = false;
-    };
-
-    dms-cat-widget = {
-      url = "github:xi-ve/cat-dms";
-      flake = false;
-    };
-
-    dms-plugins = {
-      url = "git+https://git.ryot.foo/toph/dms-plugins";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    anker-c200 = {
-      url = "git+https://git.ryot.foo/toph/anker-powerconf-c200-linux";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     stylix = {
       url = "github:danth/stylix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    vicinae = {
-      url = "github:vicinaehq/vicinae";
+    zen-browser = {
+      url = "github:0xc000022070/zen-browser-flake/beta";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    zen-browser = {
-      url = "github:0xc000022070/zen-browser-flake/beta";
+    sworm = {
+      url = "github:tophc7/sworm";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };

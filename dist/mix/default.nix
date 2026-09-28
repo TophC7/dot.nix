@@ -49,6 +49,7 @@ in
         hostName = "nixos";
         system = "aarch64-linux";
         user = "nixos";
+        niriShell = "pana";
       };
 
       server-iso-x86 = {
@@ -63,6 +64,7 @@ in
         hostName = "nixos";
         system = "x86_64-linux";
         user = "nixos";
+        niriShell = "pana";
       };
     };
   };
