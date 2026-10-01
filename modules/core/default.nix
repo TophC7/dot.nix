@@ -40,6 +40,7 @@
     ethtool
     eza # ls replacement
     fresh-editor
+    ghostty.terminfo # xterm-ghostty for SSH sessions; ncurses already ships `ghostty`
     git
     git-crypt
     gpg-tui
@@ -80,8 +81,7 @@
   time.timeZone = lib.mkDefault "America/New_York";
   networking.timeServers = [ "pool.ntp.org" ];
 
-  ## SUDO and Terminal ##
-  environment.enableAllTerminfo = true;
+  ## Firmware and SUDO ##
   hardware.enableAllFirmware = true;
 
   security.sudo = {

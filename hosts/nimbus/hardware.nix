@@ -49,7 +49,7 @@
     ];
     zfs.forceImportRoot = true; # Required when forceImportAll is true
     zfs.forceImportAll = true; # Import all pools at boot
-    zfs.package = config.boot.kernelPackages.zfs_cachyos; # CachyOS-patched ZFS
+    zfs.package = pkgs.zfs_cachyos; # CachyOS-patched ZFS userspace; module from kernelPackages
   };
 
   # ZFS services
