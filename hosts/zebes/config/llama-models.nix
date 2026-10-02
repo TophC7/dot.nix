@@ -7,16 +7,16 @@ let
   modelDir = "/store/llama/models";
   coreFiles = [
     {
-      repository = "Jackrong/Qwen3.5-9B-Claude-4.6-Opus-Reasoning-Distilled-GGUF";
-      revision = "6b811564b420ece28d5a413a75a8d397e6220dae";
-      name = "Qwen3.5-9B.Q8_0.gguf";
-      sha256 = "01ab75e862bf61c2fd20babc55d396181580722b7af76ec4ebfb83224218c723";
+      repository = "ISTA-DASLab/Qwen3.8-27B-GSQ-RCO-GGUF";
+      revision = "d562806dbafae37109975e970aae91b43e73b440";
+      name = "Qwen3.8-27B-GSQ-RCO-IQ3_S-mtp.gguf";
+      sha256 = "58fd826723939933dc86f45b7fe04545cbc2de1c70f6fe2cdd3858c87a98c12f";
     }
     {
-      repository = "Jackrong/Qwen3.5-9B-Claude-4.6-Opus-Reasoning-Distilled-GGUF";
-      revision = "6b811564b420ece28d5a413a75a8d397e6220dae";
-      name = "mmproj-F32.gguf";
-      sha256 = "21c10ed72802e4859575e051f5017432fce77501bb0329912fe9a8ad11f4400e";
+      repository = "ISTA-DASLab/Qwen3.8-27B-GSQ-RCO-GGUF";
+      revision = "d562806dbafae37109975e970aae91b43e73b440";
+      name = "mmproj-Qwen3.8-27B-BF16.gguf";
+      sha256 = "13cb7bebccbd04afc8f4090cb949ecf8937cdf7377c5799b1a0c594e7c0d3e16";
     }
   ];
   extraFiles = [
@@ -33,24 +33,16 @@ let
       sha256 = "002e0f739eb83dd3a2bd8d9bb58909c0a85aa571ca0b3b140bece1c010535d6c";
     }
     {
-      repository = "Jackrong/Qwen3.5-27B-Claude-4.6-Opus-Reasoning-Distilled-v2-GGUF";
-      revision = "2fc6465288bfa3695eda8fc367e5ccb7e5609f0a";
-      name = "Qwen3.5-27B.Q4_K_M.gguf";
-      target = "Qwen3.5-27B-Opus-v2.Q4_K_M.gguf";
-      sha256 = "51ce67b6936e98b60abc4f61af79c3f5edd1610871818a917df55baae06d631b";
+      repository = "Jackrong/Qwen3.5-9B-Claude-4.6-Opus-Reasoning-Distilled-GGUF";
+      revision = "6b811564b420ece28d5a413a75a8d397e6220dae";
+      name = "Qwen3.5-9B.Q8_0.gguf";
+      sha256 = "01ab75e862bf61c2fd20babc55d396181580722b7af76ec4ebfb83224218c723";
     }
     {
-      repository = "Jackrong/Qwen3.5-27B-Claude-4.6-Opus-Reasoning-Distilled-v2-GGUF";
-      revision = "2fc6465288bfa3695eda8fc367e5ccb7e5609f0a";
+      repository = "Jackrong/Qwen3.5-9B-Claude-4.6-Opus-Reasoning-Distilled-GGUF";
+      revision = "6b811564b420ece28d5a413a75a8d397e6220dae";
       name = "mmproj-F32.gguf";
-      target = "Qwen3.5-27B-Opus-v2.mmproj-F32.gguf";
-      sha256 = "191cc67513358de838abaae1e35900f5f47cbeca2efffda0dae6713dbaf72240";
-    }
-    {
-      repository = "deepreinforce-ai/Ornith-1.0-35B-GGUF";
-      revision = "383064f72a1ef3087b779f268d3ca117eb989aac";
-      name = "ornith-1.0-35b-Q4_K_M.gguf";
-      sha256 = "ff25291b2599fb927a835e624d2b3540106af61761c3fa57ac4264046dbec002";
+      sha256 = "21c10ed72802e4859575e051f5017432fce77501bb0329912fe9a8ad11f4400e";
     }
   ];
   downloadFile =
@@ -108,6 +100,9 @@ let
   provisionExtraModels = provisionFiles "provision-extra-llama-models" extraFiles;
 in
 {
+  # Qwen3.8-27B keeps 16 full-attention layers (vs 8 on the 9B): 128k KV does
+  # not fit beside its 10.8 GB weights in 16 GB VRAM; 64k at q8_0 does. MTP
+  # speculative decoding measured slower on Vulkan, so the MTP head stays idle.
   environment.etc."llama/models.ini".text = ''
     version = 1
 
@@ -136,13 +131,23 @@ in
     ctx-checkpoints = 8
     checkpoint-min-step = 4096
 
+    [qwen3.8-27b]
+    model = ${modelDir}/Qwen3.8-27B-GSQ-RCO-IQ3_S-mtp.gguf
+    mmproj = ${modelDir}/mmproj-Qwen3.8-27B-BF16.gguf
+    image-min-tokens = 1024
+    gpu-layers = 99
+    fit = off
+    ctx-size = 65536
+    cache-type-k = q8_0
+    cache-type-v = q8_0
+    load-on-startup = true
+
     [qwen3.5-9b-opus-reasoning]
     model = ${modelDir}/Qwen3.5-9B.Q8_0.gguf
     mmproj = ${modelDir}/mmproj-F32.gguf
     image-min-tokens = 1024
     gpu-layers = 99
     fit = off
-    load-on-startup = true
 
     [qwen3.5-9b-sushi-coder-rl]
     model = ${modelDir}/Qwen3.5-9b-Sushi-Coder-RL.Q8_0.gguf
@@ -150,17 +155,6 @@ in
     image-min-tokens = 1024
     gpu-layers = 99
     fit = off
-
-    [qwen3.5-27b-opus-reasoning-v2]
-    model = ${modelDir}/Qwen3.5-27B-Opus-v2.Q4_K_M.gguf
-    mmproj = ${modelDir}/Qwen3.5-27B-Opus-v2.mmproj-F32.gguf
-    no-mmproj-offload = true
-    image-min-tokens = 1024
-    fit = on
-
-    [ornith-1.0-35b]
-    model = ${modelDir}/ornith-1.0-35b-Q4_K_M.gguf
-    fit = on
   '';
 
   systemd.services = {

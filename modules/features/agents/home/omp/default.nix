@@ -31,13 +31,13 @@ let
     modelRoles = {
       default = "google-antigravity/gemini-3.8-flash:high";
       commit = "google-antigravity/gemini-3.8-flash:low";
-      plan = "openai-codex/gpt-6-astra:high";
+      plan = "anthropic/claude-opus-5-5:high";
       smol = "openai-codex/gpt-6-luna:xhigh";
-      task = "anthropic/claude-opus-5-5:medium";
+      task = "openai-codex/gpt-6.1-sol:high";
       advisor = "anthropic/claude-opus-5-5:medium";
       bard = "google-antigravity/gemini-3.8-flash:high";
-      claude = "anthropic/claude-opus-5-5:medium";
-      codex = "openai-codex/gpt-6-astra:medium";
+      claude = "anthropic/claude-opus-5-5:high";
+      codex = "openai-codex/gpt-6.1-sol:high";
     };
 
     cycleOrder = [
@@ -139,10 +139,9 @@ let
       };
       models =
         let
-          # These templates always think and expose no effort control, so the
-          # models carry `reasoning` with no `thinking` block — OMP reads that
-          # as "reasoning model, no effort tiers". Pi's `thinkingLevelMap.off`
-          # has no counterpart in OMP's schema.
+          # The Qwen3.5 9B templates always think and expose no effort control,
+          # so they carry `reasoning` with no `thinking` block: OMP reads that as
+          # "reasoning model, no effort tiers".
           common = {
             reasoning = true;
             contextWindow = 131072;
@@ -165,6 +164,31 @@ let
           (
             vision
             // {
+              id = "qwen3.8-27b";
+              name = "Qwen3.8/27B";
+              contextWindow = 65536;
+              # The Qwen3.8 template accepts exactly these efforts (anything else
+              # raises) via chat_template_kwargs.reasoning_effort, and honors
+              # enable_thinking = false, so `:off` really turns thinking off.
+              thinking = {
+                mode = "effort";
+                efforts = [
+                  "low"
+                  "medium"
+                  "xhigh"
+                ];
+                defaultLevel = "medium";
+                requiresEffort = false;
+              };
+              compat = {
+                thinkingFormat = "qwen-chat-template";
+                qwenTemplateReasoningEffort = true;
+              };
+            }
+          )
+          (
+            vision
+            // {
               id = "qwen3.5-9b-opus-reasoning";
               name = "Qwen3.5/Opus";
             }
@@ -174,21 +198,6 @@ let
             // {
               id = "qwen3.5-9b-sushi-coder-rl";
               name = "Qwen3.5/Sushi Coder";
-            }
-          )
-          (
-            vision
-            // {
-              id = "qwen3.5-27b-opus-reasoning-v2";
-              name = "Qwen3.5/Opus 27B";
-            }
-          )
-          (
-            common
-            // {
-              id = "ornith-1.0-35b";
-              name = "Ornith 1.0/35B";
-              input = [ "text" ];
             }
           )
         ];

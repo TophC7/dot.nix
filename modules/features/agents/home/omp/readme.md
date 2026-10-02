@@ -94,7 +94,7 @@ OMP uses abstract model roles instead of hardcoded model IDs. Subagents and work
 | `audit` | `openai-codex/gpt-6-astra:low` |
 
 - **`Ctrl+P`**: Cycles active model: `default → bard → task → audit → plan → designer → smol`.
-- **Local Models**: Preconfigured provider `zebes` connects to llama-server on host Zebes (Qwen3.5/Ornith models with thinking enabled).
+- **Local Models**: Preconfigured provider `zebes` connects to llama-server on host Zebes (Qwen3.8 27B plus Qwen3.5 9B models, thinking enabled).
 
 ---
 
