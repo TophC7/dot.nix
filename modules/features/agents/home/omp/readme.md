@@ -32,6 +32,7 @@ Custom TypeScript extensions running inside OMP:
 | **`luna-priority.ts`** | Injects `service_tier: "priority"` into requests targeting `openai-codex/gpt-5.6-luna`. |
 | **`caveman.ts`** | Adds `/caveman [on\|off]` to enforce terse, fluff-free responses while keeping technical substance intact. State persists across sessions and branches. |
 | **`ponytail.ts`** | Adds `/ponytail [on\|off]` to enforce senior pragmatic engineering heuristics (reuse existing code first, stdlib over extra deps, avoid speculative abstractions). State persists across sessions and branches. |
+| **`decomplect.ts`** | Routes `/decomplect` into native plan mode before the command runs. |
 
 ---
 
@@ -53,6 +54,7 @@ Reusable prompts inserted via `Ctrl+M` or `/macro <name>`:
 | --- | --- |
 | **`/review:adversarial [target]`** | Runs 6 parallel read-only scout agents over a target (PR, commit, diff, or paths). Synthesizes findings, asks what to fix via an interactive prompt, then applies chosen fixes. |
 | **`/cleanup [commit] [focus]`** | Runs 4 scout agents over working tree or diff to polish code. Applies safe fixes automatically and routes uncertain or high-risk findings to a review list. |
+| **`/decomplect [repo-or-paths] [focus]`** | Enters native plan mode, audits a whole repo or selected subsystems with parallel `decomplect-scout` agents, discusses architectural/product choices, then opens one integrated plan to untangle, consolidate, and delete in Plan Review. |
 | **`/commit [guidance]`** | Delegates to the `committer` agent to inspect the staged diff and create a clean conventional commit. |
 | **`/pr [guidance]`** | Opens a GitHub PR from committed changes, creating a `pr/*` branch if currently on `main` or `dev`. |
 
@@ -72,6 +74,8 @@ Subagents run in parallel with `blocking: true` to return findings inline:
   - `cleanup-quality-scout`: Removes dead code and debug remnants.
   - `cleanup-efficiency-scout`: Streamlines loops and hot paths.
   - `cleanup-audit-scout`: Flags risky behavioral changes, races, and seam breaks for manual triage.
+- **Decomplect Scout**:
+  - `decomplect-scout`: Subsystem audit for untangling, consolidation, and deletion.
 - **Committer**:
   - `committer`: Inspects staged git diff and drafts conventional commits.
 
