@@ -151,9 +151,20 @@ in
   };
 
   home.packages = builtins.attrValues {
-    inherit (pkgs)
-      handlr-regex # better xdg-open for desktop apps
-      ;
+    # shared-mime-info 2.5.1 renamed the canonical shell MIME type to text/x-shellscript.
+    # Remove these skips once handlr's MIME assertion and table snapshots support it.
+    handlr-regex = pkgs.handlr-regex.overrideAttrs (old: {
+      checkFlags = (old.checkFlags or [ ]) ++ [
+        "--skip"
+        "common::mime_types::tests::from_path"
+        "--skip"
+        "common::path::tests::mime_table_terminal"
+        "--skip"
+        "common::path::tests::test_mime_table_json"
+        "--skip"
+        "common::path::tests::test_mime_table_piped"
+      ];
+    });
   };
 
 }

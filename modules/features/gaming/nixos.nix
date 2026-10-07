@@ -1,5 +1,6 @@
 {
   inputs,
+  pkgs,
   ...
 }:
 {
@@ -12,6 +13,10 @@
     ananicy.enable = true;
     gamemode.enable = true;
     heroic.enable = true;
-    steam.enable = true;
+    steam = {
+      enable = true;
+      # GDK titles (Minecraft Dungeons II) need WineGDK's Gaming Services stand-in
+      extraCompatPackages = [ pkgs.gdk-proton ];
+    };
   };
 }

@@ -16,9 +16,8 @@ Acquire the exact review target before launching scouts. Supported targets:
 - an explicit GitHub PR or `pr://` reference;
 - a PR detected from conversation;
 - changes against a base branch using the merge base;
+- a commit hash: inclusive range from that commit through HEAD (`git diff <commit>^..HEAD`, squashed);
 - Git staged and unstaged changes;
-- Jujutsu working-copy changes;
-- a specific commit;
 - custom review instructions.
 
 Also accept explicit repositories, paths, URLs, and non-Git artifacts outside the current working directory. The user request identifies or refines the target; it is not restricted to the current repository.
@@ -27,7 +26,7 @@ When no target can be inferred, use `ask` to offer applicable review choices plu
 
 Acquire the complete target, changed paths or artifacts, target-version context needed to verify it, and any limitations. For large or remote targets, give scouts readable artifact paths, internal URIs, or exact retrieval instructions instead of truncating evidence. Include all selected target files; do not silently exclude lockfiles, generated files, or binaries. Never substitute current local files for a different reviewed revision.
 
-If acquisition fails, report the blocker and stop. Do not launch scouts over partial or guessed target material.
+If acquisition fails or produces an empty diff, report the blocker and stop. Do not launch scouts over partial or guessed target material.
 
 ## Launch review
 

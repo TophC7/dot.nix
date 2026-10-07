@@ -20,6 +20,11 @@ in
     listen = "0.0.0.0:7420";
     identityFile = "/etc/sworm/server.pem";
     authorizedKeys = lib.mapAttrsToList (name: client: "${client.fingerprint} ${name}") sworm.clients;
+    web = {
+      enable = true;
+      openFirewall = true;
+      listen = "0.0.0.0:7421";
+    };
   };
 
   # Copied, not linked: sworm, like ssh, refuses keys other users can read.

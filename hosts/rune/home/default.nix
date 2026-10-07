@@ -34,16 +34,13 @@
     ## Social ##
     telegram-desktop
     vesktop
-    journey
 
     ## Tools ##
     remmina
     solaar
-    vial # KB setup
 
     # Web Dev
     gh
-    gh-dash
-    vivaldi
+    helium
   ];
 }
