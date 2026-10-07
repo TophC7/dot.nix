@@ -8,6 +8,7 @@ export interface PromptToggleOptions {
 	readonly label: string;
 	readonly prompt: string;
 	readonly defaultEnabled?: boolean;
+	readonly injectSubagents?: boolean;
 }
 
 export function definePromptToggle(options: PromptToggleOptions): (pi: ExtensionAPI) => void {
@@ -155,5 +156,23 @@ export function definePromptToggle(options: PromptToggleOptions): (pi: Extension
 			if (!enabled) return;
 			return { systemPrompt: [...event.systemPrompt, prompt] };
 		});
+
+		if (options.injectSubagents) {
+			pi.on("tool_call", async (event) => {
+				await load();
+				if (!enabled || event.toolName !== "task") return;
+				const input = (event.input ?? {}) as { context?: string; [key: string]: unknown };
+				const existingContext = typeof input.context === "string" ? input.context : "";
+				const mergedContext = existingContext.trim()
+					? `${prompt}\n\n${existingContext.trim()}`
+					: prompt;
+				return {
+					input: {
+						...input,
+						context: mergedContext,
+					},
+				};
+			});
+		}
 	};
 }

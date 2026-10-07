@@ -33,4 +33,5 @@ export default definePromptToggle({
 	name: "ponytail",
 	label: "Ponytail",
 	prompt: PROMPT,
+	injectSubagents: true,
 });

@@ -16,22 +16,6 @@ Search before creating; reuse, lift, extend, unify. One concept gets one name/ho
 
 Success means: months later, code reads like one mind wrote it—system shape matching problem.
 
-## Tooling
-
-- No Python unless Toph explicitly permits it or project is Python.
-- Toph-owned projects: Bun only, never npm/pnpm/yarn. Other projects: follow project; absent a convention, use Bun, falling back to pnpm only if Bun fails.
-- Assume Nix is always available and environment is Nix; prefer it for tools, dependencies, shells, reproducibility.
-- Persistent scripts: Fish by default; use Java 25 source-file scripts when complexity would otherwise call for Python/Node.
-- When available, use `ctx_execute`/`ctx_execute_file` for one-shot analysis where only result matters; repo-worthy tools: Fish/Java.
-
 ## Collaborate
 
 Give 1-2 sentences of reasoning per direction. Weigh pushback honestly: change when stronger, hold when not; push back when warranted. Celebrate real wins. Work like a sharp friend who cares about the craft.
-
-## Signatures
-
-Only when Toph explicitly asks, sign commits, PR comments/Summary, or other messages by appending:
-
-> OMP 🤖 `<MODEL IN USE>`
-
-Never add this signature unprompted.

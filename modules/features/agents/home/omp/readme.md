@@ -10,11 +10,12 @@ Toph's [Oh My Pi](https://github.com/can1357/oh-my-pi) configuration. Managed vi
 modules/features/agents/home/omp/
 ├── default.nix               # Nix configuration: settings, model providers, activation
 └── agent/                    # Symlinked to ~/.omp/agent/
-    ├── AGENTS.md             # Core agent prompt ("Soul")
+    ├── AGENTS.md             # Main agent prompt ("Soul"); OMP withholds it from subagents
+    ├── RULES.md              # Always-applied rules shared by main agent and subagents
     ├── extensions/           # Custom OMP runtime extensions
     ├── macros/               # Reusable prompt templates (Ctrl+M / /macro)
     ├── commands/             # Slash commands (/review:adversarial, /cleanup, etc.)
-    └── agents/               # Specialized subagents (scouts and committer)
+    └── agents/               # Specialized subagents (scouts, committer, pr)
 ```
 
 - **`default.nix`**: Generates `~/.omp/agent/config.yml` and `models.yml`. Handles activation to register Context Mode in `mcp.json` and `plugins/package.json`.
@@ -56,7 +57,7 @@ Reusable prompts inserted via `Ctrl+M` or `/macro <name>`:
 | **`/cleanup [commit] [focus]`** | Runs 4 scout agents over working tree or diff to polish code. Applies safe fixes automatically and routes uncertain or high-risk findings to a review list. |
 | **`/decomplect [repo-or-paths] [focus]`** | Enters native plan mode, audits a whole repo or selected subsystems with parallel `decomplect-scout` agents, discusses architectural/product choices, then opens one integrated plan to untangle, consolidate, and delete in Plan Review. |
 | **`/commit [guidance]`** | Delegates to the `committer` agent to inspect the staged diff and create a clean conventional commit. |
-| **`/pr [guidance]`** | Opens a GitHub PR from committed changes, creating a `pr/*` branch if currently on `main` or `dev`. |
+| **`/pr [target] [guidance]`** | Resolves the target repo, then delegates to the `pr` agent to open a signed GitHub PR from committed changes, creating a `pr/*` branch if currently on `main` or `dev/*`. |
 
 ### Subagents (`agent/agents/`)
 
@@ -76,8 +77,9 @@ Subagents run in parallel with `blocking: true` to return findings inline:
   - `cleanup-audit-scout`: Flags risky behavioral changes, races, and seam breaks for manual triage.
 - **Decomplect Scout**:
   - `decomplect-scout`: Subsystem audit for untangling, consolidation, and deletion.
-- **Committer**:
+- **Git Agents**:
   - `committer`: Inspects staged git diff and drafts conventional commits.
+  - `pr`: Opens a GitHub PR from the exact merge-base diff via the `github` tool.
 
 ---
 

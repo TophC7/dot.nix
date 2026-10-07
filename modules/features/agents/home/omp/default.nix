@@ -93,6 +93,12 @@ let
     bash = {
       enabled = true;
       direnv = "off";
+      allowCompoundCommands = true;
+    };
+
+    lsp = {
+      diagnosticsOnEdit = true;
+      formatOnWrite = true;
     };
 
     eval.py = false;
@@ -100,7 +106,7 @@ let
     goal.enabled = false;
 
     task = {
-      eager = "default";
+      eager = "preferred";
       agentModelOverrides.scout = "@bard";
     };
 
@@ -272,6 +278,10 @@ in
     pkgs.omp
     pkgs.context-mode
   ];
+
+  home.sessionVariables = {
+    PUPPETEER_EXECUTABLE_PATH = "${lib.getExe pkgs.helium}";
+  };
 
   home.file = {
     ".omp/plugins/node_modules/context-mode".source = pkgs.context-mode;
