@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { groupTurns, relevant, type HistoryMessage } from "./memory";
+import { groupTurns, relevant } from "./history";
+import type { HistoryMessage } from "./history";
 
 function message(id: string, fields: Partial<HistoryMessage> = {}): HistoryMessage {
   return {
@@ -49,18 +50,5 @@ describe("conversation memory", () => {
       ["5", "6"],
     ]);
     expect(turns.at(-1)?.messages.map((m) => m.id)).toEqual(["5", "6"]);
-  });
-
-  test("ignored messages never create boundaries", () => {
-    const history = [
-      message("1"),
-      message("2", { ...assistant, content: "⏳ Waiting" }),
-      message("3", { authorId: "other-bot", authorIsBot: true }),
-      message("4"),
-      message("5", assistant),
-    ];
-    expect(groupTurns(history, "axophyte")[0]?.messages.map((m) => m.id)).toEqual([
-      "1", "4", "5",
-    ]);
   });
 });

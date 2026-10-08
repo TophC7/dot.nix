@@ -1,7 +1,7 @@
 import { Database } from "bun:sqlite";
 
 export type Memory = { summary: string; summaryUntil: string };
-export type Fact = { id: number; fact: string };
+type Fact = { id: number; fact: string };
 export interface Store {
   get(threadId: string): Memory | null;
   save(threadId: string, memory: Memory): void;
@@ -42,8 +42,8 @@ export function openStore(path: string): Store {
       renamed_at INTEGER
     );
   `);
-  const get = db.query<{ summary: string; summary_until: string }, [string]>(
-    "SELECT summary, summary_until FROM conversations WHERE thread_id = ?",
+  const get = db.query<Memory, [string]>(
+    "SELECT summary, summary_until AS summaryUntil FROM conversations WHERE thread_id = ?",
   );
   const save = db.query(`
     INSERT INTO conversations (thread_id, summary, summary_until, updated_at)
@@ -72,8 +72,7 @@ export function openStore(path: string): Store {
   });
   return {
     get(threadId: string): Memory | null {
-      const row = get.get(threadId);
-      return row ? { summary: row.summary, summaryUntil: row.summary_until } : null;
+      return get.get(threadId);
     },
     save(threadId: string, memory: Memory): void {
       save.run(threadId, memory.summary, memory.summaryUntil, Date.now());

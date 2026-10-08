@@ -1,38 +1,27 @@
-import {
-  MessageReferenceType,
-  type AnyThreadChannel,
-  type GuildTextBasedChannel,
-  type Message as DiscordMessage,
-} from "discord.js";
-import { loadImage } from "./images";
-import { limits } from "./limits";
-import { label, type ChatMessage, type ChatPart, type HistoryMessage, type Turn } from "./memory";
-import { pendingHistory } from "./pending-history";
-import type { Speaker } from "./people";
-import type { Memory, Store } from "./store";
-import { cleanText } from "./visibility";
+import { MessageReferenceType } from "discord.js";
+import type { GuildTextBasedChannel, Message as DiscordMessage } from "discord.js";
+import { limits } from "../limits";
+import { groupTurns, label, pendingHistory } from "./history";
+import type { HistoryMessage, Speaker, Turn } from "./history";
+import { imagesFor } from "./images";
+import type { Memory, Store } from "../memory/store";
+import { cleanText } from "../discord/visibility";
 
 type Message = DiscordMessage<true>;
 
 /** `triggers` are the IDs of the messages this turn answers; empty for /search. */
-export type Source =
-  | { kind: "forum"; thread: AnyThreadChannel; triggers: Set<string> }
-  | { kind: "channel"; channel: GuildTextBasedChannel; triggers: Set<string> };
+export type Source = { channel: GuildTextBasedChannel; forum: boolean; triggers: Set<string> };
 
 export type Loaded = {
-  key: string;
-  channel: GuildTextBasedChannel;
-  where: string;
-  originals: Message[];
-  history: HistoryMessage[];
   memory: Memory | null;
   save(memory: Memory): void;
+  turns: Turn[];
+  images: Map<string, string>;
   /** Trigger messages, in order: the only messages whose authors' notes may be written. */
   latest: HistoryMessage[];
   /** Everyone whose notes load: rendered authors plus people they mention. */
   people: Map<string, Speaker>;
   replyTo?: Message;
-  answer: boolean;
 };
 
 export const byId = (a: { id: string }, b: { id: string }) => a.id === b.id ? 0 : BigInt(a.id) < BigInt(b.id) ? -1 : 1;
@@ -59,7 +48,7 @@ export function asHistory(message: Message): HistoryMessage {
     system: message.system,
     content: cleanText(message.content, message.channel),
     attachments: [...message.attachments.values()].map((attachment) => ({
-      id: attachment.id, name: attachment.name ?? attachment.id, contentType: attachment.contentType,
+      id: attachment.id, name: attachment.name, contentType: attachment.contentType,
     })),
     replyTo: target ? {
       label: target.author.id === message.client.user.id ? "Axophyte" : label(target.member?.displayName ?? target.author.displayName, target.author.username),
@@ -68,17 +57,11 @@ export function asHistory(message: Message): HistoryMessage {
   };
 }
 
-export function speakerLine(message: HistoryMessage, botId: string): string {
-  if (message.authorId === botId) return `Axophyte: ${message.content}`;
-  const reply = message.replyTo ? ` → replying to ${message.replyTo.label} "${message.replyTo.excerpt}"` : "";
-  return `${message.ref ? `[${message.ref}] ` : ""}${label(message.authorName, message.authorHandle)}${reply}: ${message.content}`;
-}
-
-async function fetchHistory(thread: AnyThreadChannel, after: string): Promise<Message[]> {
+async function fetchHistory(channel: GuildTextBasedChannel, after: string): Promise<Message[]> {
   const messages: Message[] = [];
   let before: string | undefined;
   while (messages.length < limits.maxHistoryMessages) {
-    const page = await thread.messages.fetch({ limit: Math.min(100, limits.maxHistoryMessages - messages.length), before });
+    const page = await channel.messages.fetch({ limit: Math.min(100, limits.maxHistoryMessages - messages.length), before });
     if (!page.size) break;
     const batch = [...page.values()].sort((a, b) => byId(b, a));
     let reachedBoundary = false;
@@ -89,7 +72,7 @@ async function fetchHistory(thread: AnyThreadChannel, after: string): Promise<Me
     if (reachedBoundary) break;
     before = batch.at(-1)!.id;
   }
-  if (messages.length === limits.maxHistoryMessages) console.warn(`history cap reached for ${thread.id}`);
+  if (messages.length === limits.maxHistoryMessages) console.warn(`history cap reached for ${channel.id}`);
   return messages.sort(byId);
 }
 
@@ -120,28 +103,29 @@ async function channelHistory(channel: GuildTextBasedChannel, triggers: Set<stri
   return [...found.values()].sort(byId);
 }
 
-export async function load(source: Source, store: Store, forced: boolean): Promise<Loaded> {
-  const channel = source.kind === "forum" ? source.thread : source.channel;
+export async function load(source: Source, store: Store, forced: boolean): Promise<Loaded | null> {
+  const channel = source.channel;
   const botId = channel.client.user.id;
-  const key = channel.id;
   const pending = source.triggers;
   let originals: Message[];
   let memory: Memory | null = null;
-  if (source.kind === "forum") {
-    const thread = source.thread;
-    memory = store.get(thread.id);
-    const after = memory?.summaryUntil ?? (BigInt(thread.id) - 1n).toString();
-    originals = await fetchHistory(thread, after);
+  if (source.forum) {
+    memory = store.get(channel.id);
+    const after = memory?.summaryUntil ?? (BigInt(channel.id) - 1n).toString();
+    originals = await fetchHistory(channel, after);
     // A brand-new post's starter message can lag behind its ThreadCreate event.
     if (pending.size && !originals.some((message) => pending.has(message.id))) {
       await Bun.sleep(1500);
-      originals = await fetchHistory(thread, after);
+      originals = await fetchHistory(channel, after);
     }
   } else {
     originals = await channelHistory(channel, pending);
   }
   const history = pendingHistory(originals.map(asHistory), botId, pending);
   const latest = history.filter((message) => pending.has(message.id) && message.authorId !== botId);
+  if (!forced && latest.length === 0) return null;
+  const turns = groupTurns(history, botId);
+  const images = await imagesFor(history, originals, botId);
   const people = new Map<string, Speaker>();
   for (const message of history) {
     if (message.authorId !== botId) people.set(message.authorId, { name: message.authorName, handle: message.authorHandle });
@@ -155,68 +139,15 @@ export async function load(source: Source, store: Store, forced: boolean): Promi
     }
   }
   return {
-    key,
-    channel,
-    where: source.kind === "forum" ? "a Discord forum post" : `the Discord channel #${channel.name}`,
-    originals,
-    history,
+    turns,
+    images,
     memory,
-    save: source.kind === "forum" ? (updated) => store.save(key, updated) : () => {},
+    save: source.forum ? (updated) => store.save(channel.id, updated) : () => {},
     latest,
     people,
     replyTo: forced ? undefined : originals.find((message) => message.id === latest.at(-1)?.id),
-    answer: forced || latest.length > 0,
   };
 }
 
-export async function imagesFor(history: HistoryMessage[], originals: Message[], botId: string): Promise<Map<string, string>> {
-  const images = new Map<string, string>();
-  const byMessage = new Map(originals.map((message) => [message.id, message]));
-  let attempted = 0;
-  for (const message of [...history].reverse()) {
-    if (message.authorId === botId) continue;
-    for (const attachment of [...(byMessage.get(message.id)?.attachments.values() ?? [])].reverse()) {
-      if (!attachment.contentType?.startsWith("image/")) continue;
-      if (attempted++ >= limits.maxImagesPerRequest) return images;
-      try {
-        const image = await loadImage({
-          id: attachment.id, url: attachment.url, proxyURL: attachment.proxyURL,
-          contentType: attachment.contentType, size: attachment.size,
-          width: attachment.width, height: attachment.height, name: attachment.name ?? attachment.id,
-        });
-        if (image) images.set(attachment.id, image);
-      } catch { /* Unavailable attachments are represented in the transcript, never fatal. */ }
-    }
-  }
-  return images;
-}
 
-// Axophyte's own messages stay unlabeled so the model never learns to emit labels.
-export function render(turns: Turn[], channel: GuildTextBasedChannel, botId: string, images: Map<string, string>): ChatMessage[] {
-  const messages: ChatMessage[] = [];
-  for (const turn of turns) {
-    for (const message of turn.messages) {
-      if (message.authorId === botId) {
-        const previous = messages.at(-1);
-        if (previous?.role === "assistant") previous.content = `${previous.content ?? ""}\n${message.content}`;
-        else messages.push({ role: "assistant", content: message.content });
-        continue;
-      }
-      let text = `${message.id === channel.id ? `[Forum post title: ${channel.name}]\n` : ""}${speakerLine(message, botId)}`;
-      const parts: ChatPart[] = [];
-      for (const attachment of message.attachments) {
-        const image = images.get(attachment.id);
-        if (image) parts.push({ type: "image_url", image_url: { url: image } });
-        else text += `\n${attachment.contentType?.startsWith("image/") ? `[image: ${attachment.name} — not shown]` : `[attachment: ${attachment.name} — unsupported]`}`;
-      }
-      messages.push({ role: "user", content: parts.length ? [{ type: "text", text }, ...parts] : text });
-    }
-  }
-  return messages;
-}
 
-export function summaryTranscript(turns: Turn[], botId: string): string {
-  return turns.flatMap((turn) => turn.messages.map((message) =>
-    `${speakerLine(message, botId)}${message.attachments.map((attachment) => `\n[${attachment.contentType?.startsWith("image/") ? "image" : "attachment"}: ${attachment.name}]`).join("")}`,
-  )).join("\n");
-}

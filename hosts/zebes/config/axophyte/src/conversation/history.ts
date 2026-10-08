@@ -13,24 +13,12 @@ export type HistoryMessage = {
   ref?: string;
 };
 
+export type Speaker = { name: string; handle: string };
+
+
 export function label(name: string, handle: string): string {
   return `${name} (@${handle})`;
 }
-
-export type ChatPart =
-  | { type: "text"; text: string }
-  | { type: "image_url"; image_url: { url: string } };
-
-export type ToolCall = {
-  id: string;
-  type: "function";
-  function: { name: string; arguments: string };
-};
-
-export type ChatMessage =
-  | { role: "system" | "user"; content: string | ChatPart[] }
-  | { role: "assistant"; content: string | null; tool_calls?: ToolCall[] }
-  | { role: "tool"; tool_call_id: string; content: string };
 
 export type Turn = { messages: HistoryMessage[] };
 
@@ -49,7 +37,7 @@ export function relevant(history: HistoryMessage[], botId: string): HistoryMessa
 export function groupTurns(history: HistoryMessage[], botId: string): Turn[] {
   const turns: Turn[] = [];
   let previousIsAssistant = false;
-  for (const message of relevant(history, botId)) {
+  for (const message of history) {
     const isAssistant = message.authorId === botId;
     if (!turns.length || (!isAssistant && previousIsAssistant)) {
       turns.push({ messages: [] });
@@ -58,4 +46,11 @@ export function groupTurns(history: HistoryMessage[], botId: string): Turn[] {
     previousIsAssistant = isAssistant;
   }
   return turns;
+}
+
+// The messages that triggered this turn render last, as the current turn, even
+// when a later reply (an earlier burst's answer, a /search) was posted after them.
+export function pendingHistory(history: HistoryMessage[], botId: string, pending: Set<string>): HistoryMessage[] {
+  const filtered = relevant(history, botId);
+  return [...filtered.filter((message) => !pending.has(message.id)), ...filtered.filter((message) => pending.has(message.id))];
 }

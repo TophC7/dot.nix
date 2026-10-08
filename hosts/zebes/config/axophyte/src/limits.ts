@@ -30,19 +30,4 @@ export const limits = {
   conversationChars: 4000,
 } as const;
 
-export const THINKING_CONTROL_MODELS: Record<string, true> = {
-  "qwen3.8-27b": true,
-};
 
-export function promptBudget(contextSize: number, outputTokens: number = limits.maxOutputTokens): number {
-  if (!Number.isSafeInteger(contextSize) || contextSize <= limits.maxOutputTokens + limits.contextHeadroomTokens) {
-    throw new RangeError("model server returned an invalid or insufficient runtime context");
-  }
-  return contextSize - outputTokens - limits.contextHeadroomTokens;
-}
-
-export function effectiveContextSize(value: unknown): number {
-  if (typeof value !== "number") throw new RangeError("model server returned no runtime context");
-  promptBudget(value);
-  return value;
-}

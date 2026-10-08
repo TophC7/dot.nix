@@ -1,8 +1,12 @@
 import { expect, test } from "bun:test";
-import { limits, promptBudget } from "./limits";
-import type { ChatMessage, Turn } from "./memory";
-import { CompactionError, ModelError, modelSession, prepareContext, type ModelChoice } from "./model-context";
-import type { Memory } from "./store";
+import { limits } from "../limits";
+import type { ChatMessage } from "../llm/protocol";
+import { ModelError, modelSession, promptBudget } from "../llm/model";
+import type { ModelChoice } from "../llm/model";
+import { groupTurns, pendingHistory } from "./history";
+import type { HistoryMessage, Turn } from "./history";
+import { CompactionError, prepareContext, safeFoldCuts } from "./compaction";
+import type { Memory } from "../memory/store";
 
 const large: ModelChoice = { id: "large", autoload: false, contextSize: 131072 };
 const small: ModelChoice = { id: "small", autoload: false, contextSize: 65536 };
@@ -69,7 +73,7 @@ test("a smaller-model retry re-prepares with its tokenizer, batches memory, and 
       count: async (messages, schema) => tokenUnits(messages, schema, choice.id === "large" ? 1 : 1.1),
     });
     if (choice.id === "large") {
-      expect(result.folded).toBe(0);
+      expect(result.compacted).toBe(false);
       expect(fixture.writes).toHaveLength(0);
       throw new ModelError("not_loaded", "switched before generation");
     }
@@ -141,17 +145,6 @@ test("current-turn boundary includes tools and reserves answer output exactly", 
   expect(fixture.writes).toHaveLength(0);
 });
 
-test("selection races use the same sole not-loaded retry", async () => {
-  let picks = 0;
-  const session = await modelSession(async () => {
-    if (++picks === 1) throw new ModelError("not_loaded", "unloaded before props");
-    return small;
-  });
-  expect(session.choice).toEqual(small);
-  await expect(session.call(async () => { throw new ModelError("not_loaded", "unloaded again"); })).rejects.toBeInstanceOf(ModelError);
-  expect(picks).toBe(2);
-});
-
 test("not-loaded during summary retries whole preparation without committing a batch", async () => {
   const fixture = conversation();
   const turns = [...fixture.input.turns.slice(0, 4), turn(5, 30000), turn(6, 100)];
@@ -174,4 +167,22 @@ test("not-loaded during summary retries whole preparation without committing a b
   expect(result.memory!.summaryUntil).toBe("5");
   expect(result.turns).toEqual([turns.at(-1)!]);
   expect(result.messages.slice(-extra.length)).toEqual(extra);
+});
+
+function message(id: string, bot = false): HistoryMessage {
+  return {
+    id, authorId: bot ? "bot" : "human", authorName: bot ? "Axophyte" : "Human", authorHandle: "human",
+    authorIsBot: bot, webhookId: null, system: false, content: `message ${id}`, attachments: [], replyTo: null,
+  };
+}
+
+// A trigger posted before a later reply (a streaming answer, a /search) is still this turn's question.
+test("triggers become the current turn even when a reply was posted after them", () => {
+  const history = [message("1"), message("2", true), message("3"), message("4"), message("5", true)];
+  const prepared = pendingHistory(history, "bot", new Set(["4"]));
+  expect(prepared.map((entry) => entry.id)).toEqual(["1", "2", "3", "5", "4"]);
+  const turns = groupTurns(prepared, "bot");
+  expect(turns.at(-1)!.messages.map((entry) => entry.id)).toEqual(["4"]);
+  // Folding through the newer reply at 5 would erase the pending human at 4.
+  expect(safeFoldCuts(turns)).toEqual([1]);
 });

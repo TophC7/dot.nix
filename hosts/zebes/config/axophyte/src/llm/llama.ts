@@ -1,14 +1,14 @@
-import { config } from "./config";
-import { effectiveContextSize, limits, THINKING_CONTROL_MODELS } from "./limits";
-import { readChatStream, type ChatResult, type ReadChunk } from "./llama-stream";
-import type { ChatMessage } from "./memory";
-import { ModelError, TurnAborted, type ModelChoice } from "./model-context";
+import { config } from "../config";
+import { limits } from "../limits";
+import { readChatStream, type ChatMessage, type ChatResult, type ReadChunk } from "./protocol";
+import { effectiveContextSize, ModelError, TurnAborted, type ModelChoice } from "./model";
 
-export type ChatBody = {
+const THINKING_CONTROL: Record<string, true> = { "qwen3.8-27b": true };
+
+type ChatBody = {
   messages: ChatMessage[];
   tools?: unknown[];
   max_tokens: number;
-  chat_template_kwargs?: Record<string, unknown>;
 };
 
 async function readJson<T>(readChunk: ReadChunk): Promise<T> {
@@ -43,7 +43,7 @@ async function request<T>(
     }, limits.llmIdleTimeoutMs);
   }
   resetDeadline();
-  signal?.addEventListener("abort", () => controller.abort(), { once: true });
+  signal?.addEventListener("abort", () => controller.abort(), { once: true, signal: controller.signal });
   try {
     const response = await fetch(`${config.llamaUrl}${path}`, {
       method: body === undefined ? "GET" : "POST",
@@ -66,9 +66,7 @@ async function request<T>(
     if (!response.ok) {
       if (response.status === 400) {
         let errorBody: { error?: { message?: unknown } } | null = null;
-        try { errorBody = await readJson(readChunk); } catch {
-          if (timedOut) throw new ModelError("timeout", "model response timed out");
-        }
+        try { errorBody = await readJson(readChunk); } catch { /* outer catch maps timeouts */ }
         const message = errorBody?.error?.message;
         if (typeof message === "string") {
           const normalized = message.toLowerCase();
@@ -144,12 +142,12 @@ export async function streamChat(
   signal?: AbortSignal,
 ): Promise<ChatResult> {
   return request(chatPath(choice), {
-    ...body, model: choice.id, stream: true, parallel_tool_calls: false,
+    ...body, ...thinkingKwargs(choice.id, "answer"), model: choice.id, stream: true, parallel_tool_calls: false,
   }, (readChunk) => readChatStream(readChunk, onContent), signal);
 }
 
 export async function complete(choice: ModelChoice, body: ChatBody, signal?: AbortSignal): Promise<string> {
-  return request(chatPath(choice), { ...body, model: choice.id, stream: false }, async (readChunk) => {
+  return request(chatPath(choice), { ...body, ...thinkingKwargs(choice.id, "summary"), model: choice.id, stream: false }, async (readChunk) => {
     const response = await readJson<{ choices?: { message?: { content?: unknown } }[] } | null>(readChunk);
     if (!Array.isArray(response?.choices) || !response.choices.length || !response.choices[0]?.message) {
       throw new ModelError("unavailable", "model server returned an invalid completion");
@@ -162,8 +160,8 @@ export async function complete(choice: ModelChoice, body: ChatBody, signal?: Abo
   }, signal);
 }
 
-export function thinkingKwargs(modelId: string, purpose: "answer" | "summary"): Record<string, unknown> | undefined {
-  if (THINKING_CONTROL_MODELS[modelId] !== true) return undefined;
+function thinkingKwargs(modelId: string, purpose: "answer" | "summary"): Record<string, unknown> | undefined {
+  if (!Object.hasOwn(THINKING_CONTROL, modelId)) return undefined;
   return { chat_template_kwargs: purpose === "answer"
     ? { reasoning_effort: "low" }
     : { enable_thinking: false } };

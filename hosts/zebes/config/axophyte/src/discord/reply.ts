@@ -1,18 +1,7 @@
-import { Client, GatewayIntentBits, type GuildTextBasedChannel, type Message } from "discord.js";
-import { splitMessage } from "./discord-text";
-import { limits } from "./limits";
+import type { GuildTextBasedChannel, Message } from "discord.js";
+import { limits } from "../limits";
 
-const allowedMentions = { parse: [] as [], repliedUser: false };
-
-export function createClient(): Client {
-  return new Client({
-    intents: [
-      GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent,
-      GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildMessageTyping,
-    ],
-    allowedMentions,
-  });
-}
+export const allowedMentions = { parse: [] as [], repliedUser: false };
 
 export class ReplyStream {
   private chunks = [""];
@@ -119,11 +108,31 @@ export class ReplyStream {
 
   async fail(text: string): Promise<void> {
     // Keep every generated chunk, including output not yet sent to Discord.
-    if (!this.closed) this.push(this.chunks.some(Boolean) ? `\n\n${text}` : text);
-    else {
-      const tail = this.chunks.pop()!;
-      this.chunks.push(...splitMessage(tail ? `${tail}\n\n${text}` : text, limits.splitAt));
-    }
+    const tail = this.chunks.pop()!;
+    this.chunks.push(...splitMessage(tail ? `${tail}\n\n${text}` : text, limits.splitAt));
     await this.finish([]);
   }
 }
+
+export function splitMessage(text: string, limit: number): string[] {
+  if (!Number.isInteger(limit) || limit < 1) {
+    throw new RangeError("message limit must be a positive integer");
+  }
+  const chunks: string[] = [];
+  while (text.length > limit) {
+    let cut = text.lastIndexOf("\n\n", limit);
+    if (cut < 0) cut = text.lastIndexOf("\n", limit);
+    if (cut < 0) cut = text.lastIndexOf(" ", limit);
+    if (cut >= 0) {
+      const chunk = text.slice(0, cut).trimEnd();
+      if (chunk) chunks.push(chunk);
+      text = text.slice(cut).trimStart();
+    } else {
+      chunks.push(text.slice(0, limit));
+      text = text.slice(limit);
+    }
+  }
+  if (text) chunks.push(text);
+  return chunks;
+}
+

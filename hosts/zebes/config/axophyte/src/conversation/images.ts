@@ -1,4 +1,8 @@
-import { limits } from "./limits";
+import type { Attachment, Message as DiscordMessage } from "discord.js";
+import { limits } from "../limits";
+import type { HistoryMessage } from "./history";
+
+type Message = DiscordMessage<true>;
 
 const imageTypes: Record<string, true> = {
   "image/png": true,
@@ -12,20 +16,8 @@ const hosts: Record<string, true> = {
 };
 const cache = new Map<string, string>();
 
-type Attachment = {
-  id: string;
-  url: string;
-  proxyURL: string;
-  contentType: string | null;
-  size: number;
-  width: number | null;
-  height: number | null;
-  name: string;
-};
-
 export async function loadImage(
-  a: Attachment,
-  fetchFn: (input: Parameters<typeof fetch>[0], init?: Parameters<typeof fetch>[1]) => Promise<Response> = fetch,
+  a: Pick<Attachment, "id" | "url" | "proxyURL" | "contentType" | "size" | "width" | "height">,
 ): Promise<string | null> {
   const type = a.contentType?.split(";")[0]?.trim().toLowerCase();
   if (!type || (!Object.hasOwn(imageTypes, type) && type !== "image/webp")) return null;
@@ -56,7 +48,7 @@ export async function loadImage(
     const key = `${a.id}:${url.href}`;
     const cached = cache.get(key);
     if (cached !== undefined) return cached;
-    const response = await fetchFn(url.href, {
+    const response = await fetch(url.href, {
       redirect: "error",
       signal: AbortSignal.timeout(20_000),
     });
@@ -96,4 +88,20 @@ export async function loadImage(
   } catch {
     return null;
   }
+}
+
+export async function imagesFor(history: HistoryMessage[], originals: Message[], botId: string): Promise<Map<string, string>> {
+  const images = new Map<string, string>();
+  const byMessage = new Map(originals.map((message) => [message.id, message]));
+  let attempted = 0;
+  for (const message of [...history].reverse()) {
+    if (message.authorId === botId) continue;
+    for (const attachment of [...(byMessage.get(message.id)?.attachments.values() ?? [])].reverse()) {
+      if (!attachment.contentType?.startsWith("image/")) continue;
+      if (attempted++ >= limits.maxImagesPerRequest) return images;
+      const image = await loadImage(attachment);
+      if (image) images.set(attachment.id, image);
+    }
+  }
+  return images;
 }

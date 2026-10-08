@@ -6,7 +6,14 @@
   ...
 }:
 let
-  axophyte = pkgs.callPackage ./package.nix { };
+  src = lib.fileset.toSource {
+    root = ./.;
+    fileset = lib.fileset.unions [
+      ./package.json
+      ./bun.lock
+      ./src
+    ];
+  };
   creds = secrets.service.discord.axophyte;
   prepare = pkgs.writeScript "axophyte-prepare" ''
     #!${lib.getExe pkgs.fish}
@@ -14,9 +21,9 @@ let
     # Replace only application files; leave SQLite memory and dependency cache intact.
     ${lib.getExe' pkgs.coreutils "rm"} -rf -- "$state/src"; or exit
     ${lib.getExe' pkgs.coreutils "cp"} -R --remove-destination -- \
-      ${axophyte}/lib/axophyte/src \
-      ${axophyte}/lib/axophyte/package.json \
-      ${axophyte}/lib/axophyte/bun.lock "$state/"; or exit
+      ${src}/src \
+      ${src}/package.json \
+      ${src}/bun.lock "$state/"; or exit
     ${lib.getExe' pkgs.coreutils "chmod"} -R u+w -- "$state/src"; or exit
     cd "$state"; or exit
     # Registry access is required; no lifecycle scripts or implicit runtime installs.
@@ -45,7 +52,7 @@ in
     };
     serviceConfig = {
       ExecStartPre = prepare;
-      ExecStart = lib.getExe axophyte;
+      ExecStart = "${lib.getExe pkgs.bun} run --no-install src/main.ts";
       DynamicUser = true;
       StateDirectory = "axophyte";
       StateDirectoryMode = "0700";

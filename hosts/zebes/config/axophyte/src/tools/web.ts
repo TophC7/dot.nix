@@ -1,8 +1,8 @@
-import { limits } from "./limits";
-import { stringArg, toolError, type Tool } from "./tools";
+import { limits } from "../limits";
+import { defineTool, stringArg, toolError } from "./tool";
+import type { Tool } from "./tool";
 
-export type SearchHit = { title: string; url: string; snippet: string };
-type Fetch = (input: Parameters<typeof fetch>[0], init?: Parameters<typeof fetch>[1]) => Promise<Response>;
+type SearchHit = { title: string; url: string; snippet: string };
 type TavilyResult = { title: string; url: string; content?: string };
 type ExtractResponse = {
   results?: { url: string; raw_content?: string }[];
@@ -16,10 +16,9 @@ async function tavily<T>(
   key: string,
   timeoutMs: number,
   signal: AbortSignal | undefined,
-  fetchFn: Fetch,
 ): Promise<T> {
   const timeout = AbortSignal.timeout(timeoutMs);
-  const response = await fetchFn(`https://api.tavily.com/${path}`, {
+  const response = await fetch(`https://api.tavily.com/${path}`, {
     method: "POST",
     headers: {
       Accept: "application/json",
@@ -34,7 +33,7 @@ async function tavily<T>(
   return (await response.json()) as T;
 }
 
-export async function tavilySearch(query: string, key: string, signal?: AbortSignal, fetchFn: Fetch = fetch): Promise<SearchHit[]> {
+export async function tavilySearch(query: string, key: string, signal?: AbortSignal): Promise<SearchHit[]> {
   const data = await tavily<{ results?: TavilyResult[] }>("search", {
     query: query.slice(0, limits.maxQueryChars),
     search_depth: "basic",
@@ -42,7 +41,7 @@ export async function tavilySearch(query: string, key: string, signal?: AbortSig
     max_results: limits.searchResultCount,
     include_answer: false,
     include_raw_content: false,
-  }, key, 15_000, signal, fetchFn);
+  }, key, 15_000, signal);
   return (data.results ?? []).slice(0, limits.searchResultCount).map((hit) => ({
     title: hit.title,
     url: hit.url,
@@ -57,56 +56,37 @@ function formatHits(query: string, hits: SearchHit[]): string {
     .join("\n\n")}`;
 }
 
-export function webSearchTool(key: string, fetchFn: Fetch = fetch): Tool {
-  return {
-    budget: limits.toolBudgets.web_search,
-    schema: {
-      type: "function",
-      function: {
-        name: "web_search",
-        description: "Search the web for current or factual information. Returns titles, URLs and snippets.",
-        parameters: {
-          type: "object",
-          properties: { query: { type: "string", description: "Search query" } },
-          required: ["query"],
-        },
-      },
-    },
-    async run(args, ctx) {
+export function webSearchTool(key: string): Tool {
+  return defineTool({
+    name: "web_search",
+    description: "Search the web for current or factual information. Returns titles, URLs and snippets.",
+    properties: { query: { type: "string", description: "Search query" } },
+    required: ["query"],
+    async run(args, signal) {
       const query = stringArg(args, "query", limits.maxQueryChars);
       if (!query) return toolError("invalid arguments");
-      const hits = await tavilySearch(query, key, ctx.signal, fetchFn);
+      const hits = await tavilySearch(query, key, signal);
       return {
         content: formatHits(query, hits),
         footer: `-# 🔎 Searched “${query}”${hits.length ? ` — ${hits.slice(0, 3).map((hit) => `<${hit.url}>`).join(" · ")}` : " — no results"}`,
       };
     },
-  };
+  });
 }
 
-export function openUrlTool(key: string, fetchFn: Fetch = fetch): Tool {
-  return {
-    budget: limits.toolBudgets.open_url,
-    schema: {
-      type: "function",
-      function: {
-        name: "open_url",
-        description: "Read a specific web page. Optional focus returns only the parts relevant to that question.",
-        parameters: {
-          type: "object",
-          properties: {
-            url: { type: "string", description: "http(s) URL of the page" },
-            focus: { type: "string", description: "Optional question to focus the extracted content on" },
-          },
-          required: ["url"],
-        },
-      },
+export function openUrlTool(key: string): Tool {
+  return defineTool({
+    name: "open_url",
+    description: "Read a specific web page. Optional focus returns only the parts relevant to that question.",
+    properties: {
+      url: { type: "string", description: "http(s) URL of the page" },
+      focus: { type: "string", description: "Optional question to focus the extracted content on" },
     },
-    async run(args, ctx) {
+    required: ["url"],
+    async run(args, signal) {
       const raw = stringArg(args, "url", 2049);
       const url = URL.parse(raw ?? "");
-      if (!url) return toolError("invalid url");
-      if ((url.protocol !== "http:" && url.protocol !== "https:") || url.href.length > 2048) return toolError("invalid url");
+      if (!url || (url.protocol !== "http:" && url.protocol !== "https:") || url.href.length > 2048) return toolError("invalid url");
       const focus = stringArg(args, "focus", limits.maxQueryChars);
       const data = await tavily<ExtractResponse>("extract", {
         urls: [url.href],
@@ -114,12 +94,12 @@ export function openUrlTool(key: string, fetchFn: Fetch = fetch): Tool {
         format: "markdown",
         timeout: 20,
         ...(focus ? { query: focus, chunks_per_source: 5 } : {}),
-      }, key, 30_000, ctx.signal, fetchFn);
+      }, key, 30_000, signal);
       const failed = data.failed_results?.[0];
       const page = data.results?.[0]?.raw_content;
       if (failed || page === undefined) return toolError(`could not open ${url.href}: ${failed?.error ?? "no content"}`);
       const text = page.length > limits.maxPageChars ? `${page.slice(0, limits.maxPageChars)}\n[truncated]` : page;
       return { content: `Page: ${url.href}\n\n${text}`, footer: `-# 🔗 Opened <${url.href}>` };
     },
-  };
+  });
 }

@@ -1,7 +1,7 @@
-import { afterEach, expect, test, jest } from "bun:test";
+import { afterEach, describe, expect, test, jest } from "bun:test";
 import type { Message, GuildTextBasedChannel } from "discord.js";
-import { ReplyStream } from "./discord";
-import { limits } from "./limits";
+import { ReplyStream, splitMessage } from "./reply";
+import { limits } from "../limits";
 
 afterEach(() => { jest.useRealTimers(); });
 
@@ -63,3 +63,35 @@ test("stream write rejection finishes and clears timers", async () => {
   jest.advanceTimersByTime(limits.queueNoticeMs + limits.typingIntervalMs);
   expect(attempts).toBe(1);
 });
+
+describe("Discord message splitting", () => {
+  test("long paragraphs stay within limit and preserve all non-separator text", () => {
+    const text = Array.from({ length: 12 }, (_, n) => `Paragraph ${n}: ${"a useful sentence. ".repeat(100)}`).join("\n\n");
+    const chunks = splitMessage(text, 1900);
+    expect(chunks.length).toBeGreaterThan(1);
+    expect(chunks.every((chunk) => chunk.length > 0 && chunk.length <= 1900)).toBe(true);
+    expect(chunks.join(" ").replace(/\s+/g, " ").trim()).toBe(text.replace(/\s+/g, " ").trim());
+  });
+
+  test("prefers paragraph, then line, then space boundaries", () => {
+    expect(splitMessage("alpha\n\nbeta gamma delta", 16)).toEqual(["alpha", "beta gamma delta"]);
+    expect(splitMessage("alpha\nbeta gamma delta", 16)).toEqual(["alpha", "beta gamma delta"]);
+    expect(splitMessage("alpha beta gamma", 10)).toEqual(["alpha beta", "gamma"]);
+  });
+
+  test("hard-splits 5000 characters into three chunks without data loss", () => {
+    const text = "x".repeat(5000);
+    const chunks = splitMessage(text, 1900);
+    expect(chunks.map((chunk) => chunk.length)).toEqual([1900, 1900, 1200]);
+    expect(chunks.join("")).toBe(text);
+  });
+
+  test("handles empty text and cut-point separators without empty chunks", () => {
+    expect(splitMessage("", 10)).toEqual([]);
+    expect(splitMessage("12345\n\n67890", 5)).toEqual(["12345", "67890"]);
+    expect(splitMessage("\n\nabcdef", 3)).toEqual(["abc", "def"]);
+    expect(splitMessage("unchanged\n", 20)).toEqual(["unchanged\n"]);
+    expect(() => splitMessage("text", 0)).toThrow(RangeError);
+  });
+});
+

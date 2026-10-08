@@ -1,47 +1,12 @@
-import { limits, promptBudget } from "./limits";
-import type { ChatMessage, Turn } from "./memory";
-import { safeFoldCuts } from "./pending-history";
-import type { Memory } from "./store";
+import { limits } from "../limits";
+import type { ChatMessage } from "../llm/protocol";
+import { ModelError, promptBudget } from "../llm/model";
+import type { ModelChoice } from "../llm/model";
+import type { Turn } from "./history";
+import type { Memory } from "../memory/store";
 
-export class ModelError extends Error {
-  constructor(public kind: "not_loaded" | "too_long" | "unavailable" | "timeout", message: string) {
-    super(message);
-    this.name = "ModelError";
-  }
-}
-
-export type ModelChoice = { id: string; autoload: boolean; contextSize: number };
-export type ModelSession = {
-  choice: ModelChoice;
-  call<T>(operation: (choice: ModelChoice) => Promise<T>): Promise<T>;
-};
 export class CompactionError extends Error {}
-export class TurnAborted extends Error {}
 
-// One retry covers selection, preparation, summarizing, and generation together.
-export async function modelSession(pick: () => Promise<ModelChoice>): Promise<ModelSession> {
-  let retried = false;
-  let choice: ModelChoice;
-  try { choice = await pick(); }
-  catch (error) {
-    if (!(error instanceof ModelError) || error.kind !== "not_loaded") throw error;
-    retried = true;
-    choice = await pick();
-  }
-  const session: ModelSession = {
-    choice,
-    async call<T>(operation: (choice: ModelChoice) => Promise<T>): Promise<T> {
-      try { return await operation(session.choice); }
-      catch (error) {
-        if (!(error instanceof ModelError) || error.kind !== "not_loaded" || retried) throw error;
-        retried = true;
-        session.choice = await pick();
-        return operation(session.choice);
-      }
-    },
-  };
-  return session;
-}
 
 // Discord rendering and model I/O stay outside this transactional memory operation.
 export async function prepareContext(input: {
@@ -59,7 +24,7 @@ export async function prepareContext(input: {
   const budget = promptBudget(choice.contextSize);
   const messages = prompt(memory?.summary ?? "", turns);
   const promptTokens = await count(messages, tools);
-  if (promptTokens <= budget) return { memory, turns, messages, promptTokens, folded: 0 };
+  if (promptTokens <= budget) return { memory, turns, messages, promptTokens, compacted: false };
   if (await count(prompt("", turns.slice(-1)), tools) > budget) {
     throw new ModelError("too_long", "current turn exceeds model context");
   }
@@ -105,6 +70,30 @@ export async function prepareContext(input: {
   save(updated);
   return {
     memory: updated, turns: remaining, messages: rebuilt, promptTokens: rebuiltTokens,
-    folded: turns.slice(0, cut).reduce((total, turn) => total + turn.messages.length, 0),
+    compacted: true,
   };
+}
+
+// summary_until is a Discord snowflake, not a logical-history position. Folding
+// a newer assistant past an older pending human would discard that human on fetch.
+export function safeFoldCuts(turns: Turn[]): number[] {
+  const suffixMinimum: bigint[] = [];
+  let minimum: bigint | undefined;
+  for (let index = turns.length - 1; index >= 0; index--) {
+    for (const message of turns[index]!.messages) {
+      const id = BigInt(message.id);
+      if (minimum === undefined || id < minimum) minimum = id;
+    }
+    suffixMinimum[index] = minimum!;
+  }
+  const cuts: number[] = [];
+  let maximum: bigint | undefined;
+  for (let index = 0; index < turns.length - 1; index++) {
+    for (const message of turns[index]!.messages) {
+      const id = BigInt(message.id);
+      if (maximum === undefined || id > maximum) maximum = id;
+    }
+    if (maximum !== undefined && maximum < suffixMinimum[index + 1]!) cuts.push(index + 1);
+  }
+  return cuts;
 }

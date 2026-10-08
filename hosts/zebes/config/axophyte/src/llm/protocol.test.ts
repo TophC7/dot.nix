@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { readChatStream } from "./llama-stream";
+import { readChatStream } from "./protocol";
 
 async function decode(text: string, width: number, onContent: (text: string) => void = () => {}) {
   const bytes = new TextEncoder().encode(text);
