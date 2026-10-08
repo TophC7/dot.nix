@@ -2,12 +2,20 @@ export type HistoryMessage = {
   id: string;
   authorId: string;
   authorName: string;
+  authorHandle: string;
   authorIsBot: boolean;
   webhookId: string | null;
   system: boolean;
   content: string;
   attachments: { id: string; name: string; contentType: string | null }[];
+  replyTo: { label: string; excerpt: string } | null;
+  /** Short tag ([m1]) on the turn's trigger messages, so memory writes name their source message. */
+  ref?: string;
 };
+
+export function label(name: string, handle: string): string {
+  return `${name} (@${handle})`;
+}
 
 export type ChatPart =
   | { type: "text"; text: string }
@@ -50,8 +58,4 @@ export function groupTurns(history: HistoryMessage[], botId: string): Turn[] {
     previousIsAssistant = isAssistant;
   }
   return turns;
-}
-
-export function lastIsAssistant(history: HistoryMessage[], botId: string): boolean {
-  return relevant(history, botId).at(-1)?.authorId === botId;
 }

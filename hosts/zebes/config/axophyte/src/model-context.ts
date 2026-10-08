@@ -16,6 +16,7 @@ export type ModelSession = {
   call<T>(operation: (choice: ModelChoice) => Promise<T>): Promise<T>;
 };
 export class CompactionError extends Error {}
+export class TurnAborted extends Error {}
 
 // One retry covers selection, preparation, summarizing, and generation together.
 export async function modelSession(pick: () => Promise<ModelChoice>): Promise<ModelSession> {

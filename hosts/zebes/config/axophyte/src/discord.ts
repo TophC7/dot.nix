@@ -1,4 +1,4 @@
-import { Client, GatewayIntentBits, type Message, type ThreadChannel } from "discord.js";
+import { Client, GatewayIntentBits, type GuildTextBasedChannel, type Message } from "discord.js";
 import { splitMessage } from "./discord-text";
 import { limits } from "./limits";
 
@@ -6,7 +6,10 @@ const allowedMentions = { parse: [] as [], repliedUser: false };
 
 export function createClient(): Client {
   return new Client({
-    intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent],
+    intents: [
+      GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent,
+      GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildMessageTyping,
+    ],
     allowedMentions,
   });
 }
@@ -23,8 +26,8 @@ export class ReplyStream {
   private typingTimer: NodeJS.Timeout;
   private noticeTimer: NodeJS.Timeout;
 
-  constructor(private thread: ThreadChannel, private replyTo?: Message) {
-    const typing = () => { void thread.sendTyping().catch(() => {}); };
+  constructor(private channel: GuildTextBasedChannel, private replyTo?: Message) {
+    const typing = () => { void channel.sendTyping().catch(() => {}); };
     typing();
     this.typingTimer = setInterval(typing, limits.typingIntervalMs);
     this.noticeTimer = setTimeout(() => {
@@ -66,7 +69,7 @@ export class ReplyStream {
       await existing.edit({ content, allowedMentions });
     } else {
       this.lastWriteAt = Date.now();
-      this.messages[index] = await this.thread.send({
+      this.messages[index] = await this.channel.send({
         content,
         allowedMentions,
         ...(index === 0 && this.replyTo ? {
@@ -105,6 +108,13 @@ export class ReplyStream {
     this.enqueue(() => this.flush());
     await this.writes;
     if (this.writeError !== undefined) throw this.writeError;
+  }
+
+  // Only used before any model output, so at most the ⏳ notice is removed.
+  async cancel(): Promise<void> {
+    this.stop();
+    await this.writes;
+    await Promise.all(this.messages.map((message) => message.delete().catch(() => {})));
   }
 
   async fail(text: string): Promise<void> {

@@ -6,7 +6,8 @@ export const limits = {
   maxImagesPerRequest: 4,
   maxImageBytes: 10 * 1024 * 1024,
   imageMaxSide: 1536,
-  maxSearchesPerTurn: 3,
+  toolBudgets: { web_search: 3, open_url: 3, search_server: 3, read_conversation: 2, remember: 4, revise: 4 },
+  maxToolRounds: 6,
   searchResultCount: 5,
   maxQueryChars: 400,
   editIntervalMs: 1200,
@@ -15,6 +16,18 @@ export const limits = {
   queueNoticeMs: 60_000,
   llmIdleTimeoutMs: 600_000,
   maxHistoryMessages: 300,
+  channelContextMessages: 20,
+  channelContextMaxAgeMs: 30 * 60_000,
+  replyChainDepth: 10,
+  burstQuietMs: 4000,
+  burstTypingMs: 10_000,
+  burstMaxWaitMs: 45_000,
+  personMemoryChars: 2000,
+  pruneTargetChars: 1200,
+  maxFactChars: 300,
+  maxPageChars: 12_000,
+  serverHits: 8,
+  conversationChars: 4000,
 } as const;
 
 export const THINKING_CONTROL_MODELS: Record<string, true> = {

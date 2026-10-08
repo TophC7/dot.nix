@@ -1,5 +1,5 @@
 import { afterEach, expect, test, jest } from "bun:test";
-import type { Message, ThreadChannel } from "discord.js";
+import type { Message, GuildTextBasedChannel } from "discord.js";
 import { ReplyStream } from "./discord";
 import { limits } from "./limits";
 
@@ -31,7 +31,7 @@ test("stream failure drains serialized writes without losing buffered chunks or 
         },
       };
     },
-  } as unknown as ThreadChannel;
+  } as unknown as GuildTextBasedChannel;
   const stream = new ReplyStream(thread, { id: "original" } as Message);
   stream.push("first");
   jest.advanceTimersByTime(1);
@@ -55,7 +55,7 @@ test("stream write rejection finishes and clears timers", async () => {
   const thread = {
     async sendTyping() {},
     async send() { attempts++; throw new Error("Discord unavailable"); },
-  } as unknown as ThreadChannel;
+  } as unknown as GuildTextBasedChannel;
   const stream = new ReplyStream(thread);
   stream.push("answer");
   await expect(stream.finish([])).rejects.toThrow("Discord unavailable");

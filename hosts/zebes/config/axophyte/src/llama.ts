@@ -2,7 +2,7 @@ import { config } from "./config";
 import { effectiveContextSize, limits, THINKING_CONTROL_MODELS } from "./limits";
 import { readChatStream, type ChatResult, type ReadChunk } from "./llama-stream";
 import type { ChatMessage } from "./memory";
-import { ModelError, type ModelChoice } from "./model-context";
+import { ModelError, TurnAborted, type ModelChoice } from "./model-context";
 
 export type ChatBody = {
   messages: ChatMessage[];
@@ -28,7 +28,9 @@ async function request<T>(
   path: string,
   body: Record<string, unknown> | undefined,
   consume: (readChunk: ReadChunk) => Promise<T>,
+  signal?: AbortSignal,
 ): Promise<T> {
+  if (signal?.aborted) throw new TurnAborted();
   const controller = new AbortController();
   let timer: ReturnType<typeof setTimeout> | undefined;
   let timedOut = false;
@@ -41,6 +43,7 @@ async function request<T>(
     }, limits.llmIdleTimeoutMs);
   }
   resetDeadline();
+  signal?.addEventListener("abort", () => controller.abort(), { once: true });
   try {
     const response = await fetch(`${config.llamaUrl}${path}`, {
       method: body === undefined ? "GET" : "POST",
@@ -81,6 +84,7 @@ async function request<T>(
     }
     return await consume(readChunk);
   } catch (error) {
+    if (signal?.aborted) throw new TurnAborted();
     if (timedOut) throw new ModelError("timeout", "model response timed out");
     if (error instanceof ModelError) throw error;
     // Never surface response bodies, fetch diagnostics, or request contents.
@@ -99,7 +103,7 @@ function chatPath(choice: ModelChoice, suffix = ""): string {
   return `/v1/chat/completions${suffix}${choice.autoload ? "" : "?autoload=false"}`;
 }
 
-export async function pickModel(): Promise<ModelChoice> {
+export async function pickModel(signal?: AbortSignal): Promise<ModelChoice> {
   const selected = await request("/v1/models", undefined, async (readChunk) => {
     const response = await readJson<{ data?: { id?: unknown; status?: { value?: unknown } }[] } | null>(readChunk);
     if (!Array.isArray(response?.data) || response.data.some((entry) =>
@@ -111,16 +115,17 @@ export async function pickModel(): Promise<ModelChoice> {
     return loading
       ? { id: loading.id as string, autoload: true }
       : { id: config.defaultModel, autoload: true };
-  });
+  }, signal);
   return request(`/props?model=${encodeURIComponent(selected.id)}${selected.autoload ? "" : "&autoload=false"}`, undefined, async (readChunk) => {
     const props = await readJson<{ default_generation_settings?: { n_ctx?: unknown } } | null>(readChunk);
     return { ...selected, contextSize: effectiveContextSize(props?.default_generation_settings?.n_ctx) };
-  });
+  }, signal);
 }
 
 export async function countTokens(
   choice: ModelChoice,
   body: { messages: ChatMessage[]; tools?: unknown[] },
+  signal?: AbortSignal,
 ): Promise<number> {
   return request(chatPath(choice, "/input_tokens"), { ...body, model: choice.id }, async (readChunk) => {
     const response = await readJson<{ input_tokens?: unknown } | null>(readChunk);
@@ -129,20 +134,21 @@ export async function countTokens(
       throw new ModelError("unavailable", "model server returned an invalid token count");
     }
     return count;
-  });
+  }, signal);
 }
 
 export async function streamChat(
   choice: ModelChoice,
   body: ChatBody,
   onContent: (delta: string) => void,
+  signal?: AbortSignal,
 ): Promise<ChatResult> {
   return request(chatPath(choice), {
     ...body, model: choice.id, stream: true, parallel_tool_calls: false,
-  }, (readChunk) => readChatStream(readChunk, onContent));
+  }, (readChunk) => readChatStream(readChunk, onContent), signal);
 }
 
-export async function complete(choice: ModelChoice, body: ChatBody): Promise<string> {
+export async function complete(choice: ModelChoice, body: ChatBody, signal?: AbortSignal): Promise<string> {
   return request(chatPath(choice), { ...body, model: choice.id, stream: false }, async (readChunk) => {
     const response = await readJson<{ choices?: { message?: { content?: unknown } }[] } | null>(readChunk);
     if (!Array.isArray(response?.choices) || !response.choices.length || !response.choices[0]?.message) {
@@ -153,7 +159,7 @@ export async function complete(choice: ModelChoice, body: ChatBody): Promise<str
       throw new ModelError("unavailable", "model server returned an invalid completion");
     }
     return content ?? "";
-  });
+  }, signal);
 }
 
 export function thinkingKwargs(modelId: string, purpose: "answer" | "summary"): Record<string, unknown> | undefined {

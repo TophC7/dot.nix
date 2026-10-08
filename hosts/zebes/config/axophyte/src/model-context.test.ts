@@ -15,8 +15,8 @@ const extra: ChatMessage[] = [
 
 function turn(id: number, size: number): Turn {
   return { messages: [{
-    id: String(id), authorId: "human", authorName: "Human", authorIsBot: false,
-    webhookId: null, system: false, content: `turn-${id}: ${"x".repeat(size)}`, attachments: [],
+    id: String(id), authorId: "human", authorName: "Human", authorHandle: "human", authorIsBot: false,
+    webhookId: null, system: false, content: `turn-${id}: ${"x".repeat(size)}`, attachments: [], replyTo: null,
   }] };
 }
 

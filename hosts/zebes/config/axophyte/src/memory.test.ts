@@ -1,16 +1,18 @@
 import { describe, expect, test } from "bun:test";
-import { groupTurns, lastIsAssistant, relevant, type HistoryMessage } from "./memory";
+import { groupTurns, relevant, type HistoryMessage } from "./memory";
 
 function message(id: string, fields: Partial<HistoryMessage> = {}): HistoryMessage {
   return {
     id,
     authorId: "human",
     authorName: "Human",
+    authorHandle: "human",
     authorIsBot: false,
     webhookId: null,
     system: false,
     content: "Hello",
     attachments: [],
+    replyTo: null,
     ...fields,
   };
 }
@@ -60,19 +62,5 @@ describe("conversation memory", () => {
     expect(groupTurns(history, "axophyte")[0]?.messages.map((m) => m.id)).toEqual([
       "1", "4", "5",
     ]);
-  });
-
-  test("lastIsAssistant uses last relevant message, including empty history", () => {
-    expect(lastIsAssistant([], "axophyte")).toBe(false);
-    expect(lastIsAssistant([message("1")], "axophyte")).toBe(false);
-    expect(lastIsAssistant([message("1"), message("2", assistant)], "axophyte")).toBe(true);
-    expect(
-      lastIsAssistant([
-        message("1", assistant),
-        message("2", { ...assistant, content: "⏳ Waiting" }),
-      ], "axophyte"),
-    ).toBe(true);
-    expect(lastIsAssistant([message("1", assistant), message("2")], "axophyte")).toBe(false);
-    expect(groupTurns([], "axophyte")).toEqual([]);
   });
 });

@@ -1,17 +1,10 @@
 import { relevant, type HistoryMessage, type Turn } from "./memory";
 
-// A human can arrive after our snapshot but before our Discord reply. Keep that
-// unanswered input after the reply in model history, once only, as the current turn.
-export function pendingHistory(history: HistoryMessage[], botId: string, answeredThrough?: string): HistoryMessage[] {
+// The messages that triggered this turn render last, as the current turn, even
+// when a later reply (an earlier burst's answer, a /search) was posted after them.
+export function pendingHistory(history: HistoryMessage[], botId: string, pending: Set<string>): HistoryMessage[] {
   const filtered = relevant(history, botId);
-  if (answeredThrough === undefined) return filtered;
-  const answered: HistoryMessage[] = [];
-  const pending: HistoryMessage[] = [];
-  for (const message of filtered) {
-    if (message.authorId !== botId && BigInt(message.id) > BigInt(answeredThrough)) pending.push(message);
-    else answered.push(message);
-  }
-  return [...answered, ...pending];
+  return [...filtered.filter((message) => !pending.has(message.id)), ...filtered.filter((message) => pending.has(message.id))];
 }
 
 // summary_until is a Discord snowflake, not a logical-history position. Folding
