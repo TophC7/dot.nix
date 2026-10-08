@@ -195,6 +195,28 @@ let
           (
             vision
             // {
+              id = "qwen3.8-27b-abliterated";
+              name = "Qwen3.8/27B Abliterated";
+              contextWindow = 65536;
+              thinking = {
+                mode = "effort";
+                efforts = [
+                  "low"
+                  "medium"
+                  "xhigh"
+                ];
+                defaultLevel = "medium";
+                requiresEffort = false;
+              };
+              compat = {
+                thinkingFormat = "qwen-chat-template";
+                qwenTemplateReasoningEffort = true;
+              };
+            }
+          )
+          (
+            vision
+            // {
               id = "qwen3.5-9b-opus-reasoning";
               name = "Qwen3.5/Opus";
             }

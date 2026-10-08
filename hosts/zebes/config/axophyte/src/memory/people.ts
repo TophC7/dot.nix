@@ -41,7 +41,9 @@ export function noteTools(store: People, latest: HistoryMessage[], wrote: (userI
   // A note is always about the author of the tagged trigger message it came from,
   // so one person can never write notes about another.
   function sourceMessage(args: Record<string, unknown>): HistoryMessage | string {
-    const message = messages.get(stringArg(args, "message", 10) ?? "");
+    const raw = stringArg(args, "message", 10) ?? "";
+    const key = raw.replace(/^\[|\]$/g, "").trim();
+    const message = messages.get(key);
     return message ?? `message must be one of: ${[...messages.keys()].join(", ")}`;
   }
 

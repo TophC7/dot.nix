@@ -18,6 +18,12 @@ let
       name = "mmproj-Qwen3.8-27B-BF16.gguf";
       sha256 = "13cb7bebccbd04afc8f4090cb949ecf8937cdf7377c5799b1a0c594e7c0d3e16";
     }
+    {
+      repository = "huihui-ai/Huihui-Qwen3.8-27B-abliterated-GGUF";
+      revision = "b146b417080fd3e0e842e9539e69921707360aae";
+      name = "Huihui-Qwen3.8-27B-abliterated-GSQ-RCO-IQ3_S.gguf";
+      sha256 = "329e01fc79dc8a49465e40adef8ed925935093b3dc8f7ee6da0c88ac7b5d3692";
+    }
   ];
   extraFiles = [
     {
@@ -131,6 +137,17 @@ in
     ctx-checkpoints = 8
     checkpoint-min-step = 4096
 
+    [qwen3.8-27b-abliterated]
+    model = ${modelDir}/Huihui-Qwen3.8-27B-abliterated-GSQ-RCO-IQ3_S.gguf
+    mmproj = ${modelDir}/mmproj-Qwen3.8-27B-BF16.gguf
+    image-min-tokens = 1024
+    gpu-layers = 99
+    fit = off
+    ctx-size = 65536
+    cache-type-k = q8_0
+    cache-type-v = q8_0
+    load-on-startup = true
+
     [qwen3.8-27b]
     model = ${modelDir}/Qwen3.8-27B-GSQ-RCO-IQ3_S-mtp.gguf
     mmproj = ${modelDir}/mmproj-Qwen3.8-27B-BF16.gguf
@@ -140,7 +157,6 @@ in
     ctx-size = 65536
     cache-type-k = q8_0
     cache-type-v = q8_0
-    load-on-startup = true
 
     [qwen3.5-9b-opus-reasoning]
     model = ${modelDir}/Qwen3.5-9B.Q8_0.gguf

@@ -7,7 +7,7 @@ export class ModelError extends Error {
   }
 }
 
-export type ModelChoice = { id: string; autoload: boolean; contextSize: number };
+export type ModelChoice = { id: string; contextSize: number };
 export type ModelSession = {
   choice: ModelChoice;
   call<T>(operation: (choice: ModelChoice) => Promise<T>): Promise<T>;

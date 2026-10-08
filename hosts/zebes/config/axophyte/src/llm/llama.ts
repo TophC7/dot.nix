@@ -3,7 +3,6 @@ import { limits } from "../limits";
 import { readChatStream, type ChatMessage, type ChatResult, type ReadChunk } from "./protocol";
 import { effectiveContextSize, ModelError, TurnAborted, type ModelChoice } from "./model";
 
-const THINKING_CONTROL: Record<string, true> = { "qwen3.8-27b": true };
 
 type ChatBody = {
   messages: ChatMessage[];
@@ -97,26 +96,14 @@ async function request<T>(
   }
 }
 
-function chatPath(choice: ModelChoice, suffix = ""): string {
-  return `/v1/chat/completions${suffix}${choice.autoload ? "" : "?autoload=false"}`;
+function chatPath(suffix = ""): string {
+  return `/v1/chat/completions${suffix}`;
 }
 
-export async function pickModel(signal?: AbortSignal): Promise<ModelChoice> {
-  const selected = await request("/v1/models", undefined, async (readChunk) => {
-    const response = await readJson<{ data?: { id?: unknown; status?: { value?: unknown } }[] } | null>(readChunk);
-    if (!Array.isArray(response?.data) || response.data.some((entry) =>
-      !entry || typeof entry.id !== "string" || !entry.id || typeof entry.status?.value !== "string"
-    )) throw new ModelError("unavailable", "model server returned an invalid model list");
-    const loaded = response.data.find((entry) => entry.status?.value === "loaded");
-    if (loaded) return { id: loaded.id as string, autoload: false };
-    const loading = response.data.find((entry) => entry.status?.value === "loading");
-    return loading
-      ? { id: loading.id as string, autoload: true }
-      : { id: config.defaultModel, autoload: true };
-  }, signal);
-  return request(`/props?model=${encodeURIComponent(selected.id)}${selected.autoload ? "" : "&autoload=false"}`, undefined, async (readChunk) => {
+export async function requestModel(signal?: AbortSignal): Promise<ModelChoice> {
+  return request(`/props?model=${encodeURIComponent(config.model)}`, undefined, async (readChunk) => {
     const props = await readJson<{ default_generation_settings?: { n_ctx?: unknown } } | null>(readChunk);
-    return { ...selected, contextSize: effectiveContextSize(props?.default_generation_settings?.n_ctx) };
+    return { id: config.model, contextSize: effectiveContextSize(props?.default_generation_settings?.n_ctx) };
   }, signal);
 }
 
@@ -125,7 +112,7 @@ export async function countTokens(
   body: { messages: ChatMessage[]; tools?: unknown[] },
   signal?: AbortSignal,
 ): Promise<number> {
-  return request(chatPath(choice, "/input_tokens"), { ...body, model: choice.id }, async (readChunk) => {
+  return request(chatPath("/input_tokens"), { ...body, model: choice.id }, async (readChunk) => {
     const response = await readJson<{ input_tokens?: unknown } | null>(readChunk);
     const count = response?.input_tokens;
     if (typeof count !== "number" || !Number.isSafeInteger(count) || count < 0) {
@@ -141,13 +128,13 @@ export async function streamChat(
   onContent: (delta: string) => void,
   signal?: AbortSignal,
 ): Promise<ChatResult> {
-  return request(chatPath(choice), {
-    ...body, ...thinkingKwargs(choice.id, "answer"), model: choice.id, stream: true, parallel_tool_calls: false,
+  return request(chatPath(), {
+    ...body, ...thinkingKwargs("answer"), model: choice.id, stream: true, parallel_tool_calls: false,
   }, (readChunk) => readChatStream(readChunk, onContent), signal);
 }
 
 export async function complete(choice: ModelChoice, body: ChatBody, signal?: AbortSignal): Promise<string> {
-  return request(chatPath(choice), { ...body, ...thinkingKwargs(choice.id, "summary"), model: choice.id, stream: false }, async (readChunk) => {
+  return request(chatPath(), { ...body, ...thinkingKwargs("summary"), model: choice.id, stream: false }, async (readChunk) => {
     const response = await readJson<{ choices?: { message?: { content?: unknown } }[] } | null>(readChunk);
     if (!Array.isArray(response?.choices) || !response.choices.length || !response.choices[0]?.message) {
       throw new ModelError("unavailable", "model server returned an invalid completion");
@@ -160,9 +147,10 @@ export async function complete(choice: ModelChoice, body: ChatBody, signal?: Abo
   }, signal);
 }
 
-function thinkingKwargs(modelId: string, purpose: "answer" | "summary"): Record<string, unknown> | undefined {
-  if (!Object.hasOwn(THINKING_CONTROL, modelId)) return undefined;
-  return { chat_template_kwargs: purpose === "answer"
-    ? { reasoning_effort: "low" }
-    : { enable_thinking: false } };
+function thinkingKwargs(purpose: "answer" | "summary"): Record<string, unknown> {
+  return {
+    chat_template_kwargs: purpose === "answer"
+      ? { reasoning_effort: "low" }
+      : { enable_thinking: false },
+  };
 }

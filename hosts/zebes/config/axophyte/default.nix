@@ -49,7 +49,7 @@ in
       AXOPHYTE_TAVILY_KEY = creds.tavily;
       AXOPHYTE_SERVERS = builtins.toJSON servers;
       AXOPHYTE_LLAMA_URL = "http://${host.ip}:11434";
-      AXOPHYTE_DEFAULT_MODEL = "qwen3.8-27b";
+      AXOPHYTE_MODEL = "qwen3.8-27b-abliterated";
       BUN_RUNTIME_TRANSPILER_CACHE_PATH = "0";
       HOME = "/var/lib/axophyte";
       BUN_INSTALL_CACHE_DIR = "/var/lib/axophyte/cache";

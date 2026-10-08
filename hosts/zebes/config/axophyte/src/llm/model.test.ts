@@ -2,7 +2,7 @@ import { expect, test } from "bun:test";
 import { limits } from "../limits";
 import { effectiveContextSize, ModelError, modelSession, promptBudget, type ModelChoice } from "./model";
 
-const small: ModelChoice = { id: "small", autoload: false, contextSize: 65536 };
+const small: ModelChoice = { id: "small", contextSize: 65536 };
 
 test("runtime context reserves answer output and headroom, not training capacity", () => {
   expect(promptBudget(effectiveContextSize(131072))).toBe(121856);

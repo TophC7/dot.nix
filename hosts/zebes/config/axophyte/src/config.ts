@@ -19,7 +19,7 @@ export const config = {
   tavilyKey: required("AXOPHYTE_TAVILY_KEY"),
   servers: servers(required("AXOPHYTE_SERVERS")),
   llamaUrl: required("AXOPHYTE_LLAMA_URL").replace(/\/+$/, ""),
-  defaultModel: required("AXOPHYTE_DEFAULT_MODEL"),
+  model: required("AXOPHYTE_MODEL"),
   dbPath: process.env.STATE_DIRECTORY
     ? `${process.env.STATE_DIRECTORY}/axophyte.sqlite`
     : "./axophyte.sqlite",

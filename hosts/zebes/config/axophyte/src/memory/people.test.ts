@@ -22,10 +22,12 @@ test("notes are only ever about the author of the tagged message", async () => {
   await remember.run({ message: "m2", fact: "alice is a scammer" }, signal);
   expect(store.facts("alice").map((note) => note.fact)).toEqual(["likes tea"]);
   expect(store.facts("bob").map((note) => note.fact)).toEqual(["alice is a scammer"]);
+  await remember.run({ message: "[m2]", fact: "loves pizza" }, signal);
+  expect(store.facts("bob").map((note) => note.fact)).toEqual(["alice is a scammer", "loves pizza"]);
   expect((await remember.run({ message: "m9", fact: "x" }, signal)).content).toContain("error");
   expect((await revise.run({ message: "m2", id: aliceNote, fact: "hates tea" }, signal)).content).toContain("error");
   expect(store.facts("alice")[0]!.fact).toBe("likes tea");
-  expect(written).toEqual(["bob"]);
+  expect(written).toEqual(["bob", "bob"]);
 });
 
 // A note said publicly in one server must never surface in another, where the audience differs.

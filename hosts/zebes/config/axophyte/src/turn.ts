@@ -5,7 +5,7 @@ import type { Source } from "./conversation/load";
 import { render, summaryRequest, systemPrompt } from "./conversation/prompt";
 import { ReplyStream } from "./discord/reply";
 import { limits } from "./limits";
-import { complete, countTokens, pickModel, streamChat } from "./llm/llama";
+import { complete, countTokens, requestModel, streamChat } from "./llm/llama";
 import type { ChatMessage, ToolCall } from "./llm/protocol";
 import { ModelError, TurnAborted, modelSession } from "./llm/model";
 import type { ModelSession } from "./llm/model";
@@ -45,7 +45,7 @@ function failure(error: unknown): { kind: string; text: string } {
 
 export async function pruneNotes(people: People, userId: string): Promise<void> {
   await prunePerson(people, userId, async (messages) => {
-    const session = await modelSession(pickModel);
+    const session = await modelSession(requestModel);
     return session.call((choice) => complete(choice, { messages, max_tokens: 2048 }));
   });
 }
@@ -77,7 +77,7 @@ export async function runTurn(store: Store, source: Source, opts: TurnOptions): 
       ...(memoryEnabled ? noteTools(serverPeople, loaded.latest, (id) => { touched.add(id); opts.onCommit?.(); }) : []),
     ];
     const people = peopleSection(serverPeople, loaded.people);
-    session = await modelSession(() => pickModel(opts.signal));
+    session = await modelSession(() => requestModel(opts.signal));
     let memory = loaded.memory;
     let turns = loaded.turns;
     const extra: ChatMessage[] = [];

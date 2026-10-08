@@ -31,7 +31,8 @@ export function speakerLine(message: HistoryMessage, botId: string, previousId?:
   if (message.authorId === botId) return `Axophyte: ${message.content}`;
   const quote = message.replyTo && message.replyTo.id !== previousId && message.replyTo.excerpt ? ` "${message.replyTo.excerpt}"` : "";
   const reply = message.replyTo ? ` → replying to ${message.replyTo.label}${quote}` : "";
-  return `${message.ref ? `[${message.ref}] ` : ""}${label(message.authorName, message.authorHandle)}${reply}: ${message.content}`;
+  const ref = message.ref ? ` [${message.ref}]` : "";
+  return `${label(message.authorName, message.authorHandle)}${ref}${reply}: ${message.content}`;
 }
 
 // Axophyte's own messages stay unlabeled so the model never learns to emit labels.

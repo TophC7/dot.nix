@@ -8,8 +8,8 @@ import type { HistoryMessage, Turn } from "./history";
 import { CompactionError, prepareContext, safeFoldCuts } from "./compaction";
 import type { Memory } from "../memory/store";
 
-const large: ModelChoice = { id: "large", autoload: false, contextSize: 131072 };
-const small: ModelChoice = { id: "small", autoload: false, contextSize: 65536 };
+const large: ModelChoice = { id: "large", contextSize: 131072 };
+const small: ModelChoice = { id: "small", contextSize: 65536 };
 const tools = [{ type: "function", function: { name: "web_search" } }];
 const extra: ChatMessage[] = [
   { role: "user", content: "Search requested this turn" },
