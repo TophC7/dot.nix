@@ -8,7 +8,7 @@ export type HistoryMessage = {
   system: boolean;
   content: string;
   attachments: { id: string; name: string; contentType: string | null }[];
-  replyTo: { label: string; excerpt: string } | null;
+  replyTo: { id: string; label: string; excerpt: string } | null;
   /** Short tag ([m1]) on the turn's trigger messages, so memory writes name their source message. */
   ref?: string;
 };

@@ -49,25 +49,23 @@ export async function tavilySearch(query: string, key: string, signal?: AbortSig
   }));
 }
 
-function formatHits(query: string, hits: SearchHit[]): string {
+function formatHits(hits: SearchHit[]): string {
   if (!hits.length) return "No results.";
-  return `Results for "${query}":\n${hits
-    .map((hit, index) => `[${index + 1}] ${hit.title}\n${hit.url}\n${hit.snippet}`)
-    .join("\n\n")}`;
+  return hits.map((hit, index) => `[${index + 1}] ${hit.title}\n${hit.url}\n${hit.snippet}`).join("\n\n");
 }
 
 export function webSearchTool(key: string): Tool {
   return defineTool({
     name: "web_search",
-    description: "Search the web for current or factual information. Returns titles, URLs and snippets.",
-    properties: { query: { type: "string", description: "Search query" } },
+    description: "Search the web for current events, recent releases, prices, or facts you are unsure about.",
+    properties: { query: { type: "string" } },
     required: ["query"],
     async run(args, signal) {
       const query = stringArg(args, "query", limits.maxQueryChars);
       if (!query) return toolError("invalid arguments");
       const hits = await tavilySearch(query, key, signal);
       return {
-        content: formatHits(query, hits),
+        content: formatHits(hits),
         footer: `-# 🔎 Searched “${query}”${hits.length ? ` — ${hits.slice(0, 3).map((hit) => `<${hit.url}>`).join(" · ")}` : " — no results"}`,
       };
     },
@@ -77,10 +75,10 @@ export function webSearchTool(key: string): Tool {
 export function openUrlTool(key: string): Tool {
   return defineTool({
     name: "open_url",
-    description: "Read a specific web page. Optional focus returns only the parts relevant to that question.",
+    description: "Read a web page. Optional focus: a question; returns only the relevant parts.",
     properties: {
-      url: { type: "string", description: "http(s) URL of the page" },
-      focus: { type: "string", description: "Optional question to focus the extracted content on" },
+      url: { type: "string" },
+      focus: { type: "string" },
     },
     required: ["url"],
     async run(args, signal) {
@@ -99,7 +97,7 @@ export function openUrlTool(key: string): Tool {
       const page = data.results?.[0]?.raw_content;
       if (failed || page === undefined) return toolError(`could not open ${url.href}: ${failed?.error ?? "no content"}`);
       const text = page.length > limits.maxPageChars ? `${page.slice(0, limits.maxPageChars)}\n[truncated]` : page;
-      return { content: `Page: ${url.href}\n\n${text}`, footer: `-# 🔗 Opened <${url.href}>` };
+      return { content: text, footer: `-# 🔗 Opened <${url.href}>` };
     },
   });
 }

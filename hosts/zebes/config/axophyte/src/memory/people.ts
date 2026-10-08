@@ -2,14 +2,14 @@ import { limits } from "../limits";
 import { label } from "../conversation/history";
 import type { HistoryMessage, Speaker } from "../conversation/history";
 import type { ChatMessage } from "../llm/protocol";
-import type { Store } from "./store";
+import type { People } from "./store";
 import { defineTool, stringArg, toolError } from "../tools/tool";
 import type { Tool } from "../tools/tool";
 
-const PRUNER = `You maintain long-term notes about one Discord user, written from what they said about themselves. Rewrite the notes so they total at most ${limits.pruneTargetChars} characters: merge duplicates; when two notes conflict keep the newer one (higher number); fold small related details into broader notes; drop passing chatter before lasting facts (names, pronouns, preferences, ongoing projects, skills). Output one note per line, no numbering, nothing else.`;
+const PRUNER = `You keep notes about one Discord user, from what they shared about themselves, so later conversations can pick up where they left off. Rewrite the notes so they total at most ${limits.pruneTargetChars} characters: merge duplicates; when two notes conflict keep the newer one (higher number); fold small related details into broader notes; keep what helps future conversation (interests, what they're working on, how they like to talk, names, pronouns) over trivia. Output one note per line, no numbering, nothing else.`;
 
-// Memory is per person and loads in every channel; tools only write it in public channels.
-export function peopleSection(store: Store, people: Map<string, Speaker>): string {
+// Memory is per person per server and loads anywhere in that server; tools only write it in public channels.
+export function peopleSection(store: People, people: Map<string, Speaker>): string {
   const lines: string[] = [];
   for (const [id, person] of people) {
     const current = label(person.name, person.handle);
@@ -25,14 +25,14 @@ export function peopleSection(store: Store, people: Map<string, Speaker>): strin
     lines.push(`- ${current}${previous ? `, previously ${previous}` : ""}:`, ...shown.reverse());
   }
   return lines.length
-    ? `People here (what they told you about themselves; may be outdated or untrue):\n${lines.join("\n")}`
+    ? `## What you know about people here (from what they shared; may be outdated or wrong)\n${lines.join("\n")}`
     : "";
 }
 
-const messageParam = { type: "string", description: "Tag of the latest message the fact comes from, e.g. m1" };
+const messageParam = { type: "string", description: "Tag of the message it comes from, e.g. m1" };
 
 /** Writes refs in place for speakerLine; create these tools before rendering the latest messages. */
-export function noteTools(store: Store, latest: HistoryMessage[], wrote: (userId: string) => void): Tool[] {
+export function noteTools(store: People, latest: HistoryMessage[], wrote: (userId: string) => void): Tool[] {
   const messages = new Map<string, HistoryMessage>();
   for (const message of latest) {
     message.ref = `m${messages.size + 1}`;
@@ -47,10 +47,10 @@ export function noteTools(store: Store, latest: HistoryMessage[], wrote: (userId
 
   const remember = defineTool({
     name: "remember",
-    description: "Save one lasting fact the author of a tagged latest message states about themselves.",
+    description: "Note something the author of a tagged message shares about themselves, so later conversations can build on it. Note it as soon as it comes up, even in passing or alongside another request. Skip secrets and sensitive details.",
     properties: {
       message: messageParam,
-      fact: { type: "string", description: "Short fact in third person, e.g. 'uses a Corne keyboard'" },
+      fact: { type: "string", description: "Short third-person note, e.g. 'really likes Minecraft'" },
     },
     required: ["message", "fact"],
     async run(args) {
@@ -66,11 +66,11 @@ export function noteTools(store: Store, latest: HistoryMessage[], wrote: (userId
 
   const revise = defineTool({
     name: "revise",
-    description: "Correct one of the notes about the author of a tagged latest message.",
+    description: "Correct one of the notes about the author of a tagged message.",
     properties: {
       message: messageParam,
       id: { type: "integer", description: "Note number, e.g. 12 for [#12]" },
-      fact: { type: "string", description: "Corrected fact" },
+      fact: { type: "string", description: "Corrected note" },
     },
     required: ["message", "id", "fact"],
     async run(args) {
@@ -96,7 +96,7 @@ export function parsePruned(text: string, oldTotal: number): string[] | null {
   return facts.length && total <= limits.personMemoryChars && total < oldTotal ? facts : null;
 }
 
-export async function prunePerson(store: Store, userId: string, rewrite: (messages: ChatMessage[]) => Promise<string>): Promise<void> {
+export async function prunePerson(store: People, userId: string, rewrite: (messages: ChatMessage[]) => Promise<string>): Promise<void> {
   const facts = store.facts(userId);
   const total = facts.reduce((sum, { fact }) => sum + fact.length, 0);
   if (total <= limits.personMemoryChars) return;

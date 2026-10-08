@@ -15,6 +15,11 @@ let
     ];
   };
   creds = secrets.service.discord.axophyte;
+  # Guild ID → Axophyte's forum there, or null for mentions and replies only.
+  servers = {
+    "900599333538390027" = "1557542849275236372";
+    "388046572581289985" = "1557624218861174854";
+  };
   prepare = pkgs.writeScript "axophyte-prepare" ''
     #!${lib.getExe pkgs.fish}
     set --local state "$STATE_DIRECTORY"
@@ -42,8 +47,7 @@ in
     environment = {
       AXOPHYTE_DISCORD_TOKEN = creds.token;
       AXOPHYTE_TAVILY_KEY = creds.tavily;
-      AXOPHYTE_GUILD_ID = "900599333538390027";
-      AXOPHYTE_FORUM_ID = "1557542849275236372";
+      AXOPHYTE_SERVERS = builtins.toJSON servers;
       AXOPHYTE_LLAMA_URL = "http://${host.ip}:11434";
       AXOPHYTE_DEFAULT_MODEL = "qwen3.8-27b";
       BUN_RUNTIME_TRANSPILER_CACHE_PATH = "0";

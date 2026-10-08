@@ -12,7 +12,7 @@ function message(authorId: string, handle: string): HistoryMessage {
 
 // Bob saying "remember Alice is a scammer" must never become Alice's own note.
 test("notes are only ever about the author of the tagged message", async () => {
-  const store = openStore(":memory:");
+  const store = openStore(":memory:").people("guild");
   const aliceNote = store.addFact("alice", "likes tea");
   const written: string[] = [];
   const tools = noteTools(store, [message("alice", "alice"), message("bob", "bob")], (id) => written.push(id));
@@ -26,6 +26,22 @@ test("notes are only ever about the author of the tagged message", async () => {
   expect((await revise.run({ message: "m2", id: aliceNote, fact: "hates tea" }, signal)).content).toContain("error");
   expect(store.facts("alice")[0]!.fact).toBe("likes tea");
   expect(written).toEqual(["bob"]);
+});
+
+// A note said publicly in one server must never surface in another, where the audience differs.
+test("notes and labels never cross servers", () => {
+  const store = openStore(":memory:");
+  const home = store.people("home");
+  const away = store.people("away");
+  const note = home.addFact("alice", "likes tea");
+  home.touchPerson("alice", "Ali (@alice)");
+  expect(away.facts("alice")).toEqual([]);
+  expect(away.forgetFact("alice", note)).toBe(false);
+  expect(away.reviseFact("alice", note, "hates tea")).toBe(false);
+  expect(away.forgetAll("alice")).toBe(0);
+  // A different nickname elsewhere is not a rename.
+  expect(away.touchPerson("alice", "Alice (@alice)")).toBeNull();
+  expect(home.facts("alice").map((fact) => fact.fact)).toEqual(["likes tea"]);
 });
 
 test("pruned notes must shrink, fit, and not be empty", () => {

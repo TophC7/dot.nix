@@ -51,6 +51,7 @@ export function asHistory(message: Message): HistoryMessage {
       id: attachment.id, name: attachment.name, contentType: attachment.contentType,
     })),
     replyTo: target ? {
+      id: target.id,
       label: target.author.id === message.client.user.id ? "Axophyte" : label(target.member?.displayName ?? target.author.displayName, target.author.username),
       excerpt: excerpt(cleanText(target.content, message.channel), 100),
     } : null,

@@ -12,8 +12,8 @@ import type { ModelSession } from "./llm/model";
 import { CompactionError, prepareContext } from "./conversation/compaction";
 import { noteTools, peopleSection, prunePerson } from "./memory/people";
 import { serverTools } from "./tools/server";
-import type { Store } from "./memory/store";
-import { runToolCall } from "./tools/tool";
+import type { People, Store } from "./memory/store";
+import { runToolCall, toolError } from "./tools/tool";
 import type { Tool } from "./tools/tool";
 import { isPublic } from "./discord/visibility";
 import { openUrlTool, webSearchTool } from "./tools/web";
@@ -43,8 +43,8 @@ function failure(error: unknown): { kind: string; text: string } {
   return { kind: "internal", text: "⚠️ I couldn't finish this response. Try again later." };
 }
 
-export async function pruneNotes(store: Store, userId: string): Promise<void> {
-  await prunePerson(store, userId, async (messages) => {
+export async function pruneNotes(people: People, userId: string): Promise<void> {
+  await prunePerson(people, userId, async (messages) => {
     const session = await modelSession(pickModel);
     return session.call((choice) => complete(choice, { messages, max_tokens: 2048 }));
   });
@@ -68,14 +68,15 @@ export async function runTurn(store: Store, source: Source, opts: TurnOptions): 
     const botId = channel.client.user.id;
     // Private threads have no exact audience (moderators can open them), so no cross-channel reads.
     const serverSearch = channel.type !== ChannelType.PrivateThread;
-    // Memory is learned only where every member can read it, so it can load anywhere.
+    // Memory is learned only where every member can read it, so it can load anywhere in this server.
     const memoryEnabled = isPublic(channel);
+    const serverPeople = store.people(channel.guildId);
     const tools = [
       ...webTools,
-      ...(serverSearch ? serverTools(channel, store) : []),
-      ...(memoryEnabled ? noteTools(store, loaded.latest, (id) => { touched.add(id); opts.onCommit?.(); }) : []),
+      ...(serverSearch ? serverTools(channel, store, new Set(loaded.turns.flatMap((turn) => turn.messages.map((message) => message.id)))) : []),
+      ...(memoryEnabled ? noteTools(serverPeople, loaded.latest, (id) => { touched.add(id); opts.onCommit?.(); }) : []),
     ];
-    const people = peopleSection(store, loaded.people);
+    const people = peopleSection(serverPeople, loaded.people);
     session = await modelSession(() => pickModel(opts.signal));
     let memory = loaded.memory;
     let turns = loaded.turns;
@@ -98,16 +99,16 @@ export async function runTurn(store: Store, source: Source, opts: TurnOptions): 
     let compacted = false;
     reply = new ReplyStream(channel, loaded.replyTo);
     if (opts.forcedSearch) reply.push(`🔎 **Search:** ${opts.forcedSearch.query}\n\n`);
-    for (let round = 0; round <= limits.maxToolRounds; round++) {
-      const offered = round < limits.maxToolRounds
-        ? tools.filter((tool) => (used.get(tool.schema.function.name) ?? 0) < tool.budget)
-        : [];
-      const schemas = offered.length ? offered.map((tool) => tool.schema) : undefined;
+    // The same tools every round: a tool missing from the schema (or tool_choice "none") gets
+    // "called" as plain text the parser can't catch. Budgets and the round limit are enforced
+    // with tool errors the model reads, so it answers from what it already found.
+    const schemas = tools.map((tool) => tool.schema);
+    for (let round = 0; ; round++) {
       const result = await session.call(async (choice) => {
         // Preparation, compaction, and generation share one choice and one retry.
         const prepared = await prepareContext({
           choice, memory, turns, tools: schemas,
-          prompt: (summary, retained) => [systemPrompt({ source, serverSearch, memoryEnabled, summary, people }), ...render(retained, channel, botId, loaded.images), ...extra],
+          prompt: (summary, retained) => [systemPrompt({ source, summary, people }), ...render(retained, channel, botId, loaded.images), ...extra],
           summaryPrompt: (summary, folded) => summaryRequest(summary, folded, botId),
           count: (messages, actualTools) => countTokens(choice, { messages, tools: actualTools }, opts.signal),
           complete: (messages) => complete(choice, {
@@ -136,11 +137,14 @@ export async function runTurn(store: Store, source: Source, opts: TurnOptions): 
         }
         break;
       }
-      extra.push({ role: "assistant", content: result.content || null, tool_calls: result.toolCalls });
-      for (const call of result.toolCalls) await runCall(call, offered);
-      if (round === limits.maxToolRounds) {
+      if (round >= limits.maxToolRounds + limits.answerRetries) {
         await fail("⚠️ The model did not finish its answer. Try a narrower question.");
         return [...touched];
+      }
+      extra.push({ role: "assistant", content: result.content || null, tool_calls: result.toolCalls });
+      for (const call of result.toolCalls) {
+        if (round < limits.maxToolRounds) await runCall(call, tools);
+        else extra.push({ role: "tool", tool_call_id: call.id, content: toolError("no more tool calls for this answer; reply now with what you have").content });
       }
     }
     if (compacted) footer.push("-# 🗜️ Older messages were summarized into memory.");

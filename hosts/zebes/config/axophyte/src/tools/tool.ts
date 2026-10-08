@@ -49,7 +49,7 @@ export async function runToolCall(
   try { args = JSON.parse(call.function.arguments); } catch { return toolError("invalid arguments"); }
   if (typeof args !== "object" || args === null || Array.isArray(args)) return toolError("invalid arguments");
   const count = used.get(name) ?? 0;
-  if (count >= tool.budget) return toolError(`${name} limit reached`);
+  if (count >= tool.budget) return toolError(`${name} limit reached; answer with what you have`);
   used.set(name, count + 1);
   try {
     return await tool.run(args as Record<string, unknown>, signal);

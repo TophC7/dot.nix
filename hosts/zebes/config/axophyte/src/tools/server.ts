@@ -16,7 +16,8 @@ function dayToSnowflake(day: string | null): string | null | undefined {
   return Number.isNaN(timestamp) ? null : SnowflakeUtil.generate({ timestamp }).toString();
 }
 
-export function serverTools(channel: GuildTextBasedChannel, store: Store): Tool[] {
+/** `inView`: message IDs already in the prompt; search skips them, not the rest of this channel. */
+export function serverTools(channel: GuildTextBasedChannel, store: Store, inView: Set<string>): Tool[] {
   const hits = new Map<string, { channelId: string; messageId: string }>();
   let cached: string[] | undefined;
   const audience = () => cached ??= audienceOf(channel);
@@ -25,9 +26,9 @@ export function serverTools(channel: GuildTextBasedChannel, store: Store): Tool[
 
   const searchServer = defineTool({
     name: "search_server",
-    description: "Keyword search over older messages in this Discord server. Returns hit refs (h1, h2, …) for read_conversation. If nothing is found, try other wording.",
+    description: "Keyword search over older messages in this server, for things people refer to that are not in view. Returns hits (h1, h2, …) for read_conversation; if none, try other wording.",
     properties: {
-      query: { type: "string", description: "Keywords to look for" },
+      query: { type: "string" },
       person: { type: "string", description: "Optional @username to limit results to their messages" },
       after: { type: "string", description: "Optional YYYY-MM-DD; only messages on or after this day" },
       before: { type: "string", description: "Optional YYYY-MM-DD; only messages before this day" },
@@ -65,7 +66,7 @@ export function serverTools(channel: GuildTextBasedChannel, store: Store): Tool[
       for (const [message] of data.messages) {
         if (!message || messages.length >= limits.serverHits) continue;
         if (message.webhook_id || (message.author.bot && message.author.id !== botId)) continue;
-        if (message.channel_id === channel.id) continue;
+        if (inView.has(message.id)) continue;
         const place = placeFromApi(guild, message.channel_id, threads);
         // Hidden hits vanish entirely: no count, no placeholder.
         if (!place || !discloses(place, channel.id, viewers)) continue;
@@ -92,7 +93,7 @@ export function serverTools(channel: GuildTextBasedChannel, store: Store): Tool[
   const readConversation = defineTool({
     name: "read_conversation",
     description: "Read the conversation around a search_server hit.",
-    properties: { hit: { type: "string", description: "Hit ref from search_server, e.g. h2" } },
+    properties: { hit: { type: "string", description: "e.g. h2" } },
     required: ["hit"],
     async run(args) {
       const target = hits.get(stringArg(args, "hit", 10) ?? "");

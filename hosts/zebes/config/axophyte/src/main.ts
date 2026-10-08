@@ -23,34 +23,38 @@ const client = new Client({
   allowedMentions,
 });
 const store = openStore(config.dbPath);
-let ready = false;
+/** Configured servers whose member cache is complete; Axophyte ignores the rest. */
+const ready = new Set<string>();
 let stopping = false;
-/** Settles once the member cache is complete; turns wait on it before checking visibility. */
+/** Settles once member caches are complete; turns wait on it before checking visibility. */
 let membersFresh: Promise<unknown> = Promise.resolve();
 const scheduler = new Scheduler(async (key, triggers, signal, commit) => {
   const channel = client.channels.cache.get(key);
   if (!channel?.isTextBased() || channel.isDMBased()) return;
   await membersFresh;
-  schedulePrunes(await runTurn(store, sourceFor(channel, triggers), { signal, onCommit: commit }));
+  schedulePrunes(channel.guildId, await runTurn(store, sourceFor(channel, triggers), { signal, onCommit: commit }));
 });
 const commandDeps: CommandDeps = {
   store,
-  ready: () => ready,
+  ready: (guildId) => ready.has(guildId),
   search: async (channel, query, requester) => {
     const touched = await scheduler.command(async () => {
       await membersFresh;
       return runTurn(store, sourceFor(channel, new Set()), { forcedSearch: { query, requester }, signal: new AbortController().signal });
     });
-    schedulePrunes(touched);
+    schedulePrunes(channel.guildId, touched);
   },
 };
 
-const inForum = (channel: GuildTextBasedChannel) => channel.isThread() && channel.parentId === config.forumId;
+function inForum(channel: GuildTextBasedChannel): boolean {
+  const forumId = config.servers.get(channel.guildId);
+  return !!forumId && channel.isThread() && channel.parentId === forumId;
+}
 
 async function shutdown(code: number): Promise<void> {
   if (stopping) return;
   stopping = true;
-  ready = false;
+  ready.clear();
   try { await client.destroy(); }
   catch { console.error("Discord client shutdown failed"); }
   try { store.close(); }
@@ -62,50 +66,73 @@ function sourceFor(channel: GuildTextBasedChannel, triggers: Set<string>): Sourc
   return { channel, forum: inForum(channel), triggers };
 }
 
-function schedulePrunes(userIds: string[]): void {
+function schedulePrunes(guildId: string, userIds: string[]): void {
   for (const userId of userIds) {
-    void scheduler.command(() => pruneNotes(store, userId)).catch(() => console.error("memory prune failed"));
+    void scheduler.command(() => pruneNotes(store.people(guildId), userId)).catch(() => console.error("memory prune failed"));
   }
 }
 
 client.once(Events.ClientReady, (connected) => {
-  void (async () => {
-    const forum = await connected.channels.fetch(config.forumId);
-    if (!forum || forum.type !== ChannelType.GuildForum || forum.guildId !== config.guildId) {
-      console.error(`forum ${config.forumId} not found or not a forum in guild ${config.guildId}`);
-      await shutdown(1);
-      return;
+  // One broken server (bot removed, forum deleted) must not take the others down.
+  void Promise.all([...config.servers].map(async ([guildId, forumId]) => {
+    try {
+      const guild = await connected.guilds.fetch(guildId);
+      if (forumId) {
+        const forum = await connected.channels.fetch(forumId);
+        if (forum?.type !== ChannelType.GuildForum || forum.guildId !== guildId) throw new Error("forum not found");
+      }
+      // Visibility checks need every member; discord.js keeps this cache current afterwards.
+      await Promise.all([guild.members.fetch(), guild.commands.set(COMMANDS)]);
+      if (!stopping) ready.add(guildId);
+    } catch (error) {
+      console.error(`server ${guildId} skipped: not joined, forum ${forumId} not a forum there, or startup failed`, error);
     }
-    // Visibility checks need every member; discord.js keeps this cache current afterwards.
-    await forum.guild.members.fetch();
-    await connected.application.commands.set(COMMANDS, config.guildId);
+  })).then(async () => {
     if (stopping) return;
-    ready = true;
-    console.info(`ready as ${connected.user.tag}`);
-  })().catch(() => {
-    console.error("Discord startup failed");
-    void shutdown(1);
+    // Nothing usable (e.g. network down at boot): exit so systemd retries.
+    if (!ready.size) return shutdown(1);
+    console.info(`ready as ${connected.user.tag} in ${ready.size}/${config.servers.size} servers`);
   });
 });
 
 // A re-identify can miss member and role updates; refetch before trusting visibility again.
 client.on(Events.ShardReady, () => {
-  if (!ready) return; // First connect: ClientReady fetches.
-  const guild = client.guilds.cache.get(config.guildId);
-  membersFresh = (guild ? guild.members.fetch() : Promise.reject(new Error("guild missing"))).catch(() => {
-    console.error("member refresh failed");
-    void shutdown(1);
+  if (!ready.size) return; // First connect: ClientReady fetches.
+  membersFresh = Promise.allSettled([...ready].map(async (guildId) => {
+    const guild = client.guilds.cache.get(guildId);
+    if (!guild) {
+      ready.delete(guildId);
+      throw new Error(`server ${guildId} missing from cache`);
+    }
+    try {
+      await guild.members.fetch();
+    } catch (error) {
+      ready.delete(guildId);
+      throw error;
+    }
+  })).then((results) => {
+    for (const r of results) {
+      if (r.status === "rejected") console.error("member refresh failed:", r.reason);
+    }
+    if (!ready.size) {
+      console.error("all servers failed member refresh");
+      void shutdown(1);
+    }
   });
 });
 
+client.on(Events.GuildDelete, (guild) => {
+  ready.delete(guild.id);
+});
+
 client.on(Events.ThreadCreate, (thread, newlyCreated) => {
-  if (ready && newlyCreated && thread.guildId === config.guildId && inForum(thread) && thread.ownerId) {
+  if (ready.has(thread.guildId) && newlyCreated && inForum(thread) && thread.ownerId) {
     scheduler.message(thread.id, thread.ownerId, thread.id);
   }
 });
 
 client.on(Events.MessageCreate, (message) => {
-  if (!ready || !message.inGuild() || message.guildId !== config.guildId) return;
+  if (!message.inGuild() || !ready.has(message.guildId)) return;
   if (message.author.bot || message.webhookId !== null) return;
   if (message.type !== MessageType.Default && message.type !== MessageType.Reply) return;
   const channel = message.channel;

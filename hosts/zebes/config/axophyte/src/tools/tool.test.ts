@@ -17,7 +17,7 @@ test("budget exhaustion stops calls before they run", async () => {
   const tools = [fakeTool(async () => { runs++; return { content: "ok" }; })];
   const used = new Map<string, number>();
   for (let i = 0; i < 2; i++) await runToolCall(call, tools, used, signal);
-  expect(await runToolCall(call, tools, used, signal)).toEqual({ content: '{"error":"web_search limit reached"}' });
+  expect(JSON.parse((await runToolCall(call, tools, used, signal)).content)).toHaveProperty("error");
   expect(runs).toBe(2);
 });
 

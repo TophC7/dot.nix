@@ -1,7 +1,7 @@
 import { MessageFlags, SlashCommandBuilder, type ChatInputCommandInteraction, type GuildTextBasedChannel } from "discord.js";
 import { config } from "./config";
 import { limits } from "./limits";
-import type { Store } from "./memory/store";
+import type { People, Store } from "./memory/store";
 
 export const COMMANDS = [
   new SlashCommandBuilder()
@@ -30,15 +30,15 @@ export const COMMANDS = [
 
 export type CommandDeps = {
   store: Store;
-  ready(): boolean;
+  ready(guildId: string): boolean;
   /** Runs a never-aborted forced-search turn in `channel`; resolves once the answer is posted. */
   search(channel: GuildTextBasedChannel, query: string, requester: string): Promise<void>;
 };
 
-function memoryCommand(interaction: ChatInputCommandInteraction, store: Store): string {
+function memoryCommand(interaction: ChatInputCommandInteraction, people: People): string {
   const userId = interaction.user.id;
   if (interaction.options.getSubcommand() === "show") {
-    const facts = store.facts(userId);
+    const facts = people.facts(userId);
     if (!facts.length) return "I don't remember anything about you.";
     let text = "";
     for (const [index, { id, fact }] of facts.entries()) {
@@ -49,27 +49,27 @@ function memoryCommand(interaction: ChatInputCommandInteraction, store: Store): 
     return text.trimEnd();
   }
   const item = interaction.options.getString("item", true).trim().toLowerCase();
-  if (item === "all") return `Forgot everything (${store.forgetAll(userId)} notes).`;
+  if (item === "all") return `Forgot everything (${people.forgetAll(userId)} notes).`;
   if (!/^#?\d{1,15}$/.test(item)) return "Use a note number from /memory show, or all.";
   const id = Number(item.replace("#", ""));
-  return store.forgetFact(userId, id) ? `Forgot #${id}.` : `No note #${id} of yours.`;
+  return people.forgetFact(userId, id) ? `Forgot #${id}.` : `No note #${id} of yours.`;
 }
 
 export async function handleCommand(interaction: ChatInputCommandInteraction, deps: CommandDeps): Promise<void> {
   const channel = interaction.channel;
-  if (!interaction.inCachedGuild() || interaction.guildId !== config.guildId || !channel || channel.isDMBased()) {
+  if (!interaction.inCachedGuild() || !config.servers.has(interaction.guildId) || !channel || channel.isDMBased()) {
     await interaction.reply({ content: "Use this in a server channel.", flags: MessageFlags.Ephemeral });
     return;
   }
   await interaction.deferReply({ flags: MessageFlags.Ephemeral });
   // A queued model request can outlive Discord's 15-minute interaction token.
   const respond = (content: string) => interaction.editReply(content).catch(() => {});
-  if (!deps.ready()) {
+  if (!deps.ready(interaction.guildId)) {
     await respond("Axophyte is not ready yet. Try again in a moment.");
     return;
   }
   if (interaction.commandName === "memory") {
-    await respond(memoryCommand(interaction, deps.store));
+    await respond(memoryCommand(interaction, deps.store.people(interaction.guildId)));
     return;
   }
   if (interaction.commandName !== "search") {

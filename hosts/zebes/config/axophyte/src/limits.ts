@@ -8,6 +8,8 @@ export const limits = {
   imageMaxSide: 1536,
   toolBudgets: { web_search: 3, open_url: 3, search_server: 3, read_conversation: 2, remember: 4, revise: 4 },
   maxToolRounds: 6,
+  /** Rounds after maxToolRounds whose tool calls are refused, prompting a plain answer. */
+  answerRetries: 2,
   searchResultCount: 5,
   maxQueryChars: 400,
   editIntervalMs: 1200,
