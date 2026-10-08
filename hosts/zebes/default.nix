@@ -4,7 +4,7 @@
 #  NixOS running on Ryzen 5 5600G, RX 7900 GRE, 32GB RAM
 #
 #  Docker environment, Komodo, Game Servers, etc.
-#  Ai environment, Ollama, Oterm, Open WebUI, etc.
+#  AI environment, llama.cpp, Axophyte, etc.
 #
 ###############################################################
 

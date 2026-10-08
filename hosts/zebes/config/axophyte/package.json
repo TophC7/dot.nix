@@ -1,0 +1,10 @@
+{
+  "name": "axophyte",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": { "discord.js": "^14" },
+  "devDependencies": { "@types/bun": "latest", "typescript": "^5" }
+}
