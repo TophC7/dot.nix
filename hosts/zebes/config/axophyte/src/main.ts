@@ -157,9 +157,10 @@ client.on(Events.MessageCreate, (message) => {
     if (message.id !== channel.id) scheduler.message(channel.id, message.author.id, message.id);
     return;
   }
-  // Direct mentions and replies to Axophyte only; @everyone and role pings never match.
+  // Direct mentions, replies to Axophyte, or pinging the bot's managed integration role.
   const botId = client.user!.id;
-  if (message.mentions.users.has(botId) || message.mentions.repliedUser?.id === botId || scheduler.follows(channel.id, message.author.id)) {
+  const botRole = message.mentions.roles.some((role) => role.tags?.botId === botId || role.id === message.guild?.members.me?.roles.botRole?.id);
+  if (message.mentions.users.has(botId) || botRole || message.mentions.repliedUser?.id === botId || scheduler.follows(channel.id, message.author.id)) {
     scheduler.message(channel.id, message.author.id, message.id);
   }
 });

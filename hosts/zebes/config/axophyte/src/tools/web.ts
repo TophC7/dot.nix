@@ -57,7 +57,7 @@ function formatHits(hits: SearchHit[]): string {
 export function webSearchTool(key: string): Tool {
   return defineTool({
     name: "web_search",
-    description: "Search the web for current events, recent releases, prices, or facts you are unsure about.",
+    description: "Search the web to verify real-world facts, works, tracklists, chronologies, specs, trivia, or claims.",
     properties: { query: { type: "string" } },
     required: ["query"],
     async run(args, signal) {
@@ -66,7 +66,7 @@ export function webSearchTool(key: string): Tool {
       const hits = await tavilySearch(query, key, signal);
       return {
         content: formatHits(hits),
-        footer: `-# 🔎 Searched “${query}”${hits.length ? ` — ${hits.slice(0, 3).map((hit) => `<${hit.url}>`).join(" · ")}` : " — no results"}`,
+        footer: `-# 🔎 Searched “${query}”${hits.length ? ` · ${hits.slice(0, 3).map((hit) => `<${hit.url}>`).join(" · ")}` : " · no results"}`,
       };
     },
   });

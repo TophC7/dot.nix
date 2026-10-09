@@ -32,7 +32,8 @@ export class ReplyStream {
 
   push(delta: string): void {
     if (this.closed || !delta) return;
-    const tail = this.chunks.pop()! + delta;
+    const sanitized = delta.replace(/[—–]/g, "-");
+    const tail = this.chunks.pop()! + sanitized;
     this.chunks.push(...splitMessage(tail, limits.splitAt));
     if (!this.chunks.length) this.chunks.push("");
     if (!this.hasText) {

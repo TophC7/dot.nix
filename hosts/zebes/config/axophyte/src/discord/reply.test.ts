@@ -66,6 +66,19 @@ test("stream write rejection finishes and clears timers", async () => {
   expect(attempts).toBe(1);
 });
 
+test("stream push normalizes em and en dashes to hyphens", async () => {
+  const sent: string[] = [];
+  const thread = {
+    guild: { emojis: { cache: new Collection() } },
+    async sendTyping() {},
+    async send(options: { content: string }) { sent.push(options.content); return { id: "1", edit: async () => {} }; },
+  } as unknown as GuildTextBasedChannel;
+  const stream = new ReplyStream(thread);
+  stream.push("Mars — the red planet – fourth from the Sun");
+  await stream.finish([]);
+  expect(sent[0]).toBe("Mars - the red planet - fourth from the Sun");
+});
+
 describe("Discord message splitting", () => {
   test("long paragraphs stay within limit and preserve all non-separator text", () => {
     const text = Array.from({ length: 12 }, (_, n) => `Paragraph ${n}: ${"a useful sentence. ".repeat(100)}`).join("\n\n");
