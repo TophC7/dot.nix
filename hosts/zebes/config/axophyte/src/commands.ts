@@ -1,7 +1,8 @@
-import { MessageFlags, PermissionFlagsBits, SlashCommandBuilder, type ChatInputCommandInteraction, type GuildTextBasedChannel } from "discord.js";
+import { MessageFlags, PermissionFlagsBits, SlashCommandBuilder, type AutocompleteInteraction, type ChatInputCommandInteraction, type GuildTextBasedChannel } from "discord.js";
 import { config } from "./config";
+import { APP_EMOJI_SCOPE, emojiScope, usableEmoji } from "./discord/emoji";
 import { limits } from "./limits";
-import type { EmojiNotes, People, Store } from "./memory/store";
+import type { People, Store } from "./memory/store";
 
 export const COMMANDS = [
   new SlashCommandBuilder()
@@ -28,13 +29,14 @@ export const COMMANDS = [
         .setMaxLength(20))),
   new SlashCommandBuilder()
     .setName("emoji")
-    .setDescription("Tell Axophyte what one of this server's emoji means here (admins)")
+    .setDescription("Tell Axophyte what an emoji means (admins)")
     .setDMPermission(false)
     .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
     .addStringOption((option) => option
       .setName("emoji")
-      .setDescription("A custom emoji from this server")
+      .setDescription("This server's emoji or Axophyte's own; pick from the list")
       .setRequired(true)
+      .setAutocomplete(true)
       .setMaxLength(100))
     .addStringOption((option) => option
       .setName("use")
@@ -70,18 +72,29 @@ function memoryCommand(interaction: ChatInputCommandInteraction, people: People)
   return people.forgetFact(userId, id) ? `Forgot #${id}.` : `No note #${id} of yours.`;
 }
 
-function emojiCommand(interaction: ChatInputCommandInteraction<"cached">, notes: EmojiNotes): string {
+function emojiCommand(interaction: ChatInputCommandInteraction<"cached">, store: Store): string {
   // Server admins can widen a command's default permissions in Integrations; this stays admin-only.
   if (!interaction.memberPermissions.has(PermissionFlagsBits.Administrator)) return "Only server admins can set emoji meanings.";
   const raw = interaction.options.getString("emoji", true).trim();
-  const emojis = interaction.guild.emojis.cache;
   const id = /<a?:\w+:(\d+)>/.exec(raw)?.[1];
-  const emoji = id ? emojis.get(id) : emojis.find((candidate) => candidate.name === raw.replace(/^:|:$/g, ""));
-  if (!emoji?.name) return "Pick one of this server's custom emoji.";
+  const name = raw.replace(/^:|:$/g, "");
+  const emoji = usableEmoji(interaction.guild).find((candidate) => id ? candidate.id === id : candidate.name === name);
+  if (!emoji?.name) return "Pick one of this server's custom emoji or Axophyte's own.";
   const use = interaction.options.getString("use", true).trim();
   if (!use) return "Emoji meaning cannot be empty.";
-  notes.set(emoji.id, { name: emoji.name, description: use, byAdmin: true });
-  return `Saved. Axophyte now reads ${emoji} as: ${use}`;
+  const scope = emojiScope(emoji);
+  store.emojiNotes(scope).set(emoji.id, { name: emoji.name, description: use, byAdmin: true });
+  return `Saved${scope === APP_EMOJI_SCOPE ? " for every server" : ""}. Axophyte now reads ${emoji} as: ${use}`;
+}
+
+/** Lists Axophyte's own emoji too, which admins can't pick from their own emoji menu. */
+export async function handleAutocomplete(interaction: AutocompleteInteraction): Promise<void> {
+  if (!interaction.inCachedGuild() || interaction.commandName !== "emoji") return interaction.respond([]);
+  const typed = interaction.options.getFocused().replace(/^:|:$/g, "").toLowerCase();
+  await interaction.respond(usableEmoji(interaction.guild)
+    .filter((emoji) => emoji.name!.toLowerCase().includes(typed))
+    .slice(0, 25)
+    .map((emoji) => ({ name: `:${emoji.name}:${"guild" in emoji ? "" : " (Axophyte's own)"}`, value: String(emoji) })));
 }
 
 export async function handleCommand(interaction: ChatInputCommandInteraction, deps: CommandDeps): Promise<void> {
@@ -102,7 +115,7 @@ export async function handleCommand(interaction: ChatInputCommandInteraction, de
     return;
   }
   if (interaction.commandName === "emoji") {
-    await respond(emojiCommand(interaction, deps.store.emojiNotes(interaction.guildId)));
+    await respond(emojiCommand(interaction, deps.store));
     return;
   }
   if (interaction.commandName !== "search") {

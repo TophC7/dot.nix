@@ -13,7 +13,7 @@ test("stream failure drains serialized writes without losing buffered chunks or 
   const opened = Promise.withResolvers<void>();
   const release = Promise.withResolvers<void>();
   const thread = {
-    guild: { emojis: { cache: new Collection() } },
+    guild: { client: { application: null }, emojis: { cache: new Collection() } },
     async sendTyping() {},
     async send(options: { content: string; allowedMentions: unknown; reply?: unknown }) {
       active++;
@@ -54,7 +54,7 @@ test("stream write rejection finishes and clears timers", async () => {
   jest.useFakeTimers();
   let attempts = 0;
   const thread = {
-    guild: { emojis: { cache: new Collection() } },
+    guild: { client: { application: null }, emojis: { cache: new Collection() } },
     async sendTyping() {},
     async send() { attempts++; throw new Error("Discord unavailable"); },
   } as unknown as GuildTextBasedChannel;
@@ -66,17 +66,17 @@ test("stream write rejection finishes and clears timers", async () => {
   expect(attempts).toBe(1);
 });
 
-test("stream finish normalizes text and splits trailing emoji into second message", async () => {
+test("stream finish normalizes text and splits Axophyte's own trailing emoji into second message", async () => {
   const sent: string[] = [];
-  const cache = new Collection();
-  cache.set("101", {
+  const own = new Collection();
+  own.set("101", {
     id: "101",
     name: "weyyy",
     available: true,
     toString: () => "<:weyyy:101>",
   });
   const thread = {
-    guild: { emojis: { cache } },
+    guild: { client: { application: { emojis: { cache: own } } }, emojis: { cache: new Collection() } },
     async sendTyping() {},
     async send(options: { content: string }) { sent.push(options.content); return { id: String(sent.length), edit: async () => {} }; },
   } as unknown as GuildTextBasedChannel;

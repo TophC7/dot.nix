@@ -17,7 +17,7 @@ export interface People {
 
 export type EmojiNote = { name: string; description: string; byAdmin: boolean };
 
-/** One server's emoji descriptions by emoji ID; an admin's description is final. */
+/** One scope's emoji descriptions by emoji ID; an admin's description is final. */
 export interface EmojiNotes {
   all(): Map<string, EmojiNote>;
   set(emojiId: string, note: EmojiNote): void;
@@ -29,7 +29,8 @@ export interface Store {
   get(threadId: string): Memory | null;
   save(threadId: string, memory: Memory): void;
   people(guildId: string): People;
-  emojiNotes(guildId: string): EmojiNotes;
+  /** Scope: a guild ID, or APP_EMOJI_SCOPE for Axophyte's own emoji (stored in the guild_id column). */
+  emojiNotes(scope: string): EmojiNotes;
   close(): void;
 }
 
@@ -154,16 +155,16 @@ export function openStore(path: string): Store {
         },
       };
     },
-    emojiNotes(guildId: string): EmojiNotes {
+    emojiNotes(scope: string): EmojiNotes {
       return {
         all(): Map<string, EmojiNote> {
-          return new Map(emojiNotes.all(guildId).map(({ id, byAdmin, ...note }) => [id, { ...note, byAdmin: byAdmin === 1 }]));
+          return new Map(emojiNotes.all(scope).map(({ id, byAdmin, ...note }) => [id, { ...note, byAdmin: byAdmin === 1 }]));
         },
         set(emojiId: string, note: EmojiNote): void {
-          setEmojiNote.run(guildId, emojiId, note.name, note.description, note.byAdmin ? 1 : 0);
+          setEmojiNote.run(scope, emojiId, note.name, note.description, note.byAdmin ? 1 : 0);
         },
         delete(emojiId: string): void {
-          deleteEmojiNote.run(guildId, emojiId);
+          deleteEmojiNote.run(scope, emojiId);
         },
       };
     },

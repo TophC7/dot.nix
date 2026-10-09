@@ -1,4 +1,5 @@
-import type { Guild, GuildEmoji } from "discord.js";
+import type { Collection } from "discord.js";
+import { emojiScope, type UsableEmoji } from "../discord/emoji";
 import { limits } from "../limits";
 import type { ChatMessage } from "../llm/protocol";
 import type { Scheduler } from "../schedule";
@@ -10,7 +11,7 @@ export function describerMessages(name: string, image: string | null): ChatMessa
   return [{ role: "user", content: image ? [{ type: "text", text }, { type: "image_url", image_url: { url: image } }] : text }];
 }
 
-type PendingDescription = { emoji: GuildEmoji; name: string };
+type PendingDescription = { emoji: UsableEmoji; name: string };
 
 /** Event-driven descriptions share the model queue, with only one command queued at a time. */
 export class EmojiDescriptions {
@@ -20,35 +21,38 @@ export class EmojiDescriptions {
   constructor(
     private readonly store: Store,
     private readonly scheduler: Pick<Scheduler, "command">,
-    private readonly describe: (emoji: GuildEmoji) => Promise<string>,
-    private readonly ready: (guildId: string) => boolean,
+    private readonly describe: (emoji: UsableEmoji) => Promise<string>,
+    /** Scope: a guild ID, or APP_EMOJI_SCOPE for Axophyte's own emoji. */
+    private readonly ready: (scope: string) => boolean,
   ) {}
 
-  /** Call once per ready guild, after fetching its authoritative emoji cache. */
-  seed(guild: Guild): void {
-    if (!this.ready(guild.id)) return;
-    const notes = this.store.emojiNotes(guild.id);
+  /** Call once per ready scope, after fetching its authoritative emoji cache. */
+  seed(scope: string, emojis: Collection<string, UsableEmoji>): void {
+    if (!this.ready(scope)) return;
+    const notes = this.store.emojiNotes(scope);
     const known = notes.all();
     for (const id of known.keys()) {
-      if (!guild.emojis.cache.has(id)) notes.delete(id);
+      if (!emojis.has(id)) notes.delete(id);
     }
-    for (const emoji of guild.emojis.cache.values()) this.add(emoji, known.get(emoji.id));
+    for (const emoji of emojis.values()) this.add(emoji, known.get(emoji.id));
     this.schedule();
   }
 
-  enqueue(emoji: GuildEmoji): void {
-    if (!this.ready(emoji.guild.id)) return;
-    this.add(emoji, this.store.emojiNotes(emoji.guild.id).all().get(emoji.id));
+  enqueue(emoji: UsableEmoji): void {
+    const scope = emojiScope(emoji);
+    if (!this.ready(scope)) return;
+    this.add(emoji, this.store.emojiNotes(scope).all().get(emoji.id));
     this.schedule();
   }
 
-  delete(emoji: GuildEmoji): void {
-    if (!this.ready(emoji.guild.id)) return;
+  delete(emoji: UsableEmoji): void {
+    const scope = emojiScope(emoji);
+    if (!this.ready(scope)) return;
     this.pending.delete(emoji.id);
-    this.store.emojiNotes(emoji.guild.id).delete(emoji.id);
+    this.store.emojiNotes(scope).delete(emoji.id);
   }
 
-  private add(emoji: GuildEmoji, note: EmojiNote | undefined): void {
+  private add(emoji: UsableEmoji, note: EmojiNote | undefined): void {
     if (emoji.available && emoji.name && (!note || (!note.byAdmin && note.name !== emoji.name))) {
       this.pending.set(emoji.id, { emoji, name: emoji.name });
     } else {
@@ -56,10 +60,10 @@ export class EmojiDescriptions {
     }
   }
 
-  private current(entry: PendingDescription): GuildEmoji | undefined {
+  private current(entry: PendingDescription): UsableEmoji | undefined {
     const { emoji, name } = entry;
-    if (!this.ready(emoji.guild.id) || this.pending.get(emoji.id) !== entry) return;
-    const current = emoji.guild.emojis.cache.get(emoji.id);
+    if (!this.ready(emojiScope(emoji)) || this.pending.get(emoji.id) !== entry) return;
+    const current = ("guild" in emoji ? emoji.guild.emojis.cache : emoji.application.emojis.cache).get(emoji.id);
     return current?.available && current.name === name ? current : undefined;
   }
 
@@ -75,7 +79,7 @@ export class EmojiDescriptions {
         const description = await this.describe(emoji);
         // Delete/rename events invalidate the entry even if inference was already running.
         if (this.current(entry)) {
-          this.store.emojiNotes(emoji.guild.id).set(emoji.id, { name: entry.name, description, byAdmin: false });
+          this.store.emojiNotes(emojiScope(emoji)).set(emoji.id, { name: entry.name, description, byAdmin: false });
         }
       } catch (error) {
         console.error(`emoji ${entry.emoji.id} :${entry.name}: description failed`, error);

@@ -1,8 +1,9 @@
-import { ChannelType, type GuildEmoji } from "discord.js";
+import { ChannelType } from "discord.js";
 import { config } from "./config";
 import { load } from "./conversation/load";
 import type { Source } from "./conversation/load";
 import { render, summaryRequest, systemPrompt } from "./conversation/prompt";
+import { APP_EMOJI_SCOPE, type UsableEmoji } from "./discord/emoji";
 import { ReplyStream } from "./discord/reply";
 import { limits } from "./limits";
 import { complete, countTokens, requestModel, streamChat } from "./llm/llama";
@@ -56,7 +57,7 @@ export async function pruneNotes(people: People, userId: string): Promise<void> 
   });
 }
 
-export async function describeEmoji(emoji: GuildEmoji): Promise<string> {
+export async function describeEmoji(emoji: UsableEmoji): Promise<string> {
   const name = emoji.name!;
   const url = emoji.imageURL({ extension: "png", size: 128 });
   // Animated emoji come back as their first frame; a failed fetch still gets a name-only guess.
@@ -100,7 +101,8 @@ export async function runTurn(store: Store, source: Source, opts: TurnOptions): 
       ...(loaded.latest.length ? [reactTool(channel, loaded.latest, () => opts.onCommit?.(), (reply) => { reactions++; replyAfterReaction ||= reply; })] : []),
     ];
     const people = peopleSection(serverPeople, loaded.people);
-    const emojiNotes = store.emojiNotes(channel.guildId).all();
+    // Emoji IDs are global snowflakes, so the two scopes never collide.
+    const emojiNotes = new Map([...store.emojiNotes(APP_EMOJI_SCOPE).all(), ...store.emojiNotes(channel.guildId).all()]);
     session = await modelSession(() => requestModel(opts.signal));
     let memory = loaded.memory;
     let turns = loaded.turns;

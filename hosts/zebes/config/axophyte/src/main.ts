@@ -6,10 +6,11 @@ import {
   MessageType,
 } from "discord.js";
 import type { GuildTextBasedChannel } from "discord.js";
-import { COMMANDS, handleCommand } from "./commands";
+import { COMMANDS, handleAutocomplete, handleCommand } from "./commands";
 import type { CommandDeps } from "./commands";
 import { config } from "./config";
 import type { Source } from "./conversation/load";
+import { APP_EMOJI_SCOPE } from "./discord/emoji";
 import { allowedMentions } from "./discord/reply";
 import { openStore } from "./memory/store";
 import { Scheduler } from "./schedule";
@@ -35,7 +36,8 @@ const scheduler = new Scheduler(async (key, triggers, signal, commit) => {
   await membersFresh;
   schedulePrunes(channel.guildId, await runTurn(store, sourceFor(channel, triggers), { signal, onCommit: commit }));
 });
-const emojiDescriptions = new EmojiDescriptions(store, scheduler, describeEmoji, (guildId) => !stopping && ready.has(guildId));
+const emojiDescriptions = new EmojiDescriptions(store, scheduler, describeEmoji,
+  (scope) => !stopping && (scope === APP_EMOJI_SCOPE ? ready.size > 0 : ready.has(scope)));
 const commandDeps: CommandDeps = {
   store,
   ready: (guildId) => ready.has(guildId),
@@ -75,6 +77,11 @@ function schedulePrunes(guildId: string, userIds: string[]): void {
 }
 
 client.once(Events.ClientReady, (connected) => {
+  // ponytail: no gateway events for application emoji; new uploads show up after a restart.
+  const ownEmojiFresh = connected.application.emojis.fetch().then(() => true, (error: unknown) => {
+    console.error("own emoji refresh failed", error);
+    return false;
+  });
   // One broken server (bot removed, forum deleted) must not take the others down.
   void Promise.all([...config.servers].map(async ([guildId, forumId]) => {
     try {
@@ -94,7 +101,7 @@ client.once(Events.ClientReady, (connected) => {
       ]);
       if (!stopping) {
         ready.add(guildId);
-        if (emojiFresh) emojiDescriptions.seed(guild);
+        if (emojiFresh) emojiDescriptions.seed(guildId, guild.emojis.cache);
       }
     } catch (error) {
       console.error(`server ${guildId} skipped: not joined, forum ${forumId} not a forum there, or startup failed`, error);
@@ -104,6 +111,7 @@ client.once(Events.ClientReady, (connected) => {
     // Nothing usable (e.g. network down at boot): exit so systemd retries.
     if (!ready.size) return shutdown(1);
     console.info(`ready as ${connected.user.tag} in ${ready.size}/${config.servers.size} servers`);
+    if (await ownEmojiFresh) emojiDescriptions.seed(APP_EMOJI_SCOPE, connected.application.emojis.cache);
   });
 });
 
@@ -170,6 +178,8 @@ client.on(Events.TypingStart, (typing) => scheduler.typing(typing.channel.id, ty
 client.on(Events.InteractionCreate, (interaction) => {
   if (interaction.isChatInputCommand()) {
     void handleCommand(interaction, commandDeps).catch(() => console.error("Discord interaction failed"));
+  } else if (interaction.isAutocomplete()) {
+    void handleAutocomplete(interaction).catch(() => console.error("Discord autocomplete failed"));
   }
 });
 client.on(Events.Error, () => console.error("Discord client error"));

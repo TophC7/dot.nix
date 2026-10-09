@@ -20,7 +20,7 @@ export function selfInfoTool(model: () => string): Tool {
           debounce: "Groups message bursts, waiting 4 seconds after messages or 10 seconds after participant typing, with a 45-second maximum wait.",
           serverSearch: "Searches older server messages only where the bot has access and every viewer of the reply channel can read the source. Private threads are excluded; search is unavailable when replying in a private thread.",
           memory: "Person notes are stored locally, separately per server, and learned only in channels readable by every server member. Notes can load elsewhere in that server. /memory show displays your notes; /memory forget deletes one or all. Long forum conversations retain summaries of older messages; other channels have no persistent conversation summaries.",
-          emoji: "The model gradually describes custom server emoji from their image and name; some may not be described yet. Server admins can set meanings with /emoji, overriding model descriptions.",
+          emoji: "The model gradually describes custom server emoji and its own application emoji (usable in every server) from their image and name; some may not be described yet. Server admins can set meanings with /emoji, overriding model descriptions; a meaning for an own emoji applies in every server.",
           capabilities: "Can see supported attached images, search the web, read web pages, search accessible server history, remember person notes, and react to messages. No code-execution or filesystem-access tools, and no DM access.",
         }),
       };
