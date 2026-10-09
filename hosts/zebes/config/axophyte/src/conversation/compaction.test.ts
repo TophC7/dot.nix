@@ -21,6 +21,7 @@ function turn(id: number, size: number): Turn {
   return { messages: [{
     id: String(id), authorId: "human", authorName: "Human", authorHandle: "human", authorIsBot: false,
     webhookId: null, system: false, content: `turn-${id}: ${"x".repeat(size)}`, attachments: [], replyTo: null,
+    createdAt: 0, reactions: [],
   }] };
 }
 
@@ -173,6 +174,7 @@ function message(id: string, bot = false): HistoryMessage {
   return {
     id, authorId: bot ? "bot" : "human", authorName: bot ? "Axophyte" : "Human", authorHandle: "human",
     authorIsBot: bot, webhookId: null, system: false, content: `message ${id}`, attachments: [], replyTo: null,
+    createdAt: 0, reactions: [],
   };
 }
 

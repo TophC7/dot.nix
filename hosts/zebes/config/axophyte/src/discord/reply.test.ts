@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, test, jest } from "bun:test";
-import type { Message, GuildTextBasedChannel } from "discord.js";
+import { Collection, type Message, type GuildTextBasedChannel } from "discord.js";
 import { ReplyStream, splitMessage } from "./reply";
 import { limits } from "../limits";
 
@@ -13,6 +13,7 @@ test("stream failure drains serialized writes without losing buffered chunks or 
   const opened = Promise.withResolvers<void>();
   const release = Promise.withResolvers<void>();
   const thread = {
+    guild: { emojis: { cache: new Collection() } },
     async sendTyping() {},
     async send(options: { content: string; allowedMentions: unknown; reply?: unknown }) {
       active++;
@@ -53,6 +54,7 @@ test("stream write rejection finishes and clears timers", async () => {
   jest.useFakeTimers();
   let attempts = 0;
   const thread = {
+    guild: { emojis: { cache: new Collection() } },
     async sendTyping() {},
     async send() { attempts++; throw new Error("Discord unavailable"); },
   } as unknown as GuildTextBasedChannel;

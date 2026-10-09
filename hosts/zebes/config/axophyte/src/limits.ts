@@ -6,7 +6,10 @@ export const limits = {
   maxImagesPerRequest: 4,
   maxImageBytes: 10 * 1024 * 1024,
   imageMaxSide: 1536,
-  toolBudgets: { web_search: 3, open_url: 3, search_server: 3, read_conversation: 2, remember: 4, revise: 4 },
+  promptEmoji: 100,
+  /** Longest emoji description, whether the model's or an admin's. */
+  emojiNoteChars: 200,
+  toolBudgets: { self_info: 1, web_search: 3, open_url: 3, search_server: 3, read_conversation: 2, remember: 4, revise: 4, react: 3 },
   maxToolRounds: 6,
   /** Rounds after maxToolRounds whose tool calls are refused, prompting a plain answer. */
   answerRetries: 2,

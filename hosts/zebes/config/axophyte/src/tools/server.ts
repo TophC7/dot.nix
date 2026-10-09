@@ -8,11 +8,12 @@ import { defineTool, stringArg, toolError } from "./tool";
 import type { Tool } from "./tool";
 import type { Store } from "../memory/store";
 import { audienceOf, cleanText, discloses, placeFromApi, placeOf } from "../discord/visibility";
+import { botTime, calendarMidnight, dayAge, TIME_ZONE } from "../time";
 
 // undefined = not given, null = invalid.
 function dayToSnowflake(day: string | null): string | null | undefined {
   if (day === null) return undefined;
-  const timestamp = /^\d{4}-\d{2}-\d{2}$/.test(day) ? Date.parse(`${day}T00:00:00Z`) : NaN;
+  const timestamp = calendarMidnight(day);
   return Number.isNaN(timestamp) ? null : SnowflakeUtil.generate({ timestamp }).toString();
 }
 
@@ -30,8 +31,8 @@ export function serverTools(channel: GuildTextBasedChannel, store: Store, inView
     properties: {
       query: { type: "string" },
       person: { type: "string", description: "Optional @username to limit results to their messages" },
-      after: { type: "string", description: "Optional YYYY-MM-DD; only messages on or after this day" },
-      before: { type: "string", description: "Optional YYYY-MM-DD; only messages before this day" },
+      after: { type: "string", description: `Optional YYYY-MM-DD in ${TIME_ZONE}; only messages on or after this day` },
+      before: { type: "string", description: `Optional YYYY-MM-DD in ${TIME_ZONE}; only messages before this day` },
     },
     required: ["query"],
     async run(args, signal) {
@@ -72,6 +73,7 @@ export function serverTools(channel: GuildTextBasedChannel, store: Store, inView
         if (!place || !discloses(place, channel.id, viewers)) continue;
         messages.push(message as APIMessage);
       }
+      const now = Date.now();
       const lines = messages.map((message) => {
         const ref = `h${hits.size + 1}`;
         hits.set(ref, { channelId: message.channel_id, messageId: message.id });
@@ -84,7 +86,8 @@ export function serverTools(channel: GuildTextBasedChannel, store: Store, inView
         const who = message.author.id === botId
           ? "Axophyte"
           : label(member?.displayName ?? message.author.global_name ?? message.author.username, message.author.username);
-        return `[${ref}] ${where} · ${who} · ${message.timestamp.slice(0, 10)}: "${excerpt(cleanText(message.content, channel), 200)}"`;
+        const clock = botTime(Date.parse(message.timestamp));
+        return `[${ref}] ${where} · ${who} · ${dayAge(clock.day, now)} ${clock.time}: "${excerpt(cleanText(message.content, channel), 200)}"`;
       });
       return { content: lines.length ? lines.join("\n") : "No results.", footer: `-# 🗂️ Searched server for “${query}”` };
     },
@@ -105,7 +108,8 @@ export function serverTools(channel: GuildTextBasedChannel, store: Store, inView
       if (!place || !discloses(place, channel.id, audience())) return toolError("unknown hit");
       const fetched = await found.messages.fetch({ around: target.messageId, limit: 15 });
       const history = relevant([...fetched.values()].sort(byId).map(asHistory), botId);
-      const lines = history.map((message) => speakerLine(message, botId));
+      const now = Date.now();
+      const lines = history.map((message, index) => speakerLine(message, botId, history[index - 1], now));
       const hitIndex = history.findIndex((message) => message.id === target.messageId);
       if (hitIndex < 0) return toolError("hit message no longer available");
       let start = 0;
@@ -114,7 +118,7 @@ export function serverTools(channel: GuildTextBasedChannel, store: Store, inView
       while (total > limits.conversationChars && start < hitIndex) total -= lines[start++]!.length + 1;
       while (total > limits.conversationChars && end > hitIndex + 1) total -= lines[--end]!.length + 1;
       const summary = store.get(found.id)?.summary;
-      const transcript = lines.slice(start, end).join("\n").slice(0, limits.conversationChars);
+      const transcript = history.slice(start, end).map((message, index, visible) => speakerLine(message, botId, visible[index - 1], now)).join("\n").slice(0, limits.conversationChars);
       return {
         content: `${summary ? `Earlier summary:\n${summary.slice(0, 1500)}\n\n` : ""}${transcript || "No readable messages."}`,
         footer: `-# 💬 Read ${messageLink(target.channelId, target.messageId, guild.id)}`,

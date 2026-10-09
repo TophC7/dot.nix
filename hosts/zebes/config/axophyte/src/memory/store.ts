@@ -15,11 +15,21 @@ export interface People {
   touchPerson(userId: string, label: string): string | null;
 }
 
+export type EmojiNote = { name: string; description: string; byAdmin: boolean };
+
+/** One server's emoji descriptions by emoji ID; an admin's description is final. */
+export interface EmojiNotes {
+  all(): Map<string, EmojiNote>;
+  set(emojiId: string, note: EmojiNote): void;
+  delete(emojiId: string): void;
+}
+
 export interface Store {
   /** Thread IDs are unique across servers, so conversations need no server key. */
   get(threadId: string): Memory | null;
   save(threadId: string, memory: Memory): void;
   people(guildId: string): People;
+  emojiNotes(guildId: string): EmojiNotes;
   close(): void;
 }
 
@@ -46,6 +56,14 @@ const SCHEMA = `
     previous_label TEXT,
     renamed_at INTEGER,
     PRIMARY KEY (guild_id, user_id)
+  );
+  CREATE TABLE IF NOT EXISTS emoji (
+    guild_id TEXT NOT NULL,
+    emoji_id TEXT NOT NULL,
+    name TEXT NOT NULL,
+    description TEXT NOT NULL,
+    by_admin INTEGER NOT NULL,
+    PRIMARY KEY (guild_id, emoji_id)
   );
 `;
 
@@ -81,6 +99,19 @@ export function openStore(path: string): Store {
     const now = Date.now();
     for (const fact of replacement) addFact.get(guildId, userId, fact, now);
   });
+  const emojiNotes = db.query<{ id: string; name: string; description: string; byAdmin: number }, [string]>(
+    "SELECT emoji_id AS id, name, description, by_admin AS byAdmin FROM emoji WHERE guild_id = ?",
+  );
+  // A model description finishing after an admin's must never replace it.
+  const setEmojiNote = db.query(`
+    INSERT INTO emoji (guild_id, emoji_id, name, description, by_admin) VALUES (?, ?, ?, ?, ?)
+    ON CONFLICT(guild_id, emoji_id) DO UPDATE SET
+      name = excluded.name,
+      description = excluded.description,
+      by_admin = excluded.by_admin
+    WHERE emoji.by_admin = 0 OR excluded.by_admin = 1
+  `);
+  const deleteEmojiNote = db.query("DELETE FROM emoji WHERE guild_id = ? AND emoji_id = ?");
   return {
     get(threadId: string): Memory | null {
       return get.get(threadId);
@@ -120,6 +151,19 @@ export function openStore(path: string): Store {
             return row.label;
           }
           return row.renamed_at !== null && now - row.renamed_at < RENAME_MEMORY_MS ? row.previous_label : null;
+        },
+      };
+    },
+    emojiNotes(guildId: string): EmojiNotes {
+      return {
+        all(): Map<string, EmojiNote> {
+          return new Map(emojiNotes.all(guildId).map(({ id, byAdmin, ...note }) => [id, { ...note, byAdmin: byAdmin === 1 }]));
+        },
+        set(emojiId: string, note: EmojiNote): void {
+          setEmojiNote.run(guildId, emojiId, note.name, note.description, note.byAdmin ? 1 : 0);
+        },
+        delete(emojiId: string): void {
+          deleteEmojiNote.run(guildId, emojiId);
         },
       };
     },

@@ -6,10 +6,12 @@ export type HistoryMessage = {
   authorIsBot: boolean;
   webhookId: string | null;
   system: boolean;
+  createdAt: number;
+  reactions: { emoji: string; count: number; me: boolean }[];
   content: string;
   attachments: { id: string; name: string; contentType: string | null }[];
   replyTo: { id: string; label: string; excerpt: string } | null;
-  /** Short tag ([m1]) on the turn's trigger messages, so memory writes name their source message. */
+  /** Short tag ([m1]) assigned by load to each trigger message, for tools to name their source. */
   ref?: string;
 };
 
@@ -21,6 +23,12 @@ export function label(name: string, handle: string): string {
 }
 
 export type Turn = { messages: HistoryMessage[] };
+
+export function tagged(latest: HistoryMessage[], raw: string): HistoryMessage | string {
+  const key = raw.trim().replace(/^\[|\]$/g, "").trim();
+  return latest.find((message) => message.ref === key)
+    ?? `message must be one of: ${latest.flatMap((message) => message.ref ? [message.ref] : []).join(", ")}`;
+}
 
 const STATUS_PREFIXES = ["⚠️", "⏳"];
 

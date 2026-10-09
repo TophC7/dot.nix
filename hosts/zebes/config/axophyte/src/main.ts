@@ -13,12 +13,13 @@ import type { Source } from "./conversation/load";
 import { allowedMentions } from "./discord/reply";
 import { openStore } from "./memory/store";
 import { Scheduler } from "./schedule";
-import { pruneNotes, runTurn } from "./turn";
+import { describeEmoji, pruneNotes, runTurn } from "./turn";
+import { EmojiDescriptions } from "./memory/emoji";
 
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent,
-    GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildMessageTyping,
+    GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildMessageTyping, GatewayIntentBits.GuildExpressions,
   ],
   allowedMentions,
 });
@@ -34,6 +35,7 @@ const scheduler = new Scheduler(async (key, triggers, signal, commit) => {
   await membersFresh;
   schedulePrunes(channel.guildId, await runTurn(store, sourceFor(channel, triggers), { signal, onCommit: commit }));
 });
+const emojiDescriptions = new EmojiDescriptions(store, scheduler, describeEmoji, (guildId) => !stopping && ready.has(guildId));
 const commandDeps: CommandDeps = {
   store,
   ready: (guildId) => ready.has(guildId),
@@ -81,9 +83,19 @@ client.once(Events.ClientReady, (connected) => {
         const forum = await connected.channels.fetch(forumId);
         if (forum?.type !== ChannelType.GuildForum || forum.guildId !== guildId) throw new Error("forum not found");
       }
-      // Visibility checks need every member; discord.js keeps this cache current afterwards.
-      await Promise.all([guild.members.fetch(), guild.commands.set(COMMANDS)]);
-      if (!stopping) ready.add(guildId);
+      // A failed emoji refresh skips reconciliation, not the server's chat startup.
+      const [, , emojiFresh] = await Promise.all([
+        guild.members.fetch(),
+        guild.commands.set(COMMANDS),
+        guild.emojis.fetch().then(() => true, (error: unknown) => {
+          console.error(`server ${guildId} emoji refresh failed`, error);
+          return false;
+        }),
+      ]);
+      if (!stopping) {
+        ready.add(guildId);
+        if (emojiFresh) emojiDescriptions.seed(guild);
+      }
     } catch (error) {
       console.error(`server ${guildId} skipped: not joined, forum ${forumId} not a forum there, or startup failed`, error);
     }
@@ -124,6 +136,10 @@ client.on(Events.ShardReady, () => {
 client.on(Events.GuildDelete, (guild) => {
   ready.delete(guild.id);
 });
+
+client.on(Events.GuildEmojiCreate, (emoji) => emojiDescriptions.enqueue(emoji));
+client.on(Events.GuildEmojiUpdate, (_old, emoji) => emojiDescriptions.enqueue(emoji));
+client.on(Events.GuildEmojiDelete, (emoji) => emojiDescriptions.delete(emoji));
 
 client.on(Events.ThreadCreate, (thread, newlyCreated) => {
   if (ready.has(thread.guildId) && newlyCreated && inForum(thread) && thread.ownerId) {

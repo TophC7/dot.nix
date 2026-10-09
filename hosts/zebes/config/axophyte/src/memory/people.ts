@@ -1,5 +1,5 @@
 import { limits } from "../limits";
-import { label } from "../conversation/history";
+import { label, tagged } from "../conversation/history";
 import type { HistoryMessage, Speaker } from "../conversation/history";
 import type { ChatMessage } from "../llm/protocol";
 import type { People } from "./store";
@@ -31,22 +31,9 @@ export function peopleSection(store: People, people: Map<string, Speaker>): stri
 
 const messageParam = { type: "string", description: "Tag of the message it comes from, e.g. m1" };
 
-/** Writes refs in place for speakerLine; create these tools before rendering the latest messages. */
 export function noteTools(store: People, latest: HistoryMessage[], wrote: (userId: string) => void): Tool[] {
-  const messages = new Map<string, HistoryMessage>();
-  for (const message of latest) {
-    message.ref = `m${messages.size + 1}`;
-    messages.set(message.ref, message);
-  }
   // A note is always about the author of the tagged trigger message it came from,
   // so one person can never write notes about another.
-  function sourceMessage(args: Record<string, unknown>): HistoryMessage | string {
-    const raw = stringArg(args, "message", 10) ?? "";
-    const key = raw.replace(/^\[|\]$/g, "").trim();
-    const message = messages.get(key);
-    return message ?? `message must be one of: ${[...messages.keys()].join(", ")}`;
-  }
-
   const remember = defineTool({
     name: "remember",
     description: "Note something the author of a tagged message shares about themselves, so later conversations can build on it. Note it as soon as it comes up, even in passing or alongside another request. Skip secrets and sensitive details.",
@@ -56,7 +43,7 @@ export function noteTools(store: People, latest: HistoryMessage[], wrote: (userI
     },
     required: ["message", "fact"],
     async run(args) {
-      const source = sourceMessage(args);
+      const source = tagged(latest, stringArg(args, "message", 10) ?? "");
       if (typeof source === "string") return toolError(source);
       const fact = stringArg(args, "fact", limits.maxFactChars);
       if (!fact) return toolError("invalid arguments");
@@ -76,7 +63,7 @@ export function noteTools(store: People, latest: HistoryMessage[], wrote: (userI
     },
     required: ["message", "id", "fact"],
     async run(args) {
-      const source = sourceMessage(args);
+      const source = tagged(latest, stringArg(args, "message", 10) ?? "");
       if (typeof source === "string") return toolError(source);
       const id = Number(args.id);
       const fact = stringArg(args, "fact", limits.maxFactChars);

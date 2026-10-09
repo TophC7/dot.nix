@@ -3,10 +3,11 @@ import type { HistoryMessage } from "../conversation/history";
 import { noteTools, parsePruned } from "./people";
 import { openStore } from "./store";
 
-function message(authorId: string, handle: string): HistoryMessage {
+function message(authorId: string, handle: string, ref: string): HistoryMessage {
   return {
     id: authorId, authorId, authorName: handle, authorHandle: handle, authorIsBot: false,
     webhookId: null, system: false, content: "", attachments: [], replyTo: null,
+    createdAt: 0, reactions: [], ref,
   };
 }
 
@@ -15,7 +16,7 @@ test("notes are only ever about the author of the tagged message", async () => {
   const store = openStore(":memory:").people("guild");
   const aliceNote = store.addFact("alice", "likes tea");
   const written: string[] = [];
-  const tools = noteTools(store, [message("alice", "alice"), message("bob", "bob")], (id) => written.push(id));
+  const tools = noteTools(store, [message("alice", "alice", "m1"), message("bob", "bob", "m2")], (id) => written.push(id));
   const remember = tools.find((tool) => tool.schema.function.name === "remember")!;
   const revise = tools.find((tool) => tool.schema.function.name === "revise")!;
   const signal = new AbortController().signal;

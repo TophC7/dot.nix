@@ -1,4 +1,4 @@
-import { ChannelType } from "discord.js";
+import { ChannelType, type GuildEmoji } from "discord.js";
 import { config } from "./config";
 import { load } from "./conversation/load";
 import type { Source } from "./conversation/load";
@@ -11,20 +11,26 @@ import { ModelError, TurnAborted, modelSession } from "./llm/model";
 import type { ModelSession } from "./llm/model";
 import { CompactionError, prepareContext } from "./conversation/compaction";
 import { noteTools, peopleSection, prunePerson } from "./memory/people";
+import { describerMessages, parseDescription } from "./memory/emoji";
 import { serverTools } from "./tools/server";
 import type { People, Store } from "./memory/store";
+import { loadImage } from "./conversation/images";
 import { runToolCall, toolError } from "./tools/tool";
 import type { Tool } from "./tools/tool";
 import { isPublic } from "./discord/visibility";
 import { openUrlTool, webSearchTool } from "./tools/web";
+import { reactTool } from "./tools/react";
+import { selfInfoTool } from "./tools/self";
 
 const webSearch = webSearchTool(config.tavilyKey);
 const webTools: Tool[] = [webSearch, openUrlTool(config.tavilyKey)];
+/** Tools whose results the model never needs to read before replying. */
+const ACTIONS: Record<string, true> = { react: true, remember: true, revise: true };
 
 export type TurnOptions = {
   forcedSearch?: { query: string; requester: string };
   signal: AbortSignal;
-  /** Called on the first model output or memory write; after that a turn is never aborted. */
+  /** Called on the first model output, memory write, or reaction; after that a turn is never aborted. */
   onCommit?(): void;
 };
 
@@ -50,6 +56,18 @@ export async function pruneNotes(people: People, userId: string): Promise<void> 
   });
 }
 
+export async function describeEmoji(emoji: GuildEmoji): Promise<string> {
+  const name = emoji.name!;
+  const url = emoji.imageURL({ extension: "png", size: 128 });
+  // Animated emoji come back as their first frame; a failed fetch still gets a name-only guess.
+  const image = await loadImage({ id: emoji.id, url, proxyURL: url, contentType: "image/png", size: 0, width: 128, height: 128 });
+  const session = await modelSession(requestModel);
+  const text = await session.call((choice) => complete(choice, { messages: describerMessages(name, image), max_tokens: 200 }));
+  const description = parseDescription(text);
+  if (!description) throw new Error(`empty description for emoji ${emoji.id}`);
+  return description;
+}
+
 /** Returns user IDs whose notes changed, for pruning after the reply. */
 export async function runTurn(store: Store, source: Source, opts: TurnOptions): Promise<string[]> {
   const channel = source.channel;
@@ -61,6 +79,9 @@ export async function runTurn(store: Store, source: Source, opts: TurnOptions): 
   let session: ModelSession | undefined;
   let promptTokens = 0;
   let hadOutput = false;
+  let reactions = 0;
+  /** Set when a reaction in the current round asked to be followed by a message. */
+  let replyAfterReaction = false;
   const fail = (text: string) => reply!.fail(hadOutput ? "⚠️ Response interrupted." : text);
   try {
     const loaded = await load(source, store, !!opts.forcedSearch);
@@ -72,11 +93,14 @@ export async function runTurn(store: Store, source: Source, opts: TurnOptions): 
     const memoryEnabled = isPublic(channel);
     const serverPeople = store.people(channel.guildId);
     const tools = [
+      selfInfoTool(() => session!.choice.id),
       ...webTools,
       ...(serverSearch ? serverTools(channel, store, new Set(loaded.turns.flatMap((turn) => turn.messages.map((message) => message.id)))) : []),
       ...(memoryEnabled ? noteTools(serverPeople, loaded.latest, (id) => { touched.add(id); opts.onCommit?.(); }) : []),
+      ...(loaded.latest.length ? [reactTool(channel, loaded.latest, () => opts.onCommit?.(), (reply) => { reactions++; replyAfterReaction ||= reply; })] : []),
     ];
     const people = peopleSection(serverPeople, loaded.people);
+    const emojiNotes = store.emojiNotes(channel.guildId).all();
     session = await modelSession(() => requestModel(opts.signal));
     let memory = loaded.memory;
     let turns = loaded.turns;
@@ -108,7 +132,10 @@ export async function runTurn(store: Store, source: Source, opts: TurnOptions): 
         // Preparation, compaction, and generation share one choice and one retry.
         const prepared = await prepareContext({
           choice, memory, turns, tools: schemas,
-          prompt: (summary, retained) => [systemPrompt({ source, summary, people }), ...render(retained, channel, botId, loaded.images), ...extra],
+          prompt: (summary, retained) => {
+            const now = Date.now();
+            return [systemPrompt({ source, summary, people, emojiNotes }, now), ...render(retained, channel, botId, loaded.images, now), ...extra];
+          },
           summaryPrompt: (summary, folded) => summaryRequest(summary, folded, botId),
           count: (messages, actualTools) => countTokens(choice, { messages, tools: actualTools }, opts.signal),
           complete: (messages) => complete(choice, {
@@ -121,7 +148,7 @@ export async function runTurn(store: Store, source: Source, opts: TurnOptions): 
         compacted ||= prepared.compacted;
         promptTokens = prepared.promptTokens;
         return streamChat(choice, { messages: prepared.messages, tools: schemas, max_tokens: limits.maxOutputTokens }, (delta) => {
-          if (delta && !hadOutput) {
+          if (!hadOutput && delta.trim()) {
             hadOutput = true;
             opts.onCommit?.();
           }
@@ -129,7 +156,7 @@ export async function runTurn(store: Store, source: Source, opts: TurnOptions): 
         }, opts.signal);
       });
       if (!result.toolCalls.length) {
-        if (!result.content.trim()) {
+        if (!result.content.trim() && !reactions) {
           await fail(result.finishReason === "length"
             ? "⚠️ I ran out of output tokens before answering. Try a narrower question."
             : "⚠️ The model returned no answer. Try again later.");
@@ -142,10 +169,16 @@ export async function runTurn(store: Store, source: Source, opts: TurnOptions): 
         return [...touched];
       }
       extra.push({ role: "assistant", content: result.content || null, tool_calls: result.toolCalls });
+      const reactionsBefore = reactions;
+      replyAfterReaction = false;
       for (const call of result.toolCalls) {
         if (round < limits.maxToolRounds) await runCall(call, tools);
         else extra.push({ role: "tool", tool_call_id: call.id, content: toolError("no more tool calls for this answer; reply now with what you have").content });
       }
+      // An actions-only round that already wrote text, or reacted as its whole reply, ends the turn:
+      // another round only makes the model repeat itself or pad with a lone ".". Lookups are always read first.
+      const replied = !!result.content.trim() || (reactions > reactionsBefore && !replyAfterReaction);
+      if (replied && result.toolCalls.every((call) => ACTIONS[call.function.name])) break;
     }
     if (compacted) footer.push("-# 🗜️ Older messages were summarized into memory.");
     await reply.finish(footer);

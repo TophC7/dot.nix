@@ -11,6 +11,8 @@ function message(id: string, fields: Partial<HistoryMessage> = {}): HistoryMessa
     authorIsBot: false,
     webhookId: null,
     system: false,
+    createdAt: 0,
+    reactions: [],
     content: "Hello",
     attachments: [],
     replyTo: null,

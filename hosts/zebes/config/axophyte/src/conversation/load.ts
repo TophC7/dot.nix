@@ -46,6 +46,12 @@ export function asHistory(message: Message): HistoryMessage {
     authorIsBot: message.author.bot,
     webhookId: message.webhookId,
     system: message.system,
+    createdAt: message.createdTimestamp,
+    reactions: [...message.reactions.cache.values()].map((reaction) => ({
+      emoji: reaction.emoji.id ? `:${reaction.emoji.name}:` : reaction.emoji.name ?? "",
+      count: reaction.count,
+      me: reaction.me,
+    })),
     content: cleanText(message.content, message.channel),
     attachments: [...message.attachments.values()].map((attachment) => ({
       id: attachment.id, name: attachment.name, contentType: attachment.contentType,
@@ -124,6 +130,7 @@ export async function load(source: Source, store: Store, forced: boolean): Promi
   }
   const history = pendingHistory(originals.map(asHistory), botId, pending);
   const latest = history.filter((message) => pending.has(message.id) && message.authorId !== botId);
+  latest.forEach((message, index) => { message.ref = `m${index + 1}`; });
   if (!forced && latest.length === 0) return null;
   const turns = groupTurns(history, botId);
   const images = await imagesFor(history, originals, botId);

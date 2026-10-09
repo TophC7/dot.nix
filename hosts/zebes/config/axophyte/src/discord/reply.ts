@@ -1,5 +1,6 @@
 import type { GuildTextBasedChannel, Message } from "discord.js";
 import { limits } from "../limits";
+import { discordEmoji } from "./emoji";
 
 export const allowedMentions = { parse: [] as [], repliedUser: false };
 
@@ -10,6 +11,7 @@ export class ReplyStream {
   private writes: Promise<void> = Promise.resolve();
   private writeError: unknown;
   private closed = false;
+  private hasText = false;
   private lastWriteAt = 0;
   private editTimer: NodeJS.Timeout | undefined;
   private typingTimer: NodeJS.Timeout;
@@ -21,7 +23,7 @@ export class ReplyStream {
     this.typingTimer = setInterval(typing, limits.typingIntervalMs);
     this.noticeTimer = setTimeout(() => {
       this.enqueue(async () => {
-        if (!this.closed && !this.chunks.some(Boolean)) {
+        if (!this.closed && !this.hasText) {
           await this.write(0, "⏳ Waiting for the model — it's busy with another request…");
         }
       });
@@ -33,6 +35,10 @@ export class ReplyStream {
     const tail = this.chunks.pop()! + delta;
     this.chunks.push(...splitMessage(tail, limits.splitAt));
     if (!this.chunks.length) this.chunks.push("");
+    if (!this.hasText) {
+      if (!delta.trim()) return;
+      this.hasText = true;
+    }
     clearTimeout(this.noticeTimer);
     if (this.editTimer === undefined) {
       this.editTimer = setTimeout(() => {
@@ -49,7 +55,11 @@ export class ReplyStream {
   }
 
   private async write(index: number, content: string): Promise<void> {
-    if (!content || this.written[index] === content) return;
+    if (!content.trim()) return;
+    const converted = discordEmoji(content, this.channel.guild);
+    // Conversion lengthens text after splitting at 1900; keep the original if it exceeds Discord's limit.
+    if (converted.length <= 2000) content = converted;
+    if (this.written[index] === content) return;
     const existing = this.messages[index];
     if (existing) {
       const wait = limits.editIntervalMs - (Date.now() - this.lastWriteAt);
@@ -72,8 +82,9 @@ export class ReplyStream {
   private async flush(): Promise<void> {
     // Snapshot once: incoming deltas never mutate an in-flight Discord write.
     const chunks = [...this.chunks];
-    for (let index = 0; index < chunks.length; index++) {
-      await this.write(index, chunks[index]!);
+    let index = 0;
+    for (const content of chunks) {
+      if (content.trim()) await this.write(index++, content);
     }
   }
 
@@ -94,12 +105,16 @@ export class ReplyStream {
       if (combined.length <= 2000) this.chunks[this.chunks.length - 1] = combined;
       else this.chunks.push(...splitMessage(text, limits.splitAt));
     }
+    if (!this.chunks.some((chunk) => chunk.trim())) {
+      await this.cancel();
+      return;
+    }
     this.enqueue(() => this.flush());
     await this.writes;
     if (this.writeError !== undefined) throw this.writeError;
   }
 
-  // Only used before any model output, so at most the ⏳ notice is removed.
+  // Only used before substantive model output, so at most the ⏳ notice is removed.
   async cancel(): Promise<void> {
     this.stop();
     await this.writes;
