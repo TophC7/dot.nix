@@ -1,6 +1,6 @@
 import type { GuildTextBasedChannel, Message } from "discord.js";
 import { limits } from "../limits";
-import { discordEmoji } from "./emoji";
+import { discordEmoji, extractTrailingEmojis } from "./emoji";
 
 export const allowedMentions = { parse: [] as [], repliedUser: false };
 
@@ -99,12 +99,17 @@ export class ReplyStream {
 
   async finish(footer: string[]): Promise<void> {
     this.stop();
-    if (footer.length) {
-      const text = footer.join("\n");
-      const tail = this.chunks.at(-1)!;
-      const combined = tail ? `${tail}\n\n${text}` : text;
-      if (combined.length <= 2000) this.chunks[this.chunks.length - 1] = combined;
-      else this.chunks.push(...splitMessage(text, limits.splitAt));
+    const last = this.chunks.pop() ?? "";
+    const converted = discordEmoji(last, this.channel.guild);
+    const trailing = extractTrailingEmojis(converted);
+    const footerText = footer.length ? `\n\n${footer.join("\n")}` : "";
+    if (trailing) {
+      const combined = `${trailing.body}${footerText}`;
+      if (combined.trim()) this.chunks.push(...splitMessage(combined, limits.splitAt));
+      this.chunks.push(trailing.emojis);
+    } else {
+      const combined = `${converted}${footerText}`;
+      if (combined.trim()) this.chunks.push(...splitMessage(combined, limits.splitAt));
     }
     if (!this.chunks.some((chunk) => chunk.trim())) {
       await this.cancel();

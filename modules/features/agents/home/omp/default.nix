@@ -1,11 +1,13 @@
 {
   hosts,
+  secrets ? { },
   pkgs,
   lib,
   ...
 }:
 let
   yaml = pkgs.formats.yaml { };
+  json = pkgs.formats.json { };
 
   settings = {
     setupVersion = 2;
@@ -23,7 +25,6 @@ let
       "github"
       "mcp-json"
       "opencode"
-      "ssh-json"
       "vscode"
       "windsurf"
     ];
@@ -121,6 +122,7 @@ let
     completion.notify = "on";
     error.notify = "on";
     ask.notify = "on";
+    secrets.enabled = true;
   };
 
   models.providers = {
@@ -231,30 +233,75 @@ let
         ];
     };
   };
+  hostDescriptions = {
+    nexus = "Network router & gateway";
+    zebes = "Local LLM server and misc containers";
+    nimbus = "NAS";
+    rune = "Primary desktop";
+    norion = "Work laptop";
+    meowl = "Streaming Desktop";
+    caenus = "Cloud VPS ingress (Oracle ARM64, Rathole, WireGuard)";
+    vm = "Disposable sandbox VM";
+  };
+
+  resolveHostAddress =
+    name: h:
+    if h.ip != null then
+      h.ip
+    else if name == "caenus" && (secrets.service.caenus.ip or null) != null then
+      secrets.service.caenus.ip
+    else
+      name;
+
+  enabledHosts = lib.filterAttrs (_: h: h.enable or true) hosts;
+
+  sshHosts = lib.mapAttrs (name: h: {
+    host = resolveHostAddress name h;
+    username = if builtins.isString h.user then h.user else h.user.name or "toph";
+    description =
+      hostDescriptions.${name} or (if h.isServer or false then "NixOS server" else "NixOS desktop");
+  }) enabledHosts;
 
   configFile = yaml.generate "omp-config.yml" settings;
   modelsFile = yaml.generate "omp-models.yml" models;
   emptyJson = pkgs.writeText "omp-empty.json" "{}";
+  sshFile = json.generate "omp-ssh.json" {
+    hosts = sshHosts;
+  };
 
   activation = pkgs.writeShellScript "activate-omp" ''
     set -euo pipefail
 
     agent_dir="$HOME/.omp/agent"
     plugin_dir="$HOME/.omp/plugins"
+    ssh_config="$agent_dir/ssh.json"
     mcp_config="$agent_dir/mcp.json"
     plugin_config="$plugin_dir/package.json"
 
     ${pkgs.coreutils}/bin/mkdir -p "$agent_dir" "$plugin_dir"
     ${pkgs.coreutils}/bin/install -m 600 ${configFile} "$agent_dir/config.yml"
 
+    ssh_tmp=""
     mcp_tmp=""
     plugin_tmp=""
     cleanup() {
+      [[ -z "$ssh_tmp" ]] || ${pkgs.coreutils}/bin/rm -f "$ssh_tmp"
       [[ -z "$mcp_tmp" ]] || ${pkgs.coreutils}/bin/rm -f "$mcp_tmp"
       [[ -z "$plugin_tmp" ]] || ${pkgs.coreutils}/bin/rm -f "$plugin_tmp"
     }
     trap cleanup EXIT
 
+    ssh_source="$ssh_config"
+    if [[ ! -f "$ssh_source" ]]; then
+      ssh_source="${emptyJson}"
+    fi
+    ssh_tmp="$(${pkgs.coreutils}/bin/mktemp "$agent_dir/.ssh.json.XXXXXX")"
+    ${pkgs.jq}/bin/jq -s '
+      .[0] * .[1]
+    ' "$ssh_source" "${sshFile}" > "$ssh_tmp"
+    ${pkgs.coreutils}/bin/chmod 600 "$ssh_tmp"
+    ${pkgs.coreutils}/bin/mv -f "$ssh_tmp" "$ssh_config"
+    ssh_tmp=""
     mcp_source="$mcp_config"
     if [[ ! -f "$mcp_source" ]]; then
       mcp_source="${emptyJson}"

@@ -66,17 +66,24 @@ test("stream write rejection finishes and clears timers", async () => {
   expect(attempts).toBe(1);
 });
 
-test("stream push normalizes em and en dashes to hyphens", async () => {
+test("stream finish normalizes text and splits trailing emoji into second message", async () => {
   const sent: string[] = [];
+  const cache = new Collection();
+  cache.set("101", {
+    id: "101",
+    name: "weyyy",
+    available: true,
+    toString: () => "<:weyyy:101>",
+  });
   const thread = {
-    guild: { emojis: { cache: new Collection() } },
+    guild: { emojis: { cache } },
     async sendTyping() {},
-    async send(options: { content: string }) { sent.push(options.content); return { id: "1", edit: async () => {} }; },
+    async send(options: { content: string }) { sent.push(options.content); return { id: String(sent.length), edit: async () => {} }; },
   } as unknown as GuildTextBasedChannel;
   const stream = new ReplyStream(thread);
-  stream.push("Mars — the red planet – fourth from the Sun");
+  stream.push("court is open — live – right now :weyyy");
   await stream.finish([]);
-  expect(sent[0]).toBe("Mars - the red planet - fourth from the Sun");
+  expect(sent).toEqual(["court is open - live - right now", "<:weyyy:101>"]);
 });
 
 describe("Discord message splitting", () => {

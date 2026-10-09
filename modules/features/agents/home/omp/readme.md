@@ -18,7 +18,7 @@ modules/features/agents/home/omp/
     └── agents/               # Specialized subagents (scouts, committer, pr)
 ```
 
-- **`default.nix`**: Generates `~/.omp/agent/config.yml` and `models.yml`. Handles activation to register Context Mode in `mcp.json` and `plugins/package.json`.
+- **`default.nix`**: Generates `~/.omp/agent/config.yml`, `models.yml`, and `ssh.json` (Nix-managed hosts). Handles activation to register Context Mode in `mcp.json` and `plugins/package.json`.
 - **`agent/`**: Installed directly as `~/.omp/agent/` via Home Manager symlinks.
 
 ---
