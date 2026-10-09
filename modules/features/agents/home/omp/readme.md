@@ -44,6 +44,8 @@ Reusable prompts inserted via `Ctrl+M` or `/macro <name>`:
 - **`plan.md`**: Top-level system architecture and task decomposition.
 - **`phased-plan.md`**: Comprehensive phased implementation plan with checkpoints.
 - **`plan-phase.md`**: Detailed execution breakdown for a single phase from an existing plan.
+- **`ui-screens.md`**: Walk through UI changes in browser and capture screenshots to `screens/`.
+- **`pr-brent.md`**: Create PR from committed changes and request review from `brent-pysnk-ai`.
 
 ---
 
