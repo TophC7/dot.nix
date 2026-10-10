@@ -43,6 +43,11 @@ export const COMMANDS = [
       .setDescription("What it means or when people use it here")
       .setRequired(true)
       .setMaxLength(limits.emojiNoteChars)),
+  new SlashCommandBuilder()
+    .setName("retry")
+    .setDescription("Answer the latest message here as if it just arrived (admins)")
+    .setDMPermission(false)
+    .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
 ];
 
 export type CommandDeps = {
@@ -50,7 +55,12 @@ export type CommandDeps = {
   ready(guildId: string): boolean;
   /** Runs a never-aborted forced-search turn in `channel`; resolves once the answer is posted. */
   search(channel: GuildTextBasedChannel, query: string, requester: string): Promise<void>;
+  /** Queues the newest human message in `channel` as a fresh trigger; false when there is none. */
+  retry(channel: GuildTextBasedChannel): Promise<boolean>;
 };
+
+// Server admins can widen a command's default permissions in Integrations; admin commands check again.
+const isAdmin = (interaction: ChatInputCommandInteraction<"cached">) => interaction.memberPermissions.has(PermissionFlagsBits.Administrator);
 
 function memoryCommand(interaction: ChatInputCommandInteraction, people: People): string {
   const userId = interaction.user.id;
@@ -73,8 +83,7 @@ function memoryCommand(interaction: ChatInputCommandInteraction, people: People)
 }
 
 function emojiCommand(interaction: ChatInputCommandInteraction<"cached">, store: Store): string {
-  // Server admins can widen a command's default permissions in Integrations; this stays admin-only.
-  if (!interaction.memberPermissions.has(PermissionFlagsBits.Administrator)) return "Only server admins can set emoji meanings.";
+  if (!isAdmin(interaction)) return "Only server admins can set emoji meanings.";
   const raw = interaction.options.getString("emoji", true).trim();
   const id = /<a?:\w+:(\d+)>/.exec(raw)?.[1];
   const name = raw.replace(/^:|:$/g, "");
@@ -116,6 +125,11 @@ export async function handleCommand(interaction: ChatInputCommandInteraction, de
   }
   if (interaction.commandName === "emoji") {
     await respond(emojiCommand(interaction, deps.store));
+    return;
+  }
+  if (interaction.commandName === "retry") {
+    await respond(!isAdmin(interaction) ? "Only server admins can use /retry."
+      : await deps.retry(channel) ? "Answering the latest message again." : "No message to answer here.");
     return;
   }
   if (interaction.commandName !== "search") {

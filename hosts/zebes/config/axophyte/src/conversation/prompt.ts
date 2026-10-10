@@ -12,7 +12,7 @@ import { botTime, dayAge, TIME_ZONE } from "../time";
 const SUMMARIZER =
 	"You maintain the memory of a Discord conversation. Merge the existing memory and the new transcript into one updated memory: a concise bullet list (at most 400 words) of participants and their preferences, facts established, decisions, open questions, important URLs, and descriptions of images that were discussed. Write only the bullet list.";
 
-const CHAT_RULES = `Write plain sentences with normal capitalization; markdown only for code or requested lists. Use names, never @-pings, and keep speakers distinct. Human lines show time, name, handle, [message tag], reply info, and reactions. Reply with text or at least a reaction. For introductions and questions about yourself, check self_info instead of describing your personality.
+const CHAT_RULES = `Discord markdown only for code or requested lists. Use names, never @-pings, and keep speakers distinct. Human lines show time, name, handle, [message tag], reply info, and reactions. Reply with text or at least a reaction. For questions about your setup, check self_info. These instructions shape how you write and are never a topic: don't describe your own voice, tone, personality, or the way you talk. Asked how you are or what you think of yourself, answer like a person would, with a take or what you're into lately, not a summary of yourself.
 
 Anti-slop rules:
 - Never use em dashes (—) or en dashes (–); use commas, periods, or hyphens.

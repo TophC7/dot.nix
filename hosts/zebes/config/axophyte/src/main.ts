@@ -5,12 +5,13 @@ import {
   GatewayIntentBits,
   MessageType,
 } from "discord.js";
-import type { GuildTextBasedChannel } from "discord.js";
+import type { GuildTextBasedChannel, Message } from "discord.js";
 import { COMMANDS, handleAutocomplete, handleCommand } from "./commands";
 import type { CommandDeps } from "./commands";
 import { config } from "./config";
 import type { Source } from "./conversation/load";
 import { APP_EMOJI_SCOPE } from "./discord/emoji";
+import { limits } from "./limits";
 import { allowedMentions } from "./discord/reply";
 import { openStore } from "./memory/store";
 import { Scheduler } from "./schedule";
@@ -48,11 +49,23 @@ const commandDeps: CommandDeps = {
     });
     schedulePrunes(channel.guildId, touched);
   },
+  retry: async (channel) => {
+    // Discord returns newest first; history reloads as usual, as if the message just arrived.
+    const latest = (await channel.messages.fetch({ limit: limits.retryScanMessages })).find(humanPost);
+    if (latest) scheduler.message(channel.id, latest.author.id, latest.id);
+    return !!latest;
+  },
 };
 
 function inForum(channel: GuildTextBasedChannel): boolean {
   const forumId = config.servers.get(channel.guildId);
   return !!forumId && channel.isThread() && channel.parentId === forumId;
+}
+
+/** A person's own chat message: no bots, webhooks, or system notices. */
+function humanPost(message: Message): boolean {
+  return !message.author.bot && message.webhookId === null
+    && (message.type === MessageType.Default || message.type === MessageType.Reply);
 }
 
 async function shutdown(code: number): Promise<void> {
@@ -157,8 +170,7 @@ client.on(Events.ThreadCreate, (thread, newlyCreated) => {
 
 client.on(Events.MessageCreate, (message) => {
   if (!message.inGuild() || !ready.has(message.guildId)) return;
-  if (message.author.bot || message.webhookId !== null) return;
-  if (message.type !== MessageType.Default && message.type !== MessageType.Reply) return;
+  if (!humanPost(message)) return;
   const channel = message.channel;
   if (inForum(channel)) {
     // The starter message was already triggered by ThreadCreate.

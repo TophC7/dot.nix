@@ -24,6 +24,8 @@ export const limits = {
   channelContextMessages: 20,
   channelContextMaxAgeMs: 30 * 60_000,
   replyChainDepth: 10,
+  /** Recent messages /retry scans for the newest human one; one Discord page. */
+  retryScanMessages: 100,
   burstQuietMs: 4000,
   burstTypingMs: 10_000,
   burstMaxWaitMs: 45_000,
