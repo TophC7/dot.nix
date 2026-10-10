@@ -1,4 +1,5 @@
 import { limits } from "../limits";
+import { object } from "../llm/protocol";
 import type { ToolCall } from "../llm/protocol";
 import { TurnAborted } from "../llm/model";
 
@@ -47,12 +48,12 @@ export async function runToolCall(
   if (!tool) return toolError(`unknown tool ${name}`);
   let args: unknown;
   try { args = JSON.parse(call.function.arguments); } catch { return toolError("invalid arguments"); }
-  if (typeof args !== "object" || args === null || Array.isArray(args)) return toolError("invalid arguments");
+  if (!object(args)) return toolError("invalid arguments");
   const count = used.get(name) ?? 0;
   if (count >= tool.budget) return toolError(`${name} limit reached; answer with what you have`);
   used.set(name, count + 1);
   try {
-    return await tool.run(args as Record<string, unknown>, signal);
+    return await tool.run(args, signal);
   } catch (error) {
     if (error instanceof TurnAborted || signal.aborted) throw new TurnAborted();
     return toolError(error instanceof Error ? error.message : String(error));

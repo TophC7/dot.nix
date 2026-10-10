@@ -1,7 +1,9 @@
 import { config } from "../config";
 import { limits } from "../limits";
-import { readChatStream, type ChatMessage, type ChatResult, type ReadChunk } from "./protocol";
-import { effectiveContextSize, ModelError, TurnAborted, type ModelChoice } from "./model";
+import { readChatStream } from "./protocol";
+import type { ChatMessage, ChatResult, ReadChunk } from "./protocol";
+import { effectiveContextSize, ModelError, TurnAborted } from "./model";
+import type { ModelChoice } from "./model";
 
 
 type ChatBody = {
@@ -42,7 +44,6 @@ async function request<T>(
     }, limits.llmIdleTimeoutMs);
   }
   resetDeadline();
-  signal?.addEventListener("abort", () => controller.abort(), { once: true, signal: controller.signal });
   try {
     const response = await fetch(`${config.llamaUrl}${path}`, {
       method: body === undefined ? "GET" : "POST",
@@ -51,7 +52,7 @@ async function request<T>(
         "Content-Type": "application/json",
       },
       body: body === undefined ? undefined : JSON.stringify(body),
-      signal: controller.signal,
+      signal: signal ? AbortSignal.any([controller.signal, signal]) : controller.signal,
       // Model queue waits can exceed Bun's native deadline; use our idle timer only.
       timeout: false,
     });

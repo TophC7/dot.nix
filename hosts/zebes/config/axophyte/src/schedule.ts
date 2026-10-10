@@ -1,13 +1,13 @@
 import { limits } from "./limits";
 
 /** Runs one turn for `key` answering `triggers` (message IDs); `commit` makes it unabortable. */
-export type TurnRunner = (key: string, triggers: Set<string>, signal: AbortSignal, commit: () => void) => Promise<void>;
+type TurnRunner = (key: string, triggers: Set<string>, signal: AbortSignal, commit: () => void) => Promise<void>;
 /** Trigger message ID → author ID. */
 type Triggers = Map<string, string>;
 type Gate = { firstAt: number; lastMessageAt: number; lastTypingAt: number; triggers: Triggers; timer?: Timer };
 type Run = { triggers: Triggers; controller: AbortController; committed: boolean };
 
-const hasAuthor = (triggers: Triggers | undefined, userId: string) => !!triggers && [...triggers.values()].includes(userId);
+const hasAuthor = (triggers: Triggers | undefined, userId: string) => !!triggers && triggers.values().some((id) => id === userId);
 
 // Waits for a burst of messages to settle (quiet + nobody pending still typing,
 // capped) so one answer covers it, then queues the turn on the global serial chain.

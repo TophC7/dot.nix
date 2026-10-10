@@ -18,7 +18,7 @@ export interface People {
 export type EmojiNote = { name: string; description: string; byAdmin: boolean };
 
 /** One scope's emoji descriptions by emoji ID; an admin's description is final. */
-export interface EmojiNotes {
+interface EmojiNotes {
   all(): Map<string, EmojiNote>;
   set(emojiId: string, note: EmojiNote): void;
   delete(emojiId: string): void;

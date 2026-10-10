@@ -12,7 +12,7 @@ type Message = DiscordMessage<true>;
 /** `triggers` are the IDs of the messages this turn answers; empty for /search. */
 export type Source = { channel: GuildTextBasedChannel; forum: boolean; triggers: Set<string> };
 
-export type Loaded = {
+type Loaded = {
   memory: Memory | null;
   save(memory: Memory): void;
   turns: Turn[];

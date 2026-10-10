@@ -3,13 +3,11 @@ import {
   Client,
   Events,
   GatewayIntentBits,
-  MessageType,
 } from "discord.js";
 import type { GuildTextBasedChannel, Message } from "discord.js";
 import { COMMANDS, handleAutocomplete, handleCommand } from "./commands";
 import type { CommandDeps } from "./commands";
 import { config } from "./config";
-import type { Source } from "./conversation/load";
 import { APP_EMOJI_SCOPE } from "./discord/emoji";
 import { limits } from "./limits";
 import { allowedMentions } from "./discord/reply";
@@ -35,7 +33,7 @@ const scheduler = new Scheduler(async (key, triggers, signal, commit) => {
   const channel = client.channels.cache.get(key);
   if (!channel?.isTextBased() || channel.isDMBased()) return;
   await membersFresh;
-  schedulePrunes(channel.guildId, await runTurn(store, sourceFor(channel, triggers), { signal, onCommit: commit }));
+  schedulePrunes(channel.guildId, await runTurn(store, { channel, forum: inForum(channel), triggers }, { signal, onCommit: commit }));
 });
 const emojiDescriptions = new EmojiDescriptions(store, scheduler, describeEmoji,
   (scope) => !stopping && (scope === APP_EMOJI_SCOPE ? ready.size > 0 : ready.has(scope)));
@@ -45,7 +43,7 @@ const commandDeps: CommandDeps = {
   search: async (channel, query, requester) => {
     const touched = await scheduler.command(async () => {
       await membersFresh;
-      return runTurn(store, sourceFor(channel, new Set()), { forcedSearch: { query, requester }, signal: new AbortController().signal });
+      return runTurn(store, { channel, forum: inForum(channel), triggers: new Set() }, { forcedSearch: { query, requester }, signal: new AbortController().signal });
     });
     schedulePrunes(channel.guildId, touched);
   },
@@ -64,8 +62,7 @@ function inForum(channel: GuildTextBasedChannel): boolean {
 
 /** A person's own chat message: no bots, webhooks, or system notices. */
 function humanPost(message: Message): boolean {
-  return !message.author.bot && message.webhookId === null
-    && (message.type === MessageType.Default || message.type === MessageType.Reply);
+  return !message.author.bot && message.webhookId === null && !message.system;
 }
 
 async function shutdown(code: number): Promise<void> {
@@ -77,10 +74,6 @@ async function shutdown(code: number): Promise<void> {
   try { store.close(); }
   catch { console.error("memory store shutdown failed"); }
   process.exit(code);
-}
-
-function sourceFor(channel: GuildTextBasedChannel, triggers: Set<string>): Source {
-  return { channel, forum: inForum(channel), triggers };
 }
 
 function schedulePrunes(guildId: string, userIds: string[]): void {

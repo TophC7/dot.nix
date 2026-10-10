@@ -50,8 +50,7 @@ function isDistanceOne(a: string, b: string): boolean {
   return true;
 }
 
-export function findEmoji(name: string, guild: Guild): UsableEmoji | undefined {
-  const emojis = usableEmoji(guild);
+function findEmoji(name: string, emojis: UsableEmoji[]): UsableEmoji | undefined {
   const exact = emojis.find((e) => e.name === name);
   if (exact) return exact;
   const lower = name.toLowerCase();
@@ -63,9 +62,10 @@ export function findEmoji(name: string, guild: Guild): UsableEmoji | undefined {
 }
 
 export function discordEmoji(text: string, guild: Guild): string {
+  let emojis: UsableEmoji[] | undefined;
   return text.replace(/<a?:\w+:\d+>|(?<!\w):([a-zA-Z0-9_]+):?/g, (token, name: string | undefined) => {
     if (!name) return token;
-    const emoji = findEmoji(name, guild);
+    const emoji = findEmoji(name, emojis ??= usableEmoji(guild));
     return emoji ? String(emoji) : token;
   });
 }
@@ -73,7 +73,7 @@ export function discordEmoji(text: string, guild: Guild): string {
 export function reactionEmoji(raw: string, guild: Guild): string {
   const token = raw.trim();
   const name = token.replace(/^:|:$/g, "");
-  const emoji = findEmoji(name, guild);
+  const emoji = findEmoji(name, usableEmoji(guild));
   return emoji?.identifier ?? token;
 }
 

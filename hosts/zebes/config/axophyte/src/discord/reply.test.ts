@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, test, jest } from "bun:test";
-import { Collection, type Message, type GuildTextBasedChannel } from "discord.js";
+import { Collection } from "discord.js";
+import type { Message, GuildTextBasedChannel } from "discord.js";
 import { ReplyStream, splitMessage } from "./reply";
 import { limits } from "../limits";
 

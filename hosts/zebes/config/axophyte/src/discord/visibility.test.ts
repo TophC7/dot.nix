@@ -1,6 +1,8 @@
 import { afterAll, describe, expect, test } from "bun:test";
-import { ChannelType, Client, PermissionFlagsBits, type Guild, type GuildBasedChannel } from "discord.js";
-import { discloses, isPublic, placeOf, type Place } from "./visibility";
+import { ChannelType, Client, PermissionFlagsBits } from "discord.js";
+import type { Guild, GuildBasedChannel } from "discord.js";
+import { discloses, isPublic, placeOf } from "./visibility";
+import type { Place } from "./visibility";
 
 function source(readers: string[], privateThread = false): Place {
   return { id: "source", privateThread, canRead: (id) => readers.includes(id) };

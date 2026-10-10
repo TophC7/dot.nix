@@ -23,7 +23,7 @@ export type ReadChunk = () => Promise<
   { done: false; value: Uint8Array } | { done: true; value?: Uint8Array }
 >;
 
-function object(value: unknown): value is Record<string, unknown> {
+export function object(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 

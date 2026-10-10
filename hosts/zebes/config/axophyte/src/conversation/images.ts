@@ -83,7 +83,7 @@ export async function loadImage(
     if (!bytes) return null;
     const data = `data:${responseType};base64,${Buffer.concat(chunks, bytes).toString("base64")}`;
     cache.set(key, data);
-    if (cache.size > 64) cache.delete(cache.keys().next().value!);
+    if (cache.size > limits.imageCacheEntries) cache.delete(cache.keys().next().value!);
     return data;
   } catch {
     return null;
@@ -93,15 +93,12 @@ export async function loadImage(
 export async function imagesFor(history: HistoryMessage[], originals: Message[], botId: string): Promise<Map<string, string>> {
   const images = new Map<string, string>();
   const byMessage = new Map(originals.map((message) => [message.id, message]));
-  let attempted = 0;
-  for (const message of [...history].reverse()) {
-    if (message.authorId === botId) continue;
-    for (const attachment of [...(byMessage.get(message.id)?.attachments.values() ?? [])].reverse()) {
-      if (!attachment.contentType?.startsWith("image/")) continue;
-      if (attempted++ >= limits.maxImagesPerRequest) return images;
-      const image = await loadImage(attachment);
-      if (image) images.set(attachment.id, image);
-    }
-  }
+  const attachments = history.toReversed()
+    .filter((message) => message.authorId !== botId)
+    .flatMap((message) => [...(byMessage.get(message.id)?.attachments.values() ?? [])].reverse())
+    .filter((attachment) => attachment.contentType?.startsWith("image/"))
+    .slice(0, limits.maxImagesPerRequest);
+  const loaded = await Promise.all(attachments.map(loadImage));
+  for (const [index, image] of loaded.entries()) if (image) images.set(attachments[index]!.id, image);
   return images;
 }

@@ -1,5 +1,6 @@
 import type { Collection } from "discord.js";
-import { emojiScope, type UsableEmoji } from "../discord/emoji";
+import { emojiScope } from "../discord/emoji";
+import type { UsableEmoji } from "../discord/emoji";
 import { limits } from "../limits";
 import type { ChatMessage } from "../llm/protocol";
 import type { Scheduler } from "../schedule";

@@ -126,7 +126,7 @@ export function render(
 				const image = images.get(attachment.id);
 				if (image) parts.push({ type: "image_url", image_url: { url: image } });
 				else
-					text += `\n${attachment.contentType?.startsWith("image/") ? `[image: ${attachment.name} — not shown]` : `[attachment: ${attachment.name} — unsupported]`}`;
+					text += `\n${attachment.contentType?.startsWith("image/") ? `[image: ${attachment.name} - not shown]` : `[attachment: ${attachment.name} - unsupported]`}`;
 			}
 			const previous = messages.at(-1);
 			if (previous?.role === "user") {

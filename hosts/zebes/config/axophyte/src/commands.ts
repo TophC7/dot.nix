@@ -1,4 +1,5 @@
-import { MessageFlags, PermissionFlagsBits, SlashCommandBuilder, type AutocompleteInteraction, type ChatInputCommandInteraction, type GuildTextBasedChannel } from "discord.js";
+import { MessageFlags, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
+import type { AutocompleteInteraction, ChatInputCommandInteraction, GuildTextBasedChannel } from "discord.js";
 import { config } from "./config";
 import { APP_EMOJI_SCOPE, emojiScope, usableEmoji } from "./discord/emoji";
 import { limits } from "./limits";

@@ -1,6 +1,7 @@
 import { expect, test } from "bun:test";
 import { limits } from "../limits";
-import { effectiveContextSize, ModelError, modelSession, promptBudget, type ModelChoice } from "./model";
+import { effectiveContextSize, ModelError, modelSession, promptBudget } from "./model";
+import type { ModelChoice } from "./model";
 
 const small: ModelChoice = { id: "small", contextSize: 65536 };
 

@@ -3,7 +3,8 @@ import { config } from "./config";
 import { load } from "./conversation/load";
 import type { Source } from "./conversation/load";
 import { render, summaryRequest, systemPrompt } from "./conversation/prompt";
-import { APP_EMOJI_SCOPE, type UsableEmoji } from "./discord/emoji";
+import { APP_EMOJI_SCOPE } from "./discord/emoji";
+import type { UsableEmoji } from "./discord/emoji";
 import { ReplyStream } from "./discord/reply";
 import { limits } from "./limits";
 import { complete, countTokens, requestModel, streamChat } from "./llm/llama";
@@ -28,7 +29,7 @@ const webTools: Tool[] = [webSearch, openUrlTool(config.tavilyKey)];
 /** Tools whose results the model never needs to read before replying. */
 const ACTIONS: Record<string, true> = { react: true, remember: true, revise: true };
 
-export type TurnOptions = {
+type TurnOptions = {
   forcedSearch?: { query: string; requester: string };
   signal: AbortSignal;
   /** Called on the first model output, memory write, or reaction; after that a turn is never aborted. */
@@ -61,8 +62,10 @@ export async function describeEmoji(emoji: UsableEmoji): Promise<string> {
   const name = emoji.name!;
   const url = emoji.imageURL({ extension: "png", size: 128 });
   // Animated emoji come back as their first frame; a failed fetch still gets a name-only guess.
-  const image = await loadImage({ id: emoji.id, url, proxyURL: url, contentType: "image/png", size: 0, width: 128, height: 128 });
-  const session = await modelSession(requestModel);
+  const [image, session] = await Promise.all([
+    loadImage({ id: emoji.id, url, proxyURL: url, contentType: "image/png", size: 0, width: 128, height: 128 }),
+    modelSession(requestModel),
+  ]);
   const text = await session.call((choice) => complete(choice, { messages: describerMessages(name, image), max_tokens: 200 }));
   const description = parseDescription(text);
   if (!description) throw new Error(`empty description for emoji ${emoji.id}`);

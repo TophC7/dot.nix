@@ -103,14 +103,9 @@ export class ReplyStream {
     const converted = discordEmoji(last, this.channel.guild);
     const trailing = extractTrailingEmojis(converted);
     const footerText = footer.length ? `\n\n${footer.join("\n")}` : "";
-    if (trailing) {
-      const combined = `${trailing.body}${footerText}`;
-      if (combined.trim()) this.chunks.push(...splitMessage(combined, limits.splitAt));
-      this.chunks.push(trailing.emojis);
-    } else {
-      const combined = `${converted}${footerText}`;
-      if (combined.trim()) this.chunks.push(...splitMessage(combined, limits.splitAt));
-    }
+    const combined = `${trailing ? trailing.body : converted}${footerText}`;
+    if (combined.trim()) this.chunks.push(...splitMessage(combined, limits.splitAt));
+    if (trailing) this.chunks.push(trailing.emojis);
     if (!this.chunks.some((chunk) => chunk.trim())) {
       await this.cancel();
       return;

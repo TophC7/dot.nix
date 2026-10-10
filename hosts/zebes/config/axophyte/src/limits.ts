@@ -6,6 +6,8 @@ export const limits = {
   maxImagesPerRequest: 4,
   maxImageBytes: 10 * 1024 * 1024,
   imageMaxSide: 1536,
+  /** Downloaded images kept in memory across turns, oldest evicted first. */
+  imageCacheEntries: 64,
   promptEmoji: 100,
   /** Longest emoji description, whether the model's or an admin's. */
   emojiNoteChars: 200,
