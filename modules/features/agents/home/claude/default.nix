@@ -11,17 +11,9 @@
   ...
 }:
 let
-  skillDirs = lib.filterAttrs (_: type: type == "directory") (builtins.readDir ../_catalog/skills);
   agentFiles = lib.filterAttrs (name: type: type == "regular" && lib.hasSuffix ".md" name) (
     builtins.readDir ../_catalog/agents
   );
-
-  skillLinks = lib.mapAttrs' (name: _: {
-    name = ".claude/skills/${name}";
-    value = {
-      source = ../_catalog/skills + "/${name}";
-    };
-  }) skillDirs;
 
   agentLinks = lib.mapAttrs' (name: _: {
     name = ".claude/agents/${name}";
@@ -62,6 +54,6 @@ in
       '';
     };
   }
-  // skillLinks
+  // import ../_skills.nix lib ".claude/skills"
   // agentLinks;
 }

@@ -28,6 +28,7 @@
     ## Additional Configs ##
     (lib.features [
       "acme"
+      "agents"
       "bluetooth"
       "ddcutil"
       "docker"

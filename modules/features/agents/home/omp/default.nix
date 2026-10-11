@@ -136,102 +136,52 @@ let
     # KV-cache hits across turns, Qwen `preserve_thinking`, no first-event
     # watchdog, a 300s stream idle floor, append-only context. A DNS name would
     # resolve fine and silently lose all of it.
-    zebes = {
-      baseUrl = "http://${hosts.zebes.ip}:11434/v1";
-      api = "openai-completions";
-      auth = "none";
-      compat = {
-        supportsDeveloperRole = false;
-        supportsReasoningEffort = false;
-        maxTokensField = "max_tokens";
-      };
-      models =
-        let
-          # The Qwen3.5 9B templates always think and expose no effort control,
-          # so they carry `reasoning` with no `thinking` block: OMP reads that as
-          # "reasoning model, no effort tiers".
-          common = {
+    zebes =
+      let
+        zebes = import ../_zebes-models.nix hosts;
+      in
+      {
+        inherit (zebes) baseUrl;
+        api = "openai-completions";
+        auth = "none";
+        compat = {
+          supportsDeveloperRole = false;
+          supportsReasoningEffort = false;
+          maxTokensField = "max_tokens";
+        };
+        # Models without efforts carry `reasoning` and no `thinking` block: OMP
+        # reads that as "reasoning model, no effort tiers".
+        models = map (
+          model:
+          {
+            inherit (model) id name contextWindow;
+            inherit (zebes) maxTokens;
             reasoning = true;
-            contextWindow = 131072;
-            maxTokens = 32768;
+            input = [
+              "text"
+              "image"
+            ];
             cost = {
               input = 0;
               output = 0;
               cacheRead = 0;
               cacheWrite = 0;
             };
-          };
-          vision = common // {
-            input = [
-              "text"
-              "image"
-            ];
-          };
-        in
-        [
-          (
-            vision
-            // {
-              id = "qwen3.8-27b";
-              name = "Qwen3.8/27B";
-              contextWindow = 65536;
-              # The Qwen3.8 template accepts exactly these efforts (anything else
-              # raises) via chat_template_kwargs.reasoning_effort, and honors
-              # enable_thinking = false, so `:off` really turns thinking off.
-              thinking = {
-                mode = "effort";
-                efforts = [
-                  "low"
-                  "medium"
-                  "xhigh"
-                ];
-                defaultLevel = "medium";
-                requiresEffort = false;
-              };
-              compat = {
-                thinkingFormat = "qwen-chat-template";
-                qwenTemplateReasoningEffort = true;
-              };
-            }
-          )
-          (
-            vision
-            // {
-              id = "qwen3.8-27b-abliterated";
-              name = "Qwen3.8/27B Abliterated";
-              contextWindow = 65536;
-              thinking = {
-                mode = "effort";
-                efforts = [
-                  "low"
-                  "medium"
-                  "xhigh"
-                ];
-                defaultLevel = "medium";
-                requiresEffort = false;
-              };
-              compat = {
-                thinkingFormat = "qwen-chat-template";
-                qwenTemplateReasoningEffort = true;
-              };
-            }
-          )
-          (
-            vision
-            // {
-              id = "qwen3.5-9b-opus-reasoning";
-              name = "Qwen3.5/Opus";
-            }
-          )
-          (
-            vision
-            // {
-              id = "qwen3.5-9b-sushi-coder-rl";
-              name = "Qwen3.5/Sushi Coder";
-            }
-          )
-        ];
-    };
+          }
+          // lib.optionalAttrs (model ? efforts) {
+            thinking = {
+              mode = "effort";
+              inherit (model) efforts;
+              defaultLevel = "medium";
+              requiresEffort = false;
+            };
+            compat = {
+              thinkingFormat = "qwen-chat-template";
+              qwenTemplateReasoningEffort = true;
+            };
+          }
+        ) zebes.models;
+      };
   };
   hostDescriptions = {
     nexus = "Network router & gateway";
