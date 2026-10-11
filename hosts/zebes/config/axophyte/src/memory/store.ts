@@ -28,6 +28,9 @@ export interface Store {
   /** Thread IDs are unique across servers, so conversations need no server key. */
   get(threadId: string): Memory | null;
   save(threadId: string, memory: Memory): void;
+  hasThread(threadId: string): boolean;
+  trackThread(threadId: string): void;
+  activeThreads(): Set<string>;
   people(guildId: string): People;
   /** Scope: a guild ID, or APP_EMOJI_SCOPE for Axophyte's own emoji (stored in the guild_id column). */
   emojiNotes(scope: string): EmojiNotes;
@@ -41,6 +44,10 @@ const SCHEMA = `
     summary TEXT NOT NULL,
     summary_until TEXT NOT NULL,
     updated_at INTEGER NOT NULL
+  );
+  CREATE TABLE IF NOT EXISTS active_threads (
+    thread_id TEXT PRIMARY KEY,
+    created_at INTEGER NOT NULL
   );
   CREATE TABLE IF NOT EXISTS person_facts (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -83,6 +90,15 @@ export function openStore(path: string): Store {
       summary_until = excluded.summary_until,
       updated_at = excluded.updated_at
   `);
+  const activeThreadsQuery = db.query<{ thread_id: string }, []>(
+    "SELECT thread_id FROM active_threads UNION SELECT thread_id FROM conversations",
+  );
+  const hasThreadQuery = db.query<{ thread_id: string }, [string, string]>(
+    "SELECT thread_id FROM active_threads WHERE thread_id = ? UNION SELECT thread_id FROM conversations WHERE thread_id = ?",
+  );
+  const trackThread = db.query<void, [string, number]>(
+    "INSERT OR IGNORE INTO active_threads (thread_id, created_at) VALUES (?, ?)",
+  );
   const facts = db.query<Fact, [string, string]>("SELECT id, fact FROM person_facts WHERE guild_id = ? AND user_id = ? ORDER BY id");
   const addFact = db.query<{ id: number }, [string, string, string, number]>(
     "INSERT INTO person_facts (guild_id, user_id, fact, created_at) VALUES (?, ?, ?, ?) RETURNING id",
@@ -119,6 +135,15 @@ export function openStore(path: string): Store {
     },
     save(threadId: string, memory: Memory): void {
       save.run(threadId, memory.summary, memory.summaryUntil, Date.now());
+    },
+    hasThread(threadId: string): boolean {
+      return !!hasThreadQuery.get(threadId, threadId);
+    },
+    trackThread(threadId: string): void {
+      trackThread.run(threadId, Date.now());
+    },
+    activeThreads(): Set<string> {
+      return new Set(activeThreadsQuery.all().map((r) => r.thread_id));
     },
     people(guildId: string): People {
       return {

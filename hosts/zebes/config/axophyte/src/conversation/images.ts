@@ -14,6 +14,7 @@ const hosts: Record<string, true> = {
   "cdn.discordapp.com": true,
   "media.discordapp.net": true,
 };
+// ponytail: count-bounded only (~50-150 MB typical, ~850 MB if every entry is a 10 MB original); track bytes if Zebes RAM gets tight.
 const cache = new Map<string, string>();
 
 export async function loadImage(

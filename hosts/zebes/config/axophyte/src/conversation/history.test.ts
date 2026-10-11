@@ -53,4 +53,17 @@ describe("conversation memory", () => {
     ]);
     expect(turns.at(-1)?.messages.map((m) => m.id)).toEqual(["5", "6"]);
   });
+
+  test("thread started from assistant message groups starter as first turn", () => {
+    const history = [
+      message("0", { ...assistant, content: "Original message" }),
+      message("1", { content: "Question about it" }),
+      message("2", { ...assistant, content: "Explanation" }),
+    ];
+    const turns = groupTurns(history, "axophyte");
+    expect(turns.map((turn) => turn.messages.map((m) => m.id))).toEqual([
+      ["0"],
+      ["1", "2"],
+    ]);
+  });
 });

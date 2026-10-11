@@ -27,13 +27,16 @@ export class EmojiDescriptions {
     private readonly ready: (scope: string) => boolean,
   ) {}
 
-  /** Call once per ready scope, after fetching its authoritative emoji cache. */
-  seed(scope: string, emojis: Collection<string, UsableEmoji>): void {
+  /**
+   * Call once per ready scope, after fetching its authoritative emoji cache. A server scope also
+   * holds its admins' meanings for Axophyte's own emoji, so pass those (fresh) as `own` to keep them.
+   */
+  seed(scope: string, emojis: Collection<string, UsableEmoji>, own?: Collection<string, UsableEmoji>): void {
     if (!this.ready(scope)) return;
     const notes = this.store.emojiNotes(scope);
     const known = notes.all();
     for (const id of known.keys()) {
-      if (!emojis.has(id)) notes.delete(id);
+      if (!emojis.has(id) && !own?.has(id)) notes.delete(id);
     }
     for (const emoji of emojis.values()) this.add(emoji, known.get(emoji.id));
     this.schedule();

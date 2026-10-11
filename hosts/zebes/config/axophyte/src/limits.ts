@@ -22,7 +22,8 @@ export const limits = {
   typingIntervalMs: 8000,
   queueNoticeMs: 60_000,
   llmIdleTimeoutMs: 600_000,
-  maxHistoryMessages: 300,
+  /** How far back a conversation's first load reaches, when Axophyte joins one already underway. */
+  firstLoadMessages: 300,
   channelContextMessages: 20,
   channelContextMaxAgeMs: 30 * 60_000,
   replyChainDepth: 10,

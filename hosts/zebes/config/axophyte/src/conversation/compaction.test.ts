@@ -178,7 +178,7 @@ function message(id: string, bot = false): HistoryMessage {
   };
 }
 
-// A trigger posted before a later reply (a streaming answer, a /search) is still this turn's question.
+// A trigger posted before a later reply (a streaming answer) is still this turn's question.
 test("triggers become the current turn even when a reply was posted after them", () => {
   const history = [message("1"), message("2", true), message("3"), message("4"), message("5", true)];
   const prepared = pendingHistory(history, "bot", new Set(["4"]));

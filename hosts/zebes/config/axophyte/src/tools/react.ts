@@ -2,7 +2,6 @@ import type { GuildTextBasedChannel } from "discord.js";
 import { tagged } from "../conversation/history";
 import type { HistoryMessage } from "../conversation/history";
 import { reactionEmoji } from "../discord/emoji";
-import { TurnAborted } from "../llm/model";
 import { defineTool, stringArg, toolError } from "./tool";
 import type { Tool } from "./tool";
 
@@ -21,13 +20,12 @@ export function reactTool(
       reply: { type: "boolean", description: "true to write a message as well; false if the reaction is your whole reply" },
     },
     required: ["message", "emoji", "reply"],
-    async run(args, signal) {
+    async run(args) {
       const message = tagged(latest, stringArg(args, "message", 10) ?? "");
       if (typeof message === "string") return toolError(message);
       const emoji = stringArg(args, "emoji", 100);
       if (!emoji || typeof args.reply !== "boolean") return toolError("invalid arguments");
       const resolved = reactionEmoji(emoji, channel.guild);
-      if (signal.aborted) throw new TurnAborted();
       onCommit();
       // Discord rejections throw; runToolCall turns them into tool errors, so onReact only follows success.
       await channel.messages.react(message.id, resolved);

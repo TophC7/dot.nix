@@ -9,8 +9,8 @@ import { cleanText } from "../discord/visibility";
 
 type Message = DiscordMessage<true>;
 
-/** `triggers` are the IDs of the messages this turn answers; empty for /search. */
-export type Source = { channel: GuildTextBasedChannel; forum: boolean; triggers: Set<string> };
+/** `triggers` are the IDs of the messages this turn answers. */
+export type Source = { channel: GuildTextBasedChannel; forum: boolean; thread: boolean; triggers: Set<string> };
 
 type Loaded = {
   memory: Memory | null;
@@ -64,11 +64,14 @@ export function asHistory(message: Message): HistoryMessage {
   };
 }
 
-async function fetchHistory(channel: GuildTextBasedChannel, after: string): Promise<Message[]> {
+// Newest first, back to `after`. Token budget, not message count, decides what fits: compaction
+// folds anything older into the summary, so nothing past `after` may be skipped.
+// ponytail: refetches every unsummarized message each turn (one request per 100); cache if long chatty threads get slow.
+async function fetchHistory(channel: GuildTextBasedChannel, after: string, limit = Infinity): Promise<Message[]> {
   const messages: Message[] = [];
   let before: string | undefined;
-  while (messages.length < limits.maxHistoryMessages) {
-    const page = await channel.messages.fetch({ limit: Math.min(100, limits.maxHistoryMessages - messages.length), before });
+  while (messages.length < limit) {
+    const page = await channel.messages.fetch({ limit: Math.min(100, limit - messages.length), before });
     if (!page.size) break;
     const batch = [...page.values()].sort((a, b) => byId(b, a));
     let reachedBoundary = false;
@@ -79,7 +82,6 @@ async function fetchHistory(channel: GuildTextBasedChannel, after: string): Prom
     if (reachedBoundary) break;
     before = batch.at(-1)!.id;
   }
-  if (messages.length === limits.maxHistoryMessages) console.warn(`history cap reached for ${channel.id}`);
   return messages.sort(byId);
 }
 
@@ -110,20 +112,35 @@ async function channelHistory(channel: GuildTextBasedChannel, triggers: Set<stri
   return [...found.values()].sort(byId);
 }
 
-export async function load(source: Source, store: Store, forced: boolean): Promise<Loaded | null> {
+export async function load(source: Source, store: Store): Promise<Loaded | null> {
   const channel = source.channel;
   const botId = channel.client.user.id;
   const pending = source.triggers;
   let originals: Message[];
   let memory: Memory | null = null;
-  if (source.forum) {
+  const persistent = source.forum || source.thread;
+  if (persistent) {
     memory = store.get(channel.id);
-    const after = memory?.summaryUntil ?? (BigInt(channel.id) - 1n).toString();
-    originals = await fetchHistory(channel, after);
+    let after = memory?.summaryUntil ?? (BigInt(channel.id) - 1n).toString();
+    const limit = memory ? Infinity : limits.firstLoadMessages;
+    originals = await fetchHistory(channel, after, limit);
     // A brand-new post's starter message can lag behind its ThreadCreate event.
     if (pending.size && !originals.some((message) => pending.has(message.id))) {
       await Bun.sleep(1500);
-      originals = await fetchHistory(channel, after);
+      originals = await fetchHistory(channel, after, limit);
+    }
+    if (!memory) {
+      // The conversation starts here: at most firstLoadMessages back, then everything since is kept.
+      if (originals.length === limit) after = (BigInt(originals[0]!.id) - 1n).toString();
+      memory = { summary: "", summaryUntil: after };
+      store.save(channel.id, memory);
+    }
+    if (channel.isThread()) {
+      const starter = await channel.fetchStarterMessage().catch(() => null);
+      if (starter && BigInt(starter.id) > BigInt(after) && !originals.some((message) => message.id === starter.id)) {
+        originals.push(starter);
+        originals.sort(byId);
+      }
     }
   } else {
     originals = await channelHistory(channel, pending);
@@ -131,7 +148,7 @@ export async function load(source: Source, store: Store, forced: boolean): Promi
   const history = pendingHistory(originals.map(asHistory), botId, pending);
   const latest = history.filter((message) => pending.has(message.id) && message.authorId !== botId);
   latest.forEach((message, index) => { message.ref = `m${index + 1}`; });
-  if (!forced && latest.length === 0) return null;
+  if (latest.length === 0) return null;
   const turns = groupTurns(history, botId);
   const images = await imagesFor(history, originals, botId);
   const people = new Map<string, Speaker>();
@@ -150,10 +167,10 @@ export async function load(source: Source, store: Store, forced: boolean): Promi
     turns,
     images,
     memory,
-    save: source.forum ? (updated) => store.save(channel.id, updated) : () => {},
+    save: persistent ? (updated) => store.save(channel.id, updated) : () => {},
     latest,
     people,
-    replyTo: forced ? undefined : originals.find((message) => message.id === latest.at(-1)?.id),
+    replyTo: originals.find((message) => message.id === latest.at(-1)?.id),
   };
 }
 

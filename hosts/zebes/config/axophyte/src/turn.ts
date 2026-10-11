@@ -24,13 +24,11 @@ import { openUrlTool, webSearchTool } from "./tools/web";
 import { reactTool } from "./tools/react";
 import { selfInfoTool } from "./tools/self";
 
-const webSearch = webSearchTool(config.tavilyKey);
-const webTools: Tool[] = [webSearch, openUrlTool(config.tavilyKey)];
+const webTools: Tool[] = [webSearchTool(config.tavilyKey), openUrlTool(config.tavilyKey)];
 /** Tools whose results the model never needs to read before replying. */
 const ACTIONS: Record<string, true> = { react: true, remember: true, revise: true };
 
 type TurnOptions = {
-  forcedSearch?: { query: string; requester: string };
   signal: AbortSignal;
   /** Called on the first model output, memory write, or reaction; after that a turn is never aborted. */
   onCommit?(): void;
@@ -88,7 +86,7 @@ export async function runTurn(store: Store, source: Source, opts: TurnOptions): 
   let replyAfterReaction = false;
   const fail = (text: string) => reply!.fail(hadOutput ? "⚠️ Response interrupted." : text);
   try {
-    const loaded = await load(source, store, !!opts.forcedSearch);
+    const loaded = await load(source, store);
     if (!loaded) return [];
     const botId = channel.client.user.id;
     // Private threads have no exact audience (moderators can open them), so no cross-channel reads.
@@ -101,33 +99,23 @@ export async function runTurn(store: Store, source: Source, opts: TurnOptions): 
       ...webTools,
       ...(serverSearch ? serverTools(channel, store, new Set(loaded.turns.flatMap((turn) => turn.messages.map((message) => message.id)))) : []),
       ...(memoryEnabled ? noteTools(serverPeople, loaded.latest, (id) => { touched.add(id); opts.onCommit?.(); }) : []),
-      ...(loaded.latest.length ? [reactTool(channel, loaded.latest, () => opts.onCommit?.(), (reply) => { reactions++; replyAfterReaction ||= reply; })] : []),
+      reactTool(channel, loaded.latest, () => opts.onCommit?.(), (reply) => { reactions++; replyAfterReaction ||= reply; }),
     ];
     const people = peopleSection(serverPeople, loaded.people);
-    // Emoji IDs are global snowflakes, so the two scopes never collide.
+    // Server scope last: its admins' meanings for Axophyte's own emoji override the shared descriptions.
     const emojiNotes = new Map([...store.emojiNotes(APP_EMOJI_SCOPE).all(), ...store.emojiNotes(channel.guildId).all()]);
     session = await modelSession(() => requestModel(opts.signal));
     let memory = loaded.memory;
     let turns = loaded.turns;
     const extra: ChatMessage[] = [];
     const footer: string[] = [];
-    const runCall = async (call: ToolCall, offered: Tool[]) => {
-      const result = await runToolCall(call, offered, used, opts.signal);
+    const runCall = async (call: ToolCall) => {
+      const result = await runToolCall(call, tools, used, opts.signal);
       if (result.footer) footer.push(result.footer);
       extra.push({ role: "tool", tool_call_id: call.id, content: result.content });
     };
-    if (opts.forcedSearch) {
-      const { requester, query } = opts.forcedSearch;
-      const call: ToolCall = { id: "forced-search", type: "function", function: { name: "web_search", arguments: JSON.stringify({ query }) } };
-      extra.push(
-        { role: "user", content: `${requester}: Search the web for "${query}" and answer using the results.` },
-        { role: "assistant", content: null, tool_calls: [call] },
-      );
-      await runCall(call, [webSearch]);
-    }
     let compacted = false;
     reply = new ReplyStream(channel, loaded.replyTo);
-    if (opts.forcedSearch) reply.push(`🔎 **Search:** ${opts.forcedSearch.query}\n\n`);
     // The same tools every round: a tool missing from the schema (or tool_choice "none") gets
     // "called" as plain text the parser can't catch. Budgets and the round limit are enforced
     // with tool errors the model reads, so it answers from what it already found.
@@ -177,7 +165,7 @@ export async function runTurn(store: Store, source: Source, opts: TurnOptions): 
       const reactionsBefore = reactions;
       replyAfterReaction = false;
       for (const call of result.toolCalls) {
-        if (round < limits.maxToolRounds) await runCall(call, tools);
+        if (round < limits.maxToolRounds) await runCall(call);
         else extra.push({ role: "tool", tool_call_id: call.id, content: toolError("no more tool calls for this answer; reply now with what you have").content });
       }
       // An actions-only round that already wrote text, or reacted as its whole reply, ends the turn:

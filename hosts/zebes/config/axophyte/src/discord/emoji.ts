@@ -4,7 +4,7 @@ import type { EmojiNote } from "../memory/store";
 
 export type UsableEmoji = GuildEmoji | ApplicationEmoji;
 
-/** Notes scope for Axophyte's own application emoji, shared by every server. */
+/** Notes scope for model descriptions of Axophyte's own emoji, shared by every server; admin meanings stay per server. */
 export const APP_EMOJI_SCOPE = "app";
 
 export function emojiScope(emoji: UsableEmoji): string {

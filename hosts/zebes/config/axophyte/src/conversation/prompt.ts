@@ -1,4 +1,4 @@
-import type { GuildTextBasedChannel } from "discord.js";
+import { ChannelType, type GuildTextBasedChannel } from "discord.js";
 import { label } from "./history";
 import type { HistoryMessage, Turn } from "./history";
 import type { ChatMessage, ChatPart } from "../llm/protocol";
@@ -36,7 +36,9 @@ export function systemPrompt(
 	const { source, summary, people, emojiNotes } = input;
 	const where = source.forum
 		? "a Discord forum post"
-		: `#${source.channel.name}`;
+		: source.thread || source.channel.isThread()
+			? `a Discord thread ("${source.channel.name}") in #${source.channel.parent?.name ?? "unknown"}`
+			: `#${source.channel.name}`;
 	const emoji = serverEmoji(source.channel.guild, emojiNotes);
 	const sections = [
 		SOUL,
@@ -120,7 +122,10 @@ export function render(
 				else messages.push({ role: "assistant", content: message.content });
 				continue;
 			}
-			let text = `${message.id === channel.id ? `[Forum post title: ${channel.name}]\n` : ""}${speakerLine(message, botId, before, now)}`;
+			const titlePrefix = message.id === channel.id
+				? `[${channel.isThread() && channel.parent?.type !== ChannelType.GuildForum ? "Thread" : "Forum post"} title: ${channel.name}]\n`
+				: "";
+			let text = `${titlePrefix}${speakerLine(message, botId, before, now)}`;
 			const parts: ChatPart[] = [];
 			for (const attachment of message.attachments) {
 				const image = images.get(attachment.id);

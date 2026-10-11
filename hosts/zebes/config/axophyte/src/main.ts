@@ -24,6 +24,8 @@ const client = new Client({
   allowedMentions,
 });
 const store = openStore(config.dbPath);
+const activeThreads = store.activeThreads();
+const inactiveThreads = new Set<string>();
 /** Configured servers whose member cache is complete; Axophyte ignores the rest. */
 const ready = new Set<string>();
 let stopping = false;
@@ -33,20 +35,17 @@ const scheduler = new Scheduler(async (key, triggers, signal, commit) => {
   const channel = client.channels.cache.get(key);
   if (!channel?.isTextBased() || channel.isDMBased()) return;
   await membersFresh;
-  schedulePrunes(channel.guildId, await runTurn(store, { channel, forum: inForum(channel), triggers }, { signal, onCommit: commit }));
+  // A failed member refresh drops the server from `ready`; queued turns there must not trust stale visibility.
+  if (!ready.has(channel.guildId)) return;
+  const forum = inForum(channel);
+  const thread = !forum && channel.isThread() && activeThreads.has(channel.id);
+  schedulePrunes(channel.guildId, await runTurn(store, { channel, forum, thread, triggers }, { signal, onCommit: commit }));
 });
 const emojiDescriptions = new EmojiDescriptions(store, scheduler, describeEmoji,
   (scope) => !stopping && (scope === APP_EMOJI_SCOPE ? ready.size > 0 : ready.has(scope)));
 const commandDeps: CommandDeps = {
   store,
   ready: (guildId) => ready.has(guildId),
-  search: async (channel, query, requester) => {
-    const touched = await scheduler.command(async () => {
-      await membersFresh;
-      return runTurn(store, { channel, forum: inForum(channel), triggers: new Set() }, { forcedSearch: { query, requester }, signal: new AbortController().signal });
-    });
-    schedulePrunes(channel.guildId, touched);
-  },
   retry: async (channel) => {
     // Discord returns newest first; history reloads as usual, as if the message just arrived.
     const latest = (await channel.messages.fetch({ limit: limits.retryScanMessages })).find(humanPost);
@@ -59,6 +58,21 @@ function inForum(channel: GuildTextBasedChannel): boolean {
   const forumId = config.servers.get(channel.guildId);
   return !!forumId && channel.isThread() && channel.parentId === forumId;
 }
+async function isThreadActive(channel: GuildTextBasedChannel): Promise<boolean> {
+  if (!channel.isThread() || inForum(channel)) return false;
+  if (activeThreads.has(channel.id)) return true;
+  if (inactiveThreads.has(channel.id)) return false;
+  const starter = await channel.fetchStarterMessage().catch(() => null);
+  if (starter?.author.id === client.user?.id) {
+    activeThreads.add(channel.id);
+    store.trackThread(channel.id);
+    void channel.join().catch(() => {});
+    return true;
+  }
+  inactiveThreads.add(channel.id);
+  return false;
+}
+
 
 /** A person's own chat message: no bots, webhooks, or system notices. */
 function humanPost(message: Message): boolean {
@@ -107,7 +121,7 @@ client.once(Events.ClientReady, (connected) => {
       ]);
       if (!stopping) {
         ready.add(guildId);
-        if (emojiFresh) emojiDescriptions.seed(guildId, guild.emojis.cache);
+        if (emojiFresh && await ownEmojiFresh) emojiDescriptions.seed(guildId, guild.emojis.cache, connected.application.emojis.cache);
       }
     } catch (error) {
       console.error(`server ${guildId} skipped: not joined, forum ${forumId} not a forum there, or startup failed`, error);
@@ -155,13 +169,24 @@ client.on(Events.GuildEmojiCreate, (emoji) => emojiDescriptions.enqueue(emoji));
 client.on(Events.GuildEmojiUpdate, (_old, emoji) => emojiDescriptions.enqueue(emoji));
 client.on(Events.GuildEmojiDelete, (emoji) => emojiDescriptions.delete(emoji));
 
-client.on(Events.ThreadCreate, (thread, newlyCreated) => {
-  if (ready.has(thread.guildId) && newlyCreated && inForum(thread) && thread.ownerId) {
+client.on(Events.ThreadCreate, async (thread, newlyCreated) => {
+  if (!ready.has(thread.guildId)) return;
+  if (newlyCreated && inForum(thread) && thread.ownerId) {
     scheduler.message(thread.id, thread.ownerId, thread.id);
+    return;
+  }
+  if (!inForum(thread) && thread.isThread()) {
+    const starter = await thread.fetchStarterMessage().catch(() => null);
+    if (starter?.author.id === client.user?.id) {
+      activeThreads.add(thread.id);
+      inactiveThreads.delete(thread.id);
+      store.trackThread(thread.id);
+      void thread.join().catch(() => {});
+    }
   }
 });
 
-client.on(Events.MessageCreate, (message) => {
+client.on(Events.MessageCreate, async (message) => {
   if (!message.inGuild() || !ready.has(message.guildId)) return;
   if (!humanPost(message)) return;
   const channel = message.channel;
@@ -170,10 +195,25 @@ client.on(Events.MessageCreate, (message) => {
     if (message.id !== channel.id) scheduler.message(channel.id, message.author.id, message.id);
     return;
   }
-  // Direct mentions, replies to Axophyte, or pinging the bot's managed integration role.
   const botId = client.user!.id;
   const botRole = message.mentions.roles.some((role) => role.tags?.botId === botId || role.id === message.guild?.members.me?.roles.botRole?.id);
-  if (message.mentions.users.has(botId) || botRole || message.mentions.repliedUser?.id === botId || scheduler.follows(channel.id, message.author.id)) {
+  const mentioned = message.mentions.users.has(botId) || botRole || message.mentions.repliedUser?.id === botId;
+  if (channel.isThread()) {
+    if (mentioned) {
+      activeThreads.add(channel.id);
+      inactiveThreads.delete(channel.id);
+      store.trackThread(channel.id);
+      void channel.join().catch(() => {});
+      scheduler.message(channel.id, message.author.id, message.id);
+      return;
+    }
+    if (await isThreadActive(channel)) {
+      scheduler.message(channel.id, message.author.id, message.id);
+      return;
+    }
+    return;
+  }
+  if (mentioned || scheduler.follows(channel.id, message.author.id)) {
     scheduler.message(channel.id, message.author.id, message.id);
   }
 });

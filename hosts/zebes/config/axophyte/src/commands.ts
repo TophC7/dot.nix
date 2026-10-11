@@ -1,20 +1,11 @@
 import { MessageFlags, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 import type { AutocompleteInteraction, ChatInputCommandInteraction, GuildTextBasedChannel } from "discord.js";
 import { config } from "./config";
-import { APP_EMOJI_SCOPE, emojiScope, usableEmoji } from "./discord/emoji";
+import { usableEmoji } from "./discord/emoji";
 import { limits } from "./limits";
 import type { People, Store } from "./memory/store";
 
 export const COMMANDS = [
-  new SlashCommandBuilder()
-    .setName("search")
-    .setDescription("Search the web and answer here")
-    .setDMPermission(false)
-    .addStringOption((option) => option
-      .setName("query")
-      .setDescription("What to search the web for")
-      .setRequired(true)
-      .setMaxLength(limits.maxQueryChars)),
   new SlashCommandBuilder()
     .setName("memory")
     .setDescription("What Axophyte remembers about you")
@@ -54,8 +45,6 @@ export const COMMANDS = [
 export type CommandDeps = {
   store: Store;
   ready(guildId: string): boolean;
-  /** Runs a never-aborted forced-search turn in `channel`; resolves once the answer is posted. */
-  search(channel: GuildTextBasedChannel, query: string, requester: string): Promise<void>;
   /** Queues the newest human message in `channel` as a fresh trigger; false when there is none. */
   retry(channel: GuildTextBasedChannel): Promise<boolean>;
 };
@@ -92,9 +81,9 @@ function emojiCommand(interaction: ChatInputCommandInteraction<"cached">, store:
   if (!emoji?.name) return "Pick one of this server's custom emoji or Axophyte's own.";
   const use = interaction.options.getString("use", true).trim();
   if (!use) return "Emoji meaning cannot be empty.";
-  const scope = emojiScope(emoji);
-  store.emojiNotes(scope).set(emoji.id, { name: emoji.name, description: use, byAdmin: true });
-  return `Saved${scope === APP_EMOJI_SCOPE ? " for every server" : ""}. Axophyte now reads ${emoji} as: ${use}`;
+  // Per server even for Axophyte's own emoji: one server's admins must not steer another server's prompt.
+  store.emojiNotes(interaction.guildId).set(emoji.id, { name: emoji.name, description: use, byAdmin: true });
+  return `Saved for this server. Axophyte now reads ${emoji} as: ${use}`;
 }
 
 /** Lists Axophyte's own emoji too, which admins can't pick from their own emoji menu. */
@@ -114,7 +103,6 @@ export async function handleCommand(interaction: ChatInputCommandInteraction, de
     return;
   }
   await interaction.deferReply({ flags: MessageFlags.Ephemeral });
-  // A queued model request can outlive Discord's 15-minute interaction token.
   const respond = (content: string) => interaction.editReply(content).catch(() => {});
   if (!deps.ready(interaction.guildId)) {
     await respond("Axophyte is not ready yet. Try again in a moment.");
@@ -128,22 +116,18 @@ export async function handleCommand(interaction: ChatInputCommandInteraction, de
     await respond(emojiCommand(interaction, deps.store));
     return;
   }
-  if (interaction.commandName === "retry") {
-    await respond(!isAdmin(interaction) ? "Only server admins can use /retry."
-      : await deps.retry(channel) ? "Answering the latest message again." : "No message to answer here.");
-    return;
-  }
-  if (interaction.commandName !== "search") {
+  if (interaction.commandName !== "retry") {
     await respond("Unknown command.");
     return;
   }
-  const requester = interaction.member.displayName;
-  try {
-    const query = interaction.options.getString("query", true);
-    await deps.search(channel, query, requester);
-    await respond("Answer posted below.");
-  } catch {
-    console.error("search command failed");
-    await respond("Search failed — try again later.");
+  if (!isAdmin(interaction)) await respond("Only server admins can use /retry.");
+  // Turns never answer in locked threads.
+  else if (channel.isThread() && channel.locked) await respond("This thread is locked.");
+  else {
+    const queued = await deps.retry(channel).catch((error: unknown) => {
+      console.error("retry failed", error);
+      return null;
+    });
+    await respond(queued === null ? "Couldn't read this channel." : queued ? "Answering the latest message again." : "No message to answer here.");
   }
 }

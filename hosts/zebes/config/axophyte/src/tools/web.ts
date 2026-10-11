@@ -57,7 +57,7 @@ function formatHits(hits: SearchHit[]): string {
 export function webSearchTool(key: string): Tool {
   return defineTool({
     name: "web_search",
-    description: "Search the web to verify real-world facts, works, tracklists, chronologies, specs, trivia, or claims.",
+    description: "Search the web when someone asks you to look something up, for anything recent or current (news, releases, prices, versions), and to verify real-world facts, works, tracklists, chronologies, specs, trivia, or claims.",
     properties: { query: { type: "string" } },
     required: ["query"],
     async run(args, signal) {

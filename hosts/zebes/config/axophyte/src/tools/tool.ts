@@ -51,6 +51,8 @@ export async function runToolCall(
   if (!object(args)) return toolError("invalid arguments");
   const count = used.get(name) ?? 0;
   if (count >= tool.budget) return toolError(`${name} limit reached; answer with what you have`);
+  // An aborted turn's triggers already moved to the next turn; nothing here may commit after that.
+  if (signal.aborted) throw new TurnAborted();
   used.set(name, count + 1);
   try {
     return await tool.run(args, signal);

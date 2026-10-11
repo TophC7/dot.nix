@@ -57,7 +57,7 @@ export function groupTurns(history: HistoryMessage[], botId: string): Turn[] {
 }
 
 // The messages that triggered this turn render last, as the current turn, even
-// when a later reply (an earlier burst's answer, a /search) was posted after them.
+// when a later reply (an earlier burst's answer) was posted after them.
 export function pendingHistory(history: HistoryMessage[], botId: string, pending: Set<string>): HistoryMessage[] {
   const filtered = relevant(history, botId);
   return [...filtered.filter((message) => !pending.has(message.id)), ...filtered.filter((message) => pending.has(message.id))];
