@@ -8,8 +8,9 @@
         "enp2s0" # RUNE
         "enp3s0" # ZEBES
         "enp4s0" # NIMBUS
-        "wg-+" # WireGuard VPN interface
-        "br-+" # All Docker bridge networks (br-*)
+        "wg-vpn" # WireGuard VPN interface
+        "br-pangolin" # Pangolin Docker network
+        "br-adguard" # AdGuard Docker network
       ];
       forwardPorts = [
         # Example port forwards (uncomment and modify as needed)

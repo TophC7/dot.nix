@@ -12,8 +12,6 @@ let
 
   # Server config from host spec
   serverAddress = host.vpn.address; # e.g., "10.10.0.1/24"
-  sammyAddress = hosts.sammy.vpn.address;
-  meowlAddress = hosts.meowl.ip;
 
   # Private key from secrets
   privateKey = secrets.service."wg-nexus".privateKey or "";
@@ -61,20 +59,14 @@ in
       peers = lib.mapAttrsToList mkPeer vpnClients;
     };
 
-    # Enforce Sammy's access before the permissive NixOS and Docker chains.
-    nftables.tables.vpn-access = {
+    # Clamp TCP MSS on WireGuard traffic to avoid MTU black holes over Rathole/WAN
+    nftables.tables.wireguard-mss = {
       family = "inet";
       content = ''
-        chain restrict-sammy-input {
-          type filter hook input priority filter - 10; policy accept;
-          ip saddr ${sammyAddress} udp dport 53 accept
-          ip saddr ${sammyAddress} tcp dport 53 accept
-          ip saddr ${sammyAddress} drop
-        }
-
-        chain restrict-sammy-forward {
-          type filter hook forward priority filter - 10; policy accept;
-          ip saddr ${sammyAddress} ip daddr != ${meowlAddress} drop
+        chain clamp-mss {
+          type filter hook forward priority mangle; policy accept;
+          iifname "${vpnInterface}" tcp flags syn / syn,rst tcp option maxseg size set 1320
+          oifname "${vpnInterface}" tcp flags syn / syn,rst tcp option maxseg size set 1320
         }
       '';
     };

@@ -28,7 +28,7 @@ Every machine has a designated role, managed declaratively from this repository.
 | **vm** | VM | Variable | **Disposable sandbox** for testing system configs and experimental modules. |
 
 > [!NOTE]
-> WireGuard mesh configurations also support client-only endpoints like **husky** and **sammy** without building dedicated system closures.
+> WireGuard mesh configurations also support client-only endpoints like **o15** without building dedicated system closures.
 
 ---
 

@@ -139,14 +139,9 @@ _: {
         };
 
         # ── VPN Only ──
-        husky = {
+        o15 = {
           enable = false; # Do not build host, only VPN config
           vpn.address = "10.10.0.10/32";
-        };
-
-        sammy = {
-          enable = false; # Do not build host, only VPN config
-          vpn.address = "10.10.0.8/32";
         };
       };
     };

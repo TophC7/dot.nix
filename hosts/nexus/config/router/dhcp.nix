@@ -78,21 +78,25 @@
         "/router.ryot.local/10.4.4.1" # RUNE
         "/router.ryot.local/10.3.3.1" # ZEBES
         "/router.ryot.local/10.2.2.1" # NIMBUS
+        "/router.ryot.local/10.10.0.1" # VPN
 
         # AdGuard web UI
         "/adguard.ryot.foo/10.4.4.1" # RUNE
         "/adguard.ryot.foo/10.3.3.1" # ZEBES
         "/adguard.ryot.foo/10.2.2.1" # NIMBUS
+        "/adguard.ryot.foo/10.10.0.1" # VPN
 
         # Pangolin web UI
         "/pangolin.ryot.foo/10.4.4.1" # RUNE
         "/pangolin.ryot.foo/10.3.3.1" # ZEBES
         "/pangolin.ryot.foo/10.2.2.1" # NIMBUS
+        "/pangolin.ryot.foo/10.10.0.1" # VPN
 
         # All *.ryot.foo domains via gerbil
         "/.ryot.foo/10.4.4.1" # RUNE
         "/.ryot.foo/10.3.3.1" # ZEBES
         "/.ryot.foo/10.2.2.1" # NIMBUS
+        "/.ryot.foo/10.10.0.1" # VPN
 
         # Direct local host access
         "/gerbil.ryot.local/10.1.1.11"
