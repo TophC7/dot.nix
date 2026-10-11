@@ -8,18 +8,14 @@ Toph's [Oh My Pi](https://github.com/can1357/oh-my-pi) configuration. Managed vi
 
 ```text
 modules/features/agents/home/omp/
-├── default.nix               # Nix configuration: settings, model providers, activation
-└── agent/                    # Symlinked to ~/.omp/agent/
-    ├── AGENTS.md             # Main agent prompt ("Soul"); OMP withholds it from subagents
-    ├── RULES.md              # Always-applied rules shared by main agent and subagents
-    ├── extensions/           # Custom OMP runtime extensions
-    ├── macros/               # Reusable prompt templates (Ctrl+M / /macro)
-    ├── commands/             # Slash commands (/review:adversarial, /cleanup, etc.)
-    └── agents/               # Specialized subagents (scouts, committer, pr)
+├── default.nix       # Settings, model providers, home.file wiring, activation
+├── catalog.nix       # Renders ../../catalog into ~/.omp/agent (prompts, agents, commands, macros)
+└── extensions/       # Hand-written TypeScript extensions → ~/.omp/agent/extensions/
 ```
 
 - **`default.nix`**: Generates `~/.omp/agent/config.yml`, `models.yml`, and `ssh.json` (Nix-managed hosts). Handles activation to register Context Mode in `mcp.json` and `plugins/package.json`.
-- **`agent/`**: Installed directly as `~/.omp/agent/` via Home Manager symlinks.
+- **`catalog.nix`**: Writes `AGENTS.md`, `RULES.md` (rules plus Ponytail, which `task` subagents also receive), `APPEND_SYSTEM.md` (Caveman, main session only), `commands/`, `agents/`, and `macros/` under `~/.omp/agent/`. Prompt text lives in `../../catalog/`; edit it there.
+- **`extensions/`**: Linked file-by-file into `~/.omp/agent/extensions/`.
 
 ---
 
@@ -29,15 +25,13 @@ Custom TypeScript extensions running inside OMP:
 
 | Extension | What it does |
 | --- | --- |
-| **`macros.ts`** | Adds `/macro [name]` and `Ctrl+M` keybind to open an interactive picker for prompt templates in `agent/macros/`. Strips frontmatter before pasting into the composer. |
+| **`macros.ts`** | Adds `/macro [name]` and `Ctrl+M` keybind to open an interactive picker for prompt templates in `~/.omp/agent/macros/`. Strips frontmatter before pasting into the composer. |
 | **`luna-priority.ts`** | Injects `service_tier: "priority"` into requests targeting `openai-codex/gpt-5.6-luna`. |
-| **`caveman.ts`** | Adds `/caveman [on\|off]` to enforce terse, fluff-free responses while keeping technical substance intact. State persists across sessions and branches. |
-| **`ponytail.ts`** | Adds `/ponytail [on\|off]` to enforce senior pragmatic engineering heuristics (reuse existing code first, stdlib over extra deps, avoid speculative abstractions). State persists across sessions and branches. |
 | **`decomplect.ts`** | Routes `/decomplect` into native plan mode before the command runs. |
 
 ---
 
-## Macros (`agent/macros/`)
+## Macros (`~/.omp/agent/macros/`, source `../../catalog/macros/`)
 
 Reusable prompts inserted via `Ctrl+M` or `/macro <name>`:
 
@@ -61,7 +55,7 @@ Reusable prompts inserted via `Ctrl+M` or `/macro <name>`:
 | **`/commit [guidance]`** | Delegates to the `committer` agent to inspect the staged diff and create a clean conventional commit. |
 | **`/pr [target] [guidance]`** | Resolves the target repo, then delegates to the `pr` agent to open a signed GitHub PR from committed changes, creating a `pr/*` branch if currently on `main` or `dev/*`. |
 
-### Subagents (`agent/agents/`)
+### Subagents (`~/.omp/agent/agents/`, source `../../catalog/agents/`)
 
 Subagents run in parallel with `blocking: true` to return findings inline:
 

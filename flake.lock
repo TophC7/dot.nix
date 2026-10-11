@@ -1176,14 +1176,15 @@
         "nix-cachyos-kernel": "nix-cachyos-kernel",
         "nixpkgs": "nixpkgs_4",
         "nixpkgs-stable": "nixpkgs-stable",
-        "omp": "omp"
+        "omp": "omp",
+        "ompweb": "ompweb"
       },
       "locked": {
-        "lastModified": 1791704557,
-        "narHash": "sha256-4dTdcIBBEoVyj8/A0/EZtazTzW0Q07ncJ7VGUPrSFF8=",
+        "lastModified": 1791753065,
+        "narHash": "sha256-kwLF8UHEsjTBMPTqFbKbRve10iilLmBbEdbHbgLn600=",
         "ref": "refs/heads/main",
-        "rev": "3de4399d09f675c2557436c11b6aab1f6a21ab45",
-        "revCount": 186,
+        "rev": "c4378db03d020c38d4990ed9cedf6dc07063d065",
+        "revCount": 187,
         "type": "git",
         "url": "file:///repo/Nix/mix.nix"
       },
@@ -1590,6 +1591,23 @@
       "original": {
         "owner": "can1357",
         "repo": "oh-my-pi",
+        "type": "github"
+      }
+    },
+    "ompweb": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1791714234,
+        "narHash": "sha256-9A/TEvu9d0wpw8v4n2TVObgDoU7Tdh+BEwGES8CvULE=",
+        "owner": "kahme247",
+        "repo": "ompweb",
+        "rev": "7dec76633f392fa0f9e148effe691356fd2b473a",
+        "type": "github"
+      },
+      "original": {
+        "owner": "kahme247",
+        "repo": "ompweb",
+        "rev": "7dec76633f392fa0f9e148effe691356fd2b473a",
         "type": "github"
       }
     },
