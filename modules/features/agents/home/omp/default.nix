@@ -8,6 +8,7 @@
 let
   yaml = pkgs.formats.yaml { };
   json = pkgs.formats.json { };
+  deepseekApiKey = secrets.service.models.DEEPSEEK_API_KEY or null;
 
   settings = {
     setupVersion = 2;
@@ -125,64 +126,70 @@ let
     secrets.enabled = true;
   };
 
-  models.providers = {
-    # Local inference on Zebes (llama-server, router mode).
-    #
-    # llama-server serves unauthenticated, and `auth: none` is what waives OMP's
-    # apiKey requirement for a custom provider — no placeholder key needed.
-    #
-    # The private-range baseUrl is load-bearing, not laziness: OMP keys its
-    # local-backend compat off a loopback/RFC1918 host — reasoning replay for
-    # KV-cache hits across turns, Qwen `preserve_thinking`, no first-event
-    # watchdog, a 300s stream idle floor, append-only context. A DNS name would
-    # resolve fine and silently lose all of it.
-    zebes =
-      let
-        zebes = import ../_zebes-models.nix hosts;
-      in
-      {
-        inherit (zebes) baseUrl;
-        api = "openai-completions";
-        auth = "none";
-        compat = {
-          supportsDeveloperRole = false;
-          supportsReasoningEffort = false;
-          maxTokensField = "max_tokens";
-        };
-        # Models without efforts carry `reasoning` and no `thinking` block: OMP
-        # reads that as "reasoning model, no effort tiers".
-        models = map (
-          model:
-          {
-            inherit (model) id name contextWindow;
-            inherit (zebes) maxTokens;
-            reasoning = true;
-            input = [
-              "text"
-              "image"
-            ];
-            cost = {
-              input = 0;
-              output = 0;
-              cacheRead = 0;
-              cacheWrite = 0;
-            };
-          }
-          // lib.optionalAttrs (model ? efforts) {
-            thinking = {
-              mode = "effort";
-              inherit (model) efforts;
-              defaultLevel = "medium";
-              requiresEffort = false;
-            };
-            compat = {
-              thinkingFormat = "qwen-chat-template";
-              qwenTemplateReasoningEffort = true;
-            };
-          }
-        ) zebes.models;
+  models.providers =
+    lib.optionalAttrs (deepseekApiKey != null) {
+      deepseek = {
+        apiKey = deepseekApiKey;
       };
-  };
+    }
+    // {
+      # Local inference on Zebes (llama-server, router mode).
+      #
+      # llama-server serves unauthenticated, and `auth: none` is what waives OMP's
+      # apiKey requirement for a custom provider — no placeholder key needed.
+      #
+      # The private-range baseUrl is load-bearing, not laziness: OMP keys its
+      # local-backend compat off a loopback/RFC1918 host — reasoning replay for
+      # KV-cache hits across turns, Qwen `preserve_thinking`, no first-event
+      # watchdog, a 300s stream idle floor, append-only context. A DNS name would
+      # resolve fine and silently lose all of it.
+      zebes =
+        let
+          zebes = import ../_zebes-models.nix hosts;
+        in
+        {
+          inherit (zebes) baseUrl;
+          api = "openai-completions";
+          auth = "none";
+          compat = {
+            supportsDeveloperRole = false;
+            supportsReasoningEffort = false;
+            maxTokensField = "max_tokens";
+          };
+          # Models without efforts carry `reasoning` and no `thinking` block: OMP
+          # reads that as "reasoning model, no effort tiers".
+          models = map (
+            model:
+            {
+              inherit (model) id name contextWindow;
+              inherit (zebes) maxTokens;
+              reasoning = true;
+              input = [
+                "text"
+                "image"
+              ];
+              cost = {
+                input = 0;
+                output = 0;
+                cacheRead = 0;
+                cacheWrite = 0;
+              };
+            }
+            // lib.optionalAttrs (model ? efforts) {
+              thinking = {
+                mode = "effort";
+                inherit (model) efforts;
+                defaultLevel = "medium";
+                requiresEffort = false;
+              };
+              compat = {
+                thinkingFormat = "qwen-chat-template";
+                qwenTemplateReasoningEffort = true;
+              };
+            }
+          ) zebes.models;
+        };
+    };
   hostDescriptions = {
     nexus = "Network router & gateway";
     zebes = "Local LLM server and misc containers";

@@ -46,7 +46,7 @@ in
     ];
     # API keys (launch environment outranks ~/.dsh/.credentials.yaml; read-only in the
     # UI) plus DSH_PROXY_SECRET.
-    environment = secrets.service.dsh;
+    environment = secrets.service.models;
     serviceConfig = {
       ExecStart = "${lib.getExe dsh} web --no-open --port ${port} --trusted-host ${domain}";
       User = user;
