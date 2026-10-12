@@ -15,6 +15,11 @@ let
     ];
   };
   creds = secrets.service.discord.axophyte;
+  # Local speech-to-text for voice messages, audio files, and video sound.
+  whisperModel = pkgs.fetchurl {
+    url = "https://huggingface.co/ggerganov/whisper.cpp/resolve/5359861c739e955e79d9a303bcbc70fb988958b1/ggml-large-v3-turbo-q5_0.bin";
+    sha256 = "394221709cd5ad1f40c46e6031ca61bce88931e6e088c188294c6d5a55ffa7e2";
+  };
   # Guild ID → Axophyte's forum there, or null for mentions and replies only.
   servers = {
     "900599333538390027" = "1557542849275236372";
@@ -44,12 +49,19 @@ in
       "network-online.target"
       "llama-cpp.service"
     ];
+    path = with pkgs; [
+      ffmpeg-headless
+      poppler-utils
+      pandoc
+      whisper-cpp
+    ];
     environment = {
       AXOPHYTE_DISCORD_TOKEN = creds.token;
       AXOPHYTE_TAVILY_KEY = creds.tavily;
       AXOPHYTE_SERVERS = builtins.toJSON servers;
       AXOPHYTE_LLAMA_URL = "http://${host.ip}:11434";
       AXOPHYTE_MODEL = "qwen3.8-27b-abliterated";
+      AXOPHYTE_WHISPER_MODEL = "${whisperModel}";
       BUN_RUNTIME_TRANSPILER_CACHE_PATH = "0";
       HOME = "/var/lib/axophyte";
       BUN_INSTALL_CACHE_DIR = "/var/lib/axophyte/cache";

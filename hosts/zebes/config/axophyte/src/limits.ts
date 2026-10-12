@@ -6,8 +6,23 @@ export const limits = {
   maxImagesPerRequest: 4,
   maxImageBytes: 10 * 1024 * 1024,
   imageMaxSide: 1536,
-  /** Downloaded images kept in memory across turns, oldest evicted first. */
-  imageCacheEntries: 64,
+  /** Loaded media kept in memory across turns, oldest evicted first. */
+  mediaCacheEntries: 64,
+  /** Per prompt, newest first: files read as text and transcripts; images above include stills grids. */
+  maxDocumentsPerRequest: 4,
+  maxTranscriptsPerRequest: 2,
+  maxVideoBytes: 50 * 1024 * 1024,
+  maxAudioBytes: 25 * 1024 * 1024,
+  maxDocumentBytes: 25 * 1024 * 1024,
+  maxTextBytes: 1024 * 1024,
+  documentChars: 8000,
+  transcriptChars: 4000,
+  /** Only the first this-many seconds of audio are transcribed. */
+  transcribeSeconds: 180,
+  pdfPages: 30,
+  downloadTimeoutMs: 60_000,
+  processTimeoutMs: 60_000,
+  whisperTimeoutMs: 180_000,
   promptEmoji: 100,
   /** Longest emoji description, whether the model's or an admin's. */
   emojiNoteChars: 200,

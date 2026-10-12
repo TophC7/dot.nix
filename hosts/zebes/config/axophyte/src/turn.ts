@@ -16,7 +16,7 @@ import { noteTools, peopleSection, prunePerson } from "./memory/people";
 import { describerMessages, parseDescription } from "./memory/emoji";
 import { serverTools } from "./tools/server";
 import type { People, Store } from "./memory/store";
-import { loadImage } from "./conversation/images";
+import { loadImage } from "./media/download";
 import { runToolCall, toolError } from "./tools/tool";
 import type { Tool } from "./tools/tool";
 import { isPublic } from "./discord/visibility";
@@ -38,7 +38,7 @@ const MODEL_FAILURES: Record<ModelError["kind"], string> = {
   unavailable: "⚠️ The model server is unreachable right now. Try again in a bit.",
   not_loaded: "⚠️ The model server is unreachable right now. Try again in a bit.",
   timeout: "⚠️ The model took too long to respond. Try again later.",
-  too_long: "⚠️ That message (with its images) is too large for my context. Try shorter text or fewer/smaller images.",
+  too_long: "⚠️ That message (with its attachments) is too large for my context. Try shorter text or fewer/smaller attachments.",
 };
 
 function failure(error: unknown): { kind: string; text: string } {
@@ -61,7 +61,7 @@ export async function describeEmoji(emoji: UsableEmoji): Promise<string> {
   const url = emoji.imageURL({ extension: "png", size: 128 });
   // Animated emoji come back as their first frame; a failed fetch still gets a name-only guess.
   const [image, session] = await Promise.all([
-    loadImage({ id: emoji.id, url, proxyURL: url, contentType: "image/png", size: 0, width: 128, height: 128 }),
+    loadImage({ url, proxyURL: url, contentType: "image/png", size: 0, width: 128, height: 128 }).catch(() => null),
     modelSession(requestModel),
   ]);
   const text = await session.call((choice) => complete(choice, { messages: describerMessages(name, image), max_tokens: 200 }));
@@ -86,7 +86,10 @@ export async function runTurn(store: Store, source: Source, opts: TurnOptions): 
   let replyAfterReaction = false;
   const fail = (text: string) => reply!.fail(hadOutput ? "⚠️ Response interrupted." : text);
   try {
-    const loaded = await load(source, store);
+    if (opts.signal?.aborted) throw new TurnAborted();
+    // ponytail: one typing pulse (~10 s) covers media prep; ReplyStream keeps it up afterwards.
+    void channel.sendTyping().catch(() => {});
+    const loaded = await load(source, store, config.whisperModel, opts.signal);
     if (!loaded) return [];
     const botId = channel.client.user.id;
     // Private threads have no exact audience (moderators can open them), so no cross-channel reads.
@@ -127,7 +130,7 @@ export async function runTurn(store: Store, source: Source, opts: TurnOptions): 
           choice, memory, turns, tools: schemas,
           prompt: (summary, retained) => {
             const now = Date.now();
-            return [systemPrompt({ source, summary, people, emojiNotes }, now), ...render(retained, channel, botId, loaded.images, now), ...extra];
+            return [systemPrompt({ source, summary, people, emojiNotes }, now), ...render(retained, channel, botId, loaded.seen, now), ...extra];
           },
           summaryPrompt: (summary, folded) => summaryRequest(summary, folded, botId),
           count: (messages, actualTools) => countTokens(choice, { messages, tools: actualTools }, opts.signal),

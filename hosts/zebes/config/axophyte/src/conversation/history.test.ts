@@ -14,7 +14,7 @@ function message(id: string, fields: Partial<HistoryMessage> = {}): HistoryMessa
     createdAt: 0,
     reactions: [],
     content: "Hello",
-    attachments: [],
+    media: [],
     replyTo: null,
     ...fields,
   };

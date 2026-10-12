@@ -75,7 +75,7 @@ describe("prompt location format", () => {
             createdAt: 1000,
             reactions: [],
             content: "Can you help?",
-            attachments: [],
+            media: [],
             replyTo: null,
           } as HistoryMessage,
         ],

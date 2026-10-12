@@ -20,6 +20,7 @@ export const config = {
   servers: servers(required("AXOPHYTE_SERVERS")),
   llamaUrl: required("AXOPHYTE_LLAMA_URL").replace(/\/+$/, ""),
   model: required("AXOPHYTE_MODEL"),
+  whisperModel: required("AXOPHYTE_WHISPER_MODEL"),
   dbPath: process.env.STATE_DIRECTORY
     ? `${process.env.STATE_DIRECTORY}/axophyte.sqlite`
     : "./axophyte.sqlite",

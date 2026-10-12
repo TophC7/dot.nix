@@ -6,7 +6,7 @@ import { openStore } from "./store";
 function message(authorId: string, handle: string, ref: string): HistoryMessage {
   return {
     id: authorId, authorId, authorName: handle, authorHandle: handle, authorIsBot: false,
-    webhookId: null, system: false, content: "", attachments: [], replyTo: null,
+    webhookId: null, system: false, content: "", media: [], replyTo: null,
     createdAt: 0, reactions: [], ref,
   };
 }

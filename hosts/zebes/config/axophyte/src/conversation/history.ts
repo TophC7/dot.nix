@@ -1,3 +1,5 @@
+import type { Media } from "../media/media";
+
 export type HistoryMessage = {
   id: string;
   authorId: string;
@@ -9,7 +11,7 @@ export type HistoryMessage = {
   createdAt: number;
   reactions: { emoji: string; count: number; me: boolean }[];
   content: string;
-  attachments: { id: string; name: string; contentType: string | null }[];
+  media: Media[];
   replyTo: { id: string; label: string; excerpt: string } | null;
   /** Short tag ([m1]) assigned by load to each trigger message, for tools to name their source. */
   ref?: string;

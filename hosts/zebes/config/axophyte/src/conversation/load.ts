@@ -1,9 +1,12 @@
 import { MessageReferenceType } from "discord.js";
 import type { GuildTextBasedChannel, Message as DiscordMessage } from "discord.js";
+import { abortWait, throwIfAborted } from "../abort";
 import { limits } from "../limits";
 import { groupTurns, label, pendingHistory } from "./history";
 import type { HistoryMessage, Speaker, Turn } from "./history";
-import { imagesFor } from "./images";
+import { mediaOf } from "../media/media";
+import type { Seen } from "../media/media";
+import { seeMedia } from "../media/see";
 import type { Memory, Store } from "../memory/store";
 import { cleanText } from "../discord/visibility";
 
@@ -16,7 +19,7 @@ type Loaded = {
   memory: Memory | null;
   save(memory: Memory): void;
   turns: Turn[];
-  images: Map<string, string>;
+  seen: Map<string, Seen>;
   /** Trigger messages, in order: the only messages whose authors' notes may be written. */
   latest: HistoryMessage[];
   /** Everyone whose notes load: rendered authors plus people they mention. */
@@ -52,10 +55,12 @@ export function asHistory(message: Message): HistoryMessage {
       count: reaction.count,
       me: reaction.me,
     })),
-    content: cleanText(message.content, message.channel),
-    attachments: [...message.attachments.values()].map((attachment) => ({
-      id: attachment.id, name: attachment.name, contentType: attachment.contentType,
-    })),
+    content: [
+      cleanText(message.content, message.channel),
+      ...[...message.messageSnapshots.values()].filter((s) => s.content)
+        .map((s) => `[forwarded message] ${cleanText(s.content!, message.channel)}`),
+    ].filter(Boolean).join("\n"),
+    media: mediaOf(message),
     replyTo: target ? {
       id: target.id,
       label: target.author.id === message.client.user.id ? "Axophyte" : label(target.member?.displayName ?? target.author.displayName, target.author.username),
@@ -67,11 +72,12 @@ export function asHistory(message: Message): HistoryMessage {
 // Newest first, back to `after`. Token budget, not message count, decides what fits: compaction
 // folds anything older into the summary, so nothing past `after` may be skipped.
 // ponytail: refetches every unsummarized message each turn (one request per 100); cache if long chatty threads get slow.
-async function fetchHistory(channel: GuildTextBasedChannel, after: string, limit = Infinity): Promise<Message[]> {
+async function fetchHistory(channel: GuildTextBasedChannel, after: string, limit: number, signal?: AbortSignal): Promise<Message[]> {
   const messages: Message[] = [];
   let before: string | undefined;
   while (messages.length < limit) {
-    const page = await channel.messages.fetch({ limit: Math.min(100, limit - messages.length), before });
+    throwIfAborted(signal);
+    const page = await abortWait(channel.messages.fetch({ limit: Math.min(100, limit - messages.length), before }), signal);
     if (!page.size) break;
     const batch = [...page.values()].sort((a, b) => byId(b, a));
     let reachedBoundary = false;
@@ -87,13 +93,14 @@ async function fetchHistory(channel: GuildTextBasedChannel, after: string, limit
 
 // The triggers, recent messages before them (stale ones dropped), and the reply
 // chains the triggers point into, which may be older; same channel only.
-async function channelHistory(channel: GuildTextBasedChannel, triggers: Set<string>): Promise<Message[]> {
-  const anchors = (await Promise.all([...triggers].map((id) => channel.messages.fetch(id).catch(() => null))))
+async function channelHistory(channel: GuildTextBasedChannel, triggers: Set<string>, signal?: AbortSignal): Promise<Message[]> {
+  const anchors = (await abortWait(Promise.all([...triggers].map((id) => channel.messages.fetch(id).catch(() => null))), signal))
     .filter((message) => message !== null)
     .sort(byId);
   const found = new Map(anchors.map((message) => [message.id, message]));
   const cutoff = (anchors[0]?.createdTimestamp ?? Date.now()) - limits.channelContextMaxAgeMs;
-  const recent = await channel.messages.fetch({ limit: limits.channelContextMessages, before: anchors.at(-1)?.id });
+  throwIfAborted(signal);
+  const recent = await abortWait(channel.messages.fetch({ limit: limits.channelContextMessages, before: anchors.at(-1)?.id }), signal);
   for (const [id, message] of recent) if (message.createdTimestamp >= cutoff) found.set(id, message);
   let extra = 0;
   for (const start of anchors) {
@@ -102,7 +109,8 @@ async function channelHistory(channel: GuildTextBasedChannel, triggers: Set<stri
       && current.reference.channelId === channel.id && current.reference.messageId) {
       const known = found.get(current.reference.messageId);
       if (known) { current = known; continue; }
-      const parent = await current.fetchReference().catch(() => null);
+      throwIfAborted(signal);
+      const parent = await abortWait(current.fetchReference().catch(() => null), signal);
       if (!parent) break;
       found.set(parent.id, parent);
       extra++;
@@ -112,7 +120,8 @@ async function channelHistory(channel: GuildTextBasedChannel, triggers: Set<stri
   return [...found.values()].sort(byId);
 }
 
-export async function load(source: Source, store: Store): Promise<Loaded | null> {
+export async function load(source: Source, store: Store, whisperModel: string, signal?: AbortSignal): Promise<Loaded | null> {
+  throwIfAborted(signal);
   const channel = source.channel;
   const botId = channel.client.user.id;
   const pending = source.triggers;
@@ -123,12 +132,13 @@ export async function load(source: Source, store: Store): Promise<Loaded | null>
     memory = store.get(channel.id);
     let after = memory?.summaryUntil ?? (BigInt(channel.id) - 1n).toString();
     const limit = memory ? Infinity : limits.firstLoadMessages;
-    originals = await fetchHistory(channel, after, limit);
+    originals = await fetchHistory(channel, after, limit, signal);
     // A brand-new post's starter message can lag behind its ThreadCreate event.
     if (pending.size && !originals.some((message) => pending.has(message.id))) {
-      await Bun.sleep(1500);
-      originals = await fetchHistory(channel, after, limit);
+      await abortWait(Bun.sleep(1500), signal);
+      originals = await fetchHistory(channel, after, limit, signal);
     }
+    throwIfAborted(signal);
     if (!memory) {
       // The conversation starts here: at most firstLoadMessages back, then everything since is kept.
       if (originals.length === limit) after = (BigInt(originals[0]!.id) - 1n).toString();
@@ -136,21 +146,21 @@ export async function load(source: Source, store: Store): Promise<Loaded | null>
       store.save(channel.id, memory);
     }
     if (channel.isThread()) {
-      const starter = await channel.fetchStarterMessage().catch(() => null);
+      const starter = await abortWait(channel.fetchStarterMessage().catch(() => null), signal);
       if (starter && BigInt(starter.id) > BigInt(after) && !originals.some((message) => message.id === starter.id)) {
         originals.push(starter);
         originals.sort(byId);
       }
     }
   } else {
-    originals = await channelHistory(channel, pending);
+    originals = await channelHistory(channel, pending, signal);
   }
   const history = pendingHistory(originals.map(asHistory), botId, pending);
   const latest = history.filter((message) => pending.has(message.id) && message.authorId !== botId);
   latest.forEach((message, index) => { message.ref = `m${index + 1}`; });
   if (latest.length === 0) return null;
   const turns = groupTurns(history, botId);
-  const images = await imagesFor(history, originals, botId);
+  const seen = await seeMedia(history, botId, whisperModel, signal);
   const people = new Map<string, Speaker>();
   for (const message of history) {
     if (message.authorId !== botId) people.set(message.authorId, { name: message.authorName, handle: message.authorHandle });
@@ -165,7 +175,7 @@ export async function load(source: Source, store: Store): Promise<Loaded | null>
   }
   return {
     turns,
-    images,
+    seen,
     memory,
     save: persistent ? (updated) => store.save(channel.id, updated) : () => {},
     latest,
