@@ -10,7 +10,7 @@ import type { CommandDeps } from "./commands";
 import { config } from "./config";
 import { APP_EMOJI_SCOPE } from "./discord/emoji";
 import { limits } from "./limits";
-import { allowedMentions } from "./discord/reply";
+import { allowedMentions, waitNotice } from "./discord/reply";
 import { openStore } from "./memory/store";
 import { Scheduler } from "./schedule";
 import { describeEmoji, pruneNotes, runTurn } from "./turn";
@@ -40,6 +40,9 @@ const scheduler = new Scheduler(async (key, triggers, signal, commit) => {
   const forum = inForum(channel);
   const thread = !forum && channel.isThread() && activeThreads.has(channel.id);
   schedulePrunes(channel.guildId, await runTurn(store, { channel, forum, thread, triggers }, { signal, onCommit: commit }));
+}, (key) => {
+  const channel = client.channels.cache.get(key);
+  return channel?.isTextBased() && !channel.isDMBased() ? waitNotice(channel) : () => {};
 });
 const emojiDescriptions = new EmojiDescriptions(store, scheduler, describeEmoji,
   (scope) => !stopping && (scope === APP_EMOJI_SCOPE ? ready.size > 0 : ready.has(scope)));

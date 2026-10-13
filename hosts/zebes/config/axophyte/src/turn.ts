@@ -6,6 +6,7 @@ import { render, summaryRequest, systemPrompt } from "./conversation/prompt";
 import { APP_EMOJI_SCOPE } from "./discord/emoji";
 import type { UsableEmoji } from "./discord/emoji";
 import { ReplyStream } from "./discord/reply";
+import type { ReplyFile } from "./discord/reply";
 import { limits } from "./limits";
 import { complete, countTokens, requestModel, streamChat } from "./llm/llama";
 import type { ChatMessage, ToolCall } from "./llm/protocol";
@@ -15,6 +16,7 @@ import { CompactionError, prepareContext } from "./conversation/compaction";
 import { noteTools, peopleSection, prunePerson } from "./memory/people";
 import { describerMessages, parseDescription } from "./memory/emoji";
 import { serverTools } from "./tools/server";
+import { drawTool } from "./tools/draw";
 import type { People, Store } from "./memory/store";
 import { loadImage } from "./media/download";
 import { runToolCall, toolError } from "./tools/tool";
@@ -27,6 +29,9 @@ import { selfInfoTool } from "./tools/self";
 const webTools: Tool[] = [webSearchTool(config.tavilyKey), openUrlTool(config.tavilyKey)];
 /** Tools whose results the model never needs to read before replying. */
 const ACTIONS: Record<string, true> = { react: true, remember: true, revise: true };
+/** Status notices for the reply slot, shown after limits.statusNoticeMs without text. */
+const THINKING = "💭 thinking…";
+const COMPACTING = "🗜️ catching up on older messages…";
 
 type TurnOptions = {
   signal: AbortSignal;
@@ -84,7 +89,9 @@ export async function runTurn(store: Store, source: Source, opts: TurnOptions): 
   let reactions = 0;
   /** Set when a reaction in the current round asked to be followed by a message. */
   let replyAfterReaction = false;
-  const fail = (text: string) => reply!.fail(hadOutput ? "⚠️ Response interrupted." : text);
+  /** Finished tool attachments; kept even when the turn fails afterwards. */
+  const files: ReplyFile[] = [];
+  const fail = (text: string) => reply!.fail(hadOutput ? "⚠️ Response interrupted." : text, files);
   try {
     if (opts.signal?.aborted) throw new TurnAborted();
     // ponytail: one typing pulse (~10 s) covers media prep; ReplyStream keeps it up afterwards.
@@ -103,6 +110,13 @@ export async function runTurn(store: Store, source: Source, opts: TurnOptions): 
       ...(serverSearch ? serverTools(channel, store, new Set(loaded.turns.flatMap((turn) => turn.messages.map((message) => message.id)))) : []),
       ...(memoryEnabled ? noteTools(serverPeople, loaded.latest, (id) => { touched.add(id); opts.onCommit?.(); }) : []),
       reactTool(channel, loaded.latest, () => opts.onCommit?.(), (reply) => { reactions++; replyAfterReaction ||= reply; }),
+      drawTool({
+        channelId: channel.id,
+        fontsDir: config.svgFonts,
+        complete: (messages) => session!.call((choice) => complete(choice, { messages, max_tokens: limits.artMaxTokens }, opts.signal)),
+        onCommit: () => opts.onCommit?.(),
+        preview: (text, file) => reply?.preview(text, file),
+      }),
     ];
     const people = peopleSection(serverPeople, loaded.people);
     // Server scope last: its admins' meanings for Axophyte's own emoji override the shared descriptions.
@@ -113,8 +127,9 @@ export async function runTurn(store: Store, source: Source, opts: TurnOptions): 
     const extra: ChatMessage[] = [];
     const footer: string[] = [];
     const runCall = async (call: ToolCall) => {
-      const result = await runToolCall(call, tools, used, opts.signal);
+      const result = await runToolCall(call, tools, used, opts.signal, (text) => reply!.status(text));
       if (result.footer) footer.push(result.footer);
+      if (result.files) files.push(...result.files);
       extra.push({ role: "tool", tool_call_id: call.id, content: result.content });
     };
     let compacted = false;
@@ -124,6 +139,7 @@ export async function runTurn(store: Store, source: Source, opts: TurnOptions): 
     // with tool errors the model reads, so it answers from what it already found.
     const schemas = tools.map((tool) => tool.schema);
     for (let round = 0; ; round++) {
+      reply.status(THINKING);
       const result = await session.call(async (choice) => {
         // Preparation, compaction, and generation share one choice and one retry.
         const prepared = await prepareContext({
@@ -134,15 +150,17 @@ export async function runTurn(store: Store, source: Source, opts: TurnOptions): 
           },
           summaryPrompt: (summary, folded) => summaryRequest(summary, folded, botId),
           count: (messages, actualTools) => countTokens(choice, { messages, tools: actualTools }, opts.signal),
-          complete: (messages) => complete(choice, {
-            messages, max_tokens: limits.summaryMaxTokens,
-          }, opts.signal),
+          complete: (messages) => {
+            reply!.status(COMPACTING);
+            return complete(choice, { messages, max_tokens: limits.summaryMaxTokens }, opts.signal);
+          },
           save: loaded.save,
         });
         memory = prepared.memory;
         turns = prepared.turns;
         compacted ||= prepared.compacted;
         promptTokens = prepared.promptTokens;
+        if (prepared.compacted) reply!.status(THINKING);
         return streamChat(choice, { messages: prepared.messages, tools: schemas, max_tokens: limits.maxOutputTokens }, (delta) => {
           if (!hadOutput && delta.trim()) {
             hadOutput = true;
@@ -152,7 +170,7 @@ export async function runTurn(store: Store, source: Source, opts: TurnOptions): 
         }, opts.signal);
       });
       if (!result.toolCalls.length) {
-        if (!result.content.trim() && !reactions) {
+        if (!result.content.trim() && !reactions && !files.length) {
           await fail(result.finishReason === "length"
             ? "⚠️ I ran out of output tokens before answering. Try a narrower question."
             : "⚠️ The model returned no answer. Try again later.");
@@ -177,7 +195,7 @@ export async function runTurn(store: Store, source: Source, opts: TurnOptions): 
       if (replied && result.toolCalls.every((call) => ACTIONS[call.function.name])) break;
     }
     if (compacted) footer.push("-# 🗜️ Older messages were summarized into memory.");
-    await reply.finish(footer);
+    await reply.finish(footer, files);
   } catch (error) {
     if (error instanceof TurnAborted) {
       console.info(`turn ${channel.id} aborted`);

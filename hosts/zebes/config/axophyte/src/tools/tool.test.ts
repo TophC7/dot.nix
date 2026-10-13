@@ -16,13 +16,13 @@ test("budget exhaustion stops calls before they run", async () => {
   let runs = 0;
   const tools = [fakeTool(async () => { runs++; return { content: "ok" }; })];
   const used = new Map<string, number>();
-  for (let i = 0; i < 2; i++) await runToolCall(call, tools, used, signal);
-  expect(JSON.parse((await runToolCall(call, tools, used, signal)).content)).toHaveProperty("error");
+  for (let i = 0; i < 2; i++) await runToolCall(call, tools, used, signal, () => {});
+  expect(JSON.parse((await runToolCall(call, tools, used, signal, () => {})).content)).toHaveProperty("error");
   expect(runs).toBe(2);
 });
 
 // A swallowed abort would keep a superseded turn running and posting.
 test("aborts propagate instead of becoming tool errors", async () => {
   const tools = [fakeTool(async () => { throw new TurnAborted(); })];
-  await expect(runToolCall(call, tools, new Map(), signal)).rejects.toBeInstanceOf(TurnAborted);
+  await expect(runToolCall(call, tools, new Map(), signal, () => {})).rejects.toBeInstanceOf(TurnAborted);
 });

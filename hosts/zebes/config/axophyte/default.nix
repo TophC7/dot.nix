@@ -54,6 +54,7 @@ in
       poppler-utils
       pandoc
       whisper-cpp
+      resvg
     ];
     environment = {
       AXOPHYTE_DISCORD_TOKEN = creds.token;
@@ -62,6 +63,7 @@ in
       AXOPHYTE_LLAMA_URL = "http://${host.ip}:11434";
       AXOPHYTE_MODEL = "qwen3.8-27b-abliterated";
       AXOPHYTE_WHISPER_MODEL = "${whisperModel}";
+      AXOPHYTE_SVG_FONTS = "${pkgs.dejavu_fonts}/share/fonts/truetype";
       BUN_RUNTIME_TRANSPILER_CACHE_PATH = "0";
       HOME = "/var/lib/axophyte";
       BUN_INSTALL_CACHE_DIR = "/var/lib/axophyte/cache";

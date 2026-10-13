@@ -1,3 +1,4 @@
+import type { ReplyFile } from "../discord/reply";
 import { limits } from "../limits";
 import { object } from "../llm/protocol";
 import type { ToolCall } from "../llm/protocol";
@@ -7,10 +8,12 @@ type ToolSchema = {
   type: "function";
   function: { name: string; description: string; parameters: Record<string, unknown> };
 };
-type ToolResult = { content: string; footer?: string };
+type ToolResult = { content: string; footer?: string; files?: ReplyFile[] };
 export type Tool = {
   schema: ToolSchema;
   budget: number;
+  /** What the reply's status notice says while this call runs; omitted for instant tools. */
+  status?: (args: Record<string, unknown>) => string;
   run(args: Record<string, unknown>, signal: AbortSignal): Promise<ToolResult>;
 };
 
@@ -19,12 +22,14 @@ export function defineTool(spec: {
   description: string;
   properties: Record<string, unknown>;
   required: string[];
+  status?: Tool["status"];
   run: Tool["run"];
 }): Tool {
-  const { name, description, properties, required, run } = spec;
+  const { name, description, properties, required, status, run } = spec;
   return {
     budget: limits.toolBudgets[name],
     schema: { type: "function", function: { name, description, parameters: { type: "object", properties, required } } },
+    status,
     run,
   };
 }
@@ -42,6 +47,7 @@ export async function runToolCall(
   tools: Tool[],
   used: Map<string, number>,
   signal: AbortSignal,
+  onStatus: (text: string) => void,
 ): Promise<ToolResult> {
   const name = call.function.name;
   const tool = tools.find((candidate) => candidate.schema.function.name === name);
@@ -53,6 +59,7 @@ export async function runToolCall(
   if (count >= tool.budget) return toolError(`${name} limit reached; answer with what you have`);
   // An aborted turn's triggers already moved to the next turn; nothing here may commit after that.
   if (signal.aborted) throw new TurnAborted();
+  if (tool.status) onStatus(tool.status(args));
   used.set(name, count + 1);
   try {
     return await tool.run(args, signal);

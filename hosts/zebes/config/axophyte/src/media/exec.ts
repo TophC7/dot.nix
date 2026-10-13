@@ -4,16 +4,28 @@ import { join } from "node:path";
 import { MediaFailure } from "./failure";
 import { clippedText } from "./text";
 
+// The cause of a failure is printed last, so keep stderr's tail rather than its head.
+async function stderrTail(stream: ReadableStream<Uint8Array>, max: number): Promise<string> {
+  const decoder = new TextDecoder();
+  let tail = "";
+  for await (const chunk of stream) tail = (tail + decoder.decode(chunk, { stream: true })).slice(-max);
+  return tail + decoder.decode();
+}
+
 async function execute<T>(
   cmd: string[], timeoutMs: number, capture: (stdout: ReadableStream<Uint8Array>) => Promise<T>,
 ): Promise<T> {
   const proc = Bun.spawn(cmd, {
-    stdin: "ignore", stdout: "pipe", stderr: "ignore", timeout: timeoutMs, killSignal: "SIGKILL",
+    stdin: "ignore", stdout: "pipe", stderr: "pipe", timeout: timeoutMs, killSignal: "SIGKILL",
   });
   try {
-    const [result, exit] = await Promise.all([capture(proc.stdout), proc.exited]);
+    // stderr drains concurrently so a chatty child can't block on a full pipe.
+    const [result, exit, errors] = await Promise.all([
+      capture(proc.stdout), proc.exited, stderrTail(proc.stderr, 2000),
+    ]);
     if (exit !== 0 || proc.signalCode !== null) {
-      throw new MediaFailure(`${cmd[0]} failed (${proc.signalCode ?? exit})`, proc.signalCode !== null);
+      const line = errors.split("\n").map((l) => l.trim()).filter((l) => l && !l.startsWith("Warning")).at(-1);
+      throw new MediaFailure(`${cmd[0]} failed (${proc.signalCode ?? exit})${line ? `: ${line}` : ""}`, proc.signalCode !== null);
     }
     return result;
   } catch (error) {
@@ -22,6 +34,7 @@ async function execute<T>(
     }
     await proc.exited;
     await proc.stdout.cancel().catch(() => {});
+    await proc.stderr.cancel().catch(() => {});
     throw error;
   }
 }

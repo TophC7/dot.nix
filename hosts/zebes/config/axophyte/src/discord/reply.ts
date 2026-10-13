@@ -4,6 +4,20 @@ import { discordEmoji, extractTrailingEmojis } from "./emoji";
 
 export const allowedMentions = { parse: [] as [], repliedUser: false };
 
+export type ReplyFile = { attachment: Buffer; name: string };
+
+/** Posted after the notice delay in a channel whose turn waits behind other model work; call the result to remove it. */
+export function waitNotice(channel: GuildTextBasedChannel): () => void {
+  let notice: Promise<Message | null> | undefined;
+  const timer = setTimeout(() => {
+    notice = channel.send({ content: "-# ⏳ busy with something else, I'll get to this soon…", allowedMentions }).catch(() => null);
+  }, limits.statusNoticeMs);
+  return () => {
+    clearTimeout(timer);
+    void notice?.then((message) => message?.delete().catch(() => {}));
+  };
+}
+
 export class ReplyStream {
   private chunks = [""];
   private messages: Message[] = [];
@@ -16,18 +30,41 @@ export class ReplyStream {
   private editTimer: NodeJS.Timeout | undefined;
   private typingTimer: NodeJS.Timeout;
   private noticeTimer: NodeJS.Timeout;
+  private statusText = "";
+  private noticeShown = false;
+  private pendingPreview: ReplyFile | undefined;
+  private previewShown = false;
 
   constructor(private channel: GuildTextBasedChannel, private replyTo?: Message) {
     const typing = () => { void channel.sendTyping().catch(() => {}); };
     typing();
     this.typingTimer = setInterval(typing, limits.typingIntervalMs);
-    this.noticeTimer = setTimeout(() => {
-      this.enqueue(async () => {
-        if (!this.closed && !this.hasText) {
-          await this.write(0, "⏳ Waiting for the model — it's busy with another request…");
-        }
-      });
-    }, limits.queueNoticeMs);
+    this.noticeTimer = setTimeout(() => this.enqueue(() => this.showNotice()), limits.statusNoticeMs);
+  }
+
+  /** Sets what the reply is doing; shown as subtext once the notice delay has passed without text. */
+  status(text: string): void {
+    if (this.closed || this.hasText) return;
+    this.statusText = text.replace(/\s+/g, " ").trim(); // subtext (-#) only covers one line
+    if (this.noticeShown) this.enqueue(() => this.showNotice());
+  }
+
+  /** Like status, plus an image shown with the notice until text or the final files replace it. */
+  preview(text: string, file: ReplyFile): void {
+    if (this.closed || this.hasText) return;
+    this.pendingPreview = file;
+    this.status(text);
+  }
+
+  private async showNotice(): Promise<void> {
+    if (this.closed || this.hasText || !this.statusText) return;
+    const files = this.pendingPreview ? [this.pendingPreview] : undefined;
+    await this.write(0, `-# ${this.statusText}`, files ? { files } : undefined);
+    if (files) {
+      this.previewShown = true;
+      this.pendingPreview = undefined;
+    }
+    this.noticeShown = true;
   }
 
   push(delta: string): void {
@@ -55,23 +92,26 @@ export class ReplyStream {
     });
   }
 
-  private async write(index: number, content: string): Promise<void> {
+  private async write(index: number, content: string, attach?: { files?: ReplyFile[]; clear?: boolean }): Promise<void> {
     if (!content.trim()) return;
     const converted = discordEmoji(content, this.channel.guild);
     // Conversion lengthens text after splitting at 1900; keep the original if it exceeds Discord's limit.
     if (converted.length <= 2000) content = converted;
-    if (this.written[index] === content) return;
+    if (!attach && this.written[index] === content) return;
+    // Files replace a message's attachments; an empty list removes them.
+    const extras = attach?.files ? { files: attach.files } : attach?.clear ? { attachments: [] } : {};
     const existing = this.messages[index];
     if (existing) {
       const wait = limits.editIntervalMs - (Date.now() - this.lastWriteAt);
       if (wait > 0) await Bun.sleep(wait);
       this.lastWriteAt = Date.now();
-      await existing.edit({ content, allowedMentions });
+      await existing.edit({ content, allowedMentions, ...extras });
     } else {
       this.lastWriteAt = Date.now();
       this.messages[index] = await this.channel.send({
         content,
         allowedMentions,
+        ...extras,
         ...(index === 0 && this.replyTo ? {
           reply: { messageReference: this.replyTo.id, failIfNotExists: false },
         } : {}),
@@ -80,12 +120,13 @@ export class ReplyStream {
     this.written[index] = content;
   }
 
-  private async flush(): Promise<void> {
+  private async flush(files?: ReplyFile[], filesAt = 0): Promise<void> {
     // Snapshot once: incoming deltas never mutate an in-flight Discord write.
-    const chunks = [...this.chunks];
-    let index = 0;
-    for (const content of chunks) {
-      if (content.trim()) await this.write(index++, content);
+    const chunks = [...this.chunks].filter((chunk) => chunk.trim());
+    for (const [index, content] of chunks.entries()) {
+      const clear = index === 0 && this.previewShown;
+      if (clear) this.previewShown = false;
+      await this.write(index, content, files && index === filesAt ? { files } : clear ? { clear } : undefined);
     }
   }
 
@@ -97,7 +138,7 @@ export class ReplyStream {
     clearInterval(this.typingTimer);
   }
 
-  async finish(footer: string[]): Promise<void> {
+  async finish(footer: string[], files: ReplyFile[] = []): Promise<void> {
     this.stop();
     const last = this.chunks.pop() ?? "";
     const converted = discordEmoji(last, this.channel.guild);
@@ -105,28 +146,30 @@ export class ReplyStream {
     const footerText = footer.length ? `\n\n${footer.join("\n")}` : "";
     const combined = `${trailing ? trailing.body : converted}${footerText}`;
     if (combined.trim()) this.chunks.push(...splitMessage(combined, limits.splitAt));
+    // Files go with the body and footer, not a trailing emoji-only message.
+    const filesAt = Math.max(0, this.chunks.filter((chunk) => chunk.trim()).length - 1);
     if (trailing) this.chunks.push(trailing.emojis);
     if (!this.chunks.some((chunk) => chunk.trim())) {
       await this.cancel();
       return;
     }
-    this.enqueue(() => this.flush());
+    this.enqueue(() => this.flush(files.length ? files : undefined, filesAt));
     await this.writes;
     if (this.writeError !== undefined) throw this.writeError;
   }
 
-  // Only used before substantive model output, so at most the ⏳ notice is removed.
+  // Only used before substantive model output, so at most the status notice is removed.
   async cancel(): Promise<void> {
     this.stop();
     await this.writes;
     await Promise.all(this.messages.map((message) => message.delete().catch(() => {})));
   }
 
-  async fail(text: string): Promise<void> {
+  async fail(text: string, files: ReplyFile[] = []): Promise<void> {
     // Keep every generated chunk, including output not yet sent to Discord.
     const tail = this.chunks.pop()!;
     this.chunks.push(...splitMessage(tail ? `${tail}\n\n${text}` : text, limits.splitAt));
-    await this.finish([]);
+    await this.finish([], files);
   }
 }
 

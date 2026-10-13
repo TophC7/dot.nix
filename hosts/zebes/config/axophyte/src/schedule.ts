@@ -6,6 +6,8 @@ type TurnRunner = (key: string, triggers: Set<string>, signal: AbortSignal, comm
 type Triggers = Map<string, string>;
 type Gate = { firstAt: number; lastMessageAt: number; lastTypingAt: number; triggers: Triggers; timer?: Timer };
 type Run = { triggers: Triggers; controller: AbortController; committed: boolean };
+/** Shows that `key`'s turn is queued behind other model work; the returned function takes that down. */
+type WaitNotice = (key: string) => () => void;
 
 const hasAuthor = (triggers: Triggers | undefined, userId: string) => !!triggers && triggers.values().some((id) => id === userId);
 
@@ -19,8 +21,10 @@ export class Scheduler {
   private readonly queued = new Set<string>();
   private readonly runs = new Map<string, Run>();
   private chain: Promise<void> = Promise.resolve();
+  /** Jobs on the chain, running or queued. */
+  private pending = 0;
 
-  constructor(private readonly turn: TurnRunner) {}
+  constructor(private readonly turn: TurnRunner, private readonly waitNotice: WaitNotice = () => () => {}) {}
 
   message(key: string, authorId: string, messageId: string): void {
     const now = Date.now();
@@ -52,11 +56,12 @@ export class Scheduler {
   }
 
   command<T>(run: () => Promise<T>): Promise<T> {
+    this.pending++;
     const result = this.chain.then(run);
     this.chain = result.then(
       () => {},
       () => console.error("turn queue job failed"),
-    );
+    ).then(() => { this.pending--; });
     return result;
   }
 
@@ -73,7 +78,12 @@ export class Scheduler {
       this.ready.set(key, ready);
       if (!this.queued.has(key)) {
         this.queued.add(key);
-        void this.command(() => this.start(key));
+        // A run in this same channel already shows Axophyte at work there.
+        const done = this.pending && !this.runs.has(key) ? this.waitNotice(key) : undefined;
+        void this.command(() => {
+          done?.();
+          return this.start(key);
+        });
       }
     }, Math.max(0, due - Date.now()));
   }

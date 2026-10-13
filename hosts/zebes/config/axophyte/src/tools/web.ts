@@ -60,6 +60,7 @@ export function webSearchTool(key: string): Tool {
     description: "Search the web when someone asks you to look something up, for anything recent or current (news, releases, prices, versions), and to verify real-world facts, works, tracklists, chronologies, specs, trivia, or claims.",
     properties: { query: { type: "string" } },
     required: ["query"],
+    status: (args) => `🔎 searching “${stringArg(args, "query", 100) ?? ""}”…`,
     async run(args, signal) {
       const query = stringArg(args, "query", limits.maxQueryChars);
       if (!query) return toolError("invalid arguments");
@@ -81,6 +82,7 @@ export function openUrlTool(key: string): Tool {
       focus: { type: "string" },
     },
     required: ["url"],
+    status: (args) => `🔗 reading <${stringArg(args, "url", 300) ?? ""}>…`,
     async run(args, signal) {
       const raw = stringArg(args, "url", 2049);
       const url = URL.parse(raw ?? "");

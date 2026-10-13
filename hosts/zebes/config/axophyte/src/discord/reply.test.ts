@@ -63,7 +63,7 @@ test("stream write rejection finishes and clears timers", async () => {
   stream.push("answer");
   await expect(stream.finish([])).rejects.toThrow("Discord unavailable");
   stream.push("ignored after finish");
-  jest.advanceTimersByTime(limits.queueNoticeMs + limits.typingIntervalMs);
+  jest.advanceTimersByTime(limits.statusNoticeMs + limits.typingIntervalMs);
   expect(attempts).toBe(1);
 });
 
@@ -85,6 +85,45 @@ test("stream finish normalizes text and splits Axophyte's own trailing emoji int
   stream.push("court is open — live – right now :weyyy");
   await stream.finish([]);
   expect(sent).toEqual(["court is open - live - right now", "<:weyyy:101>"]);
+});
+
+// A regression leaves the draft image on a reply, or drops the finished drawing (or parks it on the emoji message).
+test("text replacing a draft preview clears it, and final files land with the footer", async () => {
+  jest.useFakeTimers();
+  type Write = { index: number; content: string; files?: unknown; attachments?: unknown };
+  const writes: Write[] = [];
+  const noticeSent = Promise.withResolvers<void>();
+  let sends = 0;
+  const thread = {
+    guild: { client: { application: null }, emojis: { cache: new Collection() } },
+    async sendTyping() {},
+    async send(options: Omit<Write, "index">) {
+      const index = sends++;
+      writes.push({ index, ...options });
+      noticeSent.resolve();
+      return { async edit(update: Omit<Write, "index">) { writes.push({ index, ...update }); } };
+    },
+  } as unknown as GuildTextBasedChannel;
+  const draft = { attachment: Buffer.from("draft"), name: "draft.png" };
+  const png = { attachment: Buffer.from("png"), name: "art.png" };
+  const stream = new ReplyStream(thread);
+  stream.preview("touching it up…", draft);
+  jest.advanceTimersByTime(limits.statusNoticeMs);
+  await noticeSent.promise;
+  expect(writes[0]).toMatchObject({ index: 0, content: "-# touching it up…", files: [draft] });
+  jest.setSystemTime(Date.now() + limits.editIntervalMs);
+  stream.push(`${"a".repeat(2500)} <:weyyy:101>`);
+  await stream.finish(["-# f"], [png]);
+  const text = writes.filter((write) => write.index === 0 && !write.content.startsWith("-#"));
+  expect(text).toHaveLength(1);
+  expect(text[0]!.attachments).toEqual([]);
+  expect(text[0]!.files).toBeUndefined();
+  const footer = writes.find((write) => write.content.endsWith("-# f"))!;
+  expect(footer.index).toBe(1);
+  expect(footer.files).toEqual([png]);
+  const emoji = writes.at(-1)!;
+  expect(emoji).toMatchObject({ index: 2, content: "<:weyyy:101>" });
+  expect(emoji.files).toBeUndefined();
 });
 
 describe("Discord message splitting", () => {

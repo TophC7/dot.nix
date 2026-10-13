@@ -26,7 +26,7 @@ export const limits = {
   promptEmoji: 100,
   /** Longest emoji description, whether the model's or an admin's. */
   emojiNoteChars: 200,
-  toolBudgets: { self_info: 1, web_search: 3, open_url: 3, search_server: 3, read_conversation: 2, remember: 4, revise: 4, react: 3 },
+  toolBudgets: { self_info: 1, web_search: 3, open_url: 3, search_server: 3, read_conversation: 2, remember: 4, revise: 4, react: 3, draw: 1 },
   maxToolRounds: 6,
   /** Rounds after maxToolRounds whose tool calls are refused, prompting a plain answer. */
   answerRetries: 2,
@@ -35,7 +35,8 @@ export const limits = {
   editIntervalMs: 1200,
   splitAt: 1900,
   typingIntervalMs: 8000,
-  queueNoticeMs: 60_000,
+  /** Silence before the reply slot shows what Axophyte is doing. */
+  statusNoticeMs: 15_000,
   llmIdleTimeoutMs: 600_000,
   /** How far back a conversation's first load reaches, when Axophyte joins one already underway. */
   firstLoadMessages: 300,
@@ -53,6 +54,14 @@ export const limits = {
   maxPageChars: 12_000,
   serverHits: 8,
   conversationChars: 4000,
+  /** Drawing: SVG size cap, PNG width, resvg deadline, per-pass output, prompt clips, remembered channels. */
+  artMaxSvgChars: 60_000,
+  artRenderWidth: 1024,
+  artRenderTimeoutMs: 20_000,
+  artMaxTokens: 8192,
+  artPromptChars: 1500,
+  artRequestChars: 3000,
+  artMemoryChannels: 50,
 } as const;
 
 

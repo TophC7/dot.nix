@@ -54,7 +54,8 @@ describe("scheduler", () => {
     }
   });
 
-  test("turns and commands serialize by settle time and survive a failed runner", async () => {
+  // Without the notice, a turn stuck behind a long drawing elsewhere sits in silence for minutes.
+  test("turns and commands serialize by settle time, flag waiting turns, and survive a failed runner", async () => {
     const started = barrier();
     const release = barrier();
     const events: string[] = [];
@@ -74,6 +75,9 @@ describe("scheduler", () => {
         events.push(`${key}:end`);
         active--;
       }
+    }, (key) => {
+      events.push(`${key}:waiting`);
+      return () => events.push(`${key}:waited`);
     });
     scheduler.message("a", "alice", "1");
     jest.advanceTimersByTime(limits.burstQuietMs);
@@ -91,7 +95,7 @@ describe("scheduler", () => {
     release.resolve();
     await command;
     await scheduler.command(async () => {});
-    expect(events).toEqual(["a:start", "a:end", "b:start", "b:end", "command:start", "command:end"]);
+    expect(events).toEqual(["a:start", "b:waiting", "a:end", "b:waited", "b:start", "b:end", "command:start", "command:end"]);
     expect(active).toBe(0);
   });
 

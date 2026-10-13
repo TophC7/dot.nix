@@ -35,6 +35,7 @@ export function serverTools(channel: GuildTextBasedChannel, store: Store, inView
       before: { type: "string", description: `Optional YYYY-MM-DD in ${TIME_ZONE}; only messages before this day` },
     },
     required: ["query"],
+    status: () => "🔎 searching the server…",
     async run(args, signal) {
       const query = stringArg(args, "query", 200);
       if (!query) return toolError("invalid arguments");
@@ -98,6 +99,7 @@ export function serverTools(channel: GuildTextBasedChannel, store: Store, inView
     description: "Read the conversation around a search_server hit.",
     properties: { hit: { type: "string", description: "e.g. h2" } },
     required: ["hit"],
+    status: () => "📜 reading an older conversation…",
     async run(args) {
       const target = hits.get(stringArg(args, "hit", 10) ?? "");
       if (!target) return toolError("unknown hit");
