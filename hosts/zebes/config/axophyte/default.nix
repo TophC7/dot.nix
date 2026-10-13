@@ -20,6 +20,17 @@ let
     url = "https://huggingface.co/ggerganov/whisper.cpp/resolve/5359861c739e955e79d9a303bcbc70fb988958b1/ggml-large-v3-turbo-q5_0.bin";
     sha256 = "394221709cd5ad1f40c46e6031ca61bce88931e6e088c188294c6d5a55ffa7e2";
   };
+  # ponytail: drop once resvg ships linebender/resvg#1157. 0.48.1 applies feDisplacementMap's
+  # scale twice and reads the map premultiplied, shredding drawings that browsers render fine.
+  resvg = pkgs.resvg.overrideAttrs (old: {
+    patches = (old.patches or [ ]) ++ [
+      (pkgs.fetchpatch {
+        url = "https://github.com/linebender/resvg/commit/4bf314426d0e212e8abe8e37a1a21bd66a882573.patch";
+        includes = [ "crates/resvg/src/filter/*" ];
+        hash = "sha256-ObWsjhQ5sYdOAZFEiD5SnvcUi1LsMSIUvUA5+QsAXUo=";
+      })
+    ];
+  });
   # Guild ID → Axophyte's forum there, or null for mentions and replies only.
   servers = {
     "900599333538390027" = "1557542849275236372";
@@ -49,11 +60,11 @@ in
       "network-online.target"
       "llama-cpp.service"
     ];
-    path = with pkgs; [
-      ffmpeg-headless
-      poppler-utils
-      pandoc
-      whisper-cpp
+    path = [
+      pkgs.ffmpeg-headless
+      pkgs.poppler-utils
+      pkgs.pandoc
+      pkgs.whisper-cpp
       resvg
     ];
     environment = {
