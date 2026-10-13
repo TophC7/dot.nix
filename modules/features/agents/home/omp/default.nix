@@ -311,16 +311,11 @@ in
 
   home.file = {
     ".omp/plugins/node_modules/context-mode".source = pkgs.context-mode;
-    ".omp/agent/extensions" = {
-      source = ./extensions;
+    ".omp/agent" = {
+      source = ./agent;
       recursive = true;
     };
     ".omp/agent/models.yml".source = modelsFile;
-  }
-  # Prompts, agents, commands, macros, and modes rendered from ../../catalog.
-  // import ./catalog.nix {
-    inherit lib;
-    catalog = import ../../catalog { inherit lib; };
   };
 
   # OMP rewrites its config and owns mutable MCP/plugin registries at runtime.

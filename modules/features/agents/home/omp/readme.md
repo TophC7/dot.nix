@@ -1,6 +1,6 @@
 # Oh My Pi (OMP)
 
-Toph's [Oh My Pi](https://github.com/can1357/oh-my-pi) configuration. Managed via Nix to provide reproducible settings, model catalog, extensions, workflow commands, scout agents, prompt macros, and Context Mode.
+Toph's independent [Oh My Pi](https://github.com/can1357/oh-my-pi) configuration. Nix manages settings, model providers, extensions, workflow commands, scout agents, prompt macros, and Context Mode. Edit the native workflow directly in `agent/`; it is not generated or shared with other harnesses.
 
 ---
 
@@ -8,14 +8,20 @@ Toph's [Oh My Pi](https://github.com/can1357/oh-my-pi) configuration. Managed vi
 
 ```text
 modules/features/agents/home/omp/
-├── default.nix       # Settings, model providers, home.file wiring, activation
-├── catalog.nix       # Renders ../../catalog into ~/.omp/agent (prompts, agents, commands, macros)
-└── extensions/       # Hand-written TypeScript extensions → ~/.omp/agent/extensions/
+├── default.nix               # Settings, model providers, home.file wiring, activation
+└── agent/                    # Recursively linked into ~/.omp/agent/
+    ├── AGENTS.md             # Main-session Soul; not loaded by task subagents
+    ├── RULES.md              # Standing rules plus Ponytail; inherited by task subagents
+    ├── APPEND_SYSTEM.md      # Always-on Caveman; main session only
+    ├── agents/               # Specialized native subagents
+    ├── commands/             # Native slash-command prompts
+    ├── macros/               # Editable prompt templates
+    └── extensions/           # Macro picker, priority requests, native plan-mode routing
 ```
 
-- **`default.nix`**: Generates `~/.omp/agent/config.yml`, `models.yml`, and `ssh.json` (Nix-managed hosts). Handles activation to register Context Mode in `mcp.json` and `plugins/package.json`.
-- **`catalog.nix`**: Writes `AGENTS.md`, `RULES.md` (rules plus Ponytail, which `task` subagents also receive), `APPEND_SYSTEM.md` (Caveman, main session only), `commands/`, `agents/`, and `macros/` under `~/.omp/agent/`. Prompt text lives in `../../catalog/`; edit it there.
-- **`extensions/`**: Linked file-by-file into `~/.omp/agent/extensions/`.
+- **`default.nix`**: Generates `models.yml` and the declared settings and SSH hosts. Activation resets `~/.omp/agent/config.yml`, merges Nix-managed hosts into mutable `ssh.json`, and registers Context Mode in mutable `mcp.json` and `plugins/package.json`, preserving unrelated registry entries.
+- **`agent/`**: Home Manager links the native files recursively, leaving room for runtime state in `~/.omp/agent/`. Change prompts, agent definitions, commands, macros, and extensions here, then activate Home Manager to deploy them.
+- **Prompt reach**: `AGENTS.md` shapes the main session. `RULES.md` includes always-on Ponytail and is inherited by native `task` children. `APPEND_SYSTEM.md` supplies always-on Caveman to the main session only. These OMP-owned files need no toggle extensions, task-input rewriting, or persistence state.
 
 ---
 
@@ -31,15 +37,15 @@ Custom TypeScript extensions running inside OMP:
 
 ---
 
-## Macros (`~/.omp/agent/macros/`, source `../../catalog/macros/`)
+## Macros (`agent/macros/`)
 
 Reusable prompts inserted via `Ctrl+M` or `/macro <name>`:
 
-- **`plan.md`**: Top-level system architecture and task decomposition.
-- **`phased-plan.md`**: Comprehensive phased implementation plan with checkpoints.
-- **`plan-phase.md`**: Detailed execution breakdown for a single phase from an existing plan.
+- **`plan.md`**: Vet claims against code and discuss a self-contained implementation plan.
+- **`phased-plan.md`**: Outline phases with goals and constraints; leave detailed implementation to separate phase plans.
+- **`plan-phase.md`**: Flesh out one phase of an existing plan for execution in a fresh session.
 - **`ui-screens.md`**: Walk through UI changes in browser and capture screenshots to `screens/`.
-- **`pr-brent.md`**: Create PR from committed changes and request review from `brent-pysnk-ai`.
+- **`pr-brent.md`**: Create a PR from committed changes and request review from `brent-pysnk-ai`.
 
 ---
 
@@ -53,9 +59,9 @@ Reusable prompts inserted via `Ctrl+M` or `/macro <name>`:
 | **`/cleanup [commit] [focus]`** | Runs 4 scout agents over working tree or diff to polish code. Applies safe fixes automatically and routes uncertain or high-risk findings to a review list. |
 | **`/decomplect [repo-or-paths] [focus]`** | Enters native plan mode, audits a whole repo or selected subsystems with parallel `decomplect-scout` agents, discusses architectural/product choices, then opens one integrated plan to untangle, consolidate, and delete in Plan Review. |
 | **`/commit [guidance]`** | Delegates to the `committer` agent to inspect the staged diff and create a clean conventional commit. |
-| **`/pr [target] [guidance]`** | Resolves the target repo, then delegates to the `pr` agent to open a signed GitHub PR from committed changes, creating a `pr/*` branch if currently on `main` or `dev/*`. |
+| **`/pr [target] [guidance]`** | Resolves the target repo, then delegates to the `pr` agent to open a GitHub PR from committed changes, creating a `pr/*` branch if currently on `main` or `dev/*`. |
 
-### Subagents (`~/.omp/agent/agents/`, source `../../catalog/agents/`)
+### Subagents (`agent/agents/`)
 
 Subagents run in parallel with `blocking: true` to return findings inline:
 
@@ -81,22 +87,23 @@ Subagents run in parallel with `blocking: true` to return findings inline:
 
 ## Model Roles & Keybinds
 
-OMP uses abstract model roles instead of hardcoded model IDs. Subagents and workflows reference roles (e.g., `model: "@audit"`), allowing models to be swapped globally in `default.nix`.
+OMP uses abstract model roles instead of hardcoded model IDs. Subagents and workflows reference roles (e.g., `model: "@advisor"`), allowing models to be swapped globally in `default.nix`. Native discovery remains isolated from other harnesses through `disabledProviders`, and the built-in `scout` uses `@bard`.
 
 | Role | Default Model |
 | --- | --- |
 | `default` | `google-antigravity/gemini-3.8-flash:high` |
 | `bard` | `google-antigravity/gemini-3.8-flash:high` |
 | `commit` | `google-antigravity/gemini-3.8-flash:low` |
-| `plan` | `anthropic/claude-fable-5-1:medium` |
-| `designer` | `anthropic/claude-opus-5:high` |
-| `task` | `openai-codex/gpt-5.6-sol:high` |
-| `smol` | `openai-codex/gpt-5.6-luna:xhigh` |
-| `tiny` | `openai-codex/gpt-5.3-codex-spark` |
-| `audit` | `openai-codex/gpt-6-astra:low` |
+| `plan` | `anthropic/claude-opus-5-5:high` |
+| `task` | `openai-codex/gpt-6.1-sol:high` |
+| `smol` | `openai-codex/gpt-6-luna:xhigh` |
+| `advisor` | `anthropic/claude-opus-5-5:medium` |
+| `claude` | `anthropic/claude-opus-5-5:high` |
+| `codex` | `openai-codex/gpt-6.1-sol:high` |
 
-- **`Ctrl+P`**: Cycles active model: `default → bard → task → audit → plan → designer → smol`.
-- **Local Models**: Preconfigured provider `zebes` connects to llama-server on host Zebes (Qwen3.8 27B plus Qwen3.5 9B models, thinking enabled).
+- **`Ctrl+P`**: Cycles active model: `default → bard → claude → codex`.
+- **Local Models**: The `zebes` provider retains its private-IP llama-server router endpoint, unauthenticated local access, model list from `../_zebes-models.nix`, and Qwen thinking compatibility.
+- **DeepSeek**: `models.yml` includes the DeepSeek provider when `secrets.service.models.DEEPSEEK_API_KEY` is configured.
 
 ---
 
