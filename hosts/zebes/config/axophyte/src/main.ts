@@ -12,7 +12,7 @@ import { allowedMentions, waitNotice } from "./discord/reply";
 import { openStore } from "./memory/store";
 import { Scheduler } from "./schedule";
 import { runTurn } from "./turn";
-import { ask } from "./llm/llama";
+import { ask } from "./llm/client";
 import { APP_EMOJI_SCOPE, EmojiDescriptions } from "./memory/emoji";
 import { prunePerson } from "./memory/people";
 
@@ -217,7 +217,7 @@ client.on(Events.InteractionCreate, (interaction) => {
   if (interaction.isChatInputCommand()) {
     void handleCommand(interaction, commandDeps).catch(() => console.error("Discord interaction failed"));
   } else if (interaction.isAutocomplete()) {
-    void handleAutocomplete(interaction).catch(() => console.error("Discord autocomplete failed"));
+    void handleAutocomplete(interaction, commandDeps).catch(() => console.error("Discord autocomplete failed"));
   }
 });
 client.on(Events.Error, () => console.error("Discord client error"));

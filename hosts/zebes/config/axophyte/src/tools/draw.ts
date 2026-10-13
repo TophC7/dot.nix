@@ -16,6 +16,7 @@ export function drawTool(opts: {
   channelId: string;
   fontsDir: string;
   complete: Complete;
+  supportsImages: boolean;
   onCommit(): void;
   preview(text: string, file: ReplyFile): void;
 }): Tool {
@@ -39,7 +40,7 @@ export function drawTool(opts: {
       const previous = args.revise ? memory.get(opts.channelId) : undefined;
       const request = previous ? clip(`${previous.request}; then changed: ${prompt}`, ART_REQUEST_CHARS) : prompt;
       const { svg, png, seen } = await paint({
-        request, previous, change: prompt, fontsDir: opts.fontsDir, complete: opts.complete,
+        request, previous, change: prompt, fontsDir: opts.fontsDir, complete: opts.complete, supportsImages: opts.supportsImages,
         onDraft: (draft) => opts.preview(`🎨 draft of “${title}” done, touching it up…`, { attachment: Buffer.from(draft.buffer, draft.byteOffset, draft.byteLength), name: "draft.png" }),
       });
 
@@ -54,6 +55,7 @@ export function drawTool(opts: {
           revised: !!previous,
           ...(args.revise && !previous ? { note: "no earlier drawing remembered in this channel, so this one is new" } : {}),
           looks_like: seen,
+          ...(!opts.supportsImages ? { review: "Rendered from SVG without visual review: this model cannot see images." } : {}),
           attached: [`${base}.png`, `${base}.svg`],
           instructions: "The picture and its SVG are attached to your reply. Don't paste SVG code; say something short about it in your own voice.",
         }),

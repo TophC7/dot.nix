@@ -129,7 +129,7 @@ async function rendered(text: string, fontsDir: string): Promise<Drawing | strin
   }
 }
 
-/** Draft (plus one repair if it won't render), then one vision review whose fix is kept only if it renders. */
+/** Draft (plus one repair if it won't render), then optional vision review whose fix must render. */
 export async function paint(input: {
   /** What the review compares the picture against. */
   request: string;
@@ -139,6 +139,7 @@ export async function paint(input: {
   change?: string;
   fontsDir: string;
   complete: Complete;
+  supportsImages: boolean;
   onDraft?: (png: Uint8Array) => void;
 }): Promise<Drawing & { seen: string | null }> {
   const { request, previous, change, fontsDir, complete } = input;
@@ -154,6 +155,7 @@ export async function paint(input: {
     draft = await rendered(text, fontsDir);
     if (typeof draft === "string") throw new Error(`couldn't render the drawing: ${draft}`);
   }
+  if (!input.supportsImages) return { ...draft, seen: null };
   input.onDraft?.(draft.png);
 
   messages.push({ role: "assistant", content: text }, {

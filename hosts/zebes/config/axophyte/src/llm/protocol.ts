@@ -1,3 +1,5 @@
+import type { AssistantMessage } from "@earendil-works/pi-ai";
+
 export type ChatPart =
   | { type: "text"; text: string }
   | { type: "image_url"; image_url: { url: string } };
@@ -10,13 +12,21 @@ export type ToolCall = {
 
 export type ChatMessage =
   | { role: "system" | "user"; content: string | ChatPart[] }
-  | { role: "assistant"; content: string | null; tool_calls?: ToolCall[] }
+  | { role: "assistant"; content: string | null; tool_calls?: ToolCall[]; nativeAssistant?: AssistantMessage }
   | { role: "tool"; tool_call_id: string; content: string };
+
+export type ChatBody = {
+  messages: ChatMessage[];
+  tools?: unknown[];
+  max_tokens: number;
+};
 
 export type ChatResult = {
   content: string;
   toolCalls: ToolCall[];
   finishReason: string | null;
+  /** Provider-native reasoning/signatures/IDs, kept privately for subsequent tool rounds. */
+  nativeAssistant?: AssistantMessage;
 };
 
 export type ReadChunk = () => Promise<

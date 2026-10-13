@@ -1,18 +1,11 @@
 import { throwIfAborted, TurnAborted } from "../abort";
 import { config } from "../config";
 import { readChatStream } from "./protocol";
-import type { ChatMessage, ChatResult, ReadChunk } from "./protocol";
-import { effectiveContextSize, ModelError, modelSession } from "./model";
+import type { ChatBody, ChatMessage, ChatResult, ReadChunk } from "./protocol";
+import { effectiveContextSize, IDLE_TIMEOUT_MS, ModelError } from "./model";
 import type { ModelChoice } from "./model";
 
-const IDLE_TIMEOUT_MS = 600_000;
 const CHAT = "/v1/chat/completions";
-
-type ChatBody = {
-  messages: ChatMessage[];
-  tools?: unknown[];
-  max_tokens: number;
-};
 
 async function readJson<T>(readChunk: ReadChunk): Promise<T> {
   const decoder = new TextDecoder("utf-8", { fatal: true });
@@ -137,8 +130,3 @@ export async function complete(body: ChatBody, signal?: AbortSignal): Promise<st
   }, signal);
 }
 
-/** One standalone completion with its own not-loaded retry, for background jobs. */
-export async function ask(messages: ChatMessage[], maxTokens: number): Promise<string> {
-  const session = await modelSession(requestModel);
-  return session.call(() => complete({ messages, max_tokens: maxTokens }));
-}

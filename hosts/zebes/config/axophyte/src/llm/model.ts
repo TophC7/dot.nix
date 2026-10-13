@@ -1,3 +1,4 @@
+export const IDLE_TIMEOUT_MS = 600_000;
 export const MAX_OUTPUT_TOKENS = 8192;
 const CONTEXT_HEADROOM_TOKENS = 1024;
 

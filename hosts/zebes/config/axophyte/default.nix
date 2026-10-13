@@ -39,7 +39,7 @@ let
   prepare = pkgs.writeScript "axophyte-prepare" ''
     #!${lib.getExe pkgs.fish}
     set --local state "$STATE_DIRECTORY"
-    # Replace only application files; leave SQLite memory and dependency cache intact.
+    # Replace only application files; leave memory, provider credentials, and cache intact.
     ${lib.getExe' pkgs.coreutils "rm"} -rf -- "$state/src"; or exit
     ${lib.getExe' pkgs.coreutils "cp"} -R --remove-destination -- \
       ${src}/src \
@@ -73,15 +73,26 @@ in
       AXOPHYTE_SERVERS = builtins.toJSON servers;
       AXOPHYTE_LLAMA_URL = "http://${host.ip}:11434";
       AXOPHYTE_MODEL = "qwen3.8-27b-abliterated";
+      AXOPHYTE_AUTH_FILE = "/var/lib/axophyte/auth.json";
       AXOPHYTE_WHISPER_MODEL = "${whisperModel}";
       AXOPHYTE_SVG_FONTS = "${pkgs.dejavu_fonts}/share/fonts/truetype";
       BUN_RUNTIME_TRANSPILER_CACHE_PATH = "0";
       HOME = "/var/lib/axophyte";
       BUN_INSTALL_CACHE_DIR = "/var/lib/axophyte/cache";
-    };
+    }
+    // lib.filterAttrs (
+      name: _:
+      builtins.elem name [
+        "ANTHROPIC_API_KEY"
+        "DEEPSEEK_API_KEY"
+        "GEMINI_API_KEY"
+      ]
+    ) (secrets.service.models or { });
     serviceConfig = {
       ExecStartPre = prepare;
       ExecStart = "${lib.getExe pkgs.bun} run --no-install src/main.ts";
+      # Optional overrides/new API keys without adding credentials to the Nix store.
+      EnvironmentFile = "-/var/lib/axophyte/providers.env";
       DynamicUser = true;
       StateDirectory = "axophyte";
       StateDirectoryMode = "0700";
@@ -117,7 +128,7 @@ in
         "-/tank"
         "-/store"
       ];
-      # Public internet (Discord, Tavily and the package registry), DNS and llama.cpp only.
+      # Public internet (Discord, model providers, Tavily and the registry), DNS and llama.cpp only.
       IPAddressDeny = [
         "localhost"
         "link-local"

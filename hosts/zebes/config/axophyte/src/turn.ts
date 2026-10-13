@@ -6,7 +6,7 @@ import type { Source } from "./conversation/load";
 import { render, summaryRequest, systemPrompt } from "./conversation/prompt";
 import { ReplyStream } from "./discord/reply";
 import type { ReplyFile } from "./discord/reply";
-import { complete, countTokens, requestModel, streamChat } from "./llm/llama";
+import { currentModel } from "./llm/client";
 import type { ChatMessage, ToolCall } from "./llm/protocol";
 import { MAX_OUTPUT_TOKENS, ModelError, modelSession } from "./llm/model";
 import type { ModelSession } from "./llm/model";
@@ -43,7 +43,7 @@ type TurnOptions = {
 };
 
 const MODEL_FAILURES: Record<ModelError["kind"], string> = {
-  unavailable: "⚠️ The model server is unreachable right now. Try again in a bit.",
+  unavailable: "⚠️ The selected model is unavailable right now. Try again in a bit or ask an admin to check its credentials.",
   not_loaded: "⚠️ The model server is unreachable right now. Try again in a bit.",
   timeout: "⚠️ The model took too long to respond. Try again later.",
   too_long: "⚠️ That message (with its attachments) is too large for my context. Try shorter text or fewer/smaller attachments.",
@@ -60,6 +60,8 @@ function failure(error: unknown): { kind: string; text: string } {
 /** Returns user IDs whose notes changed, for pruning after the reply. */
 export async function runTurn(store: Store, source: Source, opts: TurnOptions): Promise<string[]> {
   const channel = source.channel;
+  // Every inference operation in this turn uses this snapshot, even after a /model switch.
+  const model = currentModel();
   const { signal, onCommit } = opts;
   if (channel.isThread() && channel.locked) return [];
   const started = Date.now();
@@ -88,7 +90,7 @@ export async function runTurn(store: Store, source: Source, opts: TurnOptions): 
     const memoryEnabled = isPublic(channel);
     const serverPeople = store.people(channel.guildId);
     const tools = [
-      selfInfoTool(config.model),
+      selfInfoTool(model),
       ...webTools,
       ...(serverSearch ? serverTools(channel, store, new Set(loaded.turns.flat().map((message) => message.id))) : []),
       ...(memoryEnabled ? noteTools(serverPeople, loaded.latest, (id) => { touched.add(id); onCommit(); }) : []),
@@ -96,14 +98,15 @@ export async function runTurn(store: Store, source: Source, opts: TurnOptions): 
       drawTool({
         channelId: channel.id,
         fontsDir: config.svgFonts,
-        complete: (messages) => session!.call(() => complete({ messages, max_tokens: ART_MAX_TOKENS }, signal)),
+        supportsImages: model.supportsImages,
+        complete: (messages) => session!.call(() => model.complete({ messages, max_tokens: ART_MAX_TOKENS }, signal)),
         onCommit,
         preview: (text, file) => reply?.preview(text, file),
       }),
     ];
     const people = peopleSection(serverPeople, loaded.people);
     const emojiNotes = emojiNotesFor(store, channel.guildId);
-    session = await modelSession(() => requestModel(signal));
+    session = await modelSession(() => model.requestModel(signal));
     let memory = loaded.memory;
     let turns = loaded.turns;
     const extra: ChatMessage[] = [];
@@ -131,10 +134,10 @@ export async function runTurn(store: Store, source: Source, opts: TurnOptions): 
             return [systemPrompt({ source, summary, people, emojiNotes }, now), ...render(retained, channel, botId, loaded.seen, now), ...extra];
           },
           summaryPrompt: (summary, folded) => summaryRequest(summary, folded, botId),
-          count: (messages, actualTools) => countTokens({ messages, tools: actualTools }, signal),
+          count: (messages, actualTools) => model.countTokens({ messages, tools: actualTools }, signal),
           complete: (messages) => {
             reply!.status(COMPACTING);
-            return complete({ messages, max_tokens: SUMMARY_MAX_TOKENS }, signal);
+            return model.complete({ messages, max_tokens: SUMMARY_MAX_TOKENS }, signal);
           },
           save: loaded.save,
         });
@@ -143,7 +146,7 @@ export async function runTurn(store: Store, source: Source, opts: TurnOptions): 
         compacted ||= prepared.compacted;
         promptTokens = prepared.promptTokens;
         if (prepared.compacted) reply!.status(THINKING);
-        return streamChat({ messages: prepared.messages, tools: schemas, max_tokens: MAX_OUTPUT_TOKENS }, (delta) => {
+        return model.streamChat({ messages: prepared.messages, tools: schemas, max_tokens: MAX_OUTPUT_TOKENS }, (delta) => {
           if (!hadOutput && delta.trim()) {
             hadOutput = true;
             onCommit();
@@ -164,7 +167,7 @@ export async function runTurn(store: Store, source: Source, opts: TurnOptions): 
         await fail("⚠️ The model did not finish its answer. Try a narrower question.");
         return [...touched];
       }
-      extra.push({ role: "assistant", content: result.content || null, tool_calls: result.toolCalls });
+      extra.push({ role: "assistant", content: result.content || null, tool_calls: result.toolCalls, nativeAssistant: result.nativeAssistant });
       const reactionsBefore = reactions;
       replyAfterReaction = false;
       for (const call of result.toolCalls) {
@@ -192,7 +195,7 @@ export async function runTurn(store: Store, source: Source, opts: TurnOptions): 
     } catch { console.error(`turn ${channel.id} Discord write failed`); }
   } finally {
     const tools = [...used].map(([name, count]) => `${name}:${count}`).join(",") || "none";
-    console.info(`turn ${channel.id} model=${session ? config.model : "none"} prompt=${promptTokens} tools=${tools} ms=${Date.now() - started}`);
+    console.info(`turn ${channel.id} model=${session ? model.id : "none"} prompt=${promptTokens} tools=${tools} ms=${Date.now() - started}`);
   }
   return [...touched];
 }
