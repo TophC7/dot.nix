@@ -1,4 +1,6 @@
-import { limits } from "./limits";
+export const BURST_QUIET_MS = 4000;
+export const BURST_TYPING_MS = 10_000;
+export const BURST_MAX_WAIT_MS = 45_000;
 
 /** Runs one turn for `key` answering `triggers` (message IDs); `commit` makes it unabortable. */
 type TurnRunner = (key: string, triggers: Set<string>, signal: AbortSignal, commit: () => void) => Promise<void>;
@@ -68,8 +70,8 @@ export class Scheduler {
   private schedule(key: string, gate: Gate): void {
     clearTimeout(gate.timer);
     const due = Math.min(
-      gate.firstAt + limits.burstMaxWaitMs,
-      Math.max(gate.lastMessageAt + limits.burstQuietMs, gate.lastTypingAt + limits.burstTypingMs),
+      gate.firstAt + BURST_MAX_WAIT_MS,
+      Math.max(gate.lastMessageAt + BURST_QUIET_MS, gate.lastTypingAt + BURST_TYPING_MS),
     );
     gate.timer = setTimeout(() => {
       this.gates.delete(key);

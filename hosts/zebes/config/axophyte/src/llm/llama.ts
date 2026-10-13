@@ -1,10 +1,12 @@
+import { throwIfAborted, TurnAborted } from "../abort";
 import { config } from "../config";
-import { limits } from "../limits";
 import { readChatStream } from "./protocol";
 import type { ChatMessage, ChatResult, ReadChunk } from "./protocol";
-import { effectiveContextSize, ModelError, TurnAborted } from "./model";
+import { effectiveContextSize, ModelError, modelSession } from "./model";
 import type { ModelChoice } from "./model";
 
+const IDLE_TIMEOUT_MS = 600_000;
+const CHAT = "/v1/chat/completions";
 
 type ChatBody = {
   messages: ChatMessage[];
@@ -31,7 +33,7 @@ async function request<T>(
   consume: (readChunk: ReadChunk) => Promise<T>,
   signal?: AbortSignal,
 ): Promise<T> {
-  if (signal?.aborted) throw new TurnAborted();
+  throwIfAborted(signal);
   const controller = new AbortController();
   let timer: ReturnType<typeof setTimeout> | undefined;
   let timedOut = false;
@@ -41,7 +43,7 @@ async function request<T>(
     timer = setTimeout(() => {
       timedOut = true;
       controller.abort();
-    }, limits.llmIdleTimeoutMs);
+    }, IDLE_TIMEOUT_MS);
   }
   resetDeadline();
   try {
@@ -51,7 +53,7 @@ async function request<T>(
         Accept: "application/json, text/event-stream",
         "Content-Type": "application/json",
       },
-      body: body === undefined ? undefined : JSON.stringify(body),
+      body: body === undefined ? undefined : JSON.stringify({ ...body, model: config.model }),
       signal: signal ? AbortSignal.any([controller.signal, signal]) : controller.signal,
       // Model queue waits can exceed Bun's native deadline; use our idle timer only.
       timeout: false,
@@ -97,23 +99,15 @@ async function request<T>(
   }
 }
 
-function chatPath(suffix = ""): string {
-  return `/v1/chat/completions${suffix}`;
-}
-
 export async function requestModel(signal?: AbortSignal): Promise<ModelChoice> {
   return request(`/props?model=${encodeURIComponent(config.model)}`, undefined, async (readChunk) => {
     const props = await readJson<{ default_generation_settings?: { n_ctx?: unknown } } | null>(readChunk);
-    return { id: config.model, contextSize: effectiveContextSize(props?.default_generation_settings?.n_ctx) };
+    return { contextSize: effectiveContextSize(props?.default_generation_settings?.n_ctx) };
   }, signal);
 }
 
-export async function countTokens(
-  choice: ModelChoice,
-  body: { messages: ChatMessage[]; tools?: unknown[] },
-  signal?: AbortSignal,
-): Promise<number> {
-  return request(chatPath("/input_tokens"), { ...body, model: choice.id }, async (readChunk) => {
+export async function countTokens(body: { messages: ChatMessage[]; tools?: unknown[] }, signal?: AbortSignal): Promise<number> {
+  return request(`${CHAT}/input_tokens`, body, async (readChunk) => {
     const response = await readJson<{ input_tokens?: unknown } | null>(readChunk);
     const count = response?.input_tokens;
     if (typeof count !== "number" || !Number.isSafeInteger(count) || count < 0) {
@@ -123,19 +117,14 @@ export async function countTokens(
   }, signal);
 }
 
-export async function streamChat(
-  choice: ModelChoice,
-  body: ChatBody,
-  onContent: (delta: string) => void,
-  signal?: AbortSignal,
-): Promise<ChatResult> {
-  return request(chatPath(), {
-    ...body, ...thinkingKwargs("answer"), model: choice.id, stream: true, parallel_tool_calls: false,
+export async function streamChat(body: ChatBody, onContent: (delta: string) => void, signal?: AbortSignal): Promise<ChatResult> {
+  return request(CHAT, {
+    ...body, chat_template_kwargs: { reasoning_effort: "low" }, stream: true, parallel_tool_calls: false,
   }, (readChunk) => readChatStream(readChunk, onContent), signal);
 }
 
-export async function complete(choice: ModelChoice, body: ChatBody, signal?: AbortSignal): Promise<string> {
-  return request(chatPath(), { ...body, ...thinkingKwargs("summary"), model: choice.id, stream: false }, async (readChunk) => {
+export async function complete(body: ChatBody, signal?: AbortSignal): Promise<string> {
+  return request(CHAT, { ...body, chat_template_kwargs: { enable_thinking: false }, stream: false }, async (readChunk) => {
     const response = await readJson<{ choices?: { message?: { content?: unknown } }[] } | null>(readChunk);
     if (!Array.isArray(response?.choices) || !response.choices.length || !response.choices[0]?.message) {
       throw new ModelError("unavailable", "model server returned an invalid completion");
@@ -148,10 +137,8 @@ export async function complete(choice: ModelChoice, body: ChatBody, signal?: Abo
   }, signal);
 }
 
-function thinkingKwargs(purpose: "answer" | "summary"): Record<string, unknown> {
-  return {
-    chat_template_kwargs: purpose === "answer"
-      ? { reasoning_effort: "low" }
-      : { enable_thinking: false },
-  };
+/** One standalone completion with its own not-loaded retry, for background jobs. */
+export async function ask(messages: ChatMessage[], maxTokens: number): Promise<string> {
+  const session = await modelSession(requestModel);
+  return session.call(() => complete({ messages, max_tokens: maxTokens }));
 }

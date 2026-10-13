@@ -1,10 +1,13 @@
 import { paint } from "../art/artist";
 import type { Complete } from "../art/artist";
 import type { ReplyFile } from "../discord/reply";
-import { limits } from "../limits";
-import { clip } from "../media/text";
+import { clip } from "../text";
 import { defineTool, stringArg, toolError } from "./tool";
 import type { Tool } from "./tool";
+
+const ART_PROMPT_CHARS = 1500;
+const ART_REQUEST_CHARS = 3000;
+const ART_MEMORY_CHANNELS = 50;
 
 // Axophyte never sees its own posted images, so this is the only basis for revisions; lost on restart.
 const memory = new Map<string, { request: string; svg: string }>();
@@ -18,6 +21,7 @@ export function drawTool(opts: {
 }): Tool {
   return defineTool({
     name: "draw",
+    budget: 1,
     description: "Draw a picture and attach it to your reply, with its SVG file. A separate drawing session writes SVG that gets rendered; it takes a few minutes. Use when someone asks you to draw, sketch, paint, design, or make art, an image, a logo, or an icon. The drawing session can't see this chat or any images, so put everything it needs in prompt.",
     properties: {
       title: { type: "string", description: "Short name for the picture, 2 to 6 words" },
@@ -28,12 +32,12 @@ export function drawTool(opts: {
     status: (args) => `🎨 drawing “${stringArg(args, "title", 80) ?? "something"}”, takes a few minutes…`,
     async run(args) {
       const title = stringArg(args, "title", 80);
-      const prompt = stringArg(args, "prompt", limits.artPromptChars);
+      const prompt = stringArg(args, "prompt", ART_PROMPT_CHARS);
       if (!title || !prompt || typeof args.revise !== "boolean") return toolError("invalid arguments");
       // Minutes of drawing must not be thrown away by a follow-up message.
       opts.onCommit();
       const previous = args.revise ? memory.get(opts.channelId) : undefined;
-      const request = previous ? clip(`${previous.request}; then changed: ${prompt}`, limits.artRequestChars) : prompt;
+      const request = previous ? clip(`${previous.request}; then changed: ${prompt}`, ART_REQUEST_CHARS) : prompt;
       const { svg, png, seen } = await paint({
         request, previous, change: prompt, fontsDir: opts.fontsDir, complete: opts.complete,
         onDraft: (draft) => opts.preview(`🎨 draft of “${title}” done, touching it up…`, { attachment: Buffer.from(draft.buffer, draft.byteOffset, draft.byteLength), name: "draft.png" }),
@@ -41,7 +45,7 @@ export function drawTool(opts: {
 
       memory.delete(opts.channelId);
       memory.set(opts.channelId, { request, svg });
-      if (memory.size > limits.artMemoryChannels) memory.delete(memory.keys().next().value!);
+      if (memory.size > ART_MEMORY_CHANNELS) memory.delete(memory.keys().next().value!);
 
       const base = title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40).replace(/-+$/, "") || "drawing";
       return {

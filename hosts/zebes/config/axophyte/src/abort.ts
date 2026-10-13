@@ -1,4 +1,4 @@
-import { TurnAborted } from "./llm/model";
+export class TurnAborted extends Error {}
 
 export function throwIfAborted(signal?: AbortSignal): void {
   if (signal?.aborted) throw new TurnAborted();

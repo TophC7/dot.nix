@@ -1,6 +1,11 @@
 import type { GuildTextBasedChannel, Message } from "discord.js";
-import { limits } from "../limits";
 import { discordEmoji, extractTrailingEmojis } from "./emoji";
+
+export const EDIT_INTERVAL_MS = 1200;
+export const TYPING_INTERVAL_MS = 8000;
+/** Silence before the reply slot shows what Axophyte is doing. */
+export const STATUS_NOTICE_MS = 15_000;
+export const SPLIT_AT = 1900;
 
 export const allowedMentions = { parse: [] as [], repliedUser: false };
 
@@ -11,7 +16,7 @@ export function waitNotice(channel: GuildTextBasedChannel): () => void {
   let notice: Promise<Message | null> | undefined;
   const timer = setTimeout(() => {
     notice = channel.send({ content: "-# ⏳ busy with something else, I'll get to this soon…", allowedMentions }).catch(() => null);
-  }, limits.statusNoticeMs);
+  }, STATUS_NOTICE_MS);
   return () => {
     clearTimeout(timer);
     void notice?.then((message) => message?.delete().catch(() => {}));
@@ -38,8 +43,8 @@ export class ReplyStream {
   constructor(private channel: GuildTextBasedChannel, private replyTo?: Message) {
     const typing = () => { void channel.sendTyping().catch(() => {}); };
     typing();
-    this.typingTimer = setInterval(typing, limits.typingIntervalMs);
-    this.noticeTimer = setTimeout(() => this.enqueue(() => this.showNotice()), limits.statusNoticeMs);
+    this.typingTimer = setInterval(typing, TYPING_INTERVAL_MS);
+    this.noticeTimer = setTimeout(() => this.enqueue(() => this.showNotice()), STATUS_NOTICE_MS);
   }
 
   /** Sets what the reply is doing; shown as subtext once the notice delay has passed without text. */
@@ -71,7 +76,7 @@ export class ReplyStream {
     if (this.closed || !delta) return;
     const sanitized = delta.replace(/[—–]/g, "-");
     const tail = this.chunks.pop()! + sanitized;
-    this.chunks.push(...splitMessage(tail, limits.splitAt));
+    this.chunks.push(...splitMessage(tail, SPLIT_AT));
     if (!this.chunks.length) this.chunks.push("");
     if (!this.hasText) {
       if (!delta.trim()) return;
@@ -82,7 +87,7 @@ export class ReplyStream {
       this.editTimer = setTimeout(() => {
         this.editTimer = undefined;
         this.enqueue(() => this.flush());
-      }, Math.max(0, limits.editIntervalMs - (Date.now() - this.lastWriteAt)));
+      }, Math.max(0, EDIT_INTERVAL_MS - (Date.now() - this.lastWriteAt)));
     }
   }
 
@@ -102,7 +107,7 @@ export class ReplyStream {
     const extras = attach?.files ? { files: attach.files } : attach?.clear ? { attachments: [] } : {};
     const existing = this.messages[index];
     if (existing) {
-      const wait = limits.editIntervalMs - (Date.now() - this.lastWriteAt);
+      const wait = EDIT_INTERVAL_MS - (Date.now() - this.lastWriteAt);
       if (wait > 0) await Bun.sleep(wait);
       this.lastWriteAt = Date.now();
       await existing.edit({ content, allowedMentions, ...extras });
@@ -145,7 +150,7 @@ export class ReplyStream {
     const trailing = extractTrailingEmojis(converted);
     const footerText = footer.length ? `\n\n${footer.join("\n")}` : "";
     const combined = `${trailing ? trailing.body : converted}${footerText}`;
-    if (combined.trim()) this.chunks.push(...splitMessage(combined, limits.splitAt));
+    if (combined.trim()) this.chunks.push(...splitMessage(combined, SPLIT_AT));
     // Files go with the body and footer, not a trailing emoji-only message.
     const filesAt = Math.max(0, this.chunks.filter((chunk) => chunk.trim()).length - 1);
     if (trailing) this.chunks.push(trailing.emojis);
@@ -168,15 +173,12 @@ export class ReplyStream {
   async fail(text: string, files: ReplyFile[] = []): Promise<void> {
     // Keep every generated chunk, including output not yet sent to Discord.
     const tail = this.chunks.pop()!;
-    this.chunks.push(...splitMessage(tail ? `${tail}\n\n${text}` : text, limits.splitAt));
+    this.chunks.push(...splitMessage(tail ? `${tail}\n\n${text}` : text, SPLIT_AT));
     await this.finish([], files);
   }
 }
 
 export function splitMessage(text: string, limit: number): string[] {
-  if (!Number.isInteger(limit) || limit < 1) {
-    throw new RangeError("message limit must be a positive integer");
-  }
   const chunks: string[] = [];
   while (text.length > limit) {
     let cut = text.lastIndexOf("\n\n", limit);

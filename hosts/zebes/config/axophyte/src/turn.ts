@@ -1,24 +1,22 @@
 import { ChannelType } from "discord.js";
+import { throwIfAborted, TurnAborted } from "./abort";
 import { config } from "./config";
 import { load } from "./conversation/load";
 import type { Source } from "./conversation/load";
 import { render, summaryRequest, systemPrompt } from "./conversation/prompt";
-import { APP_EMOJI_SCOPE } from "./discord/emoji";
-import type { UsableEmoji } from "./discord/emoji";
 import { ReplyStream } from "./discord/reply";
 import type { ReplyFile } from "./discord/reply";
-import { limits } from "./limits";
 import { complete, countTokens, requestModel, streamChat } from "./llm/llama";
 import type { ChatMessage, ToolCall } from "./llm/protocol";
-import { ModelError, TurnAborted, modelSession } from "./llm/model";
+import { MAX_OUTPUT_TOKENS, ModelError, modelSession } from "./llm/model";
 import type { ModelSession } from "./llm/model";
-import { CompactionError, prepareContext } from "./conversation/compaction";
-import { noteTools, peopleSection, prunePerson } from "./memory/people";
-import { describerMessages, parseDescription } from "./memory/emoji";
+import { CompactionError, prepareContext, SUMMARY_MAX_TOKENS } from "./conversation/compaction";
+import { emojiNotesFor } from "./memory/emoji";
+import { peopleSection } from "./memory/people";
+import { noteTools } from "./tools/notes";
 import { serverTools } from "./tools/server";
 import { drawTool } from "./tools/draw";
-import type { People, Store } from "./memory/store";
-import { loadImage } from "./media/download";
+import type { Store } from "./memory/store";
 import { runToolCall, toolError } from "./tools/tool";
 import type { Tool } from "./tools/tool";
 import { isPublic } from "./discord/visibility";
@@ -26,17 +24,22 @@ import { openUrlTool, webSearchTool } from "./tools/web";
 import { reactTool } from "./tools/react";
 import { selfInfoTool } from "./tools/self";
 
+const MAX_TOOL_ROUNDS = 6;
+/** Rounds after MAX_TOOL_ROUNDS whose tool calls are refused, prompting a plain answer. */
+const ANSWER_RETRIES = 2;
+const ART_MAX_TOKENS = 8192;
+
 const webTools: Tool[] = [webSearchTool(config.tavilyKey), openUrlTool(config.tavilyKey)];
 /** Tools whose results the model never needs to read before replying. */
 const ACTIONS: Record<string, true> = { react: true, remember: true, revise: true };
-/** Status notices for the reply slot, shown after limits.statusNoticeMs without text. */
+/** Status notices for the reply slot, shown after STATUS_NOTICE_MS without text. */
 const THINKING = "💭 thinking…";
 const COMPACTING = "🗜️ catching up on older messages…";
 
 type TurnOptions = {
   signal: AbortSignal;
   /** Called on the first model output, memory write, or reaction; after that a turn is never aborted. */
-  onCommit?(): void;
+  onCommit(): void;
 };
 
 const MODEL_FAILURES: Record<ModelError["kind"], string> = {
@@ -54,30 +57,10 @@ function failure(error: unknown): { kind: string; text: string } {
   return { kind: "internal", text: "⚠️ I couldn't finish this response. Try again later." };
 }
 
-export async function pruneNotes(people: People, userId: string): Promise<void> {
-  await prunePerson(people, userId, async (messages) => {
-    const session = await modelSession(requestModel);
-    return session.call((choice) => complete(choice, { messages, max_tokens: 2048 }));
-  });
-}
-
-export async function describeEmoji(emoji: UsableEmoji): Promise<string> {
-  const name = emoji.name!;
-  const url = emoji.imageURL({ extension: "png", size: 128 });
-  // Animated emoji come back as their first frame; a failed fetch still gets a name-only guess.
-  const [image, session] = await Promise.all([
-    loadImage({ url, proxyURL: url, contentType: "image/png", size: 0, width: 128, height: 128 }).catch(() => null),
-    modelSession(requestModel),
-  ]);
-  const text = await session.call((choice) => complete(choice, { messages: describerMessages(name, image), max_tokens: 200 }));
-  const description = parseDescription(text);
-  if (!description) throw new Error(`empty description for emoji ${emoji.id}`);
-  return description;
-}
-
 /** Returns user IDs whose notes changed, for pruning after the reply. */
 export async function runTurn(store: Store, source: Source, opts: TurnOptions): Promise<string[]> {
   const channel = source.channel;
+  const { signal, onCommit } = opts;
   if (channel.isThread() && channel.locked) return [];
   const started = Date.now();
   const used = new Map<string, number>();
@@ -93,10 +76,10 @@ export async function runTurn(store: Store, source: Source, opts: TurnOptions): 
   const files: ReplyFile[] = [];
   const fail = (text: string) => reply!.fail(hadOutput ? "⚠️ Response interrupted." : text, files);
   try {
-    if (opts.signal?.aborted) throw new TurnAborted();
+    throwIfAborted(signal);
     // ponytail: one typing pulse (~10 s) covers media prep; ReplyStream keeps it up afterwards.
     void channel.sendTyping().catch(() => {});
-    const loaded = await load(source, store, config.whisperModel, opts.signal);
+    const loaded = await load(source, store, config.whisperModel, signal);
     if (!loaded) return [];
     const botId = channel.client.user.id;
     // Private threads have no exact audience (moderators can open them), so no cross-channel reads.
@@ -105,29 +88,28 @@ export async function runTurn(store: Store, source: Source, opts: TurnOptions): 
     const memoryEnabled = isPublic(channel);
     const serverPeople = store.people(channel.guildId);
     const tools = [
-      selfInfoTool(() => session!.choice.id),
+      selfInfoTool(config.model),
       ...webTools,
-      ...(serverSearch ? serverTools(channel, store, new Set(loaded.turns.flatMap((turn) => turn.messages.map((message) => message.id)))) : []),
-      ...(memoryEnabled ? noteTools(serverPeople, loaded.latest, (id) => { touched.add(id); opts.onCommit?.(); }) : []),
-      reactTool(channel, loaded.latest, () => opts.onCommit?.(), (reply) => { reactions++; replyAfterReaction ||= reply; }),
+      ...(serverSearch ? serverTools(channel, store, new Set(loaded.turns.flat().map((message) => message.id))) : []),
+      ...(memoryEnabled ? noteTools(serverPeople, loaded.latest, (id) => { touched.add(id); onCommit(); }) : []),
+      reactTool(channel, loaded.latest, onCommit, (reply) => { reactions++; replyAfterReaction ||= reply; }),
       drawTool({
         channelId: channel.id,
         fontsDir: config.svgFonts,
-        complete: (messages) => session!.call((choice) => complete(choice, { messages, max_tokens: limits.artMaxTokens }, opts.signal)),
-        onCommit: () => opts.onCommit?.(),
+        complete: (messages) => session!.call(() => complete({ messages, max_tokens: ART_MAX_TOKENS }, signal)),
+        onCommit,
         preview: (text, file) => reply?.preview(text, file),
       }),
     ];
     const people = peopleSection(serverPeople, loaded.people);
-    // Server scope last: its admins' meanings for Axophyte's own emoji override the shared descriptions.
-    const emojiNotes = new Map([...store.emojiNotes(APP_EMOJI_SCOPE).all(), ...store.emojiNotes(channel.guildId).all()]);
-    session = await modelSession(() => requestModel(opts.signal));
+    const emojiNotes = emojiNotesFor(store, channel.guildId);
+    session = await modelSession(() => requestModel(signal));
     let memory = loaded.memory;
     let turns = loaded.turns;
     const extra: ChatMessage[] = [];
     const footer: string[] = [];
     const runCall = async (call: ToolCall) => {
-      const result = await runToolCall(call, tools, used, opts.signal, (text) => reply!.status(text));
+      const result = await runToolCall(call, tools, used, signal, (text) => reply!.status(text));
       if (result.footer) footer.push(result.footer);
       if (result.files) files.push(...result.files);
       extra.push({ role: "tool", tool_call_id: call.id, content: result.content });
@@ -149,10 +131,10 @@ export async function runTurn(store: Store, source: Source, opts: TurnOptions): 
             return [systemPrompt({ source, summary, people, emojiNotes }, now), ...render(retained, channel, botId, loaded.seen, now), ...extra];
           },
           summaryPrompt: (summary, folded) => summaryRequest(summary, folded, botId),
-          count: (messages, actualTools) => countTokens(choice, { messages, tools: actualTools }, opts.signal),
+          count: (messages, actualTools) => countTokens({ messages, tools: actualTools }, signal),
           complete: (messages) => {
             reply!.status(COMPACTING);
-            return complete(choice, { messages, max_tokens: limits.summaryMaxTokens }, opts.signal);
+            return complete({ messages, max_tokens: SUMMARY_MAX_TOKENS }, signal);
           },
           save: loaded.save,
         });
@@ -161,13 +143,13 @@ export async function runTurn(store: Store, source: Source, opts: TurnOptions): 
         compacted ||= prepared.compacted;
         promptTokens = prepared.promptTokens;
         if (prepared.compacted) reply!.status(THINKING);
-        return streamChat(choice, { messages: prepared.messages, tools: schemas, max_tokens: limits.maxOutputTokens }, (delta) => {
+        return streamChat({ messages: prepared.messages, tools: schemas, max_tokens: MAX_OUTPUT_TOKENS }, (delta) => {
           if (!hadOutput && delta.trim()) {
             hadOutput = true;
-            opts.onCommit?.();
+            onCommit();
           }
           reply!.push(delta);
-        }, opts.signal);
+        }, signal);
       });
       if (!result.toolCalls.length) {
         if (!result.content.trim() && !reactions && !files.length) {
@@ -178,7 +160,7 @@ export async function runTurn(store: Store, source: Source, opts: TurnOptions): 
         }
         break;
       }
-      if (round >= limits.maxToolRounds + limits.answerRetries) {
+      if (round >= MAX_TOOL_ROUNDS + ANSWER_RETRIES) {
         await fail("⚠️ The model did not finish its answer. Try a narrower question.");
         return [...touched];
       }
@@ -186,7 +168,7 @@ export async function runTurn(store: Store, source: Source, opts: TurnOptions): 
       const reactionsBefore = reactions;
       replyAfterReaction = false;
       for (const call of result.toolCalls) {
-        if (round < limits.maxToolRounds) await runCall(call);
+        if (round < MAX_TOOL_ROUNDS) await runCall(call);
         else extra.push({ role: "tool", tool_call_id: call.id, content: toolError("no more tool calls for this answer; reply now with what you have").content });
       }
       // An actions-only round that already wrote text, or reacted as its whole reply, ends the turn:
@@ -210,7 +192,7 @@ export async function runTurn(store: Store, source: Source, opts: TurnOptions): 
     } catch { console.error(`turn ${channel.id} Discord write failed`); }
   } finally {
     const tools = [...used].map(([name, count]) => `${name}:${count}`).join(",") || "none";
-    console.info(`turn ${channel.id} model=${session?.choice.id ?? "none"} prompt=${promptTokens} tools=${tools} ms=${Date.now() - started}`);
+    console.info(`turn ${channel.id} model=${session ? config.model : "none"} prompt=${promptTokens} tools=${tools} ms=${Date.now() - started}`);
   }
   return [...touched];
 }

@@ -13,6 +13,7 @@ export function reactTool(
 ): Tool {
   return defineTool({
     name: "react",
+    budget: 3,
     description: "React to a tagged message with an emoji: a server emoji as :name: or a regular emoji. Set reply to say whether you also want to write a message.",
     properties: {
       message: { type: "string", description: "Message tag, e.g. m1" },

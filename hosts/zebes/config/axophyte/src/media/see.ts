@@ -1,28 +1,47 @@
 import { abortWait, throwIfAborted } from "../abort";
-import type { HistoryMessage } from "../conversation/history";
-import { limits } from "../limits";
-import { discordUrl, downloadFile, loadImage, nativeImageTypes } from "./download";
-import { documentText, sniffText } from "./documents";
-import { withTemp } from "./exec";
-import { MediaFailure } from "./failure";
-import { clock, probe, sheet, speech, still, stillTimes } from "./ffmpeg";
+import { downloadFile, loadImage, nativeImageTypes } from "./download";
+import { DOCUMENT_CHARS, documentText, sniffText } from "./documents";
+import { MediaFailure, withTemp } from "./exec";
+import { clock, probe, sheet, speech, still, stillTimes, TRANSCRIBE_SECONDS } from "./ffmpeg";
+import { dataUrl, discordUrl, IMAGE_MAX_SIDE, MAX_IMAGE_BYTES } from "./media";
 import type { Media, Seen } from "./media";
-import { clip } from "./text";
+import { clip } from "../text";
 import { transcribe } from "./whisper";
+
+/** Per prompt, newest first: images (stills grids included), files read as text, and transcripts. */
+const MAX_IMAGES = 4;
+const MAX_DOCUMENTS = 4;
+const MAX_TRANSCRIPTS = 2;
+/** Loaded media kept in memory across turns, oldest evicted first. */
+const CACHE_ENTRIES = 64;
+const TRANSCRIPT_CHARS = 4000;
+const DOWNLOAD_TIMEOUT_MS = 60_000;
 
 type Loaded = { seen: Seen | null; retry: boolean };
 
 // ponytail: count-bounded only (~50-150 MB typical, ~850 MB if every entry is a 10 MB original); track bytes if Zebes RAM gets tight.
 const cache = new Map<string, Promise<Seen | null>>();
 const caps = {
-  image: limits.maxImageBytes, gif: limits.maxVideoBytes, video: limits.maxVideoBytes,
-  audio: limits.maxAudioBytes, pdf: limits.maxDocumentBytes, document: limits.maxDocumentBytes, file: limits.maxTextBytes,
+  image: MAX_IMAGE_BYTES, gif: 50 * 1024 * 1024, video: 50 * 1024 * 1024,
+  audio: 25 * 1024 * 1024, pdf: 25 * 1024 * 1024, document: 25 * 1024 * 1024, file: 1024 * 1024,
 };
 
 /** Capture one independent component without losing another component's usable output. */
 async function attempt<T>(fn: () => Promise<T | null>): Promise<{ value: T | null; retry: boolean }> {
   try { return { value: await fn(), retry: false }; }
   catch (error) { return { value: null, retry: !(error instanceof MediaFailure) || error.retryable }; }
+}
+
+/** Speech → transcript; null when the input has no decodable audio. */
+async function listen(input: string, dir: string, duration: number | null, model: string): Promise<Seen | null> {
+  const wav = await speech(input, dir);
+  if (!wav) return null;
+  const text = await transcribe(wav, model);
+  if (!text) return { detail: ", no speech" };
+  return {
+    detail: `, transcript${duration !== null && duration > TRANSCRIBE_SECONDS ? ` (first ${TRANSCRIBE_SECONDS / 60} min)` : ""}`,
+    body: clip(text, TRANSCRIPT_CHARS),
+  };
 }
 
 async function moving(input: string, dir: string, gif: boolean, wantTranscript: boolean, model: string): Promise<Loaded> {
@@ -55,31 +74,20 @@ async function moving(input: string, dir: string, gif: boolean, wantTranscript: 
   } else {
     result.detail = ", video unsupported";
   }
-  let heard = false;
+  let hasHeard = false;
   if (wantTranscript && info.audio) {
-    const transcript = await attempt(async () => {
-      const wav = await speech(input, dir);
-      if (!wav) return null;
-      const text = await transcribe(wav, model);
-      if (text === null) throw new MediaFailure("Transcription failed", true);
-      return text;
-    });
-    retry ||= transcript.retry;
-    if (transcript.value !== null) {
-      heard = true;
-      result.detail = `${result.detail ?? ""}${transcript.value ? ", transcript" : ", no speech"}`;
-      if (transcript.value) {
-        if (info.duration !== null && info.duration > limits.transcribeSeconds) {
-          result.detail += ` (first ${limits.transcribeSeconds / 60} min)`;
-        }
-        result.body = clip(transcript.value, limits.transcriptChars);
-      }
+    const heard = await attempt(() => listen(input, dir, info.duration, model));
+    retry ||= heard.retry;
+    if (heard.value) {
+      result.detail = `${result.detail ?? ""}${heard.value.detail}`;
+      result.body = heard.value.body;
+      hasHeard = true;
     } else {
-      result.detail = `${result.detail ?? ""}${transcript.retry ? ", transcript unavailable" : ", transcript unsupported"}`;
+      result.detail = `${result.detail ?? ""}${heard.retry ? ", transcript unavailable" : ", transcript unsupported"}`;
     }
   }
   return {
-    seen: result.image || heard ? result : retry ? null : { detail: " - unsupported" },
+    seen: result.image || hasHeard ? result : retry ? null : { detail: " - unsupported" },
     retry,
   };
 }
@@ -88,23 +96,23 @@ async function loadMedia(m: Media, wantTranscript: boolean, model: string): Prom
   const cap = caps[m.kind];
   if (m.size !== null && m.size > cap) return { seen: { detail: " - too large" }, retry: false };
   if (!discordUrl(m.url)) return { seen: { detail: " - unsupported" }, retry: false };
-  const type = m.contentType?.split(";")[0]?.trim().toLowerCase();
-  if (m.kind === "image" && !m.linked && type && type !== "image/gif" &&
-    (Object.hasOwn(nativeImageTypes, type) || type === "image/webp")) {
+  const declared = m.contentType;
+  if (m.kind === "image" && !m.linked && declared && declared !== "image/gif" &&
+    (Object.hasOwn(nativeImageTypes, declared) || declared === "image/webp")) {
     const image = await loadImage(m);
     return { seen: image ? { image } : null, retry: !image };
   }
   return withTemp(async (input, dir) => {
-    const loaded = await downloadFile(m.url, input, cap, limits.downloadTimeoutMs);
-    if (!loaded) return { seen: null, retry: true };
+    const type = await downloadFile(m.url, input, cap, DOWNLOAD_TIMEOUT_MS);
+    if (type === null) return { seen: null, retry: true };
     let seen: Seen;
     switch (m.kind) {
       case "image": {
-        if (loaded.type === "image/gif") return moving(input, dir, true, false, model);
-        if (Object.hasOwn(nativeImageTypes, loaded.type) && m.width !== null && m.height !== null &&
-          m.width <= limits.imageMaxSide && m.height <= limits.imageMaxSide) {
+        if (type === "image/gif") return moving(input, dir, true, false, model);
+        if (Object.hasOwn(nativeImageTypes, type) && m.width !== null && m.height !== null &&
+          m.width <= IMAGE_MAX_SIDE && m.height <= IMAGE_MAX_SIDE) {
           const bytes = await Bun.file(input).bytes();
-          seen = { image: `data:${loaded.type};base64,${Buffer.from(bytes.buffer, bytes.byteOffset, bytes.byteLength).toString("base64")}` };
+          seen = { image: dataUrl(type, bytes) };
         } else {
           const image = await still(input);
           seen = image ? { image } : { detail: " - unsupported" };
@@ -116,18 +124,10 @@ async function loadMedia(m: Media, wantTranscript: boolean, model: string): Prom
         return moving(input, dir, m.kind === "gif", wantTranscript, model);
       case "audio": {
         const info = await probe(input, false);
-        if (!info) return { seen: { detail: " - unsupported" }, retry: false };
-        if (!info.audio) return { seen: { detail: " - unsupported" }, retry: false };
-        const wav = await speech(input, dir);
-        if (!wav) return { seen: { detail: " - unsupported" }, retry: false };
-        const text = await transcribe(wav, model);
-        if (text === null) return { seen: null, retry: true };
-        let detail = info.duration !== null ? `, ${clock(info.duration)}` : "";
-        detail += text ? ", transcript" : ", no speech";
-        if (text && info.duration !== null && info.duration > limits.transcribeSeconds) {
-          detail += ` (first ${limits.transcribeSeconds / 60} min)`;
-        }
-        seen = { detail, ...(text ? { body: clip(text, limits.transcriptChars) } : {}) };
+        if (!info?.audio) return { seen: { detail: " - unsupported" }, retry: false };
+        const heard = await listen(input, dir, info.duration, model);
+        if (!heard) return { seen: { detail: " - unsupported" }, retry: false };
+        seen = { ...heard, detail: `${info.duration !== null ? `, ${clock(info.duration)}` : ""}${heard.detail}` };
         break;
       }
       case "pdf":
@@ -138,7 +138,7 @@ async function loadMedia(m: Media, wantTranscript: boolean, model: string): Prom
       }
       case "file": {
         const text = sniffText(await Bun.file(input).bytes());
-        seen = text === null ? { detail: " - unsupported" } : { body: clip(text, limits.documentChars) };
+        seen = text === null ? { detail: " - unsupported" } : { body: clip(text, DOCUMENT_CHARS) };
         break;
       }
     }
@@ -147,43 +147,39 @@ async function loadMedia(m: Media, wantTranscript: boolean, model: string): Prom
 }
 
 export async function seeMedia(
-  history: HistoryMessage[], botId: string, whisperModel: string, signal?: AbortSignal,
+  media: Media[], whisperModel: string, signal?: AbortSignal,
 ): Promise<Map<string, Seen>> {
   throwIfAborted(signal);
   let images = 0;
   let documents = 0;
   let transcripts = 0;
   const grants: { m: Media; wantTranscript: boolean }[] = [];
-  messages: for (let i = history.length - 1; i >= 0; i--) {
-    const message = history[i]!;
-    if (message.authorId === botId) continue;
-    for (let j = message.media.length - 1; j >= 0; j--) {
-      const m = message.media[j]!;
-      let wantTranscript = false;
-      switch (m.kind) {
-        case "image":
-        case "gif":
-        case "video":
-          if (images >= limits.maxImagesPerRequest) continue;
-          images++;
-          if (m.kind === "video" && transcripts < limits.maxTranscriptsPerRequest) {
-            transcripts++;
-            wantTranscript = true;
-          }
-          break;
-        case "audio":
-          if (transcripts >= limits.maxTranscriptsPerRequest) continue;
+  for (let i = media.length - 1; i >= 0; i--) {
+    const m = media[i]!;
+    let wantTranscript = false;
+    switch (m.kind) {
+      case "image":
+      case "gif":
+      case "video":
+        if (images >= MAX_IMAGES) continue;
+        images++;
+        if (m.kind === "video" && transcripts < MAX_TRANSCRIPTS) {
           transcripts++;
           wantTranscript = true;
-          break;
-        default:
-          if (documents >= limits.maxDocumentsPerRequest) continue;
-          documents++;
-      }
-      grants.push({ m, wantTranscript });
-      if (images >= limits.maxImagesPerRequest && documents >= limits.maxDocumentsPerRequest &&
-        transcripts >= limits.maxTranscriptsPerRequest) break messages;
+        }
+        break;
+      case "audio":
+        if (transcripts >= MAX_TRANSCRIPTS) continue;
+        transcripts++;
+        wantTranscript = true;
+        break;
+      default:
+        if (documents >= MAX_DOCUMENTS) continue;
+        documents++;
     }
+    grants.push({ m, wantTranscript });
+    if (images >= MAX_IMAGES && documents >= MAX_DOCUMENTS &&
+      transcripts >= MAX_TRANSCRIPTS) break;
   }
   const results = await abortWait(Promise.all(grants.map(({ m, wantTranscript }) => {
     const key = JSON.stringify([m.id, m.url, wantTranscript ? whisperModel : null]);
@@ -197,7 +193,7 @@ export async function seeMedia(
       return seen;
     });
     cache.set(key, promise);
-    if (cache.size > limits.mediaCacheEntries) cache.delete(cache.keys().next().value!);
+    if (cache.size > CACHE_ENTRIES) cache.delete(cache.keys().next().value!);
     return promise;
   })), signal);
   const seen = new Map<string, Seen>();

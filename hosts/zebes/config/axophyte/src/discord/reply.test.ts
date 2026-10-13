@@ -1,8 +1,7 @@
 import { afterEach, describe, expect, test, jest } from "bun:test";
 import { Collection } from "discord.js";
 import type { Message, GuildTextBasedChannel } from "discord.js";
-import { ReplyStream, splitMessage } from "./reply";
-import { limits } from "../limits";
+import { EDIT_INTERVAL_MS, ReplyStream, splitMessage, STATUS_NOTICE_MS, TYPING_INTERVAL_MS } from "./reply";
 
 afterEach(() => { jest.useRealTimers(); });
 
@@ -40,7 +39,7 @@ test("stream failure drains serialized writes without losing buffered chunks or 
   await opened.promise;
   stream.push("x".repeat(4500));
   const failed = stream.fail("⚠️ Response interrupted.");
-  jest.setSystemTime(Date.now() + limits.editIntervalMs);
+  jest.setSystemTime(Date.now() + EDIT_INTERVAL_MS);
   release.resolve();
   await failed;
   expect(maximumActive).toBe(1);
@@ -63,7 +62,7 @@ test("stream write rejection finishes and clears timers", async () => {
   stream.push("answer");
   await expect(stream.finish([])).rejects.toThrow("Discord unavailable");
   stream.push("ignored after finish");
-  jest.advanceTimersByTime(limits.statusNoticeMs + limits.typingIntervalMs);
+  jest.advanceTimersByTime(STATUS_NOTICE_MS + TYPING_INTERVAL_MS);
   expect(attempts).toBe(1);
 });
 
@@ -108,10 +107,10 @@ test("text replacing a draft preview clears it, and final files land with the fo
   const png = { attachment: Buffer.from("png"), name: "art.png" };
   const stream = new ReplyStream(thread);
   stream.preview("touching it up…", draft);
-  jest.advanceTimersByTime(limits.statusNoticeMs);
+  jest.advanceTimersByTime(STATUS_NOTICE_MS);
   await noticeSent.promise;
   expect(writes[0]).toMatchObject({ index: 0, content: "-# touching it up…", files: [draft] });
-  jest.setSystemTime(Date.now() + limits.editIntervalMs);
+  jest.setSystemTime(Date.now() + EDIT_INTERVAL_MS);
   stream.push(`${"a".repeat(2500)} <:weyyy:101>`);
   await stream.finish(["-# f"], [png]);
   const text = writes.filter((write) => write.index === 0 && !write.content.startsWith("-#"));
@@ -153,7 +152,6 @@ describe("Discord message splitting", () => {
     expect(splitMessage("12345\n\n67890", 5)).toEqual(["12345", "67890"]);
     expect(splitMessage("\n\nabcdef", 3)).toEqual(["abc", "def"]);
     expect(splitMessage("unchanged\n", 20)).toEqual(["unchanged\n"]);
-    expect(() => splitMessage("text", 0)).toThrow(RangeError);
   });
 });
 

@@ -2,13 +2,15 @@ import { DiscordAPIError, messageLink, SnowflakeUtil } from "discord.js";
 import type { APIMessage, GuildTextBasedChannel, RESTGetAPIGuildMessagesSearchResult } from "discord.js";
 import { asHistory, byId, excerpt } from "../conversation/load";
 import { speakerLine } from "../conversation/prompt";
-import { limits } from "../limits";
 import { label, relevant } from "../conversation/history";
 import { defineTool, stringArg, toolError } from "./tool";
 import type { Tool } from "./tool";
 import type { Store } from "../memory/store";
 import { audienceOf, cleanText, discloses, placeFromApi, placeOf } from "../discord/visibility";
 import { botTime, calendarMidnight, dayAge, TIME_ZONE } from "../time";
+
+const SERVER_HITS = 8;
+const CONVERSATION_CHARS = 4000;
 
 // undefined = not given, null = invalid.
 function dayToSnowflake(day: string | null): string | null | undefined {
@@ -27,6 +29,7 @@ export function serverTools(channel: GuildTextBasedChannel, store: Store, inView
 
   const searchServer = defineTool({
     name: "search_server",
+    budget: 3,
     description: "Keyword search over older messages in this server, for things people refer to that are not in view. Returns hits (h1, h2, …) for read_conversation; if none, try other wording.",
     properties: {
       query: { type: "string" },
@@ -66,7 +69,7 @@ export function serverTools(channel: GuildTextBasedChannel, store: Store, inView
       const threads = data.threads ?? [];
       const messages: APIMessage[] = [];
       for (const [message] of data.messages) {
-        if (!message || messages.length >= limits.serverHits) continue;
+        if (!message || messages.length >= SERVER_HITS) continue;
         if (message.webhook_id || (message.author.bot && message.author.id !== botId)) continue;
         if (inView.has(message.id)) continue;
         const place = placeFromApi(guild, message.channel_id, threads);
@@ -96,6 +99,7 @@ export function serverTools(channel: GuildTextBasedChannel, store: Store, inView
 
   const readConversation = defineTool({
     name: "read_conversation",
+    budget: 2,
     description: "Read the conversation around a search_server hit.",
     properties: { hit: { type: "string", description: "e.g. h2" } },
     required: ["hit"],
@@ -117,10 +121,10 @@ export function serverTools(channel: GuildTextBasedChannel, store: Store, inView
       let start = 0;
       let end = lines.length;
       let total = lines.reduce((sum, line) => sum + line.length + 1, 0);
-      while (total > limits.conversationChars && start < hitIndex) total -= lines[start++]!.length + 1;
-      while (total > limits.conversationChars && end > hitIndex + 1) total -= lines[--end]!.length + 1;
+      while (total > CONVERSATION_CHARS && start < hitIndex) total -= lines[start++]!.length + 1;
+      while (total > CONVERSATION_CHARS && end > hitIndex + 1) total -= lines[--end]!.length + 1;
       const summary = store.get(found.id)?.summary;
-      const transcript = history.slice(start, end).map((message, index, visible) => speakerLine(message, botId, visible[index - 1], now)).join("\n").slice(0, limits.conversationChars);
+      const transcript = history.slice(start, end).map((message, index, visible) => speakerLine(message, botId, visible[index - 1], now)).join("\n").slice(0, CONVERSATION_CHARS);
       return {
         content: `${summary ? `Earlier summary:\n${summary.slice(0, 1500)}\n\n` : ""}${transcript || "No readable messages."}`,
         footer: `-# 💬 Read ${messageLink(target.channelId, target.messageId, guild.id)}`,

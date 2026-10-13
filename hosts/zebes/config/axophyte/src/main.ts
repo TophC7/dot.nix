@@ -4,17 +4,20 @@ import {
   Events,
   GatewayIntentBits,
 } from "discord.js";
-import type { GuildTextBasedChannel, Message } from "discord.js";
+import type { AnyThreadChannel, GuildTextBasedChannel, Message } from "discord.js";
 import { COMMANDS, handleAutocomplete, handleCommand } from "./commands";
 import type { CommandDeps } from "./commands";
 import { config } from "./config";
-import { APP_EMOJI_SCOPE } from "./discord/emoji";
-import { limits } from "./limits";
 import { allowedMentions, waitNotice } from "./discord/reply";
 import { openStore } from "./memory/store";
 import { Scheduler } from "./schedule";
-import { describeEmoji, pruneNotes, runTurn } from "./turn";
-import { EmojiDescriptions } from "./memory/emoji";
+import { runTurn } from "./turn";
+import { ask } from "./llm/llama";
+import { APP_EMOJI_SCOPE, EmojiDescriptions } from "./memory/emoji";
+import { prunePerson } from "./memory/people";
+
+/** Recent messages /retry scans for the newest human one; one Discord page. */
+const RETRY_SCAN_MESSAGES = 100;
 
 const client = new Client({
   intents: [
@@ -23,8 +26,7 @@ const client = new Client({
   ],
   allowedMentions,
 });
-const store = openStore(config.dbPath);
-const activeThreads = store.activeThreads();
+const store = openStore("axophyte.sqlite");
 const inactiveThreads = new Set<string>();
 /** Configured servers whose member cache is complete; Axophyte ignores the rest. */
 const ready = new Set<string>();
@@ -38,20 +40,20 @@ const scheduler = new Scheduler(async (key, triggers, signal, commit) => {
   // A failed member refresh drops the server from `ready`; queued turns there must not trust stale visibility.
   if (!ready.has(channel.guildId)) return;
   const forum = inForum(channel);
-  const thread = !forum && channel.isThread() && activeThreads.has(channel.id);
-  schedulePrunes(channel.guildId, await runTurn(store, { channel, forum, thread, triggers }, { signal, onCommit: commit }));
+  const persistent = forum || (channel.isThread() && store.hasThread(channel.id));
+  schedulePrunes(channel.guildId, await runTurn(store, { channel, forum, persistent, triggers }, { signal, onCommit: commit }));
 }, (key) => {
   const channel = client.channels.cache.get(key);
   return channel?.isTextBased() && !channel.isDMBased() ? waitNotice(channel) : () => {};
 });
-const emojiDescriptions = new EmojiDescriptions(store, scheduler, describeEmoji,
+const emojiDescriptions = new EmojiDescriptions(store, scheduler, ask,
   (scope) => !stopping && (scope === APP_EMOJI_SCOPE ? ready.size > 0 : ready.has(scope)));
 const commandDeps: CommandDeps = {
   store,
   ready: (guildId) => ready.has(guildId),
   retry: async (channel) => {
     // Discord returns newest first; history reloads as usual, as if the message just arrived.
-    const latest = (await channel.messages.fetch({ limit: limits.retryScanMessages })).find(humanPost);
+    const latest = (await channel.messages.fetch({ limit: RETRY_SCAN_MESSAGES })).find(humanPost);
     if (latest) scheduler.message(channel.id, latest.author.id, latest.id);
     return !!latest;
   },
@@ -61,19 +63,22 @@ function inForum(channel: GuildTextBasedChannel): boolean {
   const forumId = config.servers.get(channel.guildId);
   return !!forumId && channel.isThread() && channel.parentId === forumId;
 }
+function activate(thread: AnyThreadChannel): void {
+  inactiveThreads.delete(thread.id);
+  store.trackThread(thread.id);
+  void thread.join().catch(() => {});
+}
 async function isThreadActive(channel: GuildTextBasedChannel): Promise<boolean> {
   if (!channel.isThread() || inForum(channel)) return false;
-  if (activeThreads.has(channel.id)) return true;
+  if (store.hasThread(channel.id)) return true;
   if (inactiveThreads.has(channel.id)) return false;
   const starter = await channel.fetchStarterMessage().catch(() => null);
-  if (starter?.author.id === client.user?.id) {
-    activeThreads.add(channel.id);
-    store.trackThread(channel.id);
-    void channel.join().catch(() => {});
-    return true;
+  if (starter?.author.id !== client.user?.id) {
+    inactiveThreads.add(channel.id);
+    return false;
   }
-  inactiveThreads.add(channel.id);
-  return false;
+  activate(channel);
+  return true;
 }
 
 
@@ -95,7 +100,7 @@ async function shutdown(code: number): Promise<void> {
 
 function schedulePrunes(guildId: string, userIds: string[]): void {
   for (const userId of userIds) {
-    void scheduler.command(() => pruneNotes(store.people(guildId), userId)).catch(() => console.error("memory prune failed"));
+    void scheduler.command(() => prunePerson(store.people(guildId), userId, ask)).catch(() => console.error("memory prune failed"));
   }
 }
 
@@ -178,14 +183,9 @@ client.on(Events.ThreadCreate, async (thread, newlyCreated) => {
     scheduler.message(thread.id, thread.ownerId, thread.id);
     return;
   }
-  if (!inForum(thread) && thread.isThread()) {
-    const starter = await thread.fetchStarterMessage().catch(() => null);
-    if (starter?.author.id === client.user?.id) {
-      activeThreads.add(thread.id);
-      inactiveThreads.delete(thread.id);
-      store.trackThread(thread.id);
-      void thread.join().catch(() => {});
-    }
+  if (!inForum(thread)) {
+    inactiveThreads.delete(thread.id);
+    await isThreadActive(thread);
   }
 });
 
@@ -202,18 +202,8 @@ client.on(Events.MessageCreate, async (message) => {
   const botRole = message.mentions.roles.some((role) => role.tags?.botId === botId || role.id === message.guild?.members.me?.roles.botRole?.id);
   const mentioned = message.mentions.users.has(botId) || botRole || message.mentions.repliedUser?.id === botId;
   if (channel.isThread()) {
-    if (mentioned) {
-      activeThreads.add(channel.id);
-      inactiveThreads.delete(channel.id);
-      store.trackThread(channel.id);
-      void channel.join().catch(() => {});
-      scheduler.message(channel.id, message.author.id, message.id);
-      return;
-    }
-    if (await isThreadActive(channel)) {
-      scheduler.message(channel.id, message.author.id, message.id);
-      return;
-    }
+    if (mentioned) activate(channel);
+    if (mentioned || await isThreadActive(channel)) scheduler.message(channel.id, message.author.id, message.id);
     return;
   }
   if (mentioned || scheduler.follows(channel.id, message.author.id)) {

@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
 import type { ToolCall } from "../llm/protocol";
-import { TurnAborted } from "../llm/model";
+import { TurnAborted } from "../abort";
 import { runToolCall } from "./tool";
 import type { Tool } from "./tool";
 

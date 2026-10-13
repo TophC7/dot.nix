@@ -1,9 +1,11 @@
-import { limits } from "../limits";
 import type { ChatMessage } from "../llm/protocol";
 import { ModelError, promptBudget } from "../llm/model";
 import type { ModelChoice } from "../llm/model";
 import type { Turn } from "./history";
 import type { Memory } from "../memory/store";
+
+export const SUMMARY_MAX_TOKENS = 6144;
+export const MAX_SUMMARY_CHARS = 8000;
 
 export class CompactionError extends Error {}
 
@@ -39,7 +41,7 @@ export async function prepareContext(input: {
     }
   }
 
-  const summaryBudget = promptBudget(choice.contextSize, limits.summaryMaxTokens);
+  const summaryBudget = promptBudget(choice.contextSize, SUMMARY_MAX_TOKENS);
   let summary = memory?.summary ?? "";
   let start = 0;
   while (start < cut) {
@@ -57,7 +59,7 @@ export async function prepareContext(input: {
       if (end === start) throw new CompactionError();
     }
     summary = (await complete(request)).trim();
-    if (!summary || summary.length > limits.maxSummaryChars) throw new CompactionError();
+    if (!summary || summary.length > MAX_SUMMARY_CHARS) throw new CompactionError();
     start = end;
   }
 
@@ -65,7 +67,7 @@ export async function prepareContext(input: {
   const rebuilt = prompt(summary, remaining);
   const rebuiltTokens = await count(rebuilt, tools);
   if (rebuiltTokens > budget) throw new CompactionError();
-  const updated = { summary, summaryUntil: turns[cut - 1]!.messages.at(-1)!.id };
+  const updated = { summary, summaryUntil: turns[cut - 1]!.at(-1)!.id };
   // No batch writes: failed summaries/counts leave the old checkpoint intact.
   save(updated);
   return {
@@ -80,7 +82,7 @@ export function safeFoldCuts(turns: Turn[]): number[] {
   const suffixMinimum: bigint[] = [];
   let minimum: bigint | undefined;
   for (let index = turns.length - 1; index >= 0; index--) {
-    for (const message of turns[index]!.messages) {
+    for (const message of turns[index]!) {
       const id = BigInt(message.id);
       if (minimum === undefined || id < minimum) minimum = id;
     }
@@ -89,7 +91,7 @@ export function safeFoldCuts(turns: Turn[]): number[] {
   const cuts: number[] = [];
   let maximum: bigint | undefined;
   for (let index = 0; index < turns.length - 1; index++) {
-    for (const message of turns[index]!.messages) {
+    for (const message of turns[index]!) {
       const id = BigInt(message.id);
       if (maximum === undefined || id > maximum) maximum = id;
     }

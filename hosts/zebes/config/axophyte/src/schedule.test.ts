@@ -1,6 +1,5 @@
 import { afterEach, beforeEach, describe, expect, jest, test } from "bun:test";
-import { limits } from "./limits";
-import { Scheduler } from "./schedule";
+import { BURST_MAX_WAIT_MS, BURST_QUIET_MS, Scheduler } from "./schedule";
 
 const barrier = () => Promise.withResolvers<void>();
 
@@ -13,11 +12,11 @@ describe("scheduler", () => {
     let calls = 0;
     const scheduler = new Scheduler(async () => { calls++; });
     scheduler.message("k", "a", "1");
-    for (let elapsed = 0; elapsed < limits.burstMaxWaitMs; elapsed += 1000) {
+    for (let elapsed = 0; elapsed < BURST_MAX_WAIT_MS; elapsed += 1000) {
       scheduler.typing("k", "a");
       jest.advanceTimersByTime(1000);
       await scheduler.command(async () => {});
-      expect(calls).toBe(elapsed + 1000 < limits.burstMaxWaitMs ? 0 : 1);
+      expect(calls).toBe(elapsed + 1000 < BURST_MAX_WAIT_MS ? 0 : 1);
     }
     await scheduler.command(async () => {});
     expect(calls).toBe(1);
@@ -38,13 +37,13 @@ describe("scheduler", () => {
         }
       });
       scheduler.message("k", "a", "1");
-      jest.advanceTimersByTime(limits.burstQuietMs);
+      jest.advanceTimersByTime(BURST_QUIET_MS);
       await started.promise;
       expect(calls[0]!.signal.aborted).toBe(false);
       expect(scheduler.follows("k", "a")).toBe(true);
       scheduler.message("k", "b", "2");
       expect(calls[0]!.signal.aborted).toBe(!committed);
-      jest.advanceTimersByTime(limits.burstQuietMs);
+      jest.advanceTimersByTime(BURST_QUIET_MS);
       release.resolve();
       await scheduler.command(async () => {});
       expect(calls.map((call) => call.triggers)).toEqual(committed ? [["1"], ["2"]] : [["1"], ["1", "2"]]);
@@ -80,10 +79,10 @@ describe("scheduler", () => {
       return () => events.push(`${key}:waited`);
     });
     scheduler.message("a", "alice", "1");
-    jest.advanceTimersByTime(limits.burstQuietMs);
+    jest.advanceTimersByTime(BURST_QUIET_MS);
     await started.promise;
     scheduler.message("b", "bob", "2");
-    jest.advanceTimersByTime(limits.burstQuietMs);
+    jest.advanceTimersByTime(BURST_QUIET_MS);
     const command = scheduler.command(async () => {
       active++;
       expect(active).toBe(1);
@@ -119,16 +118,16 @@ describe("scheduler", () => {
     });
     await started.promise;
     scheduler.message("k", "a", "1");
-    jest.advanceTimersByTime(limits.burstQuietMs);
+    jest.advanceTimersByTime(BURST_QUIET_MS);
     expect(scheduler.follows("k", "a")).toBe(true);
     scheduler.message("k", "b", "2");
-    jest.advanceTimersByTime(limits.burstQuietMs);
+    jest.advanceTimersByTime(BURST_QUIET_MS);
     scheduler.message("k", "c", "3");
     release.resolve();
     await command;
     await scheduler.command(async () => {});
     expect(calls).toEqual([]);
-    jest.advanceTimersByTime(limits.burstQuietMs);
+    jest.advanceTimersByTime(BURST_QUIET_MS);
     await scheduler.command(async () => {});
     expect(calls).toEqual([["1", "2", "3"]]);
   });

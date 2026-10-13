@@ -1,8 +1,11 @@
-import { limits } from "../limits";
+import { clip } from "../text";
 import { defineTool, stringArg, toolError } from "./tool";
 import type { Tool } from "./tool";
 
-type SearchHit = { title: string; url: string; snippet: string };
+const SEARCH_RESULT_COUNT = 5;
+const MAX_QUERY_CHARS = 400;
+const MAX_PAGE_CHARS = 12_000;
+
 type TavilyResult = { title: string; url: string; content?: string };
 type ExtractResponse = {
   results?: { url: string; raw_content?: string }[];
@@ -33,40 +36,31 @@ async function tavily<T>(
   return (await response.json()) as T;
 }
 
-export async function tavilySearch(query: string, key: string, signal?: AbortSignal): Promise<SearchHit[]> {
-  const data = await tavily<{ results?: TavilyResult[] }>("search", {
-    query: query.slice(0, limits.maxQueryChars),
-    search_depth: "basic",
-    auto_parameters: false,
-    max_results: limits.searchResultCount,
-    include_answer: false,
-    include_raw_content: false,
-  }, key, 15_000, signal);
-  return (data.results ?? []).slice(0, limits.searchResultCount).map((hit) => ({
-    title: hit.title,
-    url: hit.url,
-    snippet: (hit.content ?? "").slice(0, 600),
-  }));
-}
-
-function formatHits(hits: SearchHit[]): string {
-  if (!hits.length) return "No results.";
-  return hits.map((hit, index) => `[${index + 1}] ${hit.title}\n${hit.url}\n${hit.snippet}`).join("\n\n");
-}
-
 export function webSearchTool(key: string): Tool {
   return defineTool({
     name: "web_search",
+    budget: 3,
     description: "Search the web when someone asks you to look something up, for anything recent or current (news, releases, prices, versions), and to verify real-world facts, works, tracklists, chronologies, specs, trivia, or claims.",
     properties: { query: { type: "string" } },
     required: ["query"],
     status: (args) => `🔎 searching “${stringArg(args, "query", 100) ?? ""}”…`,
     async run(args, signal) {
-      const query = stringArg(args, "query", limits.maxQueryChars);
+      const query = stringArg(args, "query", MAX_QUERY_CHARS);
       if (!query) return toolError("invalid arguments");
-      const hits = await tavilySearch(query, key, signal);
+      const data = await tavily<{ results?: TavilyResult[] }>("search", {
+        query,
+        search_depth: "basic",
+        auto_parameters: false,
+        max_results: SEARCH_RESULT_COUNT,
+        include_answer: false,
+        include_raw_content: false,
+      }, key, 15_000, signal);
+      // Servers can ignore max_results.
+      const hits = (data.results ?? []).slice(0, SEARCH_RESULT_COUNT);
       return {
-        content: formatHits(hits),
+        content: hits.length
+          ? hits.map((hit, index) => `[${index + 1}] ${hit.title}\n${hit.url}\n${(hit.content ?? "").slice(0, 600)}`).join("\n\n")
+          : "No results.",
         footer: `-# 🔎 Searched “${query}”${hits.length ? ` · ${hits.slice(0, 3).map((hit) => `<${hit.url}>`).join(" · ")}` : " · no results"}`,
       };
     },
@@ -76,6 +70,7 @@ export function webSearchTool(key: string): Tool {
 export function openUrlTool(key: string): Tool {
   return defineTool({
     name: "open_url",
+    budget: 3,
     description: "Read a web page. Optional focus: a question; returns only the relevant parts.",
     properties: {
       url: { type: "string" },
@@ -87,7 +82,7 @@ export function openUrlTool(key: string): Tool {
       const raw = stringArg(args, "url", 2049);
       const url = URL.parse(raw ?? "");
       if (!url || (url.protocol !== "http:" && url.protocol !== "https:") || url.href.length > 2048) return toolError("invalid url");
-      const focus = stringArg(args, "focus", limits.maxQueryChars);
+      const focus = stringArg(args, "focus", MAX_QUERY_CHARS);
       const data = await tavily<ExtractResponse>("extract", {
         urls: [url.href],
         extract_depth: "basic",
@@ -98,8 +93,7 @@ export function openUrlTool(key: string): Tool {
       const failed = data.failed_results?.[0];
       const page = data.results?.[0]?.raw_content;
       if (failed || page === undefined) return toolError(`could not open ${url.href}: ${failed?.error ?? "no content"}`);
-      const text = page.length > limits.maxPageChars ? `${page.slice(0, limits.maxPageChars)}\n[truncated]` : page;
-      return { content: text, footer: `-# 🔗 Opened <${url.href}>` };
+      return { content: clip(page, MAX_PAGE_CHARS), footer: `-# 🔗 Opened <${url.href}>` };
     },
   });
 }

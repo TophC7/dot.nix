@@ -1,7 +1,9 @@
 import type { APIEmbed, Attachment, Message } from "discord.js";
-import { discordUrl } from "./download";
 
-export type MediaKind = "image" | "gif" | "video" | "audio" | "pdf" | "document" | "file";
+export const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
+export const IMAGE_MAX_SIDE = 1536;
+
+type MediaKind = "image" | "gif" | "video" | "audio" | "pdf" | "document" | "file";
 export type Media = {
   /** Attachment ID; embeds use message:embed:index, forwarded embeds message:fwd:snapshot:embed:index. */
   id: string;
@@ -26,8 +28,28 @@ export type Seen = { image?: string; detail?: string; body?: string };
 
 export const documentExtensions: readonly string[] = ["docx", "odt", "rtf", "epub"];
 
-export function classify(name: string, contentType: string | null): MediaKind {
-  const ct = contentType?.split(";")[0]?.trim().toLowerCase() ?? "";
+export function discordUrl(raw: string): URL | null {
+  try {
+    const url = new URL(raw);
+    if (
+      url.protocol !== "https:" || url.username || url.password || (url.port && url.port !== "443") ||
+      !(url.hostname === "cdn.discordapp.com" || url.hostname === "media.discordapp.net" ||
+        /^images-ext-\d+\.discordapp\.net$/.test(url.hostname))
+    ) return null;
+    return url;
+  } catch {
+    return null;
+  }
+}
+
+export function mime(raw: string | null | undefined): string {
+  return raw?.split(";")[0]?.trim().toLowerCase() ?? "";
+}
+
+export const dataUrl = (type: string, bytes: Uint8Array) => `data:${type};base64,${bytes.toBase64()}`;
+
+function classify(name: string, contentType: string | null): MediaKind {
+  const ct = contentType ?? "";
   const ext = name.split(".").at(-1)?.toLowerCase();
   if (ct === "image/gif" || ext === "gif") return "gif";
   if (ct.startsWith("image/")) return "image";
@@ -71,9 +93,10 @@ export function embedMedia(embed: APIEmbed, id: string, forwarded: boolean): Med
 }
 
 function attachmentMedia(a: Attachment, forwarded: boolean): Media {
+  const contentType = mime(a.contentType) || null;
   return {
-    id: a.id, kind: classify(a.name, a.contentType), name: a.name,
-    url: a.url, proxyURL: a.proxyURL, contentType: a.contentType, size: a.size,
+    id: a.id, kind: classify(a.name, contentType), name: a.name,
+    url: a.url, proxyURL: a.proxyURL, contentType, size: a.size,
     width: a.width, height: a.height, alt: a.description, voice: a.waveform !== null,
     linked: false, forwarded,
   };

@@ -23,7 +23,4 @@ export const config = {
   whisperModel: required("AXOPHYTE_WHISPER_MODEL"),
   /** DejaVu TTF directory; resvg loads only these fonts. */
   svgFonts: required("AXOPHYTE_SVG_FONTS"),
-  dbPath: process.env.STATE_DIRECTORY
-    ? `${process.env.STATE_DIRECTORY}/axophyte.sqlite`
-    : "./axophyte.sqlite",
 };

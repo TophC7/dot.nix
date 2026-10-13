@@ -2,40 +2,9 @@ import { Database } from "bun:sqlite";
 
 export type Memory = { summary: string; summaryUntil: string };
 type Fact = { id: number; fact: string };
-
-/** One server's person memory: nicknames and notes never cross servers. */
-export interface People {
-  facts(userId: string): Fact[];
-  addFact(userId: string, fact: string): number;
-  reviseFact(userId: string, id: number, fact: string): boolean;
-  forgetFact(userId: string, id: number): boolean;
-  forgetAll(userId: string): number;
-  replaceFacts(userId: string, facts: string[]): void;
-  /** Upserts the person's label; returns the previous label while a rename is under 30 days old. */
-  touchPerson(userId: string, label: string): string | null;
-}
-
 export type EmojiNote = { name: string; description: string; byAdmin: boolean };
-
-/** One scope's emoji descriptions by emoji ID; an admin's description is final. */
-interface EmojiNotes {
-  all(): Map<string, EmojiNote>;
-  set(emojiId: string, note: EmojiNote): void;
-  delete(emojiId: string): void;
-}
-
-export interface Store {
-  /** Thread IDs are unique across servers, so conversations need no server key. */
-  get(threadId: string): Memory | null;
-  save(threadId: string, memory: Memory): void;
-  hasThread(threadId: string): boolean;
-  trackThread(threadId: string): void;
-  activeThreads(): Set<string>;
-  people(guildId: string): People;
-  /** Scope: a guild ID, or APP_EMOJI_SCOPE for Axophyte's own emoji (stored in the guild_id column). */
-  emojiNotes(scope: string): EmojiNotes;
-  close(): void;
-}
+export type Store = ReturnType<typeof openStore>;
+export type People = ReturnType<Store["people"]>;
 
 const RENAME_MEMORY_MS = 30 * 24 * 60 * 60 * 1000;
 const SCHEMA = `
@@ -75,7 +44,7 @@ const SCHEMA = `
   );
 `;
 
-export function openStore(path: string): Store {
+export function openStore(path: string) {
   const db = new Database(path, { create: true });
   db.exec("PRAGMA journal_mode = WAL;");
   db.exec(SCHEMA);
@@ -90,9 +59,6 @@ export function openStore(path: string): Store {
       summary_until = excluded.summary_until,
       updated_at = excluded.updated_at
   `);
-  const activeThreadsQuery = db.query<{ thread_id: string }, []>(
-    "SELECT thread_id FROM active_threads UNION SELECT thread_id FROM conversations",
-  );
   const hasThreadQuery = db.query<{ thread_id: string }, [string, string]>(
     "SELECT thread_id FROM active_threads WHERE thread_id = ? UNION SELECT thread_id FROM conversations WHERE thread_id = ?",
   );
@@ -130,6 +96,7 @@ export function openStore(path: string): Store {
   `);
   const deleteEmojiNote = db.query("DELETE FROM emoji WHERE guild_id = ? AND emoji_id = ?");
   return {
+    /** Thread IDs are unique across servers, so conversations need no server key. */
     get(threadId: string): Memory | null {
       return get.get(threadId);
     },
@@ -142,10 +109,8 @@ export function openStore(path: string): Store {
     trackThread(threadId: string): void {
       trackThread.run(threadId, Date.now());
     },
-    activeThreads(): Set<string> {
-      return new Set(activeThreadsQuery.all().map((r) => r.thread_id));
-    },
-    people(guildId: string): People {
+    /** One server's person memory: nicknames and notes never cross servers. */
+    people(guildId: string) {
       return {
         facts(userId: string): Fact[] {
           return facts.all(guildId, userId);
@@ -165,6 +130,7 @@ export function openStore(path: string): Store {
         replaceFacts(userId: string, replacement: string[]): void {
           replaceFacts(guildId, userId, replacement);
         },
+        /** Upserts the person's label; returns the previous label while a rename is under 30 days old. */
         touchPerson(userId: string, label: string): string | null {
           const row = person.get(guildId, userId);
           const now = Date.now();
@@ -180,7 +146,11 @@ export function openStore(path: string): Store {
         },
       };
     },
-    emojiNotes(scope: string): EmojiNotes {
+    /**
+     * One scope's emoji descriptions by emoji ID; an admin's description is final. Scope: a guild ID,
+     * or memory/emoji.ts APP_EMOJI_SCOPE for Axophyte's own emoji (stored in the guild_id column).
+     */
+    emojiNotes(scope: string) {
       return {
         all(): Map<string, EmojiNote> {
           return new Map(emojiNotes.all(scope).map(({ id, byAdmin, ...note }) => [id, { ...note, byAdmin: byAdmin === 1 }]));

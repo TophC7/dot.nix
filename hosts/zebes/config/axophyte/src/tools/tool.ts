@@ -1,8 +1,7 @@
 import type { ReplyFile } from "../discord/reply";
-import { limits } from "../limits";
 import { object } from "../llm/protocol";
 import type { ToolCall } from "../llm/protocol";
-import { TurnAborted } from "../llm/model";
+import { throwIfAborted, TurnAborted } from "../abort";
 
 type ToolSchema = {
   type: "function";
@@ -18,16 +17,17 @@ export type Tool = {
 };
 
 export function defineTool(spec: {
-  name: keyof typeof limits.toolBudgets;
+  name: string;
+  budget: number;
   description: string;
   properties: Record<string, unknown>;
   required: string[];
   status?: Tool["status"];
   run: Tool["run"];
 }): Tool {
-  const { name, description, properties, required, status, run } = spec;
+  const { name, description, properties, required, status, run, budget } = spec;
   return {
-    budget: limits.toolBudgets[name],
+    budget,
     schema: { type: "function", function: { name, description, parameters: { type: "object", properties, required } } },
     status,
     run,
@@ -58,7 +58,7 @@ export async function runToolCall(
   const count = used.get(name) ?? 0;
   if (count >= tool.budget) return toolError(`${name} limit reached; answer with what you have`);
   // An aborted turn's triggers already moved to the next turn; nothing here may commit after that.
-  if (signal.aborted) throw new TurnAborted();
+  throwIfAborted(signal);
   if (tool.status) onStatus(tool.status(args));
   used.set(name, count + 1);
   try {

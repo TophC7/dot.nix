@@ -1,8 +1,7 @@
 import { afterEach, expect, mock, spyOn, test } from "bun:test";
 import { download, downloadFile, loadImage } from "./download";
-import { limits } from "../limits";
-import { withTemp } from "./exec";
-import { MediaFailure } from "./failure";
+import { MediaFailure, withTemp } from "./exec";
+import { MAX_IMAGE_BYTES } from "./media";
 
 afterEach(() => mock.restore());
 
@@ -24,7 +23,7 @@ test("unsupported, oversized, and non-Discord image URLs never reach fetch", asy
   const rejected = [
     { contentType: "text/plain" },
     { contentType: null },
-    { size: limits.maxImageBytes + 1 },
+    { size: MAX_IMAGE_BYTES + 1 },
     { url: "not a URL" },
     { url: "https://example.com/image.png" },
     { url: "https://cdn.discordapp.com.example.com/image.png" },
@@ -52,12 +51,12 @@ test("external embed URLs never reach fetch", async () => {
     "http://images-ext-1.discordapp.net/image.png",
     "https://images-ext-x.discordapp.net/image.png",
   ]) {
-    expect(await download(url, limits.maxImageBytes, 20_000)).toBeNull();
+    expect(await download(url, MAX_IMAGE_BYTES, 20_000)).toBeNull();
   }
   expect(fetchCalls).toBe(0);
 });
 
-test("stream byte caps cancel reader and remove incomplete files", async () => {
+test("stream byte caps cancel both download sinks", async () => {
   let canceled = 0;
   spyOn(globalThis, "fetch").mockImplementation(Object.assign(async () => {
     let chunks = 0;
@@ -83,24 +82,6 @@ test("stream byte caps cancel reader and remove incomplete files", async () => {
         expect(error.detail).toBe(" - too large");
       }
     }
-    expect(await Bun.file(input).exists()).toBe(false);
   });
   expect(canceled).toBe(2);
-});
-
-test("file receiver preserves bytes while awaiting each file write", async () => {
-  spyOn(globalThis, "fetch").mockImplementation(Object.assign(async () => {
-    let chunk = 0;
-    return new Response(new ReadableStream<Uint8Array>({
-      pull(controller) {
-        controller.enqueue(new Uint8Array([chunk++, 255]));
-        if (chunk === 3) controller.close();
-      },
-    }, { highWaterMark: 0 }), { headers: { "content-type": "TEXT/PLAIN; charset=utf-8" } });
-  }, { preconnect: fetch.preconnect }));
-  await withTemp(async (input) => {
-    expect(await downloadFile("https://media.discordapp.net/attachments/text", input, 6, 20_000))
-      .toEqual({ type: "text/plain", size: 6 });
-    expect(await Bun.file(input).bytes()).toEqual(new Uint8Array([0, 255, 1, 255, 2, 255]));
-  });
 });

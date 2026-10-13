@@ -1,5 +1,8 @@
-import { limits } from "../limits";
-import { run } from "./exec";
+import { PROCESS_TIMEOUT_MS, run } from "./exec";
+import { dataUrl, IMAGE_MAX_SIDE } from "./media";
+
+/** Only the first this-many seconds of audio are transcribed. */
+export const TRANSCRIBE_SECONDS = 180;
 
 // Only self-contained formats and local inputs: no HLS, concat, image2, or network reads.
 const SAFE_INPUT = [
@@ -8,58 +11,29 @@ const SAFE_INPUT = [
 ];
 const FFMPEG = ["ffmpeg", "-nostdin", "-hide_banner", "-v", "error"];
 
-export type Probe = {
-  duration: number | null;
-  videoDuration: number | null;
-  video: boolean;
-  audio: boolean;
-  frames: number | null;
-};
-
-export async function probe(input: string, countFrames: boolean): Promise<Probe | null> {
+export async function probe(input: string, countFrames: boolean) {
   const bytes = await run([
     "ffprobe", "-hide_banner", "-v", "error", ...SAFE_INPUT,
     ...(countFrames ? ["-count_frames"] : []),
     "-show_entries", "format=duration:stream=codec_type,duration,nb_read_frames", "-of", "json", input,
-  ], limits.processTimeoutMs);
-  if (!bytes.length) return null;
+  ], PROCESS_TIMEOUT_MS);
   try {
-    const data: unknown = JSON.parse(new TextDecoder().decode(bytes));
-    if (typeof data !== "object" || data === null || Array.isArray(data)) return null;
-    let duration: number | null = null;
-    const format = "format" in data ? data.format : undefined;
-    if (format !== undefined) {
-      if (typeof format !== "object" || format === null || Array.isArray(format)) return null;
-      const rawDuration = "duration" in format ? format.duration : undefined;
-      if (rawDuration !== undefined && typeof rawDuration !== "string") return null;
-      const seconds = Number(rawDuration);
-      if (Number.isFinite(seconds) && seconds > 0) duration = seconds;
+    const data = JSON.parse(new TextDecoder().decode(bytes)) as {
+      format?: { duration?: string };
+      streams?: { codec_type?: string; duration?: string; nb_read_frames?: string }[];
+    };
+    function seconds(raw?: string): number | null {
+      const value = Number(raw);
+      return Number.isFinite(value) && value > 0 ? value : null;
     }
-    const rawStreams = "streams" in data ? data.streams : undefined;
-    if (rawStreams !== undefined && !Array.isArray(rawStreams)) return null;
-    const streams: unknown[] = rawStreams ?? [];
-    let video = false;
-    let audio = false;
-    let videoDuration: number | null = null;
-    let frames: number | null = null;
-    for (const stream of streams) {
-      if (typeof stream !== "object" || stream === null || Array.isArray(stream)) return null;
-      const kind = "codec_type" in stream ? stream.codec_type : undefined;
-      const rawDuration = "duration" in stream ? stream.duration : undefined;
-      const rawFrames = "nb_read_frames" in stream ? stream.nb_read_frames : undefined;
-      if ((kind !== undefined && typeof kind !== "string") ||
-        (rawDuration !== undefined && typeof rawDuration !== "string") ||
-        (rawFrames !== undefined && typeof rawFrames !== "string")) return null;
-      if (kind === "video" && !video) {
-        const seconds = Number(rawDuration);
-        const count = Number(rawFrames);
-        if (Number.isFinite(seconds) && seconds > 0) videoDuration = seconds;
-        if (Number.isFinite(count)) frames = count;
-        video = true;
-      }
-      if (kind === "audio") audio = true;
-    }
-    return { duration, videoDuration, video, audio, frames };
+    const video = data.streams?.find((s) => s.codec_type === "video");
+    return {
+      duration: seconds(data.format?.duration),
+      videoDuration: seconds(video?.duration),
+      video: !!video,
+      audio: !!data.streams?.some((s) => s.codec_type === "audio"),
+      frames: video && Number.isFinite(Number(video.nb_read_frames)) ? Number(video.nb_read_frames) : null,
+    };
   } catch {
     return null;
   }
@@ -81,24 +55,24 @@ export async function sheet(input: string, times: [number, number, number, numbe
   const bytes = await run([
     ...FFMPEG, ...times.flatMap((t) => [...SAFE_INPUT, "-ss", t.toFixed(3), "-i", input]),
     "-filter_complex", filters.join(";"), "-frames:v", "1", "-c:v", "mjpeg", "-q:v", "3", "-f", "image2pipe", "pipe:1",
-  ], limits.processTimeoutMs);
-  return bytes.length ? `data:image/jpeg;base64,${Buffer.from(bytes.buffer, bytes.byteOffset, bytes.byteLength).toString("base64")}` : null;
+  ], PROCESS_TIMEOUT_MS);
+  return bytes.length ? dataUrl("image/jpeg", bytes) : null;
 }
 
 export async function still(input: string): Promise<string | null> {
   const bytes = await run([
     ...FFMPEG, ...SAFE_INPUT, "-i", input, "-frames:v", "1",
-    "-vf", `scale='min(${limits.imageMaxSide},iw)':'min(${limits.imageMaxSide},ih)':force_original_aspect_ratio=decrease`,
+    "-vf", `scale='min(${IMAGE_MAX_SIDE},iw)':'min(${IMAGE_MAX_SIDE},ih)':force_original_aspect_ratio=decrease`,
     "-c:v", "png", "-f", "image2pipe", "pipe:1",
-  ], limits.processTimeoutMs);
-  return bytes.length ? `data:image/png;base64,${Buffer.from(bytes.buffer, bytes.byteOffset, bytes.byteLength).toString("base64")}` : null;
+  ], PROCESS_TIMEOUT_MS);
+  return bytes.length ? dataUrl("image/png", bytes) : null;
 }
 
 export async function speech(input: string, dir: string): Promise<string | null> {
   const wav = `${dir}/audio.wav`;
   await run([
     ...FFMPEG, ...SAFE_INPUT, "-i", input, "-vn", "-ac", "1", "-ar", "16000",
-    "-t", String(limits.transcribeSeconds), "-c:a", "pcm_s16le", "-f", "wav", wav,
-  ], limits.processTimeoutMs);
+    "-t", String(TRANSCRIBE_SECONDS), "-c:a", "pcm_s16le", "-f", "wav", wav,
+  ], PROCESS_TIMEOUT_MS);
   return await Bun.file(wav).exists() ? wav : null;
 }

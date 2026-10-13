@@ -24,7 +24,7 @@ export function label(name: string, handle: string): string {
   return `${name} (@${handle})`;
 }
 
-export type Turn = { messages: HistoryMessage[] };
+export type Turn = HistoryMessage[];
 
 export function tagged(latest: HistoryMessage[], raw: string): HistoryMessage | string {
   const key = raw.trim().replace(/^\[|\]$/g, "").trim();
@@ -50,9 +50,9 @@ export function groupTurns(history: HistoryMessage[], botId: string): Turn[] {
   for (const message of history) {
     const isAssistant = message.authorId === botId;
     if (!turns.length || (!isAssistant && previousIsAssistant)) {
-      turns.push({ messages: [] });
+      turns.push([]);
     }
-    turns[turns.length - 1]!.messages.push(message);
+    turns.at(-1)!.push(message);
     previousIsAssistant = isAssistant;
   }
   return turns;

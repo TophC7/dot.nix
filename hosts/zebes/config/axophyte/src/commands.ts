@@ -2,8 +2,9 @@ import { MessageFlags, PermissionFlagsBits, SlashCommandBuilder } from "discord.
 import type { AutocompleteInteraction, ChatInputCommandInteraction, GuildTextBasedChannel } from "discord.js";
 import { config } from "./config";
 import { usableEmoji } from "./discord/emoji";
-import { limits } from "./limits";
 import type { People, Store } from "./memory/store";
+import { SPLIT_AT } from "./discord/reply";
+import { EMOJI_NOTE_CHARS } from "./memory/emoji";
 
 export const COMMANDS = [
   new SlashCommandBuilder()
@@ -34,7 +35,7 @@ export const COMMANDS = [
       .setName("use")
       .setDescription("What it means or when people use it here")
       .setRequired(true)
-      .setMaxLength(limits.emojiNoteChars)),
+      .setMaxLength(EMOJI_NOTE_CHARS)),
   new SlashCommandBuilder()
     .setName("retry")
     .setDescription("Answer the latest message here as if it just arrived (admins)")
@@ -60,7 +61,7 @@ function memoryCommand(interaction: ChatInputCommandInteraction, people: People)
     let text = "";
     for (const [index, { id, fact }] of facts.entries()) {
       const line = `#${id} ${fact}\n`;
-      if (text.length + line.length > limits.splitAt) return `${text}…and ${facts.length - index} more`;
+      if (text.length + line.length > SPLIT_AT) return `${text}…and ${facts.length - index} more`;
       text += line;
     }
     return text.trimEnd();

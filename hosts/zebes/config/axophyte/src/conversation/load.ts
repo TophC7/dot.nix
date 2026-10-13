@@ -1,7 +1,6 @@
 import { MessageReferenceType } from "discord.js";
 import type { GuildTextBasedChannel, Message as DiscordMessage } from "discord.js";
 import { abortWait, throwIfAborted } from "../abort";
-import { limits } from "../limits";
 import { groupTurns, label, pendingHistory } from "./history";
 import type { HistoryMessage, Speaker, Turn } from "./history";
 import { mediaOf } from "../media/media";
@@ -10,10 +9,16 @@ import { seeMedia } from "../media/see";
 import type { Memory, Store } from "../memory/store";
 import { cleanText } from "../discord/visibility";
 
+/** How far back a conversation's first load reaches, when Axophyte joins one already underway. */
+const FIRST_LOAD_MESSAGES = 300;
+const CHANNEL_CONTEXT_MESSAGES = 20;
+const CHANNEL_CONTEXT_MAX_AGE_MS = 30 * 60_000;
+const REPLY_CHAIN_DEPTH = 10;
+
 type Message = DiscordMessage<true>;
 
 /** `triggers` are the IDs of the messages this turn answers. */
-export type Source = { channel: GuildTextBasedChannel; forum: boolean; thread: boolean; triggers: Set<string> };
+export type Source = { channel: GuildTextBasedChannel; forum: boolean; persistent: boolean; triggers: Set<string> };
 
 type Loaded = {
   memory: Memory | null;
@@ -98,14 +103,14 @@ async function channelHistory(channel: GuildTextBasedChannel, triggers: Set<stri
     .filter((message) => message !== null)
     .sort(byId);
   const found = new Map(anchors.map((message) => [message.id, message]));
-  const cutoff = (anchors[0]?.createdTimestamp ?? Date.now()) - limits.channelContextMaxAgeMs;
+  const cutoff = (anchors[0]?.createdTimestamp ?? Date.now()) - CHANNEL_CONTEXT_MAX_AGE_MS;
   throwIfAborted(signal);
-  const recent = await abortWait(channel.messages.fetch({ limit: limits.channelContextMessages, before: anchors.at(-1)?.id }), signal);
+  const recent = await abortWait(channel.messages.fetch({ limit: CHANNEL_CONTEXT_MESSAGES, before: anchors.at(-1)?.id }), signal);
   for (const [id, message] of recent) if (message.createdTimestamp >= cutoff) found.set(id, message);
   let extra = 0;
   for (const start of anchors) {
     let current = start;
-    while (extra < limits.replyChainDepth && current.reference && current.reference.type !== MessageReferenceType.Forward
+    while (extra < REPLY_CHAIN_DEPTH && current.reference && current.reference.type !== MessageReferenceType.Forward
       && current.reference.channelId === channel.id && current.reference.messageId) {
       const known = found.get(current.reference.messageId);
       if (known) { current = known; continue; }
@@ -127,11 +132,11 @@ export async function load(source: Source, store: Store, whisperModel: string, s
   const pending = source.triggers;
   let originals: Message[];
   let memory: Memory | null = null;
-  const persistent = source.forum || source.thread;
+  const persistent = source.persistent;
   if (persistent) {
     memory = store.get(channel.id);
     let after = memory?.summaryUntil ?? (BigInt(channel.id) - 1n).toString();
-    const limit = memory ? Infinity : limits.firstLoadMessages;
+    const limit = memory ? Infinity : FIRST_LOAD_MESSAGES;
     originals = await fetchHistory(channel, after, limit, signal);
     // A brand-new post's starter message can lag behind its ThreadCreate event.
     if (pending.size && !originals.some((message) => pending.has(message.id))) {
@@ -160,7 +165,7 @@ export async function load(source: Source, store: Store, whisperModel: string, s
   latest.forEach((message, index) => { message.ref = `m${index + 1}`; });
   if (latest.length === 0) return null;
   const turns = groupTurns(history, botId);
-  const seen = await seeMedia(history, botId, whisperModel, signal);
+  const seen = await seeMedia(history.flatMap((message) => message.authorId === botId ? [] : message.media), whisperModel, signal);
   const people = new Map<string, Speaker>();
   for (const message of history) {
     if (message.authorId !== botId) people.set(message.authorId, { name: message.authorName, handle: message.authorHandle });

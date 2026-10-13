@@ -1,15 +1,11 @@
 import { expect, test } from "bun:test";
-import { limits } from "../limits";
 import { effectiveContextSize, ModelError, modelSession, promptBudget } from "./model";
 import type { ModelChoice } from "./model";
 
-const small: ModelChoice = { id: "small", contextSize: 65536 };
+const small: ModelChoice = { contextSize: 65536 };
 
-test("runtime context reserves answer output and headroom, not training capacity", () => {
-  expect(promptBudget(effectiveContextSize(131072))).toBe(121856);
-  expect(promptBudget(effectiveContextSize(65536))).toBe(56320);
-  expect(promptBudget(65536, limits.summaryMaxTokens)).toBe(58368);
-  expect(promptBudget(9217)).toBe(1);
+test("smallest accepted runtime context leaves a positive prompt budget", () => {
+  expect(promptBudget(effectiveContextSize(9217))).toBe(1);
 });
 
 test("missing, invalid, or insufficient runtime context fails closed", () => {

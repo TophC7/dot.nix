@@ -1,15 +1,14 @@
 import { expect, test } from "bun:test";
-import { limits } from "../limits";
 import type { ChatMessage } from "../llm/protocol";
 import { ModelError, modelSession, promptBudget } from "../llm/model";
 import type { ModelChoice } from "../llm/model";
 import { groupTurns, pendingHistory } from "./history";
 import type { HistoryMessage, Turn } from "./history";
-import { CompactionError, prepareContext, safeFoldCuts } from "./compaction";
+import { CompactionError, MAX_SUMMARY_CHARS, prepareContext, safeFoldCuts, SUMMARY_MAX_TOKENS } from "./compaction";
 import type { Memory } from "../memory/store";
 
-const large: ModelChoice = { id: "large", contextSize: 131072 };
-const small: ModelChoice = { id: "small", contextSize: 65536 };
+const large: ModelChoice = { contextSize: 131072 };
+const small: ModelChoice = { contextSize: 65536 };
 const tools = [{ type: "function", function: { name: "web_search" } }];
 const extra: ChatMessage[] = [
   { role: "user", content: "Search requested this turn" },
@@ -18,11 +17,11 @@ const extra: ChatMessage[] = [
 ];
 
 function turn(id: number, size: number): Turn {
-  return { messages: [{
+  return [{
     id: String(id), authorId: "human", authorName: "Human", authorHandle: "human", authorIsBot: false,
     webhookId: null, system: false, content: `turn-${id}: ${"x".repeat(size)}`, media: [], replyTo: null,
     createdAt: 0, reactions: [],
-  }] };
+  }];
 }
 
 // Deterministic token units exercise budgets; no server, environment, or source inspection.
@@ -42,17 +41,17 @@ function conversation() {
       choice: small, memory: prior, turns, tools,
       prompt: (summary: string, retained: Turn[]): ChatMessage[] => [
         { role: "system", content: summary },
-        ...retained.flatMap((entry) => entry.messages.map((message): ChatMessage => ({ role: "user", content: message.content }))),
+        ...retained.flat().map((message): ChatMessage => ({ role: "user", content: message.content })),
         ...extra,
       ],
       summaryPrompt: (summary: string, folded: Turn[]): ChatMessage[] => [
         { role: "system", content: "Summarize" },
-        { role: "user", content: `${summary}\n${folded.flatMap((entry) => entry.messages.map((message) => message.content)).join("\n")}` },
+        { role: "user", content: `${summary}\n${folded.flat().map((message) => message.content).join("\n")}` },
       ],
       count: async (messages: ChatMessage[], schema?: unknown[]) => tokenUnits(messages, schema, 1.1),
       complete: async (messages: ChatMessage[]) => {
         requests.push(messages);
-        expect(tokenUnits(messages, undefined, 1.1)).toBeLessThanOrEqual(promptBudget(small.contextSize, limits.summaryMaxTokens));
+        expect(tokenUnits(messages, undefined, 1.1)).toBeLessThanOrEqual(promptBudget(small.contextSize, SUMMARY_MAX_TOKENS));
         expect(persisted).toBe(prior);
         const [memory, ...transcript] = (messages[1]!.content as string).split("\n");
         return `${memory}; ${[...transcript.join("\n").matchAll(/turn-\d+/g)].map((match) => match[0]).join("; ")}`;
@@ -62,25 +61,25 @@ function conversation() {
   };
 }
 
-test("a smaller-model retry re-prepares with its tokenizer, batches memory, and retains current tools", async () => {
+test("a not-loaded retry re-prepares with the new runtime context, batches memory, and retains current tools", async () => {
   const fixture = conversation();
   let selections = 0;
   const session = await modelSession(async () => ++selections === 1 ? large : small);
-  const seen: string[] = [];
+  const seen: number[] = [];
   const prepared = await session.call(async (choice) => {
-    seen.push(choice.id);
+    seen.push(choice.contextSize);
     const result = await prepareContext({
       ...fixture.input, choice,
-      count: async (messages, schema) => tokenUnits(messages, schema, choice.id === "large" ? 1 : 1.1),
+      count: async (messages, schema) => tokenUnits(messages, schema, choice.contextSize === large.contextSize ? 1 : 1.1),
     });
-    if (choice.id === "large") {
+    if (choice.contextSize === large.contextSize) {
       expect(result.compacted).toBe(false);
       expect(fixture.writes).toHaveLength(0);
       throw new ModelError("not_loaded", "switched before generation");
     }
     return result;
   });
-  expect(seen).toEqual(["large", "small"]);
+  expect(seen).toEqual([large.contextSize, small.contextSize]);
   expect(selections).toBe(2);
   expect(fixture.requests).toHaveLength(4);
   expect(fixture.writes).toEqual([prepared.memory!]);
@@ -104,7 +103,7 @@ test("batch failure or invalid rebuilt prompt never commits any partial memory",
         batches++;
         if (batches === 2) {
           if (failure === "empty") return " ";
-          if (failure === "oversized") return "x".repeat(limits.maxSummaryChars + 1);
+          if (failure === "oversized") return "x".repeat(MAX_SUMMARY_CHARS + 1);
           if (failure === "model") throw new ModelError("not_loaded", "switched during summary");
         }
         return fixture.input.complete(messages);
@@ -155,7 +154,7 @@ test("not-loaded during summary retries whole preparation without committing a b
     ...fixture.input, choice, turns,
     count: async (messages, schema) => tokenUnits(messages, schema),
     complete: async (messages) => {
-      if (choice.id === "large") {
+      if (choice.contextSize === large.contextSize) {
         expect(fixture.writes).toHaveLength(0);
         throw new ModelError("not_loaded", "switched while summarizing");
       }
@@ -184,7 +183,7 @@ test("triggers become the current turn even when a reply was posted after them",
   const prepared = pendingHistory(history, "bot", new Set(["4"]));
   expect(prepared.map((entry) => entry.id)).toEqual(["1", "2", "3", "5", "4"]);
   const turns = groupTurns(prepared, "bot");
-  expect(turns.at(-1)!.messages.map((entry) => entry.id)).toEqual(["4"]);
+  expect(turns.at(-1)!.map((entry) => entry.id)).toEqual(["4"]);
   // Folding through the newer reply at 5 would erase the pending human at 4.
   expect(safeFoldCuts(turns)).toEqual([1]);
 });

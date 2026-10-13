@@ -1,7 +1,9 @@
 import { join } from "node:path";
-import { limits } from "../limits";
-import { run, withTemp } from "../media/exec";
-import { MediaFailure } from "../media/failure";
+import { MediaFailure, run, withTemp } from "../media/exec";
+
+const MAX_SVG_CHARS = 60_000;
+const RENDER_WIDTH = 1024;
+const RENDER_TIMEOUT_MS = 20_000;
 
 /** The SVG in the last fenced block (or the whole text when unfenced), or null when incomplete. */
 export function extractSvg(text: string): string | null {
@@ -17,7 +19,7 @@ export function extractSvg(text: string): string | null {
  * self-contained drawings pass. Returns a fix-it sentence for the model, or null.
  */
 export function checkSvg(svg: string): string | null {
-  if (svg.length > limits.artMaxSvgChars) return `the SVG is over ${limits.artMaxSvgChars} characters; simplify it`;
+  if (svg.length > MAX_SVG_CHARS) return `the SVG is over ${MAX_SVG_CHARS} characters; simplify it`;
   if (/<!DOCTYPE|<!ENTITY/i.test(svg)) return "remove the DOCTYPE/ENTITY declarations";
   const banned = /<(?:[\w-]+:)?(image|script|foreignObject|iframe)\b/i.exec(svg);
   if (banned) return `<${banned[1]}> is not allowed; draw it with shapes`;
@@ -36,8 +38,8 @@ export async function renderSvg(svg: string, fontsDir: string): Promise<Uint8Arr
       "resvg", "--skip-system-fonts", "--use-fonts-dir", fontsDir,
       "--font-family", "DejaVu Sans", "--sans-serif-family", "DejaVu Sans",
       "--serif-family", "DejaVu Serif", "--monospace-family", "DejaVu Sans Mono",
-      "--resources-dir", dir, "-w", String(limits.artRenderWidth), file, "-c",
-    ], limits.artRenderTimeoutMs);
+      "--resources-dir", dir, "-w", String(RENDER_WIDTH), file, "-c",
+    ], RENDER_TIMEOUT_MS);
   });
   if (!png.byteLength) throw new MediaFailure("resvg produced no image");
   return png;

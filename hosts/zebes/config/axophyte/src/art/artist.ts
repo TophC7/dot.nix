@@ -1,7 +1,8 @@
 import type { ChatMessage } from "../llm/protocol";
-import { TurnAborted } from "../llm/model";
-import { MediaFailure } from "../media/failure";
-import { clip } from "../media/text";
+import { TurnAborted } from "../abort";
+import { MediaFailure } from "../media/exec";
+import { dataUrl } from "../media/media";
+import { clip } from "../text";
 import { checkSvg, extractSvg, renderSvg } from "./svg";
 
 /** One art-only completion: no chat history, no persona. */
@@ -159,7 +160,7 @@ export async function paint(input: {
     role: "user",
     content: [
       { type: "text", text: reviewPrompt(request) },
-      { type: "image_url", image_url: { url: `data:image/png;base64,${Buffer.from(draft.png.buffer, draft.png.byteOffset, draft.png.byteLength).toString("base64")}` } },
+      { type: "image_url", image_url: { url: dataUrl("image/png", draft.png) } },
     ],
   });
   let review: string;

@@ -1,28 +1,11 @@
 import type { ApplicationEmoji, Guild, GuildEmoji } from "discord.js";
-import { limits } from "../limits";
-import type { EmojiNote } from "../memory/store";
 
 export type UsableEmoji = GuildEmoji | ApplicationEmoji;
-
-/** Notes scope for model descriptions of Axophyte's own emoji, shared by every server; admin meanings stay per server. */
-export const APP_EMOJI_SCOPE = "app";
-
-export function emojiScope(emoji: UsableEmoji): string {
-  return "guild" in emoji ? emoji.guild.id : APP_EMOJI_SCOPE;
-}
 
 /** Axophyte's own emoji first (usable in every server, never cut from the prompt), then this server's. */
 export function usableEmoji(guild: Guild): UsableEmoji[] {
   const own = guild.client.application?.emojis.cache.values() ?? [];
   return [...own, ...guild.emojis.cache.values()].filter((emoji) => emoji.available && emoji.name);
-}
-
-/** Prompt lines: each usable emoji with its description, once one exists. */
-export function serverEmoji(guild: Guild, notes: Map<string, EmojiNote>): string[] {
-  return usableEmoji(guild).slice(0, limits.promptEmoji).map((emoji) => {
-    const description = notes.get(emoji.id)?.description;
-    return description ? `:${emoji.name}: ${description}` : `:${emoji.name}:`;
-  });
 }
 
 function isDistanceOne(a: string, b: string): boolean {

@@ -1,8 +1,20 @@
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { MediaFailure } from "./failure";
-import { clippedText } from "./text";
+import { clippedText } from "../text";
+
+export const PROCESS_TIMEOUT_MS = 60_000;
+
+export class MediaFailure extends Error {
+  constructor(
+    message: string,
+    readonly retryable = false,
+    readonly detail: " - unsupported" | " - too large" = " - unsupported",
+  ) {
+    super(message);
+    this.name = "MediaFailure";
+  }
+}
 
 // The cause of a failure is printed last, so keep stderr's tail rather than its head.
 async function stderrTail(stream: ReadableStream<Uint8Array>, max: number): Promise<string> {
