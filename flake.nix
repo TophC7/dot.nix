@@ -181,6 +181,13 @@
       inputs.bun2nix.inputs.systems.follows = "systems-linux";
     };
 
+    bard = {
+      # url = "git+https://git.ryot.foo/toph/Bard.git";
+      url = "git+file:///repo/misc/bard";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.bun2nix.inputs.systems.follows = "systems-linux";
+    };
+
   };
 
   outputs =

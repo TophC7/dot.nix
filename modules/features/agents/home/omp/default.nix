@@ -9,6 +9,7 @@ let
   yaml = pkgs.formats.yaml { };
   json = pkgs.formats.json { };
   deepseekApiKey = secrets.service.models.DEEPSEEK_API_KEY or null;
+  geminiApiKey = secrets.service.models.GEMINI_API_KEY or null;
 
   settings = {
     setupVersion = 2;
@@ -127,9 +128,14 @@ let
   };
 
   models.providers =
-    lib.optionalAttrs (deepseekApiKey != null) {
+    lib.optionalAttrs (deepseekApiKey != null && deepseekApiKey != "") {
       deepseek = {
         apiKey = deepseekApiKey;
+      };
+    }
+    // lib.optionalAttrs (geminiApiKey != null && geminiApiKey != "") {
+      google = {
+        apiKey = geminiApiKey;
       };
     }
     // {
@@ -265,16 +271,22 @@ let
     fi
     mcp_tmp="$(${pkgs.coreutils}/bin/mktemp "$agent_dir/.mcp.json.XXXXXX")"
     ${pkgs.jq}/bin/jq \
-      --arg command "${lib.getExe pkgs.context-mode}" \
-      --arg data_dir "$HOME/.omp/context-mode" '
+      --arg ctx_command "${lib.getExe pkgs.context-mode}" \
+      --arg data_dir "$HOME/.omp/context-mode" \
+      --arg rea_command "${lib.getExe pkgs.rea}" '
       .mcpServers = (.mcpServers // {}) |
       .mcpServers["context-mode"] = {
         type: "stdio",
-        command: $command,
+        command: $ctx_command,
         env: {
           CONTEXT_MODE_PLATFORM: "omp",
           CONTEXT_MODE_DIR: $data_dir
         }
+      } |
+      .mcpServers["rea"] = {
+        type: "stdio",
+        command: $rea_command,
+        args: [ "mcp" ]
       }
     ' "$mcp_source" > "$mcp_tmp"
     ${pkgs.coreutils}/bin/chmod 600 "$mcp_tmp"
@@ -303,6 +315,7 @@ in
   home.packages = [
     pkgs.omp
     pkgs.context-mode
+    pkgs.rea
   ];
 
   home.sessionVariables = {
@@ -310,6 +323,7 @@ in
   };
 
   home.file = {
+    ".agents/skills/reverse-engineer-anything".source = pkgs.rea.passthru.skill;
     ".omp/plugins/node_modules/context-mode".source = pkgs.context-mode;
     ".omp/agent" = {
       source = ./agent;

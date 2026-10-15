@@ -3,3 +3,4 @@
 .logs
 *.bak
 .claude/settings.local.json
+*.conf

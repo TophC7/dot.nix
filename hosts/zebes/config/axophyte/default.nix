@@ -81,12 +81,14 @@ in
       BUN_INSTALL_CACHE_DIR = "/var/lib/axophyte/cache";
     }
     // lib.filterAttrs (
-      name: _:
+      name: val:
       builtins.elem name [
         "ANTHROPIC_API_KEY"
         "DEEPSEEK_API_KEY"
         "GEMINI_API_KEY"
       ]
+      && val != null
+      && val != ""
     ) (secrets.service.models or { });
     serviceConfig = {
       ExecStartPre = prepare;

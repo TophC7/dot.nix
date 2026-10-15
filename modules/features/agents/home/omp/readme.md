@@ -104,6 +104,7 @@ OMP uses abstract model roles instead of hardcoded model IDs. Subagents and work
 - **`Ctrl+P`**: Cycles active model: `default → bard → claude → codex`.
 - **Local Models**: The `zebes` provider retains its private-IP llama-server router endpoint, unauthenticated local access, model list from `../_zebes-models.nix`, and Qwen thinking compatibility.
 - **DeepSeek**: `models.yml` includes the DeepSeek provider when `secrets.service.models.DEEPSEEK_API_KEY` is configured.
+- **Gemini**: `models.yml` includes the Google provider when `secrets.service.models.GEMINI_API_KEY` is configured.
 
 ---
 
@@ -113,3 +114,13 @@ Context Mode runs commands and file processing in a sandboxed subprocess and mai
 
 - Registered as both an MCP server (`mcp.json`) and an OMP plugin (`plugins/package.json`).
 - Mutable index database stored in `~/.omp/context-mode/`.
+
+---
+
+## REA (Reverse Engineer Anything)
+
+REA provides 170 MCP tools for reverse engineering across binaries, managed code, JavaScript/Electron apps, APKs, EVM bytecode, and network captures.
+
+- Packaged in `mix.nix` (`pkgs.rea`) with pre-wrapped analysis engines: Ghidra 12.1.x, OpenJDK 21, Python pwntools, WABT, JADX, Android platform tools (adb), Wireshark CLI (tshark), Sigrok CLI, Binwalk, Unblob, Mitmproxy, and GDB.
+- Registered as an MCP server (`mcp.json`) invoking `${lib.getExe pkgs.rea} mcp`.
+- Workflow instructions linked to `~/.agents/skills/reverse-engineer-anything` from `pkgs.rea.passthru.skill`.
