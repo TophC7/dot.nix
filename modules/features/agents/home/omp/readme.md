@@ -12,7 +12,7 @@ modules/features/agents/home/omp/
 └── agent/                    # Recursively linked into ~/.omp/agent/
     ├── AGENTS.md             # Main-session Soul; not loaded by task subagents
     ├── RULES.md              # Standing rules plus Ponytail; inherited by task subagents
-    ├── APPEND_SYSTEM.md      # Always-on Caveman; main session only
+    ├── PERSONALITY.md        # BLUF communication style; main session only
     ├── agents/               # Specialized native subagents
     ├── commands/             # Native slash-command prompts
     ├── macros/               # Editable prompt templates
@@ -21,7 +21,7 @@ modules/features/agents/home/omp/
 
 - **`default.nix`**: Generates `models.yml` and the declared settings and SSH hosts. Activation resets `~/.omp/agent/config.yml`, merges Nix-managed hosts into mutable `ssh.json`, and registers Context Mode in mutable `mcp.json` and `plugins/package.json`, preserving unrelated registry entries.
 - **`agent/`**: Home Manager links the native files recursively, leaving room for runtime state in `~/.omp/agent/`. Change prompts, agent definitions, commands, macros, and extensions here, then activate Home Manager to deploy them.
-- **Prompt reach**: `AGENTS.md` shapes the main session. `RULES.md` includes always-on Ponytail and is inherited by native `task` children. `APPEND_SYSTEM.md` supplies always-on Caveman to the main session only. These OMP-owned files need no toggle extensions, task-input rewriting, or persistence state.
+- **Prompt reach**: `AGENTS.md` (Soul) shapes how the main session works with Toph and his ideas. `PERSONALITY.md` owns prose style for the main session; it fills OMP's personality slot because `personality` is non-`none`. `RULES.md` holds tooling and code rules, including Ponytail, that every agent including `task` children must follow. Subagents never receive Soul or Personality; the main agent conveys intent when spawning them.
 
 ---
 

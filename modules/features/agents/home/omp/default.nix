@@ -132,7 +132,8 @@ let
     error.notify = "on";
     ask.notify = "on";
     secrets.enabled = true;
-    personality = "none";
+    # Any non-"none" value enables the personality slot; agent/PERSONALITY.md replaces the preset text.
+    personality = "default";
     doubleEscapeAction = "rewind";
     spelling.autocomplete = "smollm";
     recap.enabled = false;
