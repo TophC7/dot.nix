@@ -34,6 +34,7 @@ Custom TypeScript extensions running inside OMP:
 | **`macros.ts`** | Adds `/macro [name]` and `Ctrl+M` keybind to open an interactive picker for prompt templates in `~/.omp/agent/macros/`. Strips frontmatter before pasting into the composer. |
 | **`luna-priority.ts`** | Injects `service_tier: "priority"` into requests targeting `openai-codex/gpt-5.6-luna`. |
 | **`decomplect.ts`** | Routes `/decomplect` into native plan mode before the command runs. |
+| **`findings.ts`** | Registers `triage_findings`, the stateless step shared by `/cleanup` and `/review:adversarial`: folds skeptic duplicates, routes findings by verdict, gates cleanup auto-fixes, and writes the shared report to `local://findings.md`. |
 
 ---
 
@@ -42,6 +43,7 @@ Custom TypeScript extensions running inside OMP:
 Reusable prompts inserted via `Ctrl+M` or `/macro <name>`:
 
 - **`plan.md`**: Vet claims against code and discuss a self-contained implementation plan.
+- **`plan-findings.md`**: Turn `local://findings.md` from `/cleanup` or `/review:adversarial` into a root-cause-grouped implementation plan.
 - **`phased-plan.md`**: Outline phases with goals and constraints; leave detailed implementation to separate phase plans.
 - **`plan-phase.md`**: Flesh out one phase of an existing plan for execution in a fresh session.
 - **`ui-screens.md`**: Walk through UI changes in browser and capture screenshots to `screens/`.
@@ -55,8 +57,8 @@ Reusable prompts inserted via `Ctrl+M` or `/macro <name>`:
 
 | Command | Description |
 | --- | --- |
-| **`/review:adversarial [target]`** | Runs 6 parallel read-only scout agents over a target (PR, commit, diff, or paths). Synthesizes findings, asks what to fix via an interactive prompt, then applies chosen fixes. |
-| **`/cleanup [commit] [focus]`** | Runs 4 scout agents over working tree or diff to polish code. Applies safe fixes automatically and routes uncertain or high-risk findings to a review list. |
+| **`/review:adversarial [target]`** | Read-only diagnostic review: runs 6 blind scope scouts, challenges candidates with `workflow-skeptic` and `review-omission-scout`, and writes actionable findings to `local://findings.md` without interviewing or editing. |
+| **`/cleanup [target] [focus]`** | Runs 4 blind cleanup scouts, challenges candidates with `workflow-skeptic`, applies vetted mechanical fixes via `cleanup-fixer`, and reports the rest in the shared `local://findings.md` format. |
 | **`/decomplect [repo-or-paths] [focus]`** | Enters native plan mode, audits a whole repo or selected subsystems with parallel `decomplect-scout` agents, discusses architectural/product choices, then opens one integrated plan to untangle, consolidate, and delete in Plan Review. |
 | **`/commit [guidance]`** | Delegates to the `committer` agent to inspect the staged diff and create a clean conventional commit. |
 | **`/pr [target] [guidance]`** | Resolves the target repo, then delegates to the `pr` agent to open a GitHub PR from committed changes, creating a `pr/*` branch if currently on `main` or `dev/*`. |
@@ -77,6 +79,10 @@ Subagents run in parallel with `blocking: true` to return findings inline:
   - `cleanup-quality-scout`: Removes dead code and debug remnants.
   - `cleanup-efficiency-scout`: Streamlines loops and hot paths.
   - `cleanup-audit-scout`: Flags risky behavioral changes, races, and seam breaks for manual triage.
+- **Challenge & Fixer Agents**:
+  - `workflow-skeptic`: Adversarial verifier that attempts to refute candidate findings against actual code and vets `mechanical` vs `judgment` edits.
+  - `review-omission-scout`: Completeness critic that hunts for unread hunks, untraced callers, and unwalked failure paths.
+  - `cleanup-fixer`: Single in-lane writer for `/cleanup` that applies vetted mechanical edits, runs repo checks, and re-stages in `staged` mode.
 - **Decomplect Scout**:
   - `decomplect-scout`: Subsystem audit for untangling, consolidation, and deletion.
 - **Git Agents**:

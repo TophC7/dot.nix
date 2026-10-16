@@ -4,6 +4,7 @@ description: Read-only /decomplect subsystem owner; proposes untangling, consoli
 tools: read, grep, glob
 model: "@advisor"
 blocking: true
+structured: true
 read-summarize: false
 output:
   properties:
