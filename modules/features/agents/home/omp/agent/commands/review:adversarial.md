@@ -61,4 +61,4 @@ Add omission `gaps` to the coverage gaps. If the omission scout returned finding
 
 ## 4. Report
 
-Call `triage_findings` with `workflow: "review"`, the target label, every finding (scouts and omission) and every verdict (both skeptic passes) verbatim, and all coverage gaps. Print its report as returned; it is also saved to `local://findings.md` for `/macro plan-findings`. Do not call `ask`, propose or apply fixes, or stage or commit. No narration or preamble.
+Call `triage_findings` with `workflow: "review"`, the target label, every finding (scouts and omission) and every verdict (both skeptic passes) verbatim, and all coverage gaps. Print its report as returned; it is also saved to `local://findings.md` for `/macro plan/findings` and `/macro pr/review`. Do not call `ask`, propose or apply fixes, or stage or commit. No narration or preamble.

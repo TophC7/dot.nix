@@ -40,65 +40,65 @@ let
       base16 = "${artifacts}/theme/base16.yaml";
     };
 
-  materialPalette = if hasPana then config.programs.pana.generated.materialPalette else selfCompiled.material;
-  ansi16Palette = if hasPana then config.programs.pana.generated.ansi16Palette else selfCompiled.ansi16;
+  materialPalette =
+    if hasPana then config.programs.pana.generated.materialPalette else selfCompiled.material;
+  ansi16Palette =
+    if hasPana then config.programs.pana.generated.ansi16Palette else selfCompiled.ansi16;
   base16Scheme = if hasPana then config.programs.pana.generated.base16Scheme else selfCompiled.base16;
 
   # Terminal themes from the generated palettes. Syntax highlighting uses named
   # ANSI colors (resolved through Ghostty's palette); hex values where subtle
   # shading helps.
-  terminalThemes =
-    pkgs.runCommand "pana-terminal-themes" { nativeBuildInputs = [ pkgs.jq ]; }
-      ''
-        set -euo pipefail
-        mkdir -p $out
+  terminalThemes = pkgs.runCommand "pana-terminal-themes" { nativeBuildInputs = [ pkgs.jq ]; } ''
+    set -euo pipefail
+    mkdir -p $out
 
-        m() { jq -r --arg k "$1" '.[$k]' ${materialPalette}; }
-        BG=$(m surface)
-        FG=$(m on-surface)
-        DIM=$(m surface-container-low)
-        PARAM=$(m on-surface-variant)
+    m() { jq -r --arg k "$1" '.[$k]' ${materialPalette}; }
+    BG=$(m surface)
+    FG=$(m on-surface)
+    DIM=$(m surface-container-low)
+    PARAM=$(m on-surface-variant)
 
-        {
-          printf 'background = %s\n' "$BG"
-          printf 'foreground = %s\n' "$FG"
-          printf 'cursor-color = %s\n' "$(m primary)"
-          printf 'selection-background = %s\n' "$(m primary-container)"
-          printf 'selection-foreground = %s\n' "$FG"
-          jq -r '.normal[], .bright[]' ${ansi16Palette} \
-            | awk '{ printf "palette = %d=%s\n", NR - 1, $1 }'
-        } > $out/ghostty-theme
+    {
+      printf 'background = %s\n' "$BG"
+      printf 'foreground = %s\n' "$FG"
+      printf 'cursor-color = %s\n' "$(m primary)"
+      printf 'selection-background = %s\n' "$(m primary-container)"
+      printf 'selection-foreground = %s\n' "$FG"
+      jq -r '.normal[], .bright[]' ${ansi16Palette} \
+        | awk '{ printf "palette = %d=%s\n", NR - 1, $1 }'
+    } > $out/ghostty-theme
 
-        cat > $out/fish-colors.fish << EOF
-        set -g fish_color_normal normal
-        set -g fish_color_command green
-        set -g fish_color_keyword blue
-        set -g fish_color_quote yellow
-        set -g fish_color_redirection cyan
-        set -g fish_color_end brblack
-        set -g fish_color_error red
-        set -g fish_color_param $PARAM
-        set -g fish_color_comment $DIM
-        set -g fish_color_autosuggestion $DIM
-        set -g fish_color_operator blue
-        set -g fish_color_escape yellow
-        set -g fish_color_cwd green
-        set -g fish_color_cwd_root red
-        set -g fish_color_user brgreen
-        set -g fish_color_host normal
-        set -g fish_color_status red
-        set -g fish_color_cancel -r
-        set -g fish_color_search_match bryellow --background=$DIM
-        set -g fish_color_selection white --bold --background=$DIM
-        set -g fish_color_valid_path --underline
-        set -g fish_color_history_current --bold
-        set -g fish_color_match --background=brblue
-        set -g fish_pager_color_completion normal
-        set -g fish_pager_color_description yellow --dim
-        set -g fish_pager_color_prefix white --bold
-        set -g fish_pager_color_progress brwhite --background=cyan
-        EOF
-      '';
+    cat > $out/fish-colors.fish << EOF
+    set -g fish_color_normal normal
+    set -g fish_color_command green
+    set -g fish_color_keyword blue
+    set -g fish_color_quote yellow
+    set -g fish_color_redirection cyan
+    set -g fish_color_end brblack
+    set -g fish_color_error red
+    set -g fish_color_param $PARAM
+    set -g fish_color_comment $DIM
+    set -g fish_color_autosuggestion $DIM
+    set -g fish_color_operator blue
+    set -g fish_color_escape yellow
+    set -g fish_color_cwd green
+    set -g fish_color_cwd_root red
+    set -g fish_color_user brgreen
+    set -g fish_color_host normal
+    set -g fish_color_status red
+    set -g fish_color_cancel -r
+    set -g fish_color_search_match bryellow --background=$DIM
+    set -g fish_color_selection white --bold --background=$DIM
+    set -g fish_color_valid_path --underline
+    set -g fish_color_history_current --bold
+    set -g fish_color_match --background=brblue
+    set -g fish_pager_color_completion normal
+    set -g fish_pager_color_description yellow --dim
+    set -g fish_pager_color_prefix white --bold
+    set -g fish_pager_color_progress brwhite --background=cyan
+    EOF
+  '';
 in
 {
   imports = [
@@ -107,6 +107,13 @@ in
   ];
 
   config = lib.mkMerge [
+    # Stylix package overlays cannot be used in Home Manager when
+    # home-manager.useGlobalPkgs is enabled, because Home Manager's nixpkgs.*
+    # options are disabled when using the system pkgs.
+    {
+      stylix.overlays.enable = lib.mkDefault false;
+    }
+
     # Feed pana's typed Material template into the shared matugen run — only
     # when pana isn't already registering it under its own integration.
     (lib.mkIf (cfg.enable && !hasPana) {

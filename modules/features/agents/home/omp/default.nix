@@ -259,21 +259,17 @@ let
     set -euo pipefail
 
     agent_dir="$HOME/.omp/agent"
-    plugin_dir="$HOME/.omp/plugins"
     ssh_config="$agent_dir/ssh.json"
     mcp_config="$agent_dir/mcp.json"
-    plugin_config="$plugin_dir/package.json"
 
-    ${pkgs.coreutils}/bin/mkdir -p "$agent_dir" "$plugin_dir"
+    ${pkgs.coreutils}/bin/mkdir -p "$agent_dir"
     ${pkgs.coreutils}/bin/install -m 600 ${configFile} "$agent_dir/config.yml"
 
     ssh_tmp=""
     mcp_tmp=""
-    plugin_tmp=""
     cleanup() {
       [[ -z "$ssh_tmp" ]] || ${pkgs.coreutils}/bin/rm -f "$ssh_tmp"
       [[ -z "$mcp_tmp" ]] || ${pkgs.coreutils}/bin/rm -f "$mcp_tmp"
-      [[ -z "$plugin_tmp" ]] || ${pkgs.coreutils}/bin/rm -f "$plugin_tmp"
     }
     trap cleanup EXIT
 
@@ -294,18 +290,8 @@ let
     fi
     mcp_tmp="$(${pkgs.coreutils}/bin/mktemp "$agent_dir/.mcp.json.XXXXXX")"
     ${pkgs.jq}/bin/jq \
-      --arg ctx_command "${lib.getExe pkgs.context-mode}" \
-      --arg data_dir "$HOME/.omp/context-mode" \
       --arg rea_command "${lib.getExe pkgs.rea}" '
       .mcpServers = (.mcpServers // {}) |
-      .mcpServers["context-mode"] = {
-        type: "stdio",
-        command: $ctx_command,
-        env: {
-          CONTEXT_MODE_PLATFORM: "omp",
-          CONTEXT_MODE_DIR: $data_dir
-        }
-      } |
       .mcpServers["rea"] = {
         type: "stdio",
         command: $rea_command,
@@ -316,28 +302,12 @@ let
     ${pkgs.coreutils}/bin/mv -f "$mcp_tmp" "$mcp_config"
     mcp_tmp=""
 
-    plugin_source="$plugin_config"
-    if [[ ! -f "$plugin_source" ]]; then
-      plugin_source="${emptyJson}"
-    fi
-    plugin_tmp="$(${pkgs.coreutils}/bin/mktemp "$plugin_dir/.package.json.XXXXXX")"
-    ${pkgs.jq}/bin/jq --arg source "file:${pkgs.context-mode}" '
-      .name = (.name // "omp-plugins") |
-      .private = true |
-      .dependencies = (.dependencies // {}) |
-      .dependencies["context-mode"] = $source
-    ' "$plugin_source" > "$plugin_tmp"
-    ${pkgs.coreutils}/bin/chmod 600 "$plugin_tmp"
-    ${pkgs.coreutils}/bin/mv -f "$plugin_tmp" "$plugin_config"
-    plugin_tmp=""
-
     trap - EXIT
   '';
 in
 {
   home.packages = [
     pkgs.omp
-    pkgs.context-mode
     pkgs.rea
   ];
 
@@ -347,7 +317,6 @@ in
 
   home.file = {
     ".agents/skills/reverse-engineer-anything".source = pkgs.rea.passthru.skill;
-    ".omp/plugins/node_modules/context-mode".source = pkgs.context-mode;
     ".omp/agent" = {
       source = ./agent;
       recursive = true;

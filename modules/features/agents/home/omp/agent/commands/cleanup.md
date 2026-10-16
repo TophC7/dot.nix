@@ -53,4 +53,4 @@ Spawn one fresh `workflow-skeptic` (`CleanupSkeptic`) with the target context an
 
 1. Call `triage_findings` with `workflow: "cleanup"`, the target label, every finding and verdict verbatim, all coverage gaps, and `fixGate` when settled.
 2. If it returns a `toFix` list, spawn `cleanup-fixer` (`CleanupFixer`) with that list, the target mode, repository root, and the repository's verification commands. It is the only agent allowed to edit files. Then call `triage_findings` again with the same inputs plus `fixer` set to its result verbatim (a failed fixer is `{ "applied": [], "notApplied": [], "checks": [] }` plus a coverage gap).
-3. Print the final report as returned. It is also saved to `local://findings.md` for `/macro plan-findings`. Do not stage (beyond the fixer's staged-mode re-staging), commit, or push. No narration or preamble.
+3. Print the final report as returned. It is also saved to `local://findings.md` for `/macro plan/findings` and `/macro pr/review`. Do not stage (beyond the fixer's staged-mode re-staging), commit, or push. No narration or preamble.

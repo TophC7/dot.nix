@@ -1,6 +1,6 @@
 # Oh My Pi (OMP)
 
-Toph's independent [Oh My Pi](https://github.com/can1357/oh-my-pi) configuration. Nix manages settings, model providers, extensions, workflow commands, scout agents, prompt macros, and Context Mode. Edit the native workflow directly in `agent/`; it is not generated or shared with other harnesses.
+Toph's independent [Oh My Pi](https://github.com/can1357/oh-my-pi) configuration. Nix manages settings, model providers, extensions, workflow commands, scout agents, and prompt macros. Edit the native workflow directly in `agent/`; it is not generated or shared with other harnesses.
 
 ---
 
@@ -16,10 +16,10 @@ modules/features/agents/home/omp/
     ├── agents/               # Specialized native subagents
     ├── commands/             # Native slash-command prompts
     ├── macros/               # Editable prompt templates
-    └── extensions/           # Macro picker, priority requests, native plan-mode routing
+    └── extensions/           # Macro picker, priority requests, plan-mode routing, findings triage, docs search
 ```
 
-- **`default.nix`**: Generates `models.yml` and the declared settings and SSH hosts. Activation resets `~/.omp/agent/config.yml`, merges Nix-managed hosts into mutable `ssh.json`, and registers Context Mode in mutable `mcp.json` and `plugins/package.json`, preserving unrelated registry entries.
+- **`default.nix`**: Generates `models.yml` and the declared settings and SSH hosts. Activation resets `~/.omp/agent/config.yml`, merges Nix-managed hosts into mutable `ssh.json`, and registers REA in mutable `mcp.json`, preserving unrelated registry entries.
 - **`agent/`**: Home Manager links the native files recursively, leaving room for runtime state in `~/.omp/agent/`. Change prompts, agent definitions, commands, macros, and extensions here, then activate Home Manager to deploy them.
 - **Prompt reach**: `AGENTS.md` (Soul) shapes how the main session works with Toph and his ideas. `PERSONALITY.md` owns prose style for the main session; it fills OMP's personality slot because `personality` is non-`none`. `RULES.md` holds tooling and code rules, including Ponytail, that every agent including `task` children must follow. Subagents never receive Soul or Personality; the main agent conveys intent when spawning them.
 
@@ -31,23 +31,28 @@ Custom TypeScript extensions running inside OMP:
 
 | Extension | What it does |
 | --- | --- |
-| **`macros.ts`** | Adds `/macro [name]` and `Ctrl+M` keybind to open an interactive picker for prompt templates in `~/.omp/agent/macros/`. Strips frontmatter before pasting into the composer. |
+| **`macros.ts`** | Adds `/macro [id]` and `Ctrl+M` for prompt templates in `~/.omp/agent/macros/`. Root files and one level of folders load; ids are path stems (`ui-screens`, `pr/merge`). `Ctrl+M`/bare `/macro` open an accordion picker on OMP's `TreeView` (folders fold with Enter/←→). Strips frontmatter before pasting into the composer. |
 | **`luna-priority.ts`** | Injects `service_tier: "priority"` into requests targeting `openai-codex/gpt-5.6-luna`. |
 | **`decomplect.ts`** | Routes `/decomplect` into native plan mode before the command runs. |
 | **`findings.ts`** | Registers `triage_findings`, the stateless step shared by `/cleanup` and `/review:adversarial`: folds skeptic duplicates, routes findings by verdict, gates cleanup auto-fixes, and writes the shared report to `local://findings.md`. |
+| **`docs.ts`** | Registers `docs`: ranked full-text search (SQLite FTS5, BM25, stemming) over documentation. Takes a URL, local file/dir, or Nix store path and indexes it on first use into heading sections split into paragraph-aligned chunks of at most 2000 chars. Results show the heading path, a `file:start-end` range to `read`, and the page `URL#anchor` for web sources. All query terms must match (falling back to any term); dotted identifiers match as phrases and a trailing `*` matches prefixes. The index lives in `~/.omp/docs/`. URLs are re-fetched after 24h and local paths when their files change; store paths never need refreshing. Failed URL re-fetches, including explicit refreshes, search the existing index with a warning and its indexing date; cancellation still propagates. Directory walks prune hidden entries and `node_modules`, stop above 5000 doc files, and read files in batches of 32 before atomically replacing the index. Any source unused for 30 days (not searched by name and in no result) is dropped, along with its saved page, and paths that no longer exist are dropped at once. It only fetches plain HTTP and only the given page, following HTTP and meta-refresh redirects (including quoted targets). |
 
 ---
 
 ## Macros (`agent/macros/`)
 
-Reusable prompts inserted via `Ctrl+M` or `/macro <name>`:
+Reusable prompts inserted via `Ctrl+M` or `/macro <id>`, grouped one folder deep:
 
-- **`plan.md`**: Vet claims against code and discuss a self-contained implementation plan.
-- **`plan-findings.md`**: Turn `local://findings.md` from `/cleanup` or `/review:adversarial` into a root-cause-grouped implementation plan.
-- **`phased-plan.md`**: Outline phases with goals and constraints; leave detailed implementation to separate phase plans.
-- **`plan-phase.md`**: Flesh out one phase of an existing plan for execution in a fresh session.
-- **`ui-screens.md`**: Walk through UI changes in browser and capture screenshots to `screens/`.
-- **`pr-brent.md`**: Create a PR from committed changes and request review from `brent-pysnk-ai`.
+- **`ui-screens`**: Walk through UI changes in browser and capture screenshots to `screens/`.
+- **`plan/`**
+  - **`plan`**: Vet claims against code and discuss a self-contained implementation plan.
+  - **`findings`**: Turn `local://findings.md` from `/cleanup` or `/review:adversarial` into a root-cause-grouped implementation plan.
+  - **`phased`**: Outline phases with goals and constraints; leave detailed implementation to separate phase plans.
+  - **`phase`**: Flesh out one phase of an existing plan for execution in a fresh session.
+- **`pr/`**
+  - **`brent`**: Create a PR from committed changes and request review from `brent-pysnk-ai`.
+  - **`review`**: Post a PR review comment detailing cleanup changes and inline findings without prescribing fixes.
+  - **`merge`**: Push fixes, approve the PR with a summary of resolved findings and cleanup, and merge.
 
 ---
 
@@ -111,15 +116,6 @@ OMP uses abstract model roles instead of hardcoded model IDs. Subagents and work
 - **Local Models**: The `zebes` provider retains its private-IP llama-server router endpoint, unauthenticated local access, model list from `../_zebes-models.nix`, and Qwen thinking compatibility.
 - **DeepSeek**: `models.yml` includes the DeepSeek provider when `secrets.service.models.DEEPSEEK_API_KEY` is configured.
 - **Gemini**: `models.yml` includes the Google provider when `secrets.service.models.GEMINI_API_KEY` is configured.
-
----
-
-## Context Mode
-
-Context Mode runs commands and file processing in a sandboxed subprocess and maintains an FTS5 search index over local documents and logs.
-
-- Registered as both an MCP server (`mcp.json`) and an OMP plugin (`plugins/package.json`).
-- Mutable index database stored in `~/.omp/context-mode/`.
 
 ---
 

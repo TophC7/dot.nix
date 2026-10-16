@@ -69,11 +69,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1792029541,
-        "narHash": "sha256-/SWfD50ZhdgATo1BbgaQeIo+T/Lw2FTG6i7aKROy4KM=",
+        "lastModified": 1792175039,
+        "narHash": "sha256-cuswFLimaJLSv88PH1Fkk3RDt25SG1yTEnGt8Sg2ngk=",
         "ref": "refs/heads/main",
-        "rev": "d39afe1b968221ed931275bbf820e7320c8c9122",
-        "revCount": 5,
+        "rev": "4a19657030d04088ac228a0a191e595281c9f650",
+        "revCount": 6,
         "type": "git",
         "url": "file:///repo/misc/bard"
       },
@@ -327,23 +327,6 @@
       "original": {
         "owner": "nix-community",
         "repo": "bun2nix",
-        "type": "github"
-      }
-    },
-    "context-mode": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1782757075,
-        "narHash": "sha256-1pV56ZB2aqod+C0kb5myuiWLAJ7+opiaurwZZ3BGKYk=",
-        "owner": "mksglu",
-        "repo": "context-mode",
-        "rev": "589d8214d56740a28b5f7bf63167743d586b0b40",
-        "type": "github"
-      },
-      "original": {
-        "owner": "mksglu",
-        "ref": "v1.0.169",
-        "repo": "context-mode",
         "type": "github"
       }
     },
@@ -1239,22 +1222,20 @@
     },
     "mix-nix": {
       "inputs": {
-        "context-mode": "context-mode",
         "flake-parts": "flake-parts_4",
         "home-manager": "home-manager_2",
         "matugen": "matugen_2",
         "nix-cachyos-kernel": "nix-cachyos-kernel",
         "nixpkgs": "nixpkgs_4",
         "nixpkgs-stable": "nixpkgs-stable",
-        "omp": "omp",
-        "ompweb": "ompweb"
+        "omp": "omp"
       },
       "locked": {
-        "lastModified": 1792136347,
-        "narHash": "sha256-UWUkLZp7Jb8Q+nDgAO+kSVDINnh6aeN2tqyMvKUAql4=",
+        "lastModified": 1792171282,
+        "narHash": "sha256-Q2DHpv6Bk/kjVAYmqDinTAwupQg/UcW3M2CFym0crgo=",
         "ref": "refs/heads/main",
-        "rev": "e252e50eafeb098aa5c12cd4d1af0c88d0114cf9",
-        "revCount": 194,
+        "rev": "ce40275a3d9e79231b6838e54514c374d8bfe6f1",
+        "revCount": 195,
         "type": "git",
         "url": "file:///repo/Nix/mix.nix"
       },
@@ -1661,23 +1642,6 @@
       "original": {
         "owner": "can1357",
         "repo": "oh-my-pi",
-        "type": "github"
-      }
-    },
-    "ompweb": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1791714234,
-        "narHash": "sha256-9A/TEvu9d0wpw8v4n2TVObgDoU7Tdh+BEwGES8CvULE=",
-        "owner": "kahme247",
-        "repo": "ompweb",
-        "rev": "7dec76633f392fa0f9e148effe691356fd2b473a",
-        "type": "github"
-      },
-      "original": {
-        "owner": "kahme247",
-        "repo": "ompweb",
-        "rev": "7dec76633f392fa0f9e148effe691356fd2b473a",
         "type": "github"
       }
     },

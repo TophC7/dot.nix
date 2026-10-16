@@ -3,8 +3,9 @@
 - No Python unless Toph explicitly permits it or project is Python.
 - Toph-owned projects: Bun only, never npm/pnpm/yarn. Other projects: follow project; absent a convention, use Bun, falling back to pnpm only if Bun fails.
 - Assume Nix is always available and environment is Nix; prefer it for tools, dependencies, shells, reproducibility.
+- NEVER try to switch or build a Nix host, and NEVER build a top-level derivation, unless that is the literal asked task.
 - Persistent scripts: Fish by default; use Java 25 source-file scripts when complexity would otherwise call for Python/Node.
-- When available, use `ctx_execute`/`ctx_execute_file` for one-shot analysis where only result matters; repo-worthy tools: Fish/Java.
+- Your own commands run in the `bash` tool: write plain bash there and don't wrap them in `fish -c`; Fish rules govern scripts and commands you hand to Toph or commit. Multi-step logic belongs in `eval`.
 
 ## Testing
 
