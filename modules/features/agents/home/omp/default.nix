@@ -38,6 +38,7 @@ let
       smol = "openai-codex/gpt-6-luna:xhigh";
       task = "openai-codex/gpt-6.1-sol:high";
       advisor = "anthropic/claude-opus-5-5:medium";
+      argon = "google-antigravity/gemini-4-argon:high";
       bard = "google-antigravity/gemini-3.8-flash:high";
       claude = "anthropic/claude-opus-5-5:high";
       codex = "openai-codex/gpt-6.1-sol:high";
@@ -45,7 +46,7 @@ let
 
     cycleOrder = [
       "default"
-      "bard"
+      "argon"
       "claude"
       "codex"
     ];
@@ -59,7 +60,10 @@ let
     };
 
     symbolPreset = "nerd";
-    composer.shape = "claude";
+    composer = {
+      shape = "claude";
+      tokenRate = false;
+    };
     theme = {
       dark = "dark";
       light = "light";
@@ -70,6 +74,7 @@ let
       separator = "pipe";
       sessionAccent = true;
       compactThinkingLevel = true;
+      transparent = false;
     };
 
     terminal.showProgress = true;
@@ -79,12 +84,14 @@ let
       resizeScrollback = "append";
       textSizing = true;
       hyperlinks = "always";
+      codexResetFireworks = true;
     };
 
     display = {
       shimmer = "classic";
       showTokenUsage = true;
       showTurnTime = true;
+      subagentLivePreview = true;
     };
 
     hideThinkingBlock = false;
@@ -118,13 +125,28 @@ let
     github.enabled = true;
     read.renderMarkdown = true;
     memory.backend = "off";
-    treeFilterMode = "default";
+    treeFilterMode = "all";
     marketplace.autoUpdate = "off";
     features.unexpectedStopDetection = "mechanical";
     completion.notify = "on";
     error.notify = "on";
     ask.notify = "on";
     secrets.enabled = true;
+    personality = "none";
+    doubleEscapeAction = "rewind";
+    spelling.autocomplete = "smollm";
+    recap.enabled = false;
+    edit.mode = "hashline";
+    bashInterceptor.enabled = true;
+    shellMinimizer.enabled = true;
+    plan = {
+      autosave = true;
+      autosaveDir = ".sworm/plans/";
+    };
+    commands = {
+      enableClaudeProject = false;
+      enableOpencodeProject = false;
+    };
   };
 
   models.providers =
