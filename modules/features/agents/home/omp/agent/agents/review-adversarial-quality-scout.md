@@ -47,6 +47,7 @@ Look for:
 - Debug remnants: console logging, debuggers, temporary flags, commented-out code, and stale TODO/FIXME markers.
 - Over-engineering: unused abstractions, single-call-site indirection, and parameter sprawl.
 - Leaky abstractions and stringly-typed values where typed constants or unions exist.
+- Test code is target code: tautological tests (a constant asserted against its own literal, a mock echoing its setup), the same behavior asserted again at another layer or in another file, copied fixtures/builders, and tests in one module pinning another module's behavior.
 
 Rules:
 - Read-only. Do not edit, write, stage, commit, push, create files, or run builds.

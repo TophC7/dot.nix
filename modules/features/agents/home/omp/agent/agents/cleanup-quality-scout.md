@@ -57,5 +57,6 @@ Look for:
 - Leaky abstractions or stringly-typed values where a constant, enum, or union exists.
 - Comments that restate what the code does, narrate the change, or reference the task/caller. Keep only non-obvious why.
 - AI-slop: generated-sounding filler, placeholder text, defensive checks that hide real errors.
+- Test code is target code: tautological tests (a constant asserted against its own literal, a mock echoing its setup), the same behavior asserted again at another layer or in another file, copied fixtures/builders, and tests in one module pinning another module's behavior.
 
 Return one terminal `yield` whose `data` matches the output schema.

@@ -41,7 +41,7 @@ Launch one parallel `task` batch containing these four blind scouts:
 | `CleanupEfficiency` | `cleanup-efficiency-scout` | `efficiency` |
 | `CleanupAudit` | `cleanup-audit-scout` | `audit` |
 
-Shared `context`: target label, diff location, complete target file list, repository rule files, acquisition limitations, and optional user focus. Each task uses `# Target`, `# Change`, and `# Acceptance`; each agent owns its scope criteria. Do not launch any other review agent.
+Shared `context`: target label, diff location, complete target file list (test files included), repository rule files, acquisition limitations, and optional user focus. Each task uses `# Target`, `# Change`, and `# Acceptance` and names only the target and the agent's output schema: never restate, summarize, or narrow the agent's scope criteria, and never suggest that empty findings are expected. Do not launch any other review agent.
 
 Flatten the scout results: give each finding `scope` and `id` = `<scope>-<n>` in the order the scout returned it. A failed scout or a malformed finding becomes a coverage gap; never invent replacements. If there are no findings, skip to step 4.
 

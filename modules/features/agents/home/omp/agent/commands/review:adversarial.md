@@ -47,7 +47,7 @@ Shared `context`: target label, diff location, complete target file list, reposi
 - review only the acquired target; surrounding code may establish correctness, caller impact, or project convention;
 - report `problem`, `mechanism`, `impact`, and `evidence` plus `examined` files—never propose fixes.
 
-Each task uses `# Target`, `# Change`, and `# Acceptance`; each agent owns its scope criteria.
+Each task uses `# Target`, `# Change`, and `# Acceptance` and names only the target and the agent's output schema: never restate, summarize, or narrow the agent's scope criteria, and never suggest that empty findings are expected.
 
 Flatten the scout results: give each finding `scope` and `id` = `<scope>-<n>` in the order the scout returned it. A failed scout or a malformed finding becomes a coverage gap; never invent replacements.
 
