@@ -30,8 +30,8 @@ hosts: {
       ];
     }
     {
-      id = "qwen3.5-9b-opus-reasoning";
-      name = "Qwen3.5/Opus";
+      id = "qwopus3.5-9b-coder";
+      name = "Qwopus3.5/9B Coder";
       contextWindow = 131072;
     }
     {

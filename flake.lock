@@ -69,11 +69,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1792202580,
-        "narHash": "sha256-kDpppV98SjW41K4OK/TiPx2qtPQ3O0ew6rd/Y5gfvD0=",
+        "lastModified": 1792206963,
+        "narHash": "sha256-YfrxY6TLSWSaeIaqO0VR8euZPfD/d//yLzV98gsOzyE=",
         "ref": "refs/heads/main",
-        "rev": "a45a23c42da6476d86620d5e654c14dec7e0c929",
-        "revCount": 5,
+        "rev": "e0965d5f2ce570f2f05b08edadf045ea5e1e468c",
+        "revCount": 6,
         "type": "git",
         "url": "file:///repo/misc/axophyte"
       },

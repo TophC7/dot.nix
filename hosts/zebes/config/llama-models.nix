@@ -39,16 +39,17 @@ let
       sha256 = "002e0f739eb83dd3a2bd8d9bb58909c0a85aa571ca0b3b140bece1c010535d6c";
     }
     {
-      repository = "Jackrong/Qwen3.5-9B-Claude-4.6-Opus-Reasoning-Distilled-GGUF";
-      revision = "6b811564b420ece28d5a413a75a8d397e6220dae";
-      name = "Qwen3.5-9B.Q8_0.gguf";
-      sha256 = "01ab75e862bf61c2fd20babc55d396181580722b7af76ec4ebfb83224218c723";
+      repository = "Jackrong/Qwopus3.5-9B-Coder-GGUF";
+      revision = "0a758aadac96f341f2f6554a615040e5d39a6e38";
+      name = "Qwopus3.5-9B-coder-Exp-Q8_0.gguf";
+      sha256 = "1fb4a8bd2b5f0680c0ddc866d1bb1e9b70c0c43132480bc14b0d1612210d8f51";
     }
     {
-      repository = "Jackrong/Qwen3.5-9B-Claude-4.6-Opus-Reasoning-Distilled-GGUF";
-      revision = "6b811564b420ece28d5a413a75a8d397e6220dae";
+      repository = "Jackrong/Qwopus3.5-9B-Coder-GGUF";
+      revision = "0a758aadac96f341f2f6554a615040e5d39a6e38";
       name = "mmproj-F32.gguf";
-      sha256 = "21c10ed72802e4859575e051f5017432fce77501bb0329912fe9a8ad11f4400e";
+      target = "Qwopus3.5-9B-coder-mmproj-F32.gguf";
+      sha256 = "5c769161b31697b6a2d83d8a806f37ee8ee7104bca15313c608dc53359fa0ef2";
     }
   ];
   downloadFile =
@@ -107,8 +108,8 @@ let
 in
 {
   # Qwen3.8-27B keeps 16 full-attention layers (vs 8 on the 9B): 128k KV does
-  # not fit beside its 10.8 GB weights in 16 GB VRAM; 64k at q8_0 does. MTP
-  # speculative decoding measured slower on Vulkan, so the MTP head stays idle.
+  # not fit beside its 10.8 GB weights in 16 GB VRAM; 64k at q8_0 does. The MTP
+  # head stays idle: its draft context runs ROCm out of memory at 64k.
   environment.etc."llama/models.ini".text = ''
     version = 1
 
@@ -133,7 +134,11 @@ in
     jinja = true
     reasoning-format = deepseek
 
-    cache-ram = 2048
+    # Hindsight and Axophyte share the resident model with agent sessions; their
+    # requests evict the slot, and a 40k-token Qwen3.8-27B state is ~2 GB. At 2 GB
+    # the evicted session was dropped and re-prefilled (287 s at 40k); 12 GB keeps
+    # several sessions restorable in ~1 s.
+    cache-ram = 12288
     ctx-checkpoints = 8
     checkpoint-min-step = 4096
 
@@ -158,9 +163,9 @@ in
     cache-type-k = q8_0
     cache-type-v = q8_0
 
-    [qwen3.5-9b-opus-reasoning]
-    model = ${modelDir}/Qwen3.5-9B.Q8_0.gguf
-    mmproj = ${modelDir}/mmproj-F32.gguf
+    [qwopus3.5-9b-coder]
+    model = ${modelDir}/Qwopus3.5-9B-coder-Exp-Q8_0.gguf
+    mmproj = ${modelDir}/Qwopus3.5-9B-coder-mmproj-F32.gguf
     image-min-tokens = 1024
     gpu-layers = 99
     fit = off
