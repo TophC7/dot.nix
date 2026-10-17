@@ -1,4 +1,0 @@
-node_modules/
-*.sqlite*
-/auth.json*
-/providers.env
