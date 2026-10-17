@@ -11,5 +11,5 @@
 ## Conventions
 
 - **Secrets**: `mix/secrets.nix` is `git-crypt` encrypted (schema reference in `public/secrets.example.nix`). Never commit unencrypted secrets.
-- **Local flake inputs**: `flake.nix` often points Toph-owned inputs (`mix-nix`, `pana`, `play`, `wayscope`, `bonk`, `sworm`, `bard`) at `git+file:///repo/...` with the remote URL commented above. Do not switch or relock them unless asked.
+- **Local flake inputs**: `flake.nix` often points Toph-owned inputs (`mix-nix`, `pana`, `play`, `wayscope`, `bonk`, `sworm`, `bard`, `axophyte`) at `git+file:///repo/...` with the remote URL commented above. Do not switch or relock them unless asked.
 - **Script shebangs**: use `#!${lib.getExe pkgs.fish}` in Nix-generated scripts.

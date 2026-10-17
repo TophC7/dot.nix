@@ -188,6 +188,13 @@
       inputs.bun2nix.inputs.systems.follows = "systems-linux";
     };
 
+    axophyte = {
+      # url = "git+https://git.ryot.foo/toph/Axophyte.git";
+      url = "git+file:///repo/misc/axophyte";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.bun2nix.inputs.systems.follows = "systems-linux";
+    };
+
   };
 
   outputs =
