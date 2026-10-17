@@ -124,7 +124,14 @@ let
     checkpoint.enabled = true;
     github.enabled = true;
     read.renderMarkdown = true;
-    memory.backend = "off";
+    memory.backend = "hindsight";
+    # Shared Hindsight on Nimbus (hosts/nimbus/config/hindsight.nix); OMP's default bank `omp`
+    # with per-project tags. config.yml does not expand ${ENV}, so the token is written here
+    # under the repo's secrets-in-store convention.
+    hindsight = {
+      apiUrl = "http://${hosts.nimbus.ip}:8888";
+      apiToken = secrets.service.hindsight.API_KEY;
+    };
     treeFilterMode = "all";
     marketplace.autoUpdate = "off";
     features.unexpectedStopDetection = "mechanical";

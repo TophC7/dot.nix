@@ -43,7 +43,7 @@ Custom TypeScript extensions running inside OMP:
 
 Reusable prompts inserted via `Ctrl+M` or `/macro <id>`, grouped one folder deep:
 
-- **`ui-screens`**: Walk through UI changes in browser and capture screenshots to `screens/`.
+- **`ui-screens`**: Generic CDP macro to exercise UI changes in browser and capture screenshots to `screens/`.
 - **`plan/`**
   - **`plan`**: Vet claims against code and discuss a self-contained implementation plan.
   - **`findings`**: Turn `local://findings.md` from `/cleanup` or `/review:adversarial` into a root-cause-grouped implementation plan.
@@ -53,6 +53,7 @@ Reusable prompts inserted via `Ctrl+M` or `/macro <id>`, grouped one folder deep
   - **`brent`**: Create a PR from committed changes and request review from `brent-pysnk-ai`.
   - **`review`**: Post a PR review comment detailing cleanup changes and inline findings without prescribing fixes.
   - **`merge`**: Push fixes, approve the PR with a summary of resolved findings and cleanup, and merge.
+  - **`ui`**: Capture UI screenshots via CDP and attach them directly to the PR summary using `gh pr edit/create --attach`.
 
 ---
 
