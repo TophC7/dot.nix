@@ -10,4 +10,4 @@ summary: Turn /cleanup or /review:adversarial findings into a vetted implementat
 3. **Weigh options & discuss**: Present the proposed workstreams briefly and use `ask` only for genuine design tradeoffs, behavioral choices, or scope boundaries—never ask per-finding "should we fix this?".
 4. **Settle the plan**: Write a self-contained implementation plan with exact file paths, caller updates, verification checks, and all agreed decisions so it can execute directly in a fresh session.
 
-Focus or exclusions: 
+Focus or exclusions: {{cursor}}

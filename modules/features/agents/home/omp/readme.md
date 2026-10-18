@@ -41,8 +41,9 @@ Custom TypeScript extensions running inside OMP:
 
 ## Macros (`agent/macros/`)
 
-Reusable prompts inserted via `Ctrl+M` or `/macro <id>`, grouped one folder deep:
+Reusable prompts inserted via `Ctrl+M` or `/macro <id>`, grouped one folder deep. A `{{cursor}}` marker sets where the cursor lands. OMP has no cursor API, so the extension replays one left arrow per character after the marker. Keep the marker on a fill-in field near the end. Without a marker, the cursor lands at the end.
 
+- **`deeper`**: Unpack expert practices, raw materials, tools, and proof, then rewrite the task prompt.
 - **`ui-screens`**: Generic CDP macro to exercise UI changes in browser and capture screenshots to `screens/`.
 - **`plan/`**
   - **`plan`**: Vet claims against code and discuss a self-contained implementation plan.

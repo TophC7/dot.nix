@@ -7,5 +7,5 @@ summary: Flesh out one phase of an existing parent plan into an executable plan
 
 keep this phase plan self-contained with all agreed decisions so it can execute directly in fresh session.
 
-parent plan: @
+parent plan: @{{cursor}}
 phase: 

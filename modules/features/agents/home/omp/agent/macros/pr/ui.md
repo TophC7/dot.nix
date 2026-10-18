@@ -12,4 +12,4 @@ Exercise the UI changes via CDP browser automation, capture screenshots, and att
 5. **Attach to PR**: Upload via `gh pr edit <PR> --body-file <BODY> --attach <FILE>...` (or `gh pr create`). Reference relative local paths in the body markdown (e.g. `![State](./screens/feature.png)`) so `gh` rewrites them to `user-attachments` URLs. Never commit screenshots to git or artifact branches (raw links 404 in private repos). Clean up local screenshot/body files after verifying.
 6. **Subagents**: When delegating exploration, interactions, or captures to subagents, use the `@smol` role (`model: "@smol"`).
 
-PR or additional guidance: 
+PR or additional guidance: {{cursor}}

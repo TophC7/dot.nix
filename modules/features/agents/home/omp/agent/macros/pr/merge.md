@@ -12,4 +12,4 @@ Push the latest commits, approve the PR with a summary of the cleanup changes an
    - Append your signature (`> OMP 🤖 <MODEL IN USE>`).
 3. **Merge**: Merge the PR using squash merge and delete the branch (`gh pr merge --squash --delete-branch`). If checks are pending or required by branch protection, enable auto-merge (`gh pr merge --auto --squash --delete-branch`).
 
-PR or additional guidance: 
+PR or additional guidance: {{cursor}}

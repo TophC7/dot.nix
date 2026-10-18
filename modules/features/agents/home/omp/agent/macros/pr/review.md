@@ -12,4 +12,4 @@ Review the PR with a comment detailing cleanup changes and findings from `local:
 5. **Tone & scope**: Keep observations short and strictly factual. Do not judge or advise on whether something "should" or "must" be fixed—just inform, unless it is clearly a broken bug that requires fixing.
 6. **Signature**: Append your signature.
 
-PR or additional focus: 
+PR or additional focus: {{cursor}}

@@ -8,6 +8,7 @@ import {
 	matchesKey,
 	type Theme,
 	TreeView,
+	type TUI,
 	truncateToWidth,
 	visibleWidth,
 } from "@oh-my-pi/pi-tui";
@@ -19,10 +20,16 @@ interface Macro {
 	readonly name: string;
 	readonly summary: string;
 	readonly body: string;
+	/** Index in `body` where the cursor lands: the `{{cursor}}` marker, else the end. */
+	readonly cursor: number;
 }
 
 const macroDir = join(getAgentDir(), "macros");
 const summaryLimit = 72;
+/** At most one per macro; keep it near the end since placement replays one key per grapheme after it. */
+const cursorMarker = "{{cursor}}";
+const cursorLeft = "\x1b[D";
+const graphemes = new Intl.Segmenter();
 const frontmatterPattern = /^---[ \t]*\r?\n([\s\S]*?)\r?\n---[ \t]*(?:\r?\n|$)/;
 
 function parseFrontmatter(raw: string): { fields: Map<string, string>; body: string } {
@@ -70,12 +77,15 @@ async function loadMacros(): Promise<Macro[]> {
 	const macros = await Promise.all(
 		listMacroIds().map(async (id): Promise<Macro> => {
 			const { fields, body } = parseFrontmatter(await readFile(join(macroDir, `${id}.md`), "utf8"));
-			const text = body.trim();
+			const raw = body.trim();
+			const marker = raw.indexOf(cursorMarker);
+			const text = marker < 0 ? raw : raw.slice(0, marker) + raw.slice(marker + cursorMarker.length);
 			return {
 				id,
 				name: fields.get("name") ?? id,
 				summary: fields.get("summary") ?? fields.get("description") ?? summarize(text),
 				body: text,
+				cursor: marker < 0 ? text.length : marker,
 			};
 		}),
 	);
@@ -220,6 +230,28 @@ class MacroPicker implements Component {
 
 type MacroContext = Pick<ExtensionContext, "ui">;
 
+/**
+ * ponytail: OMP has no cursor API (setEditorText always lands at the end), so replay one
+ * left arrow per grapheme after the marker into the focused composer. Swap for a cursor
+ * option on setEditorText if OMP grows one.
+ */
+function placeCursor(ctx: MacroContext, macro: Macro): void {
+	const tail = macro.body.slice(macro.cursor);
+	if (tail.length === 0) return;
+	// setWidget hands factories the TUI synchronously; RPC skips factories, leaving the cursor at the end.
+	let tui: TUI | undefined;
+	ctx.ui.setWidget("macro-cursor", grabbed => {
+		tui = grabbed;
+		return { render: () => [], invalidate() {} };
+	});
+	ctx.ui.setWidget("macro-cursor", undefined);
+	const editor = tui?.getFocused();
+	// Only steer the composer that holds exactly this macro.
+	if (!tui || !editor?.handleInput || !("getText" in editor) || editor.getText() !== macro.body) return;
+	for (const _ of graphemes.segment(tail)) editor.handleInput(cursorLeft);
+	tui.requestRender();
+}
+
 async function insertMacro(ctx: MacroContext, requested: string): Promise<void> {
 	let macros: Macro[];
 	try {
@@ -261,6 +293,7 @@ async function insertMacro(ctx: MacroContext, requested: string): Promise<void> 
 	}
 
 	ctx.ui.setEditorText(macro.body);
+	placeCursor(ctx, macro);
 }
 
 export default function macrosExtension(pi: ExtensionAPI): void {
