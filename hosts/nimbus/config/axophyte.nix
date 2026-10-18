@@ -87,7 +87,7 @@ let
       )
     ) zebes.models;
   };
-  patch = (pkgs.formats.yaml { }).generate "axophyte-dsh.patch.yml" [
+  seedPatch = (pkgs.formats.yaml { }).generate "axophyte-dsh.seed.yml" [
     {
       id = "llm-pi-ai";
       config.providers.zebes = zebesRoute;
@@ -138,7 +138,16 @@ in
       && val != ""
     ) (secrets.service.models or { });
     serviceConfig = {
-      ExecStart = "${lib.getExe dsh} web --patch ${axophyte}/axo.patch.json --patch ${patch} --no-open --port ${port} --trusted-host ${domain}";
+      ExecStartPre = pkgs.writeScript "seed-axophyte-profile" ''
+        #!${lib.getExe pkgs.fish}
+        set patchDir "${host.user.homeDirectory}/.dsh/profiles/web"
+        set patchFile "$patchDir/cordis.patch.yml"
+        if not test -f "$patchFile"
+          ${pkgs.coreutils}/bin/mkdir -p "$patchDir"
+          ${pkgs.coreutils}/bin/cp "${seedPatch}" "$patchFile"
+        end
+      '';
+      ExecStart = "${lib.getExe dsh} web --patch ${axophyte}/axo.patch.json --no-open --port ${port} --trusted-host ${domain}";
       User = user;
       WorkingDirectory = host.user.homeDirectory;
       Restart = "on-failure";
