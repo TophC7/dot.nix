@@ -1,5 +1,5 @@
 # Hindsight agent memory (vectorize-io/hindsight, embedded Postgres) shared by OMP on every
-# agents host and the Axophyte DSH chat. API on :8888 (LAN, API-key auth); control plane on
+# agents host and the Axophyte Pi Web chat. API on :8888 (LAN, API-key auth); control plane on
 # localhost:9999, published by Pangolin as memory.ryot.foo through the host-network newt
 # (health check /api/health). Extraction runs on Zebes' resident llama.cpp model.
 { hosts, secrets, ... }:
@@ -22,7 +22,7 @@ in
         HINDSIGHT_CP_DATAPLANE_API_KEY = key;
 
         # One request at a time: Zebes' llama-server runs a single slot shared with
-        # Axophyte (Discord and DSH). Qwen3.8's template honors enable_thinking = false
+        # Axophyte (Discord and Pi Web). Qwen3.8's template honors enable_thinking = false
         # (see modules/features/agents/home/_zebes-models.nix), so thinking stays off.
         HINDSIGHT_API_LLM_PROVIDER = "openai";
         HINDSIGHT_API_LLM_BASE_URL = "http://${hosts.zebes.ip}:11434/v1";

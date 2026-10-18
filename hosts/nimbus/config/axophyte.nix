@@ -1,7 +1,6 @@
-# Axophyte private chat (DeepSeek Harness web UI), published by Pangolin as axo.ryot.foo
+# Axophyte private chat (Pi Web), published by Pangolin as axo.ryot.foo
 # through the host-network newt (target localhost:3080, health check /manifest.webmanifest).
-# Pangolin SSO is the login: Pangolin adds X-Dsh-Proxy-Secret to proxied requests and
-# dsh accepts it in place of its per-process token.
+# Pangolin SSO is the only login; pi-web binds to loopback without a password.
 {
   host,
   hosts,
@@ -13,98 +12,81 @@
 }:
 let
   user = host.user.name;
-  domain = "axo.ryot.foo";
-  port = "3080";
-  axophyte = inputs.axophyte.packages.${pkgs.stdenv.hostPlatform.system}.dsh;
-
-  # Pangolin SSO is this deployment's login. Pangolin adds X-Dsh-Proxy-Secret to every
-  # proxied request (resource → Proxy → Custom Headers) and dsh accepts it in place of
-  # its per-process token cookie; local processes without the secret still face that
-  # token. dsh also keeps Settings browser-only on non-loopback pages, so the public
-  # hostname counts as local for persistence.
-  dsh = inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.dsh.overrideAttrs (old: {
-    postInstall = old.postInstall + ''
-      lib=$out/lib/node_modules/@deepseek-ai/dsh/node_modules/@deepseek-ai/dsh-client-connection/lib
-      substituteInPlace $lib/index.js --replace-fail 'isAuthenticated(request) {' '${''
-        isAuthenticated(request) {
-        		const proxySecret = process.env.DSH_PROXY_SECRET, presented = header(request.headers, "x-dsh-proxy-secret");
-        		if (proxySecret && presented !== void 0 && tokenMatches(presented, proxySecret)) return true;''}'
-      substituteInPlace $lib/client.js --replace-fail \
-        'isLoopbackHostname(pageLocation.hostname),' \
-        'isLoopbackHostname(pageLocation.hostname) || pageLocation.hostname === "${domain}",'
-    '';
-  });
+  agentDir = "${host.user.homeDirectory}/.local/state/axophyte/pi";
+  workspace = "/fast/axophyte";
+  axophyte = inputs.axophyte.packages.${pkgs.stdenv.hostPlatform.system}.pi;
   zebes = import ../../../modules/features/agents/home/_zebes-models.nix hosts;
 
-  # pi-ai route for llama-server. Its OpenAI client insists on some credential, so
-  # a dummy Authorization header stands in. Qwen3.8 efforts travel as template
-  # kwargs (pi-ai's built-in qwen-chat-template only toggles enable_thinking).
-  zebesRoute = {
-    displayName = "Zebes";
-    api = "openai-completions";
-    baseURL = zebes.baseUrl;
-    headers.Authorization = "Bearer none";
-    compat = {
-      supportsDeveloperRole = false;
-      supportsReasoningEffort = false;
-      maxTokensField = "max_tokens";
-    };
-    models = map (
-      model:
-      {
-        inherit (model) id name contextWindow;
-        inherit (zebes) maxTokens;
-        input = [
-          "text"
-          "image"
-        ];
-      }
-      // (
-        if model ? efforts then
+  models = pkgs.writeText "axophyte-models.json" (
+    builtins.toJSON {
+      providers.zebes = {
+        name = "Zebes";
+        baseUrl = zebes.baseUrl;
+        api = "openai-completions";
+        apiKey = "none";
+        compat = {
+          supportsDeveloperRole = false;
+          supportsReasoningEffort = false;
+          maxTokensField = "max_tokens";
+        };
+        models = map (
+          model:
           {
-            reasoningEfforts = {
-              off = null;
-            }
-            // lib.genAttrs model.efforts lib.id;
-            compat = {
-              thinkingFormat = "chat-template";
-              chatTemplateKwargs = {
-                enable_thinking."$var" = "thinking.enabled";
-                preserve_thinking = true;
-                reasoning_effort = {
-                  "$var" = "thinking.effort";
-                  omitWhenOff = true;
-                };
-              };
+            inherit (model) id name contextWindow;
+            inherit (zebes) maxTokens;
+            reasoning = true;
+            input = [
+              "text"
+              "image"
+            ];
+            cost = {
+              input = 0;
+              output = 0;
+              cacheRead = 0;
+              cacheWrite = 0;
             };
           }
-        else
-          {
-            # Always thinks; one level marks it as a reasoning model for replay.
-            reasoningEfforts.medium = "medium";
-            compat.thinkingFormat = "qwen-chat-template";
-          }
-      )
-    ) zebes.models;
-  };
-  seedPatch = (pkgs.formats.yaml { }).generate "axophyte-dsh.seed.yml" [
-    {
-      id = "llm-pi-ai";
-      config.providers.zebes = zebesRoute;
-    }
-    {
-      id = "agent-default-model";
-      config = {
-        provider = "zebes";
-        model = "qwen3.8-27b-abliterated";
-        reasoningEffort = "low";
+          // (
+            if model ? efforts then
+              {
+                thinkingLevelMap = {
+                  minimal = null;
+                  high = null;
+                  xhigh = "xhigh";
+                };
+                compat = {
+                  thinkingFormat = "chat-template";
+                  chatTemplateKwargs = {
+                    enable_thinking."$var" = "thinking.enabled";
+                    preserve_thinking = true;
+                    reasoning_effort = {
+                      "$var" = "thinking.effort";
+                      omitWhenOff = true;
+                    };
+                  };
+                };
+              }
+            else
+              {
+                thinkingLevelMap = {
+                  off = null;
+                  minimal = null;
+                  low = null;
+                  high = null;
+                };
+                compat.thinkingFormat = "qwen-chat-template";
+              }
+          )
+        ) zebes.models;
       };
     }
-  ];
+  );
 in
 {
+  systemd.tmpfiles.rules = [ "d ${workspace} 0750 ${user} ryot -" ];
+
   systemd.services.axophyte = {
-    description = "Axophyte private chat (DeepSeek Harness web UI)";
+    description = "Axophyte private chat (Pi Web)";
     wantedBy = [ "multi-user.target" ];
     wants = [
       "network-online.target"
@@ -114,15 +96,21 @@ in
       "network-online.target"
       "docker-hindsight.service"
     ];
-    # The agent's shells run as Toph: give them his tools, not systemd's bare PATH.
     path = [
       "/run/wrappers"
       "/etc/profiles/per-user/${user}"
       "/run/current-system/sw"
+      pkgs.pi
+      pkgs.git
+      pkgs.ripgrep
+      pkgs.fd
     ];
     environment = {
-      DSH_TELEMETRY_MODE = "DISABLED";
-      DSH_PROXY_SECRET = secrets.service.axophyte.PROXY_SECRET;
+      PI_CODING_AGENT_DIR = agentDir;
+      PI_WEB_ALLOWED_HOSTS = "axo.ryot.foo";
+      PI_WEB_APP_NAME = "Axophyte";
+      PI_WEB_SKIP_VERSION_CHECK = "1";
+      SHELL = "${pkgs.bashInteractive}/bin/bash";
       AXO_HINDSIGHT_URL = "http://127.0.0.1:8888";
       HINDSIGHT_API_KEY = secrets.service.hindsight.API_KEY;
       TAVILY_API_KEY = secrets.service.discord.axophyte.tavily;
@@ -138,20 +126,28 @@ in
       && val != ""
     ) (secrets.service.models or { });
     serviceConfig = {
-      ExecStartPre = pkgs.writeScript "seed-axophyte-profile" ''
-        #!${lib.getExe pkgs.fish}
-        set patchDir "${host.user.homeDirectory}/.dsh/profiles/web"
-        set patchFile "$patchDir/cordis.patch.yml"
-        if not test -f "$patchFile"
-          ${pkgs.coreutils}/bin/mkdir -p "$patchDir"
-          ${pkgs.coreutils}/bin/cp "${seedPatch}" "$patchFile"
-        end
-      '';
-      ExecStart = "${lib.getExe dsh} web --patch ${axophyte}/axo.patch.json --no-open --port ${port} --trusted-host ${domain}";
       User = user;
-      WorkingDirectory = host.user.homeDirectory;
+      WorkingDirectory = workspace;
       Restart = "on-failure";
       RestartSec = "10s";
+      ExecStart = "${lib.getExe pkgs.pi-web} --port 3080 --hostname 127.0.0.1 --no-open";
+      # Models and Axo's package are managed; other settings are seeded and then Toph's.
+      ExecStartPre = pkgs.writeScript "axophyte-pi-profile" ''
+        #!${lib.getExe pkgs.fish}
+        set agentDir "${agentDir}"
+        ${pkgs.coreutils}/bin/mkdir -p "$agentDir/agents"
+        ${pkgs.coreutils}/bin/install -m 0644 "${models}" "$agentDir/models.json"
+        for file in "$agentDir/settings.json" "$agentDir/agents/settings.json"
+          if not test -f "$file"
+            echo '{}' > "$file"
+          end
+        end
+        ${lib.getExe pkgs.jq} --arg pkg "${axophyte}" '{ defaultProvider: "zebes", defaultModel: "qwen3.8-27b-abliterated", defaultThinkingLevel: "low" } + . | .defaultTools = ["+grep", "+find", "+ls", "+codemode", "+tool_search"] | .packages = (((.packages // []) | map(select((type == "string" and endswith("-axophyte-pi")) | not))) + [$pkg])' "$agentDir/settings.json" > "$agentDir/settings.json.tmp"
+        and ${pkgs.coreutils}/bin/mv "$agentDir/settings.json.tmp" "$agentDir/settings.json"
+        # Pi Web's built-in subagents are off until this switch is set.
+        ${lib.getExe pkgs.jq} '{ builtInEnabled: true } + .' "$agentDir/agents/settings.json" > "$agentDir/agents/settings.json.tmp"
+        and ${pkgs.coreutils}/bin/mv "$agentDir/agents/settings.json.tmp" "$agentDir/agents/settings.json"
+      '';
     };
   };
 }

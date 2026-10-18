@@ -69,11 +69,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1792209968,
-        "narHash": "sha256-Y8hpHD/kHcZELp9Y7+C+O9J3XofTjWk9csAQhTJVtYk=",
+        "lastModified": 1792296619,
+        "narHash": "sha256-5y0RaW3bE1KkKntjTeUHZZXxyf5CUXRf2g6r1GSStjY=",
         "ref": "refs/heads/main",
-        "rev": "05c742cae069bf93f1052fec903a0d23fe7ec4c5",
-        "revCount": 8,
+        "rev": "fbf84dbe851b02a98c6de43b95ad30745e02928a",
+        "revCount": 10,
         "type": "git",
         "url": "file:///repo/misc/axophyte"
       },
@@ -1298,14 +1298,15 @@
         "nix-cachyos-kernel": "nix-cachyos-kernel",
         "nixpkgs": "nixpkgs_4",
         "nixpkgs-stable": "nixpkgs-stable",
-        "omp": "omp"
+        "omp": "omp",
+        "pi": "pi"
       },
       "locked": {
-        "lastModified": 1792222982,
-        "narHash": "sha256-nypMpK/4E4JQiCw2YCQXY3l9vD1/j3PSMTuyJ+LRTVw=",
+        "lastModified": 1792296619,
+        "narHash": "sha256-9b0Xpm1B6y1Fkcwl5wbWFy1bBVKYReRvVgJsLqMQDVA=",
         "ref": "refs/heads/main",
-        "rev": "abd77a6b13f1c2d6225fbabc97cc7dab44b8d7fe",
-        "revCount": 196,
+        "rev": "69d2cfcc8e8efa8fcd55a1479b123b42ebeae8fa",
+        "revCount": 197,
         "type": "git",
         "url": "file:///repo/Nix/mix.nix"
       },
@@ -1479,6 +1480,22 @@
         "owner": "NixOS",
         "repo": "nixpkgs",
         "rev": "e0c84f9d0ad137f076dc957494f5b39885597d4f",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixpkgs-26.05-darwin",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs-darwin-x64_2": {
+      "locked": {
+        "lastModified": 1788334797,
+        "narHash": "sha256-nskSa8kDimM7F0VFSP8IdoSNo4G0vKzOtxwvOFpoGDI=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "c19db427a1fdfc7591c0b0baeb4665dcef2c61da",
         "type": "github"
       },
       "original": {
@@ -1750,6 +1767,28 @@
       "original": {
         "type": "git",
         "url": "file:///repo/rust/pana"
+      }
+    },
+    "pi": {
+      "inputs": {
+        "nixpkgs": [
+          "mix-nix",
+          "nixpkgs"
+        ],
+        "nixpkgs-darwin-x64": "nixpkgs-darwin-x64_2"
+      },
+      "locked": {
+        "lastModified": 1792289733,
+        "narHash": "sha256-ckXJ6hLOhPpJcJ+FJKxMvZXDmLrPAXkl5yqiZGLoM1g=",
+        "owner": "earendil-works",
+        "repo": "pi",
+        "rev": "482c1381a00d8d00bc81697e4a980c593db6803e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "earendil-works",
+        "repo": "pi",
+        "type": "github"
       }
     },
     "play": {
