@@ -36,6 +36,7 @@
       "vpn"
       "chromium"
       "agents"
+      "axophyte/code"
       "vscode"
       "xdg"
       "zen"

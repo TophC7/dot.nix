@@ -29,6 +29,8 @@
     (lib.features [
       "acme"
       "agents"
+      "axophyte/chat"
+      "axophyte/code"
       "bluetooth"
       "ddcutil"
       "docker"

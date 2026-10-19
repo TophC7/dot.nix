@@ -29,6 +29,9 @@
       "pangolin/newt"
       "komodo-periphery"
       "agents"
+      "axophyte/code"
+      "axophyte/hindsight"
+      "axophyte/web"
     ])
   ];
 

@@ -7,7 +7,7 @@
   ...
 }:
 let
-  axophyte = inputs.axophyte.packages.${pkgs.stdenv.hostPlatform.system}.discord;
+  axophyte = inputs.axophyte.packages.${pkgs.stdenv.hostPlatform.system}.chat;
   creds = secrets.service.discord.axophyte;
   # Guild ID → Axophyte's forum there, or null for mentions and replies only.
   servers = {
@@ -25,12 +25,12 @@ in
       "llama-cpp.service"
     ];
     environment = {
-      AXOPHYTE_DISCORD_TOKEN = creds.token;
-      AXOPHYTE_TAVILY_KEY = creds.tavily;
-      AXOPHYTE_SERVERS = builtins.toJSON servers;
-      AXOPHYTE_LLAMA_URL = "http://${host.ip}:11434";
-      AXOPHYTE_MODEL = "qwen3.8-27b-abliterated";
-      AXOPHYTE_AUTH_FILE = "/var/lib/axophyte/auth.json";
+      AXO_DISCORD_TOKEN = creds.token;
+      AXO_TAVILY_KEY = creds.tavily;
+      AXO_SERVERS = builtins.toJSON servers;
+      AXO_LLAMA_URL = "http://${host.ip}:11434";
+      AXO_MODEL = "qwen3.8-27b-abliterated";
+      AXO_AUTH_FILE = "/var/lib/axophyte/auth.json";
       HOME = "/var/lib/axophyte";
     }
     // lib.filterAttrs (

@@ -14,8 +14,8 @@ let
   user = host.user.name;
   agentDir = "${host.user.homeDirectory}/.local/state/axophyte/pi";
   workspace = "/fast/axophyte";
-  axophyte = inputs.axophyte.packages.${pkgs.stdenv.hostPlatform.system}.pi;
-  zebes = import ../../../modules/features/agents/home/_zebes-models.nix hosts;
+  axophyte = inputs.axophyte.packages.${pkgs.stdenv.hostPlatform.system}.web;
+  zebes = import ../_zebes-models.nix hosts;
 
   models = pkgs.writeText "axophyte-models.json" (
     builtins.toJSON {
@@ -112,8 +112,8 @@ in
       PI_WEB_SKIP_VERSION_CHECK = "1";
       SHELL = "${pkgs.bashInteractive}/bin/bash";
       AXO_HINDSIGHT_URL = "http://127.0.0.1:8888";
-      HINDSIGHT_API_KEY = secrets.service.hindsight.API_KEY;
-      TAVILY_API_KEY = secrets.service.discord.axophyte.tavily;
+      AXO_HINDSIGHT_KEY = secrets.service.hindsight.API_KEY;
+      AXO_TAVILY_KEY = secrets.service.discord.axophyte.tavily;
     }
     // lib.filterAttrs (
       name: val:
@@ -132,7 +132,7 @@ in
       RestartSec = "10s";
       ExecStart = "${lib.getExe pkgs.pi-web} --port 3080 --hostname 127.0.0.1 --no-open";
       # Models and Axo's package are managed; other settings are seeded and then Toph's.
-      ExecStartPre = pkgs.writeScript "axophyte-pi-profile" ''
+      ExecStartPre = pkgs.writeScript "axophyte-web-profile" ''
         #!${lib.getExe pkgs.fish}
         set agentDir "${agentDir}"
         ${pkgs.coreutils}/bin/mkdir -p "$agentDir/agents"
@@ -142,7 +142,7 @@ in
             echo '{}' > "$file"
           end
         end
-        ${lib.getExe pkgs.jq} --arg pkg "${axophyte}" '{ defaultProvider: "zebes", defaultModel: "qwen3.8-27b-abliterated", defaultThinkingLevel: "low" } + . | .defaultTools = ["+grep", "+find", "+ls", "+codemode", "+tool_search"] | .packages = (((.packages // []) | map(select((type == "string" and endswith("-axophyte-pi")) | not))) + [$pkg])' "$agentDir/settings.json" > "$agentDir/settings.json.tmp"
+        ${lib.getExe pkgs.jq} --arg pkg "${axophyte}" '{ defaultProvider: "zebes", defaultModel: "qwen3.8-27b-abliterated", defaultThinkingLevel: "low" } + . | .defaultTools = ["+grep", "+find", "+ls", "+codemode", "+tool_search"] | .packages = (((.packages // []) | map(select((type == "string" and (endswith("-axo-web") or endswith("-axophyte-pi"))) | not))) + [$pkg])' "$agentDir/settings.json" > "$agentDir/settings.json.tmp"
         and ${pkgs.coreutils}/bin/mv "$agentDir/settings.json.tmp" "$agentDir/settings.json"
         # Pi Web's built-in subagents are off until this switch is set.
         ${lib.getExe pkgs.jq} '{ builtInEnabled: true } + .' "$agentDir/agents/settings.json" > "$agentDir/agents/settings.json.tmp"

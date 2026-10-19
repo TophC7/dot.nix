@@ -1,4 +1,6 @@
 {
+  inputs,
+  host,
   hosts,
   secrets ? { },
   pkgs,
@@ -125,7 +127,7 @@ let
     github.enabled = true;
     read.renderMarkdown = true;
     memory.backend = "hindsight";
-    # Shared Hindsight on Nimbus (hosts/nimbus/config/hindsight.nix); OMP's default bank `omp`
+    # Shared Hindsight on Nimbus (../hindsight/nixos.nix); OMP's default bank `omp`
     # with per-project tags. config.yml does not expand ${ENV}, so the token is written here
     # under the repo's secrets-in-store convention.
     hindsight = {
@@ -139,7 +141,7 @@ let
     error.notify = "on";
     ask.notify = "on";
     secrets.enabled = true;
-    # Any non-"none" value enables the personality slot; agent/PERSONALITY.md replaces the preset text.
+    # Any non-"none" value enables the personality slot; axophyte's PERSONALITY.md replaces the preset text.
     personality = "default";
     doubleEscapeAction = "rewind";
     spelling.autocomplete = "smollm";
@@ -325,7 +327,7 @@ in
   home.file = {
     ".agents/skills/reverse-engineer-anything".source = pkgs.rea.passthru.skill;
     ".omp/agent" = {
-      source = ./agent;
+      source = inputs.axophyte.packages.${host.system}.code;
       recursive = true;
     };
     ".omp/agent/models.yml".source = modelsFile;

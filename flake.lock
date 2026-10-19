@@ -69,11 +69,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1792296619,
-        "narHash": "sha256-5y0RaW3bE1KkKntjTeUHZZXxyf5CUXRf2g6r1GSStjY=",
+        "lastModified": 1792383454,
+        "narHash": "sha256-0oJbR3Nv6/ebwwAreWxih5Yorz0StTFxIG1jImSVIlo=",
         "ref": "refs/heads/main",
-        "rev": "fbf84dbe851b02a98c6de43b95ad30745e02928a",
-        "revCount": 10,
+        "rev": "18c66e8bdb86eb5c574197f65c2b50d2ef97fcbe",
+        "revCount": 13,
         "type": "git",
         "url": "file:///repo/misc/axophyte"
       },
@@ -1302,11 +1302,11 @@
         "pi": "pi"
       },
       "locked": {
-        "lastModified": 1792304552,
-        "narHash": "sha256-y3eEiNQP+RwUxuxfToanEcsMY7ihovXdGJeK/1gT6Bk=",
+        "lastModified": 1792358376,
+        "narHash": "sha256-8wVugh0KCGOewyPwJ5EKLO3tiUnSG4lFCbhEZT8G4CA=",
         "ref": "refs/heads/main",
-        "rev": "4866c3c5e65ce23e5292006ab361c200b359222f",
-        "revCount": 198,
+        "rev": "eb882b83ae156630ca1a21fc5ae9aadcd2de3bbe",
+        "revCount": 199,
         "type": "git",
         "url": "file:///repo/Nix/mix.nix"
       },
@@ -2055,11 +2055,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1792342521,
-        "narHash": "sha256-wXvml9dEvnGu9kCWFpZchcVd4REmXdTjgWXhrrxWnH0=",
+        "lastModified": 1792378850,
+        "narHash": "sha256-Q35p9RHcMUd476+eOFkQF6L0g6Z/db9tBnu4K+4Dgdg=",
         "ref": "refs/heads/main",
-        "rev": "c012592132b15ec307c0409b28a3e77c347548d0",
-        "revCount": 165,
+        "rev": "e431fddc0fae81f34773e25327cec5c8e07dcef4",
+        "revCount": 177,
         "type": "git",
         "url": "file:///repo/rust/sworm"
       },

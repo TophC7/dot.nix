@@ -1,26 +1,27 @@
 # Oh My Pi (OMP)
 
-Toph's independent [Oh My Pi](https://github.com/can1357/oh-my-pi) configuration. Nix manages settings, model providers, extensions, workflow commands, scout agents, and prompt macros. Edit the native workflow directly in `agent/`; it is not generated or shared with other harnesses.
+Toph's independent [Oh My Pi](https://github.com/can1357/oh-my-pi) configuration. Nix manages settings, model providers, extensions, workflow commands, scout agents, and prompt macros. The native workflow (prompts, agents, commands, macros, extensions) comes from the axophyte flake's `code` package; edit it in `/repo/misc/axophyte/src/code`.
 
 ---
 
 ## Directory Structure
 
 ```text
-modules/features/agents/home/omp/
-├── default.nix               # Settings, model providers, home.file wiring, activation
-└── agent/                    # Recursively linked into ~/.omp/agent/
-    ├── AGENTS.md             # Main-session Soul; not loaded by task subagents
-    ├── RULES.md              # Standing rules plus Ponytail; inherited by task subagents
-    ├── PERSONALITY.md        # BLUF communication style; main session only
-    ├── agents/               # Specialized native subagents
-    ├── commands/             # Native slash-command prompts
-    ├── macros/               # Editable prompt templates
-    └── extensions/           # Macro picker, priority requests, plan-mode routing, findings triage, docs search
+modules/features/axophyte/code/
+└── home.nix                  # Settings, model providers, home.file wiring, activation
+
+axophyte `code` package      # Recursively linked into ~/.omp/agent/
+├── AGENTS.md                 # Main-session Soul (generated); not loaded by task subagents
+├── RULES.md                  # Standing rules plus Ponytail (generated); inherited by task subagents
+├── PERSONALITY.md            # BLUF communication style (generated); main session only
+├── agents/                   # Specialized native subagents
+├── commands/                 # Native slash-command prompts
+├── macros/                   # Editable prompt templates
+└── extensions/               # Axo tools, branding, macro picker, priority requests, plan-mode routing, findings triage
 ```
 
-- **`default.nix`**: Generates `models.yml` and the declared settings and SSH hosts. Activation resets `~/.omp/agent/config.yml`, merges Nix-managed hosts into mutable `ssh.json`, and registers REA in mutable `mcp.json`, preserving unrelated registry entries.
-- **`agent/`**: Home Manager links the native files recursively, leaving room for runtime state in `~/.omp/agent/`. Change prompts, agent definitions, commands, macros, and extensions here, then activate Home Manager to deploy them.
+- **`home.nix`**: Generates `models.yml` and the declared settings and SSH hosts. Activation resets `~/.omp/agent/config.yml`, merges Nix-managed hosts into mutable `ssh.json`, and registers REA in mutable `mcp.json`, preserving unrelated registry entries.
+- **Axophyte `code` package**: Home Manager links `inputs.axophyte.packages.${host.system}.code` recursively, leaving room for runtime state in `~/.omp/agent/`. It is built from `/repo/misc/axophyte/src/code` plus the generated persona files (`AGENTS.md`, `RULES.md`, `PERSONALITY.md` from `src/agent/persona.ts`). Change them there, update the `axophyte` flake input, then activate Home Manager to deploy them.
 - **Prompt reach**: `AGENTS.md` (Soul) shapes how the main session works with Toph and his ideas. `PERSONALITY.md` owns prose style for the main session; it fills OMP's personality slot because `personality` is non-`none`. `RULES.md` holds tooling and code rules, including Ponytail, that every agent including `task` children must follow. Subagents never receive Soul or Personality; the main agent conveys intent when spawning them.
 
 ---
@@ -35,11 +36,12 @@ Custom TypeScript extensions running inside OMP:
 | **`luna-priority.ts`** | Injects `service_tier: "priority"` into requests targeting `openai-codex/gpt-5.6-luna`. |
 | **`decomplect.ts`** | Routes `/decomplect` into native plan mode before the command runs. |
 | **`findings.ts`** | Registers `triage_findings`, the stateless step shared by `/cleanup` and `/review:adversarial`: folds skeptic duplicates, routes findings by verdict, gates cleanup auto-fixes, and writes the shared report to `local://findings.md`. |
-| **`docs.ts`** | Registers `docs`: ranked full-text search (SQLite FTS5, BM25, stemming) over documentation. Takes a URL, local file/dir, or Nix store path and indexes it on first use into heading sections split into paragraph-aligned chunks of at most 2000 chars. Results show the heading path, a `file:start-end` range to `read`, and the page `URL#anchor` for web sources. All query terms must match (falling back to any term); dotted identifiers match as phrases and a trailing `*` matches prefixes. The index lives in `~/.omp/docs/`. URLs are re-fetched after 24h and local paths when their files change; store paths never need refreshing. Failed URL re-fetches, including explicit refreshes, search the existing index with a warning and its indexing date; cancellation still propagates. Directory walks prune hidden entries and `node_modules`, stop above 5000 doc files, and read files in batches of 32 before atomically replacing the index. Any source unused for 30 days (not searched by name and in no result) is dropped, along with its saved page, and paths that no longer exist are dropped at once. It only fetches plain HTTP and only the given page, following HTTP and meta-refresh redirects (including quoted targets). |
+| **`axo.ts`** | Registers Axo's shared `draw`, `read_pdf_form`, `fill_pdf_form`, and `docs` tools (`docs` indexes into `~/.omp/docs/`). |
+| **`brand.ts`** | Swaps OMP's stock role line for Axophyte's, so the session introduces itself as Axo. |
 
 ---
 
-## Macros (`agent/macros/`)
+## Macros (axophyte `src/code/macros/`)
 
 Reusable prompts inserted via `Ctrl+M` or `/macro <id>`, grouped one folder deep. A `{{cursor}}` marker sets where the cursor lands. OMP has no cursor API, so the extension replays one left arrow per character after the marker. Keep the marker on a fill-in field near the end. Without a marker, the cursor lands at the end.
 
@@ -70,7 +72,7 @@ Reusable prompts inserted via `Ctrl+M` or `/macro <id>`, grouped one folder deep
 | **`/commit [guidance]`** | Delegates to the `committer` agent to inspect the staged diff and create a clean conventional commit. |
 | **`/pr [target] [guidance]`** | Resolves the target repo, then delegates to the `pr` agent to open a GitHub PR from committed changes, creating a `pr/*` branch if currently on `main` or `dev/*`. |
 
-### Subagents (`agent/agents/`)
+### Subagents (axophyte `src/code/agents/`)
 
 Subagents run in parallel with `blocking: true` to return findings inline:
 
@@ -100,7 +102,7 @@ Subagents run in parallel with `blocking: true` to return findings inline:
 
 ## Model Roles & Keybinds
 
-OMP uses abstract model roles instead of hardcoded model IDs. Subagents and workflows reference roles (e.g., `model: "@advisor"`), allowing models to be swapped globally in `default.nix`. Native discovery remains isolated from other harnesses through `disabledProviders`, and the built-in `scout` uses `@bard`.
+OMP uses abstract model roles instead of hardcoded model IDs. Subagents and workflows reference roles (e.g., `model: "@advisor"`), allowing models to be swapped globally in `home.nix`. Native discovery remains isolated from other harnesses through `disabledProviders`, and the built-in `scout` uses `@bard`.
 
 | Role | Default Model |
 | --- | --- |
