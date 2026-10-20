@@ -160,6 +160,11 @@
 
     ## Misc ##
 
+    copyparty = {
+      url = "github:9001/copyparty";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     bonk = {
       # url = "github:tophc7/bonk";
       url = "git+file:///repo/rust/bonk";

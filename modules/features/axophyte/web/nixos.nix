@@ -1,6 +1,7 @@
 # Axophyte private chat (Pi Web), published by Pangolin as axo.ryot.foo
 # through the host-network newt (target localhost:3080, health check /manifest.webmanifest).
 # Pangolin SSO is the only login; pi-web binds to loopback without a password.
+# Phone requests run through axophyte-requests (ntfy → one-shot Pi run).
 {
   host,
   hosts,
@@ -16,6 +17,40 @@ let
   workspace = "/fast/axophyte";
   axophyte = inputs.axophyte.packages.${pkgs.stdenv.hostPlatform.system}.web;
   zebes = import ../_zebes-models.nix hosts;
+
+  path = [
+    "/run/wrappers"
+    "/etc/profiles/per-user/${user}"
+    "/run/current-system/sw"
+    pkgs.pi
+    pkgs.git
+    pkgs.ripgrep
+    pkgs.fd
+  ];
+  environment = {
+    PI_CODING_AGENT_DIR = agentDir;
+    PI_WEB_ALLOWED_HOSTS = "axo.ryot.foo";
+    PI_WEB_APP_NAME = "Axophyte";
+    PI_WEB_SKIP_VERSION_CHECK = "1";
+    SHELL = "${pkgs.bashInteractive}/bin/bash";
+    AXO_HINDSIGHT_URL = "http://127.0.0.1:8888";
+    AXO_HINDSIGHT_KEY = secrets.service.hindsight.API_KEY;
+    AXO_TAVILY_KEY = secrets.service.discord.axophyte.tavily;
+    AXO_NTFY_URL = "https://ntfy.ryot.foo";
+    AXO_NTFY_TOKEN = secrets.service.ntfy.AXO_TOKEN;
+    AXO_FILES_URL = "https://party.ryot.foo";
+    AXO_FILES_PW = secrets.service.copyparty.AXO;
+  }
+  // lib.filterAttrs (
+    name: val:
+    builtins.elem name [
+      "ANTHROPIC_API_KEY"
+      "DEEPSEEK_API_KEY"
+      "GEMINI_API_KEY"
+    ]
+    && val != null
+    && val != ""
+  ) (secrets.service.models or { });
 
   models = pkgs.writeText "axophyte-models.json" (
     builtins.toJSON {
@@ -96,35 +131,7 @@ in
       "network-online.target"
       "docker-hindsight.service"
     ];
-    path = [
-      "/run/wrappers"
-      "/etc/profiles/per-user/${user}"
-      "/run/current-system/sw"
-      pkgs.pi
-      pkgs.git
-      pkgs.ripgrep
-      pkgs.fd
-    ];
-    environment = {
-      PI_CODING_AGENT_DIR = agentDir;
-      PI_WEB_ALLOWED_HOSTS = "axo.ryot.foo";
-      PI_WEB_APP_NAME = "Axophyte";
-      PI_WEB_SKIP_VERSION_CHECK = "1";
-      SHELL = "${pkgs.bashInteractive}/bin/bash";
-      AXO_HINDSIGHT_URL = "http://127.0.0.1:8888";
-      AXO_HINDSIGHT_KEY = secrets.service.hindsight.API_KEY;
-      AXO_TAVILY_KEY = secrets.service.discord.axophyte.tavily;
-    }
-    // lib.filterAttrs (
-      name: val:
-      builtins.elem name [
-        "ANTHROPIC_API_KEY"
-        "DEEPSEEK_API_KEY"
-        "GEMINI_API_KEY"
-      ]
-      && val != null
-      && val != ""
-    ) (secrets.service.models or { });
+    inherit path environment;
     serviceConfig = {
       User = user;
       WorkingDirectory = workspace;
@@ -148,6 +155,30 @@ in
         ${lib.getExe pkgs.jq} '{ builtInEnabled: true } + .' "$agentDir/agents/settings.json" > "$agentDir/agents/settings.json.tmp"
         and ${pkgs.coreutils}/bin/mv "$agentDir/agents/settings.json.tmp" "$agentDir/agents/settings.json"
       '';
+    };
+  };
+
+  systemd.services.axophyte-requests = {
+    description = "Axophyte phone requests (ntfy → one-shot Pi run)";
+    wantedBy = [ "multi-user.target" ];
+    wants = [
+      "network-online.target"
+      "axophyte.service"
+    ];
+    after = [
+      "network-online.target"
+      "axophyte.service"
+    ];
+    inherit path;
+    environment = environment // {
+      NTFY_TOKEN = secrets.service.ntfy.AXO_TOKEN;
+    };
+    serviceConfig = {
+      User = user;
+      WorkingDirectory = workspace;
+      Restart = "always";
+      RestartSec = "10s";
+      ExecStart = "${lib.getExe' pkgs.ntfy-sh "ntfy"} subscribe https://ntfy.ryot.foo/requests ${axophyte}/bin/axo-request";
     };
   };
 }

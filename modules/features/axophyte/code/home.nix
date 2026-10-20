@@ -12,6 +12,8 @@ let
   json = pkgs.formats.json { };
   deepseekApiKey = secrets.service.models.DEEPSEEK_API_KEY or null;
   geminiApiKey = secrets.service.models.GEMINI_API_KEY or null;
+  ntfyToken = secrets.service.ntfy.AXO_TOKEN or null;
+  filesPassword = secrets.service.copyparty.AXO or null;
 
   settings = {
     setupVersion = 2;
@@ -322,6 +324,14 @@ in
 
   home.sessionVariables = {
     PUPPETEER_EXECUTABLE_PATH = "${lib.getExe pkgs.helium}";
+  }
+  // lib.optionalAttrs (ntfyToken != null && ntfyToken != "") {
+    AXO_NTFY_URL = "https://ntfy.ryot.foo";
+    AXO_NTFY_TOKEN = ntfyToken;
+  }
+  // lib.optionalAttrs (filesPassword != null && filesPassword != "") {
+    AXO_FILES_URL = "https://party.ryot.foo";
+    AXO_FILES_PW = filesPassword;
   };
 
   home.file = {
