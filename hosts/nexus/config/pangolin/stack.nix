@@ -64,6 +64,7 @@ in
         volumes = [
           "${volumePath}/config/letsencrypt:/letsencrypt:rw"
           "${volumePath}/config/traefik:/etc/traefik:ro"
+          "${volumePath}/config/plugins-storage:/plugins-storage:rw"
         ];
         cmd = [ "--configFile=/etc/traefik/traefik_config.yml" ];
         dependsOn = [

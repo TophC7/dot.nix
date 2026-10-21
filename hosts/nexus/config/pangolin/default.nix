@@ -213,6 +213,7 @@ in
     "d ${configPath} 0755 root root -"
     "d ${configPath}/traefik 0755 root root -"
     "d ${configPath}/letsencrypt 0755 root root -"
+    "d ${configPath}/plugins-storage 0755 root root -"
   ];
 
   systemd.services.pangolin-config-sync = {
