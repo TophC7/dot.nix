@@ -65,7 +65,6 @@ in
   # Core pkgs with no configs
   home.packages = builtins.attrValues {
     inherit (pkgs)
-      direnv # environment per directory
       dust # disk usage
       openjdk25
       ;

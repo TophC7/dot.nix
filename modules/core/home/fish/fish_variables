@@ -2,7 +2,7 @@
 # VERSION: 3.0
 SETUVAR __fish_initialized:4300
 SETUVAR _tide_left_items:os\x1epwd\x1egit\x1enewline\x1echaracter
-SETUVAR _tide_right_items:status\x1ecmd_duration\x1econtext\x1ejobs\x1edirenv\x1enix_shell\x1etime
+SETUVAR _tide_right_items:status\x1ecmd_duration\x1econtext\x1ejobs\x1enix_shell\x1etime
 SETUVAR base16_theme:matugen\x2dmaterial
 SETUVAR fish_color_autosuggestion:\x1d
 SETUVAR fish_color_cancel:\x2dr
@@ -57,11 +57,6 @@ SETUVAR tide_context_hostname_parts:1
 SETUVAR tide_crystal_bg_color:normal
 SETUVAR tide_crystal_color:FFFFFF
 SETUVAR tide_crystal_icon:\ue62f
-SETUVAR tide_direnv_bg_color:normal
-SETUVAR tide_direnv_bg_color_denied:normal
-SETUVAR tide_direnv_color:D7AF00
-SETUVAR tide_direnv_color_denied:FF0000
-SETUVAR tide_direnv_icon:\u25bc
 SETUVAR tide_distrobox_bg_color:normal
 SETUVAR tide_distrobox_color:FF00FF
 SETUVAR tide_distrobox_icon:\U000f01a7
@@ -142,7 +137,7 @@ SETUVAR tide_python_bg_color:normal
 SETUVAR tide_python_color:00AFAF
 SETUVAR tide_python_icon:\U000f0320
 SETUVAR tide_right_prompt_frame_enabled:false
-SETUVAR tide_right_prompt_items:status\x1ecmd_duration\x1econtext\x1ejobs\x1edirenv\x1ebun\x1epython\x1erustc\x1ejava\x1ephp\x1epulumi\x1eruby\x1ego\x1egcloud\x1ekubectl\x1edistrobox\x1etoolbox\x1eterraform\x1eaws\x1enix_shell\x1ecrystal\x1eelixir\x1ezig\x1etime
+SETUVAR tide_right_prompt_items:status\x1ecmd_duration\x1econtext\x1ejobs\x1ebun\x1epython\x1erustc\x1ejava\x1ephp\x1epulumi\x1eruby\x1ego\x1egcloud\x1ekubectl\x1edistrobox\x1etoolbox\x1eterraform\x1eaws\x1enix_shell\x1ecrystal\x1eelixir\x1ezig\x1etime
 SETUVAR tide_right_prompt_prefix:\x20
 SETUVAR tide_right_prompt_separator_diff_color:\x20
 SETUVAR tide_right_prompt_separator_same_color:\x20
