@@ -7,7 +7,6 @@
 }:
 let
   inherit (pkgs.stdenv.hostPlatform) system;
-  zen-browser = inputs.zen-browser.packages.${system}.beta;
   sworm = inputs.sworm.packages.${system}.default;
 in
 {
@@ -21,7 +20,12 @@ in
       # Applications
       "Mod+G".action.spawn = lib.getExe pkgs.ghostty;
       "Mod+E".action.spawn = lib.getExe sworm;
-      "Mod+W".action.spawn = lib.getExe zen-browser;
+      "Mod+W".action.spawn = lib.getExe pkgs.helium;
+      # Helium creates this separate profile on first launch.
+      "Mod+Alt+W".action.spawn = [
+        (lib.getExe pkgs.helium)
+        "--profile-directory=work"
+      ];
       "Mod+F".action.spawn = lib.getExe pkgs.nautilus;
 
       # Session

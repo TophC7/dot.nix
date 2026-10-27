@@ -41,7 +41,7 @@ The workstations run a custom Wayland environment centered around fluidity, keyb
 * **Curated App Stack:**
   * **Editor:** [Sworm](https://github.com/tophc7/sworm) (default editor mapped to all text and code MIME types) and VS Code.
   * **Terminal:** [Ghostty](https://ghostty.org/) with [Fish](https://fishshell.com/) (Tide prompt, GRC syntax colorization, custom abbreviations).
-  * **Browser:** [Zen Browser](https://zen-browser.app/) with shared profiles.
+  * **Browser:** [Helium](https://helium.computer/) (default) and [Zen Browser](https://zen-browser.app/).
   * **Navigation & Launchers:** [Vicinae](https://github.com/vicinaehq/vicinae) and application search.
   * **File Management:** Nautilus and Yazi.
 
@@ -94,6 +94,7 @@ dot.nix/
 │   │   ├── gaming/         # Steam, Play, controller tweaks
 │   │   ├── docker/         # Container runtime
 │   │   ├── sworm/          # Sworm editor integration
+│   │   ├── helium/         # Helium browser (default browser)
 │   │   ├── zen/            # Zen browser config
 │   │   └── ...             # audio, bluetooth, solaar, vpn, xdg, etc.
 │   └── users/toph/         # User profile, Fastfetch logo, wallpapers

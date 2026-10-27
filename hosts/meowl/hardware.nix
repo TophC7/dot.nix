@@ -23,7 +23,6 @@
     kernel.sysctl."vm.swappiness" = 1;
 
     initrd = {
-      systemd.enable = true;
       availableKernelModules = [
         "xhci_pci"
         "ahci"

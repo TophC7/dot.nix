@@ -39,6 +39,7 @@
       "axophyte/code"
       "vscode"
       "xdg"
+      "helium"
       "zen"
       "sworm"
     ])

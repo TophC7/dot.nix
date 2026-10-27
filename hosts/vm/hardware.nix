@@ -32,8 +32,6 @@
         "sr_mod"
         "virtio_blk"
       ];
-      systemd.enable = true;
-      verbose = false;
     };
     kernelModules = [ "kvm-amd" ];
     extraModulePackages = [ ];

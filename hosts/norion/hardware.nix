@@ -26,8 +26,6 @@
     kernelPackages = pkgs.linuxPackages-ryot;
 
     initrd = {
-      systemd.enable = true;
-      verbose = false;
       availableKernelModules = [
         "nvme"
         "xhci_pci"

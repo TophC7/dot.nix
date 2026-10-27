@@ -45,6 +45,7 @@
             { app-id = "zen-alpha"; }
             { app-id = "zen-beta"; }
             { app-id = "zen"; }
+            { app-id = "^helium$"; }
           ];
           excludes = [
             {

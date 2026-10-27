@@ -33,8 +33,6 @@
     };
 
     initrd = {
-      systemd.enable = true;
-      verbose = false;
       availableKernelModules = [
         "nvme"
         "xhci_pci"

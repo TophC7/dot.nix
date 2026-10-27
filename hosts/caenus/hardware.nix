@@ -27,8 +27,6 @@
         "sr_mod"
         "virtio_blk"
       ];
-      systemd.enable = true;
-      verbose = false;
     };
     kernelParams = [ "net.ifnames=0" ];
     kernelModules = [ ];

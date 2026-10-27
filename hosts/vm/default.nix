@@ -20,6 +20,7 @@
       "plymouth" # fancy boot screen
       "vscode"
       "xdg"
+      "helium"
       "zen"
     ])
   ];

@@ -41,6 +41,5 @@
 
     # Web Dev
     gh
-    helium
   ];
 }

@@ -22,6 +22,7 @@
       "docker"
       "pangolin/newt"
       "xdg"
+      "helium"
       "zen"
     ])
   ];

@@ -6,7 +6,7 @@
 let
   # FIXME: Should use config options and just reference whatever is configured as the default
   files = [ "org.gnome.Nautilus.desktop" ];
-  browser = [ "zen.desktop" ];
+  browser = [ "helium.desktop" ];
   editor = [ "sworm.desktop" ];
   steam = [ "steam.desktop" ];
   heroic = [ "com.heroicgameslauncher.hgl.desktop" ];
