@@ -134,23 +134,16 @@
         "flakes"
       ];
 
-      # Binary cache substituters
-      # priority=1 ensures local cache is checked first (faster for custom packages)
-      # nimbus IS the cache server - exclude it from its own substituters to prevent circular fetches
+      # Custom packages are built on nimbus over SSH, not fetched from its HTTP cache.
       substituters = [
         "https://cache.nixos.org"
         "https://cache.numtide.com"
-      ]
-      ++ lib.optionals (host.hostName != "nimbus") [
-        "https://cache.ryot.foo?priority=1"
       ];
 
       trusted-public-keys = [
         "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
         "niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g="
-        secrets.service.cache.pub
-      ]
-      ++ lib.optional (secrets ? service && secrets.service ? cache) secrets.service.cache.pub;
+      ];
     };
   };
 }

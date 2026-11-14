@@ -1,4 +1,4 @@
-# Enhanced garbage collection configuration for nix-serve host
+# Garbage collection and store retention for the remote and nightly builder.
 {
   lib,
   ...
@@ -6,13 +6,13 @@
 
 {
   # Automatic garbage collection configuration
-  # Conservative settings since this is a binary cache server
+  # Retain build outputs between remote and nightly builds.
   nix.gc = {
     automatic = true;
     dates = lib.mkForce "Mon *-*-* 03:30:00";
     options = lib.mkForce (
       let
-        keepDays = 60; # Extended from 30 - gives other hosts time to sync
+        keepDays = 60;
         maxStore = "500G";
       in
       "--delete-older-than ${toString keepDays}d --max-freed ${maxStore}"

@@ -9,7 +9,4 @@ in
     fullName = "NixOS Live User";
     ssh.publicKeys = if publicKey == "" then [ ] else [ publicKey ];
   };
-
-  # Public signing key used by current dot.nix cache configuration.
-  service.cache.pub = "cache.ryot.foo:+0iHN9vbNc9ziIp1lqAv50Otnl+NimqlP7L1l0x/boU=";
 }

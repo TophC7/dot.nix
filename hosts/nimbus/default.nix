@@ -41,7 +41,6 @@
       allowedTCPPorts = [
         111 # rpcbind
         2049 # NFSv4
-        4488 # nix-serve
         10048 # mountd
       ];
       allowedUDPPorts = [
