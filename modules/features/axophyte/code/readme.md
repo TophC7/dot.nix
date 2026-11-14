@@ -20,7 +20,7 @@ axophyte `code` package      # Recursively linked into ~/.omp/agent/
 └── extensions/               # Axo tools, branding, macro picker, priority requests, plan-mode routing, findings triage
 ```
 
-- **`home.nix`**: Generates `models.yml` and the declared settings and SSH hosts. Activation resets `~/.omp/agent/config.yml`, merges Nix-managed hosts into mutable `ssh.json`, and registers REA in mutable `mcp.json`, preserving unrelated registry entries.
+- **`home.nix`**: Generates `models.yml` and the declared settings and SSH hosts. Activation resets `~/.omp/agent/config.yml` and merges Nix-managed hosts into mutable `ssh.json`, preserving unrelated registry entries.
 - **Axophyte `code` package**: Home Manager links `inputs.axophyte.packages.${host.system}.code` recursively, leaving room for runtime state in `~/.omp/agent/`. It is built from `/repo/misc/axophyte/src/code` plus the generated persona files (`AGENTS.md`, `RULES.md`, `PERSONALITY.md` from `src/agent/persona.ts`). Change them there, update the `axophyte` flake input, then activate Home Manager to deploy them.
 - **Prompt reach**: `AGENTS.md` (Soul) shapes how the main session works with Toph and his ideas. `PERSONALITY.md` owns prose style for the main session; it fills OMP's personality slot because `personality` is non-`none`. `RULES.md` holds tooling and code rules, including Ponytail, that every agent including `task` children must follow. Subagents never receive Soul or Personality; the main agent conveys intent when spawning them.
 
@@ -33,11 +33,11 @@ Custom TypeScript extensions running inside OMP:
 | Extension | What it does |
 | --- | --- |
 | **`macros.ts`** | Adds `/macro [id]` and `Ctrl+M` for prompt templates in `~/.omp/agent/macros/`. Root files and one level of folders load; ids are path stems (`ui-screens`, `pr/merge`). `Ctrl+M`/bare `/macro` open an accordion picker on OMP's `TreeView` (folders fold with Enter/←→). Strips frontmatter before pasting into the composer. |
-| **`luna-priority.ts`** | Injects `service_tier: "priority"` into requests targeting `openai-codex/gpt-5.6-luna`. |
+| **`terra-priority.ts`** | Injects `service_tier: "priority"` into requests targeting `openai-codex/gpt-6.1-terra`. |
 | **`decomplect.ts`** | Routes `/decomplect` into native plan mode before the command runs. |
 | **`findings.ts`** | Registers `triage_findings`, the stateless step shared by `/cleanup` and `/review:adversarial`: folds skeptic duplicates, routes findings by verdict, gates cleanup auto-fixes, and writes the shared report to `local://findings.md`. |
 | **`axo.ts`** | Registers Axo's shared `draw`, `read_pdf_form`, `fill_pdf_form`, and `docs` tools (`docs` indexes into `~/.omp/docs/`). |
-| **`brand.ts`** | Swaps OMP's stock role line for Axophyte's, so the session introduces itself as Axo. |
+| **`prompt.ts`** | Swaps OMP's stock role line for Axophyte's and strips autonomy overrides so Soul's tradeoff rules take precedence. |
 
 ---
 
@@ -98,35 +98,3 @@ Subagents run in parallel with `blocking: true` to return findings inline:
   - `committer`: Inspects staged git diff and drafts conventional commits.
   - `pr`: Opens a GitHub PR from the exact merge-base diff via the `github` tool.
 
----
-
-## Model Roles & Keybinds
-
-OMP uses abstract model roles instead of hardcoded model IDs. Subagents and workflows reference roles (e.g., `model: "@advisor"`), allowing models to be swapped globally in `home.nix`. Native discovery remains isolated from other harnesses through `disabledProviders`, and the built-in `scout` uses `@bard`.
-
-| Role | Default Model |
-| --- | --- |
-| `default` | `google-antigravity/gemini-3.8-flash:high` |
-| `bard` | `google-antigravity/gemini-3.8-flash:high` |
-| `commit` | `google-antigravity/gemini-3.8-flash:low` |
-| `plan` | `anthropic/claude-opus-5-5:high` |
-| `task` | `openai-codex/gpt-6.1-sol:high` |
-| `smol` | `openai-codex/gpt-6-luna:xhigh` |
-| `advisor` | `anthropic/claude-opus-5-5:medium` |
-| `claude` | `anthropic/claude-opus-5-5:high` |
-| `codex` | `openai-codex/gpt-6.1-sol:high` |
-
-- **`Ctrl+P`**: Cycles active model: `default → bard → claude → codex`.
-- **Local Models**: The `zebes` provider retains its private-IP llama-server router endpoint, unauthenticated local access, model list from `../_zebes-models.nix`, and Qwen thinking compatibility.
-- **DeepSeek**: `models.yml` includes the DeepSeek provider when `secrets.service.models.DEEPSEEK_API_KEY` is configured.
-- **Gemini**: `models.yml` includes the Google provider when `secrets.service.models.GEMINI_API_KEY` is configured.
-
----
-
-## REA (Reverse Engineer Anything)
-
-REA provides 170 MCP tools for reverse engineering across binaries, managed code, JavaScript/Electron apps, APKs, EVM bytecode, and network captures.
-
-- Packaged in `mix.nix` (`pkgs.rea`) with pre-wrapped analysis engines: Ghidra 12.1.x, OpenJDK 21, Python pwntools, WABT, JADX, Android platform tools (adb), Wireshark CLI (tshark), Sigrok CLI, Binwalk, Unblob, Mitmproxy, and GDB.
-- Registered as an MCP server (`mcp.json`) invoking `${lib.getExe pkgs.rea} mcp`.
-- Workflow instructions linked to `~/.agents/skills/reverse-engineer-anything` from `pkgs.rea.passthru.skill`.

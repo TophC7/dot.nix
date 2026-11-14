@@ -36,23 +36,25 @@ let
     ];
 
     modelRoles = {
-      default = "google-antigravity/gemini-3.8-flash:high";
-      commit = "google-antigravity/gemini-3.8-flash:low";
-      plan = "anthropic/claude-opus-5-5:high";
-      smol = "openai-codex/gpt-6-luna:xhigh";
-      task = "openai-codex/gpt-6.1-sol:high";
+      default = "openai-codex/gpt-6.1-sol:high";
+      commit = "openai-codex/gpt-6.1-terra:low";
+      plan = "anthropic/claude-fable-5-2:medium";
+      smol = "openai-codex/gpt-6.1-terra:medium";
+      task = "openai-codex/gpt-6-astra:medium";
       advisor = "anthropic/claude-opus-5-5:medium";
-      argon = "google-antigravity/gemini-4-argon:high";
-      bard = "google-antigravity/gemini-3.8-flash:high";
-      claude = "anthropic/claude-opus-5-5:high";
-      codex = "openai-codex/gpt-6.1-sol:high";
+      fast = "openai-codex/gpt-6.1-terra:high";
+      carbon = "google/gemini-4-carbon:low";
+      opus = "anthropic/claude-opus-5-5:high";
+      fable = "anthropic/claude-fable-5-2:medium";
+      astra = "openai-codex/gpt-6-astra:high";
     };
 
     cycleOrder = [
       "default"
-      "argon"
-      "claude"
-      "codex"
+      "astra"
+      "opus"
+      "fable"
+      "carbon"
     ];
 
     defaultThinkingLevel = "high";
@@ -121,7 +123,7 @@ let
 
     task = {
       eager = "preferred";
-      agentModelOverrides.scout = "@bard";
+      agentModelOverrides.scout = "@fast";
     };
 
     dev.autoqaConsent = "granted";
@@ -153,7 +155,7 @@ let
     shellMinimizer.enabled = true;
     plan = {
       autosave = true;
-      autosaveDir = ".sworm/plans/";
+      autosaveDir = ".axome/plans/";
     };
     commands = {
       enableClaudeProject = false;
@@ -295,23 +297,15 @@ let
     ${pkgs.coreutils}/bin/chmod 600 "$ssh_tmp"
     ${pkgs.coreutils}/bin/mv -f "$ssh_tmp" "$ssh_config"
     ssh_tmp=""
-    mcp_source="$mcp_config"
-    if [[ ! -f "$mcp_source" ]]; then
-      mcp_source="${emptyJson}"
+    if [[ -f "$mcp_config" ]]; then
+      mcp_tmp="$(${pkgs.coreutils}/bin/mktemp "$agent_dir/.mcp.json.XXXXXX")"
+      ${pkgs.jq}/bin/jq '
+        if .mcpServers then del(.mcpServers["rea"]) else . end
+      ' "$mcp_config" > "$mcp_tmp"
+      ${pkgs.coreutils}/bin/chmod 600 "$mcp_tmp"
+      ${pkgs.coreutils}/bin/mv -f "$mcp_tmp" "$mcp_config"
+      mcp_tmp=""
     fi
-    mcp_tmp="$(${pkgs.coreutils}/bin/mktemp "$agent_dir/.mcp.json.XXXXXX")"
-    ${pkgs.jq}/bin/jq \
-      --arg rea_command "${lib.getExe pkgs.rea}" '
-      .mcpServers = (.mcpServers // {}) |
-      .mcpServers["rea"] = {
-        type: "stdio",
-        command: $rea_command,
-        args: [ "mcp" ]
-      }
-    ' "$mcp_source" > "$mcp_tmp"
-    ${pkgs.coreutils}/bin/chmod 600 "$mcp_tmp"
-    ${pkgs.coreutils}/bin/mv -f "$mcp_tmp" "$mcp_config"
-    mcp_tmp=""
 
     trap - EXIT
   '';
@@ -319,7 +313,6 @@ in
 {
   home.packages = [
     pkgs.omp
-    pkgs.rea
   ];
 
   home.sessionVariables = {
@@ -335,7 +328,6 @@ in
   };
 
   home.file = {
-    ".agents/skills/reverse-engineer-anything".source = pkgs.rea.passthru.skill;
     ".omp/agent" = {
       source = inputs.axophyte.packages.${host.system}.code;
       recursive = true;

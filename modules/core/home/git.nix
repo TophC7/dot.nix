@@ -45,9 +45,9 @@ in
       # direnv
       ".direnv/"
 
-      # Sworm
-      ".sworm/*"
-      "!.sworm/*.json*"
+      # Axome
+      ".axome/*"
+      "!.axome/*.json*"
 
       # NFS
       "*.nfs*"

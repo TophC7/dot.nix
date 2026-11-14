@@ -39,7 +39,7 @@ The workstations run a custom Wayland environment centered around fluidity, keyb
 * **Compositor & Shell:** [Niri](https://github.com/tophc7/niri-flake) scrollable tiling Wayland compositor paired with **Pana** — Toph's custom pure-Rust desktop shell (actively replacing legacy Quickshell DMS). Workstations and streamers also provide GNOME with custom extensions like `copyous`.
 * **Dynamic Material Theming:** Wallpaper colors are extracted on the fly via [Matugen](https://github.com/InioX/Matugen) and applied across Stylix and system styling. Pana generates matching ANSI-16 palettes for terminals, keeping shell colors synchronized with the active wallpaper.
 * **Curated App Stack:**
-  * **Editor:** [Sworm](https://github.com/tophc7/sworm) (default editor mapped to all text and code MIME types) and VS Code.
+  * **Editor:** [Axome](https://github.com/tophc7/axome) (default editor mapped to all text and code MIME types) and VS Code.
   * **Terminal:** [Ghostty](https://ghostty.org/) with [Fish](https://fishshell.com/) (Tide prompt, GRC syntax colorization, custom abbreviations).
   * **Browser:** [Helium](https://helium.computer/) (default) and [Zen Browser](https://zen-browser.app/).
   * **Navigation & Launchers:** [Vicinae](https://github.com/vicinaehq/vicinae) and application search.
@@ -66,7 +66,7 @@ A collection of bespoke tools built to run this setup smoothly:
 | :--- | :--- |
 | **[`mix.nix`](https://github.com/tophc7/mix.nix)** | Reusable flake architecture engine handling multi-host generation, API v2 discovery, secrets, and module wiring. |
 | **[`bonk`](https://github.com/tophc7/bonk)** | Daily NixOS workflow multitool wrapping `nh`, system rebuilds, remote building on Nimbus, and generation cleanup. |
-| **[`sworm`](https://github.com/tophc7/sworm)** | Fast, lightweight code editor built for modern terminal and desktop workflows. |
+| **[`axome`](https://github.com/tophc7/axome)** | Fast, lightweight code editor built for modern terminal and desktop workflows. |
 | **[`pana`](https://github.com/tophc7/pana)** | Custom pure-Rust Wayland desktop shell, material theming engine, and system widgets. |
 | **[`play.nix`](https://github.com/tophc7/play.nix)** & **[`wayscope`](https://github.com/tophc7/wayscope)** | Gaming stack with Switch 2 controller integration, GameMode, and Wayland Gamescope profiles. |
 
@@ -93,7 +93,7 @@ dot.nix/
 │   │   ├── desktop/        # Niri, Pana, GNOME, nautilus, shared configs
 │   │   ├── gaming/         # Steam, Play, controller tweaks
 │   │   ├── docker/         # Container runtime
-│   │   ├── sworm/          # Sworm editor integration
+│   │   ├── axome/          # Axome editor integration
 │   │   ├── helium/         # Helium browser (default browser)
 │   │   ├── zen/            # Zen browser config
 │   │   └── ...             # audio, bluetooth, solaar, vpn, xdg, etc.
@@ -115,7 +115,7 @@ imports = lib.flatten [
     "bluetooth"
     "docker"
     "gaming"
-    "sworm"
+    "axome"
     "zen"
   ])
 ];

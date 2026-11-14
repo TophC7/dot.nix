@@ -7,7 +7,7 @@
 }:
 let
   inherit (pkgs.stdenv.hostPlatform) system;
-  sworm = inputs.sworm.packages.${system}.default;
+  axome = inputs.axome.packages.${system}.default;
 in
 {
   programs.niri.settings = {
@@ -19,7 +19,7 @@ in
     binds = {
       # Applications
       "Mod+G".action.spawn = lib.getExe pkgs.ghostty;
-      "Mod+E".action.spawn = lib.getExe sworm;
+      "Mod+E".action.spawn = lib.getExe axome;
       "Mod+W".action.spawn = lib.getExe pkgs.helium;
       # Helium creates this separate profile on first launch.
       "Mod+Alt+W".action.spawn = [

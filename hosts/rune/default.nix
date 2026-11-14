@@ -46,7 +46,7 @@
       "xdg"
       "helium"
       "zen"
-      "sworm"
+      "axome"
     ])
   ];
 

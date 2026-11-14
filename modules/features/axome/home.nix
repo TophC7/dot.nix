@@ -7,17 +7,17 @@
   ...
 }:
 let
-  sworm = secrets.service.sworm;
-  address = sworm.address or "10.2.2.2:7420";
+  axome = secrets.service.sworm;
+  address = axome.address or "10.2.2.2:7420";
   # tmpfiles reads the argument as one line with C escapes.
-  clientKey = lib.replaceStrings [ "\\" "\n" ] [ "\\\\" "\\n" ] sworm.clients.${host.hostName}.key;
+  clientKey = lib.replaceStrings [ "\\" "\n" ] [ "\\\\" "\\n" ] axome.clients.${host.hostName}.key;
 in
 {
   imports = [
-    inputs.sworm.homeManagerModules.default
+    inputs.axome.homeManagerModules.default
   ];
 
-  programs.sworm = {
+  programs.axome = {
     enable = true;
     settings = {
       window = {
@@ -29,15 +29,15 @@ in
       remotes = {
         nimbus = {
           inherit address;
-          inherit (sworm.server) fingerprint;
+          inherit (axome.server) fingerprint;
         };
       };
     };
   };
 
-  # Written, not linked: sworm, like ssh, refuses keys other users can read.
+  # Written, not linked: axome, like ssh, refuses keys other users can read.
   # `f+` rewrites content and mode on every activation and login.
   systemd.user.tmpfiles.rules = [
-    "f+ ${config.xdg.configHome}/sworm/client.pem 0600 - - - ${clientKey}"
+    "f+ ${config.xdg.configHome}/axome/client.pem 0600 - - - ${clientKey}"
   ];
 }

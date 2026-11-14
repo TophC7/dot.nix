@@ -12,7 +12,12 @@ in
 {
   imports = lib.fs.scanPaths ./home;
 
-  home.packages = [ pkgs.ripgrep ];
+  home.packages = with pkgs; [
+    ripgrep
+    orbit-pi
+    orca-ide
+    bb
+  ];
 
   home.sessionVariables = apiKeys;
 }

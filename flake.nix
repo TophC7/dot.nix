@@ -179,9 +179,9 @@
     # Keep llm-agents' pinned nixpkgs: Numtide's prebuilt binaries are keyed to it.
     llm-agents.url = "github:numtide/llm-agents.nix";
 
-    sworm = {
-      # url = "github:TophC7/Sworm";
-      url = "git+file:///repo/rust/sworm";
+    axome = {
+      # url = "git+ssh://git@git.ryot.foo:222/toph/Axome.git";
+      url = "git+file:///repo/rust/Axome";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.bun2nix.inputs.systems.follows = "systems-linux";
     };
